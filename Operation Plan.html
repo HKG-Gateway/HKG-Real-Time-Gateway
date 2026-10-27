@@ -6,9 +6,10 @@
   <title>UPS HKG Gateway · 15座長方形飛機停泊位3D動態島與即時氣象工作編排系統</title>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800;900&family=M+PLUS+Rounded+1c:wght@500;700;800;900&family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet">
   <style>
     * {
       box-sizing: border-box;
@@ -21,7 +22,8 @@
       width: 100%;
       height: 100%;
       overflow: hidden;
-      font-family: 'Inter', 'Noto Sans TC', sans-serif;
+      font-family: 'Fredoka', 'Nunito', 'M PLUS Rounded 1c', 'Noto Sans TC', sans-serif;
+      letter-spacing: 0.01em;
       background: #7cc5d0;
     }
     #canvas-container {
@@ -52,26 +54,28 @@
       gap: 6px;
       padding: 4px 10px 4px 6px;
       border-radius: 9999px;
-      background: rgba(255, 255, 255, 0.94);
-      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.18), 0 0 0 1.5px rgba(255, 255, 255, 0.85);
+      background: rgba(15, 23, 42, 0.18);
+      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.12), 0 0 0 1.5px rgba(255, 255, 255, 0.55);
       font-size: 11.5px;
-      font-weight: 700;
-      color: #1e293b;
+      font-weight: 800;
+      color: #ffffff;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
       white-space: nowrap;
       transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, background 0.2s ease;
-      backdrop-filter: blur(8px);
     }
     .island-tag:hover {
       transform: translate(-50%, -56%) scale(1.08);
-      box-shadow: 0 8px 22px rgba(15, 23, 42, 0.28), 0 0 0 2px #f59e0b;
+      background: rgba(15, 23, 42, 0.32);
+      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.22), 0 0 0 2px #f59e0b;
       z-index: 30;
     }
     .island-tag.center-ups {
-      background: linear-gradient(135deg, #2b1711 0%, #432318 100%);
+      background: rgba(43, 23, 17, 0.22);
       color: #fef3c7;
       padding: 6px 14px 6px 8px;
       font-size: 12.5px;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.38), 0 0 0 2px #ffb500;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2), 0 0 0 1.5px rgba(255, 181, 0, 0.75);
     }
     .island-tag .hex-badge {
       display: inline-flex;
@@ -86,13 +90,79 @@
       color: #fff;
       flex-shrink: 0;
     }
+    .font-mono, .font-serif {
+      font-family: 'Fredoka', 'Nunito', 'M PLUS Rounded 1c', 'Noto Sans TC', sans-serif !important;
+    }
+    .bay-road-sign {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2px 9px;
+      background: linear-gradient(180deg, #047857 0%, #065f46 100%);
+      color: #ffffff;
+      border: 2px solid #ffffff;
+      border-radius: 7px;
+      box-shadow: 0 0 0 1.5px #064e3b, 0 3px 8px rgba(0, 0, 0, 0.32);
+      font-family: 'Fredoka', 'Nunito', 'M PLUS Rounded 1c', sans-serif;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.03em;
+      line-height: 1.15;
+    }
+    .uld-bubble-card {
+      position: fixed;
+      top: 10px;
+      left: 50%;
+      transform: translate(-50%, 0);
+      pointer-events: auto;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.97);
+      border-radius: 18px;
+      padding: 6px 10px 7px 10px;
+      box-shadow: 0 10px 26px rgba(15, 23, 42, 0.24), 0 0 0 2.5px #ffb500;
+      z-index: 32;
+      backdrop-filter: blur(10px);
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
+      font-family: 'Fredoka', 'Nunito', 'M PLUS Rounded 1c', 'Noto Sans TC', sans-serif;
+    }
+    .uld-bubble-card:hover {
+      transform: translate(-50%, 2px) scale(1.02);
+      box-shadow: 0 14px 32px rgba(15, 23, 42, 0.32), 0 0 0 3px #f59e0b;
+    }
+    .uld-bubble-card::after {
+      content: '';
+      position: absolute;
+      bottom: -7px;
+      left: 50%;
+      transform: translateX(-50%) rotate(45deg);
+      width: 13px;
+      height: 13px;
+      background: rgba(255, 255, 255, 0.97);
+      border-right: 2.5px solid #ffb500;
+      border-bottom: 2.5px solid #ffb500;
+    }
+    .uld-mini-table {
+      border-collapse: separate;
+      border-spacing: 0;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1.5px solid #64748b;
+    }
+    .uld-mini-table th, .uld-mini-table td {
+      border: 1px solid #64748b;
+      padding: 1.5px 5px;
+      text-align: center;
+      white-space: nowrap;
+      font-family: 'Fredoka', 'Nunito', 'M PLUS Rounded 1c', sans-serif;
+    }
     .island-tag .ups-badge {
       display: inline-flex;
       align-items: center;
       justify-content: center;
       padding: 2px 6px;
       border-radius: 5px;
-      background: #ffb500;
+      background: rgba(255, 181, 0, 0.85);
       color: #2b1711;
       font-size: 10px;
       font-weight: 900;
@@ -103,17 +173,21 @@
       transform: translate(-50%, -100%);
       pointer-events: auto;
       cursor: pointer;
-      background: rgba(255, 255, 255, 0.96);
+      background: rgba(15, 23, 42, 0.16);
       border-radius: 12px;
       padding: 6px 10px;
-      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.16), 0 0 0 1px rgba(226, 232, 240, 0.9);
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.12), 0 0 0 1.5px rgba(251, 191, 36, 0.7);
       max-width: 195px;
       min-width: 130px;
       font-size: 10.5px;
       line-height: 1.35;
-      color: #334155;
-      transition: opacity 0.25s ease, transform 0.25s ease;
+      color: #ffffff;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+      transition: opacity 0.25s ease, transform 0.25s ease, background 0.2s ease;
       z-index: 20;
+    }
+    .speech-bubble:hover {
+      background: rgba(15, 23, 42, 0.32);
     }
     .speech-bubble::after {
       content: '';
@@ -123,9 +197,9 @@
       transform: translateX(-50%) rotate(45deg);
       width: 10px;
       height: 10px;
-      background: rgba(255, 255, 255, 0.96);
-      border-right: 1px solid rgba(226, 232, 240, 0.9);
-      border-bottom: 1px solid rgba(226, 232, 240, 0.9);
+      background: transparent;
+      border-right: 1.5px solid rgba(251, 191, 36, 0.75);
+      border-bottom: 1.5px solid rgba(251, 191, 36, 0.75);
     }
     .glass-card {
       background: rgba(250, 248, 245, 0.93);
@@ -208,10 +282,11 @@
       gap: 3px;
       padding: 1.5px 6px;
       border-radius: 5px;
-      background: rgba(15, 23, 42, 0.90);
-      color: #f8fafc;
-      border: 1px solid rgba(251, 191, 36, 0.75);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+      background: rgba(15, 23, 42, 0.18);
+      color: #ffffff;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+      border: 1px solid rgba(251, 191, 36, 0.7);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
       font-size: 9.5px;
       font-weight: 700;
       white-space: nowrap;
@@ -219,6 +294,7 @@
     }
     .staff-badge:hover {
       transform: translate(-50%, -108%) scale(1.08);
+      background: rgba(15, 23, 42, 0.32);
       z-index: 35;
     }
     .staff-badge .role-tag {
@@ -227,24 +303,25 @@
       font-size: 9px;
       font-weight: 900;
       color: #0f172a;
-      background: #fbbf24;
+      text-shadow: none;
+      background: rgba(251, 191, 36, 0.85);
     }
     .crew-board {
       position: absolute;
       transform: translate(-50%, -105%);
       pointer-events: auto;
       cursor: pointer;
-      background: rgba(15, 23, 42, 0.94);
-      color: #f8fafc;
-      border: 1.5px solid #38bdf8;
+      background: rgba(15, 23, 42, 0.16);
+      color: #ffffff;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+      border: 1.5px solid rgba(56, 189, 248, 0.75);
       border-radius: 10px;
       padding: 5px 8px;
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
       font-size: 10px;
       line-height: 1.3;
       min-width: 155px;
       z-index: 25;
-      backdrop-filter: blur(6px);
     }
     #flash-overlay {
       position: absolute;
@@ -287,7 +364,7 @@
         </span>
       </div>
       <p class="text-[11px] text-slate-500 mt-1 font-medium">
-        最上方 UPS 大樓 · 大樓下方 8 泊位 (01–08) · 滑行跑道 · 最下方 8 泊位 (09–16)
+        左上 4 橫向泊位 (17–20) · 近UPS大樓 8 泊位 (01–08) · 跑道下方 8 泊位 (09–16) · 左下 2 橫向泊位 (21–22)
       </p>
 
       <!-- Live Chek Lap Kok Weather Strip inside Top-Left Card -->
@@ -316,17 +393,20 @@
       <!-- HKO Automatic Rainstorm Detection Status & HKA Portal Link (No manual buttons) -->
       <div class="mt-2 pt-1.5 border-t border-slate-200/80 flex items-center justify-between text-[10px] font-bold text-slate-500">
         <span>🌧️ HKO 黃/紅/黑暴雨信號 1s 自動偵測連動中</span>
-        <a href="https://urldefense.com/v3/__https://www.hko.gov.hk/tc/wxinfo/awsgis/regional_portal.html?loc=hka&amp;ele=Temperature&amp;show=chart__;!!AQegZw!arqdLTBacLIAxilGt675GUHMI3BN_Knq58G_1Fbg2HSXwE6hqDRfYSkZH-JmHBK6XvegNGmfCruEVeTj93cCFTqnxw$" target="_blank" rel="noopener noreferrer" class="text-sky-600 hover:underline font-extrabold">HKO 赤鱲角網頁 ↗ [hko.gov.hk]</a>
+        <a href="https://www.hko.gov.hk/tc/wxinfo/awsgis/regional_portal.html?loc=hka&ele=Temperature&show=chart" target="_blank" rel="noopener noreferrer" class="text-sky-600 hover:underline font-extrabold">HKO 赤鱲角網頁 ↗</a>
       </div>
 
-      <!-- On-Screen Live Flightradar24 5X/UPS (HKG) 1s Direct Feed Strip -->
+      <!-- On-Screen Live HKIA Cargo 5X (arrivals/cargo.page & departures/cargo.page) 1s Direct Feed Strip -->
       <div class="mt-2 pt-2 border-t border-slate-200/80">
         <div class="flex items-center justify-between text-[10px]">
           <span class="font-black text-slate-800 flex items-center gap-1">
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 live-dot"></span>
-            ✈️ FR24 · 5X/UPS (HKG) 1秒自動查詢
+            ✈️ 香港機場貨機 (5X) · 1秒自動讀取
           </span>
-          <a href="https://urldefense.com/v3/__https://www.flightradar24.com/30.69,105.84/2__;!!AQegZw!arqdLTBacLIAxilGt675GUHMI3BN_Knq58G_1Fbg2HSXwE6hqDRfYSkZH-JmHBK6XvegNGmfCruEVeTj93dEcTQTOQ$" target="_blank" rel="noopener noreferrer" id="hud-fr24-tick" class="font-mono text-[9.5px] text-emerald-700 font-bold hover:underline">1s 實時同步 ↗ [flightradar24.com]</a>
+          <div class="flex items-center gap-1.5">
+            <a href="https://www.hongkongairport.com/tc/flights/arrivals/cargo.page" target="_blank" rel="noopener noreferrer" id="hud-fr24-tick" class="font-mono text-[9.5px] text-emerald-700 font-bold hover:underline">抵港 ↗</a>
+            <a href="https://www.hongkongairport.com/tc/flights/departures/cargo.page" target="_blank" rel="noopener noreferrer" class="font-mono text-[9.5px] text-sky-700 font-bold hover:underline">離港 ↗</a>
+          </div>
         </div>
         <div id="hud-fr24-mini-list" class="mt-1 grid grid-cols-2 gap-1 text-[9.5px] max-h-[68px] overflow-y-auto custom-scroll"></div>
       </div>
@@ -345,6 +425,10 @@
       </button>
       <button id="btn-cam-runway" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-sky-600 text-white shadow hover:bg-sky-500 transition flex items-center gap-1">
         🛫 跑道起降
+      </button>
+      <button id="btn-lock-view" class="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-white/90 text-slate-700 shadow hover:bg-white transition flex items-center gap-1 border border-slate-200/80" title="鎖定/解鎖動態島 3D 視覺距離與角度" aria-pressed="false">
+        <span id="lock-view-icon">🔓</span>
+        <span id="lock-view-label">鎖定視角</span>
       </button>
       <button id="btn-open-chart" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-white/90 text-sky-700 shadow hover:bg-white transition border border-sky-200">
         赤鱲角氣溫圖表
@@ -404,11 +488,10 @@
   <!-- BOTTOM FLOATING DOCK: HK LIVE TIME + 7 TIME PERIODS + 4 WEATHER MODES + SCENE CONTROLS (Matches Video Bottom Bar) -->
   <div class="fixed bottom-3 left-1/2 -translate-x-1/2 z-30 max-w-[98vw] flex flex-col items-center gap-1.5">
     
-    <!-- Secondary Legend Pill (like the video's collaboration line pill) -->
+    <!-- Secondary Legend Pill -->
     <div class="glass-card rounded-full px-3.5 py-1 flex items-center gap-3 text-[10.5px] font-semibold text-slate-700 shadow-sm">
       <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-sm bg-amber-500 inline-block"></span>中心長方形：UPS HKG Gateway</span>
-      <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-teal-500 inline-block"></span>最上方 UPS 大樓 · 中上 8 泊位 (01-08) · 跑道 · 最下方 8 泊位 (09-16)</span>
-      <span class="hidden sm:inline-flex items-center gap-1"><span class="w-4 border-t-2 border-dashed border-amber-500 inline-block"></span>UPS 速遞與氣象數據流</span>
+      <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-teal-500 inline-block"></span>左上 4 橫向泊位 (17-20) · 近UPS大樓 8 泊位 (01-08) · 跑道下方 8 泊位 (09-16) · 左下 2 橫向泊位 (21-22)</span>
       <span id="active-weather-summary" class="text-sky-700 font-bold">☀️ 赤鱲角：晴朗 · 27.0°C</span>
     </div>
 
@@ -437,9 +520,6 @@
         </button>
         <button id="toggle-bubbles" class="px-2.5 py-1 rounded-xl text-[11px] font-bold bg-slate-900 text-white transition" title="顯示/隱藏實時對話氣泡">
           💬 氣泡
-        </button>
-        <button id="toggle-arcs" class="px-2.5 py-1 rounded-xl text-[11px] font-bold bg-slate-900 text-white transition" title="顯示/隱藏物流與數據協作線">
-          ⚡ 協作線
         </button>
         <button id="toggle-rotate" class="px-2.5 py-1 rounded-xl text-[11px] font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition" title="自動環繞鏡頭">
           🎥 環繞
@@ -472,9 +552,9 @@
           <button data-chart-ele="hum" class="chart-ele-btn px-3 py-1 rounded-lg text-slate-600 hover:text-slate-900">相對濕度 (%)</button>
           <button data-chart-ele="wind" class="chart-ele-btn px-3 py-1 rounded-lg text-slate-600 hover:text-slate-900">風速 (km/h)</button>
         </div>
-        <a href="https://urldefense.com/v3/__https://www.hko.gov.hk/tc/wxinfo/awsgis/regional_portal.html?loc=hka&amp;ele=Temperature&amp;show=chart__;!!AQegZw!arqdLTBacLIAxilGt675GUHMI3BN_Knq58G_1Fbg2HSXwE6hqDRfYSkZH-JmHBK6XvegNGmfCruEVeTj93cCFTqnxw$" target="_blank" rel="noopener noreferrer" class="text-xs font-bold text-sky-600 hover:text-sky-800 underline">
+        <a href="https://www.hko.gov.hk/tc/wxinfo/awsgis/regional_portal.html?loc=hka&ele=Temperature&show=chart" target="_blank" rel="noopener noreferrer" class="text-xs font-bold text-sky-600 hover:text-sky-800 underline">
           開啟香港天文台赤鱲角分區網頁 (loc=hka) ↗
-         [hko.gov.hk]</a>
+        </a>
       </div>
 
       <div class="mt-3 bg-slate-50 rounded-2xl p-3 border border-slate-200/80">
@@ -526,8 +606,8 @@
         <div class="flex items-center gap-2.5">
           <span class="px-2.5 py-1 rounded-lg bg-amber-500 text-slate-950 text-xs font-black">OPERATION PLAN</span>
           <div>
-            <h3 class="text-sm sm:text-base font-black leading-tight">UPS HKG Gateway · 每日工作編排表 (固定職位與航班時間輸入)</h3>
-            <p class="text-[11px] text-slate-300">左側與下方淺色欄為固定職位/航班項目；修改停機位、到港 (STA/ETA) 與離港 (STD/ETD) 時間後，3D Q版蛋機將依香港實際時間自動出現、滑行與起降</p>
+            <h3 class="text-sm sm:text-base font-black leading-tight">UPS HKG Gateway · 每日工作編排表 (自動讀取香港國際機場 5X 貨機到離港時間)</h3>
+            <p class="text-[11px] text-slate-300">到港/離港時間每秒自動讀取香港國際機場貨機網頁 (選取 5X · 當日日期：到港「到閘口」=已到港、「預計時間」=還沒到港；離港「啟航+時間」=已離港、「預計時間/-」=還沒離港)，不再讀取編排表內之 ETA/STA 與預計起飛時間</p>
           </div>
         </div>
         <div class="flex items-center gap-2">
@@ -550,13 +630,24 @@
           <input id="op-date-input" type="text" value="Sunday, October 25, 2026" class="text-sm sm:text-base font-serif font-bold underline text-slate-900 bg-amber-50/70 px-3 py-0.5 rounded-lg border border-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-500" />
         </div>
         <div class="flex flex-wrap items-center gap-2 text-[11px] text-slate-600 font-medium">
+          <input id="input-upload-excel" type="file" accept=".xlsx,.xls,.csv" class="hidden" />
+          <button id="btn-upload-excel" type="button" class="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[11px] shadow-sm transition flex items-center gap-1" title="手動上傳 Excel (.xlsx / .xls / .csv) 更新每日工作編排">
+            📤 上傳 Excel 更新
+          </button>
+          <button id="btn-export-excel" type="button" class="px-2.5 py-1 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-bold text-[11px] shadow-sm transition flex items-center gap-1" title="下載目前每日工作編排 Excel (.xlsx) 範本">
+            📥 匯出 Excel 範本
+          </button>
+          <span id="excel-upload-status" class="hidden px-2.5 py-0.5 rounded-lg text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300"></span>
           <button id="btn-add-flight-col" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-300 font-bold text-[11px] shadow-sm transition">
             ＋ 新增航班欄
           </button>
-          <a href="https://urldefense.com/v3/__https://www.flightradar24.com/30.69,105.84/2__;!!AQegZw!arqdLTBacLIAxilGt675GUHMI3BN_Knq58G_1Fbg2HSXwE6hqDRfYSkZH-JmHBK6XvegNGmfCruEVeTj93dEcTQTOQ$" target="_blank" rel="noopener noreferrer" id="fr24-sync-badge" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/15 border border-amber-400/60 text-amber-900 font-bold text-[11px] hover:bg-amber-500/25 transition">
+          <a href="https://www.hongkongairport.com/tc/flights/arrivals/cargo.page" target="_blank" rel="noopener noreferrer" id="fr24-sync-badge" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/15 border border-amber-400/60 text-amber-900 font-bold text-[11px] hover:bg-amber-500/25 transition" title="香港國際機場貨機抵港航班 (5X)">
             <span class="w-2 h-2 rounded-full bg-emerald-500 live-dot"></span>
-            <span id="fr24-sync-text">FR24 5X/UPS (HKG) 自動同步 · 1s</span>
-           [flightradar24.com]</a>
+            <span id="fr24-sync-text">HKIA 貨機抵港/離港 (5X) 自動同步 · 1s</span>
+          </a>
+          <a href="https://www.hongkongairport.com/tc/flights/departures/cargo.page" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-sky-500/15 border border-sky-400/60 text-sky-900 font-bold text-[11px] hover:bg-sky-500/25 transition" title="香港國際機場貨機離港航班 (5X)">
+            🛫 離港貨機網頁 ↗
+          </a>
           <span class="inline-flex items-center gap-1 ml-1"><span class="w-2.5 h-2.5 rounded-sm bg-[#efe8d8] border border-slate-400 inline-block"></span>固定職位欄</span>
           <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-sm bg-amber-500 inline-block"></span>FOD 重點檢查欄</span>
         </div>
@@ -564,11 +655,28 @@
 
       <!-- Scrollable Spreadsheet Area -->
       <div class="flex-1 overflow-auto custom-scroll p-3 sm:p-4 space-y-3 bg-white">
+        <!-- Serviceable (as of 6:00am) Breakdown Manual Input Section (同步顯示於 UPS HKG Gateway 大樓上方氣泡) -->
+        <div class="rounded-2xl border-2 border-amber-400/80 bg-[#fffdf9] p-3 shadow-sm">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+            <div class="flex items-center gap-2">
+              <span class="px-2.5 py-0.5 rounded-full bg-amber-500 text-slate-950 font-extrabold text-[11px]">💬 UPS 大樓上方氣泡內容</span>
+              <span class="text-xs font-extrabold text-slate-800">Serviceable (as of 6:00am) Breakdown — 手動輸入數目字（標題與分類固定）</span>
+            </div>
+            <span class="text-[11px] font-bold text-emerald-700">✓ 輸入數目字即時同步至 3D 大樓上方氣泡</span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full border-collapse text-center text-xs" style="font-family: 'Fredoka', 'Nunito', 'M PLUS Rounded 1c', sans-serif;">
+              <thead id="op-uld-breakdown-head"></thead>
+              <tbody id="op-uld-breakdown-body"></tbody>
+            </table>
+          </div>
+        </div>
+
         <div class="bg-slate-900 text-white rounded-xl p-2.5 border border-amber-400/50 shadow-sm">
           <div class="flex flex-wrap items-center justify-between gap-2 pb-1.5 mb-2 border-b border-slate-700 text-[11px]">
-            <div class="flex items-center gap-2">
-              <span class="px-2 py-0.5 rounded bg-amber-500 text-slate-950 font-black text-[10px]">FLIGHTRADAR24 · 5X / UPS (HKG)</span>
-              <span class="font-bold text-amber-300">香港機場 (HKG) 5X/UPS 即時到離港航班時刻 (每 1 秒自動查詢 · 優先顯示 ETA/ETD，未有則顯示 STA/STD)</span>
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="px-2 py-0.5 rounded bg-amber-500 text-slate-950 font-black text-[10px]">HKIA CARGO · 5X 當日貨機航班</span>
+              <span class="font-bold text-amber-300">自動讀取香港國際機場貨機抵港 (現況「到閘口」=已到港、「預計時間」=還沒到港) 及貨機離港 (現況「啟航+時間」=已離港、「預計時間/-」=還沒離港) · 每秒更新 1 次</span>
             </div>
             <span id="fr24-last-tick" class="text-[10px] font-mono text-emerald-300">同步頻率：1s</span>
           </div>
@@ -620,141 +728,180 @@
         shape: 'rectangle',
         color: '#ffb500',
         rimColor: '#351c15',
-        x: -10,
+        x: 12,
         z: -40,
-        role: '大型長方形 3D 動態島 · 長方形快遞樞紐 · 7 座分揀月台',
-        desc: '完全依照照片設計的大型長方形 3D 動態島：最上方為北停機坪 8 個寬敞飛機泊位 (01–08)，上方中段為中央飛行跑道 (07R/25L)，中央為長方形 UPS Gateway 大樓（配備屋頂 5 座青藍天窗與正面 7 座彩色分揀月台）及右側辦公大樓，最下方為南停機坪 8 個寬敞飛機泊位 (09–16)。',
-        quote: '「北停機坪 8 泊位、中央跑道 07R/25L、UPS Gateway 大樓與南停機坪 8 泊位全島協同運作中。」',
+        role: '大型長方形 3D 動態島 · 22 座智能編排飛機停泊位 · 7 座分揀月台',
+        desc: '大型長方形 3D 動態島：左上角設有 4 個橫向飛機停泊位 (17–20，自動編排三位數 Bay 位)，近 UPS 大樓設有 8 個北停機坪泊位 (01–08，由左至右自動編排雙位數 X16–X23)，中央為 07R/25L 飛行跑道，跑道下方設有 8 個南停機坪泊位 (09–16，由左至右自動編排雙位數 X24–X30)，左下角設有 2 個橫向飛機停泊位 (21–22，自動編排單位數 Bay 位)。全島飛機行路連貫飛行跑道與所有停泊位，支援到港滑行入位與離港滑行起飛動畫。',
+        quote: '「全島 22 座飛機停泊位、路牌標示與到離港滑行道動畫已全面連貫中央飛行跑道 07R/25L。」',
         facilities: [
-          { name: 'UPS Gateway 長方形快遞樞紐', desc: '深棕色長方形大樓、金色屋頂邊框、5 座青藍發光天窗與 7 座彩色分揀月台' },
-          { name: '最上方 · 北停機坪 8 座泊位 (01–08)', desc: '寬敞橫排 8 個廣體貨機泊位，配備防風圍牆與獨立裝卸區' },
-          { name: '中央飛行跑道 07R / 25L', desc: '橫貫長方形動態島中上段的標準起降跑道與快速滑行道' },
-          { name: '最下方 · 南停機坪 8 座泊位 (09–16)', desc: '寬敞橫排 8 個貨機停泊位、地勤車道與分揀貨櫃區' }
+          { name: '左上角 4 座橫向飛機泊位 (17–20)', desc: '兩左 (17, 18) 兩右 (19, 20) 橫向擺位，當 Bay 位出現三位數字 (如 D327、D324、X458) 時自動編排' },
+          { name: '近 UPS 大樓 8 座泊位 (01–08)', desc: '當輸入雙位數 (X16–X23) 時由左至右自動編排至 01–08 號泊位' },
+          { name: '跑道下方 8 座泊位 (09–16)', desc: '當輸入雙位數 (X24–X30) 時由左至右自動編排至 09–16 號泊位' },
+          { name: '左下角 2 座橫向飛機泊位 (21–22)', desc: '橫向擺位並連貫西側垂直飛機行路與跑道，當輸入單位數字時自動編排' }
         ]
       },
-      // Top Row: 8 North Apron Aircraft Parking Bays (01 to 08 — 最上方 · 北停機坪泊位，寬敞間距 19 單位)
+      // Middle-Upper Row (Near UPS Building): 8 North Apron Aircraft Parking Bays (01 to 08 — 自動對應 X16 至 X23 由左至右)
       {
-        id: '01', code: '01', name: '', shape: 'bay', apron: 'north', color: '#ef4444', x: -66.5, z: -9,
-        role: '最上方 · 北停機坪 01 號飛機泊位',
-        desc: '位於大型長方形動態島最上方（北停機坪）第 1 個寬敞飛機停泊位。',
-        quote: '「北停機坪 01 號泊位運作正常。」',
-        facilities: [{ name: '北停機坪泊位 01', desc: '支援廣體貨機停泊與裝機團隊作業' }]
+        id: '01', code: '01', name: '', shape: 'bay', apron: 'north', orientation: 'vertical', color: '#ef4444', x: -73.5, z: -9,
+        role: '近 UPS 大樓 · 北停機坪 01 號泊位 (預設對應 X16)',
+        desc: '位於近 UPS 大樓由左至右第 1 個飛機停泊位 (自動對應雙位數 X16)，滑行支線直連北機坪主滑行道與飛行跑道。',
+        quote: '「北停機坪 01 號泊位滑行道連貫正常。」',
+        facilities: [{ name: '近 UPS 大樓泊位 01', desc: '自動編排雙位數 X16，連貫北滑行道與下方飛行跑道' }]
       },
       {
-        id: '02', code: '02', name: '', shape: 'bay', apron: 'north', color: '#10b981', x: -47.5, z: -9,
-        role: '最上方 · 北停機坪 02 號飛機泊位',
-        desc: '位於大型長方形動態島最上方（北停機坪）第 2 個寬敞飛機停泊位。',
-        quote: '「北停機坪 02 號泊位運作正常。」',
-        facilities: [{ name: '北停機坪泊位 02', desc: '支援廣體貨機停泊與裝機團隊作業' }]
+        id: '02', code: '02', name: '', shape: 'bay', apron: 'north', orientation: 'vertical', color: '#10b981', x: -40.5, z: -9,
+        role: '近 UPS 大樓 · 北停機坪 02 號泊位 (預設對應 X17)',
+        desc: '位於近 UPS 大樓由左至右第 2 個飛機停泊位 (自動對應雙位數 X17)，滑行支線直連北機坪主滑行道與飛行跑道。',
+        quote: '「北停機坪 02 號泊位滑行道連貫正常。」',
+        facilities: [{ name: '近 UPS 大樓泊位 02', desc: '自動編排雙位數 X17，連貫北滑行道與下方飛行跑道' }]
       },
       {
-        id: '03', code: '03', name: '', shape: 'bay', apron: 'north', color: '#6366f1', x: -28.5, z: -9,
-        role: '最上方 · 北停機坪 03 號飛機泊位',
-        desc: '位於大型長方形動態島最上方（北停機坪）第 3 個寬敞飛機停泊位。',
-        quote: '「北停機坪 03 號泊位運作正常。」',
-        facilities: [{ name: '北停機坪泊位 03', desc: '支援廣體貨機停泊與裝機團隊作業' }]
+        id: '03', code: '03', name: '', shape: 'bay', apron: 'north', orientation: 'vertical', color: '#6366f1', x: -21.5, z: -9,
+        role: '近 UPS 大樓 · 北停機坪 03 號泊位 (預設對應 X18)',
+        desc: '位於近 UPS 大樓由左至右第 3 個飛機停泊位 (自動對應雙位數 X18)，滑行支線直連北機坪主滑行道與飛行跑道。',
+        quote: '「北停機坪 03 號泊位滑行道連貫正常。」',
+        facilities: [{ name: '近 UPS 大樓泊位 03', desc: '自動編排雙位數 X18，連貫北滑行道與下方飛行跑道' }]
       },
       {
-        id: '04', code: '04', name: '', shape: 'bay', apron: 'north', color: '#2d6a4f', x: -9.5, z: -9,
-        role: '最上方 · 北停機坪 04 號飛機泊位',
-        desc: '位於大型長方形動態島最上方（北停機坪）第 4 個寬敞飛機停泊位。',
-        quote: '「北停機坪 04 號泊位運作正常。」',
-        facilities: [{ name: '北停機坪泊位 04', desc: '支援廣體貨機停泊與裝機團隊作業' }]
+        id: '04', code: '04', name: '', shape: 'bay', apron: 'north', orientation: 'vertical', color: '#2d6a4f', x: -2.5, z: -9,
+        role: '近 UPS 大樓 · 北停機坪 04 號泊位 (預設對應 X19)',
+        desc: '位於近 UPS 大樓由左至右第 4 個飛機停泊位 (自動對應雙位數 X19)，滑行支線直連北機坪主滑行道與飛行跑道。',
+        quote: '「北停機坪 04 號泊位滑行道連貫正常。」',
+        facilities: [{ name: '近 UPS 大樓泊位 04', desc: '自動編排雙位數 X19，連貫北滑行道與下方飛行跑道' }]
       },
       {
-        id: '05', code: '05', name: '', shape: 'bay', apron: 'north', color: '#ec4899', x: 9.5, z: -9,
-        role: '最上方 · 北停機坪 05 號飛機泊位',
-        desc: '位於大型長方形動態島最上方（北停機坪）第 5 個寬敞飛機停泊位。',
-        quote: '「北停機坪 05 號泊位運作正常。」',
-        facilities: [{ name: '北停機坪泊位 05', desc: '支援廣體貨機停泊與裝機團隊作業' }]
+        id: '05', code: '05', name: '', shape: 'bay', apron: 'north', orientation: 'vertical', color: '#ec4899', x: 16.5, z: -9,
+        role: '近 UPS 大樓 · 北停機坪 05 號泊位 (預設對應 X20)',
+        desc: '位於近 UPS 大樓由左至右第 5 個飛機停泊位 (自動對應雙位數 X20)，滑行支線直連北機坪主滑行道與飛行跑道。',
+        quote: '「北停機坪 05 號泊位滑行道連貫正常。」',
+        facilities: [{ name: '近 UPS 大樓泊位 05', desc: '自動編排雙位數 X20，連貫北滑行道與下方飛行跑道' }]
       },
       {
-        id: '06', code: '06', name: '', shape: 'bay', apron: 'north', color: '#b45309', x: 28.5, z: -9,
-        role: '最上方 · 北停機坪 06 號飛機泊位',
-        desc: '位於大型長方形動態島最上方（北停機坪）第 6 個寬敞飛機停泊位。',
-        quote: '「北停機坪 06 號泊位運作正常。」',
-        facilities: [{ name: '北停機坪泊位 06', desc: '支援廣體貨機停泊與裝機團隊作業' }]
+        id: '06', code: '06', name: '', shape: 'bay', apron: 'north', orientation: 'vertical', color: '#b45309', x: 35.5, z: -9,
+        role: '近 UPS 大樓 · 北停機坪 06 號泊位 (預設對應 X21)',
+        desc: '位於近 UPS 大樓由左至右第 6 個飛機停泊位 (自動對應雙位數 X21)，滑行支線直連北機坪主滑行道與飛行跑道。',
+        quote: '「北停機坪 06 號泊位滑行道連貫正常。」',
+        facilities: [{ name: '近 UPS 大樓泊位 06', desc: '自動編排雙位數 X21，連貫北滑行道與下方飛行跑道' }]
       },
       {
-        id: '07', code: '07', name: '', shape: 'bay', apron: 'north', color: '#84cc16', x: 47.5, z: -9,
-        role: '最上方 · 北停機坪 07 號飛機泊位',
-        desc: '位於大型長方形動態島最上方（北停機坪）第 7 個寬敞飛機停泊位。',
-        quote: '「北停機坪 07 號泊位運作正常。」',
-        facilities: [{ name: '北停機坪泊位 07', desc: '支援廣體貨機停泊與裝機團隊作業' }]
+        id: '07', code: '07', name: '', shape: 'bay', apron: 'north', orientation: 'vertical', color: '#84cc16', x: 54.5, z: -9,
+        role: '近 UPS 大樓 · 北停機坪 07 號泊位 (預設對應 X22)',
+        desc: '位於近 UPS 大樓由左至右第 7 個飛機停泊位 (自動對應雙位數 X22)，滑行支線直連北機坪主滑行道與飛行跑道。',
+        quote: '「北停機坪 07 號泊位滑行道連貫正常。」',
+        facilities: [{ name: '近 UPS 大樓泊位 07', desc: '自動編排雙位數 X22，連貫北滑行道與下方飛行跑道' }]
       },
       {
-        id: '08', code: '08', name: '', shape: 'bay', apron: 'north', color: '#0d9488', x: 66.5, z: -9,
-        role: '最上方 · 北停機坪 08 號飛機泊位',
-        desc: '位於大型長方形動態島最上方（北停機坪）第 8 個寬敞飛機停泊位。',
-        quote: '「北停機坪 08 號泊位運作正常。」',
-        facilities: [{ name: '北停機坪泊位 08', desc: '支援廣體貨機停泊與裝機團隊作業' }]
+        id: '08', code: '08', name: '', shape: 'bay', apron: 'north', orientation: 'vertical', color: '#0d9488', x: 73.5, z: -9,
+        role: '近 UPS 大樓 · 北停機坪 08 號泊位 (預設對應 X23)',
+        desc: '位於近 UPS 大樓由左至右第 8 個飛機停泊位 (自動對應雙位數 X23)，滑行支線直連北機坪主滑行道與飛行跑道。',
+        quote: '「北停機坪 08 號泊位滑行道連貫正常。」',
+        facilities: [{ name: '近 UPS 大樓泊位 08', desc: '自動編排雙位數 X23，連貫北滑行道與下方飛行跑道' }]
       },
-      // Bottom Row: 8 South Apron Aircraft Parking Bays (09 to 16 — 最下方 · 南停機坪泊位，寬敞間距 19 單位)
+      // Bottom Row (Below Runway): 8 South Apron Aircraft Parking Bays (09 to 16 — 自動對應 X24 至 X30 由左至右)
       {
-        id: '09', code: '09', name: '', shape: 'bay', apron: 'south', color: '#1e293b', x: -66.5, z: 39,
-        role: '最下方 · 南停機坪 09 號飛機泊位',
-        desc: '位於大型長方形動態島最下方（南停機坪）第 1 個寬敞飛機停泊位。',
-        quote: '「南停機坪 09 號泊位運作正常。」',
-        facilities: [{ name: '南停機坪泊位 09', desc: '支援廣體貨機停泊與裝機團隊作業' }]
-      },
-      {
-        id: '10', code: '10', name: '', shape: 'bay', apron: 'south', color: '#f97316', x: -47.5, z: 39,
-        role: '最下方 · 南停機坪 10 號飛機泊位',
-        desc: '位於大型長方形動態島最下方（南停機坪）第 2 個寬敞飛機停泊位。',
-        quote: '「南停機坪 10 號泊位運作正常。」',
-        facilities: [{ name: '南停機坪泊位 10', desc: '支援廣體貨機停泊與裝機團隊作業' }]
+        id: '09', code: '09', name: '', shape: 'bay', apron: 'south', orientation: 'vertical', color: '#1e293b', x: -54.5, z: 39,
+        role: '跑道下方 · 南停機坪 09 號泊位 (預設對應 X24)',
+        desc: '位於跑道下方由左至右第 1 個飛機停泊位 (自動對應雙位數 X24)，滑行支線直連南機坪主滑行道與飛行跑道。',
+        quote: '「南停機坪 09 號泊位滑行道連貫正常。」',
+        facilities: [{ name: '跑道下方泊位 09', desc: '自動編排雙位數 X24，連貫南滑行道與飛行跑道' }]
       },
       {
-        id: '11', code: '11', name: '', shape: 'bay', apron: 'south', color: '#14b8a6', x: -28.5, z: 39,
-        role: '最下方 · 南停機坪 11 號飛機泊位',
-        desc: '位於大型長方形動態島最下方（南停機坪）第 3 個寬敞飛機停泊位。',
-        quote: '「南停機坪 11 號泊位運作正常。」',
-        facilities: [{ name: '南停機坪泊位 11', desc: '支援廣體貨機停泊與裝機團隊作業' }]
+        id: '10', code: '10', name: '', shape: 'bay', apron: 'south', orientation: 'vertical', color: '#f97316', x: -35.5, z: 39,
+        role: '跑道下方 · 南停機坪 10 號泊位 (預設對應 X25)',
+        desc: '位於跑道下方由左至右第 2 個飛機停泊位 (自動對應雙位數 X25)，滑行支線直連南機坪主滑行道與飛行跑道。',
+        quote: '「南停機坪 10 號泊位滑行道連貫正常。」',
+        facilities: [{ name: '跑道下方泊位 10', desc: '自動編排雙位數 X25，連貫南滑行道與飛行跑道' }]
       },
       {
-        id: '12', code: '12', name: '', shape: 'bay', apron: 'south', color: '#4f46e5', x: -9.5, z: 39,
-        role: '最下方 · 南停機坪 12 號飛機泊位',
-        desc: '位於大型長方形動態島最下方（南停機坪）第 4 個寬敞飛機停泊位。',
-        quote: '「南停機坪 12 號泊位運作正常。」',
-        facilities: [{ name: '南停機坪泊位 12', desc: '支援廣體貨機停泊與裝機團隊作業' }]
+        id: '11', code: '11', name: '', shape: 'bay', apron: 'south', orientation: 'vertical', color: '#14b8a6', x: -16.5, z: 39,
+        role: '跑道下方 · 南停機坪 11 號泊位 (預設對應 X26)',
+        desc: '位於跑道下方由左至右第 3 個飛機停泊位 (自動對應雙位數 X26)，滑行支線直連南機坪主滑行道與飛行跑道。',
+        quote: '「南停機坪 11 號泊位滑行道連貫正常。」',
+        facilities: [{ name: '跑道下方泊位 11', desc: '自動編排雙位數 X26，連貫南滑行道與飛行跑道' }]
       },
       {
-        id: '13', code: '13', name: '', shape: 'bay', apron: 'south', color: '#d97706', x: 9.5, z: 39,
-        role: '最下方 · 南停機坪 13 號飛機泊位',
-        desc: '位於大型長方形動態島最下方（南停機坪）第 5 個寬敞飛機停泊位。',
-        quote: '「南停機坪 13 號泊位運作正常。」',
-        facilities: [{ name: '南停機坪泊位 13', desc: '支援廣體貨機停泊與裝機團隊作業' }]
+        id: '12', code: '12', name: '', shape: 'bay', apron: 'south', orientation: 'vertical', color: '#4f46e5', x: 2.5, z: 39,
+        role: '跑道下方 · 南停機坪 12 號泊位 (預設對應 X27)',
+        desc: '位於跑道下方由左至右第 4 個飛機停泊位 (自動對應雙位數 X27)，滑行支線直連南機坪主滑行道與飛行跑道。',
+        quote: '「南停機坪 12 號泊位滑行道連貫正常。」',
+        facilities: [{ name: '跑道下方泊位 12', desc: '自動編排雙位數 X27，連貫南滑行道與飛行跑道' }]
       },
       {
-        id: '14', code: '14', name: '', shape: 'bay', apron: 'south', color: '#78350f', x: 28.5, z: 39,
-        role: '最下方 · 南停機坪 14 號飛機泊位',
-        desc: '位於大型長方形動態島最下方（南停機坪）第 6 個寬敞飛機停泊位。',
-        quote: '「南停機坪 14 號泊位運作正常。」',
-        facilities: [{ name: '南停機坪泊位 14', desc: '支援廣體貨機停泊與裝機團隊作業' }]
+        id: '13', code: '13', name: '', shape: 'bay', apron: 'south', orientation: 'vertical', color: '#d97706', x: 21.5, z: 39,
+        role: '跑道下方 · 南停機坪 13 號泊位 (預設對應 X28)',
+        desc: '位於跑道下方由左至右第 5 個飛機停泊位 (自動對應雙位數 X28)，滑行支線直連南機坪主滑行道與飛行跑道。',
+        quote: '「南停機坪 13 號泊位滑行道連貫正常。」',
+        facilities: [{ name: '跑道下方泊位 13', desc: '自動編排雙位數 X28，連貫南滑行道與飛行跑道' }]
       },
       {
-        id: '15', code: '15', name: '', shape: 'bay', apron: 'south', color: '#0284c7', x: 47.5, z: 39,
-        role: '最下方 · 南停機坪 15 號飛機泊位',
-        desc: '位於大型長方形動態島最下方（南停機坪）第 7 個寬敞飛機停泊位。',
-        quote: '「南停機坪 15 號泊位運作正常。」',
-        facilities: [{ name: '南停機坪泊位 15', desc: '支援廣體貨機停泊與裝機團隊作業' }]
+        id: '14', code: '14', name: '', shape: 'bay', apron: 'south', orientation: 'vertical', color: '#78350f', x: 40.5, z: 39,
+        role: '跑道下方 · 南停機坪 14 號泊位 (預設對應 X29)',
+        desc: '位於跑道下方由左至右第 6 個飛機停泊位 (自動對應雙位數 X29)，滑行支線直連南機坪主滑行道與飛行跑道。',
+        quote: '「南停機坪 14 號泊位滑行道連貫正常。」',
+        facilities: [{ name: '跑道下方泊位 14', desc: '自動編排雙位數 X29，連貫南滑行道與飛行跑道' }]
       },
       {
-        id: '16', code: '16', name: '', shape: 'bay', apron: 'south', color: '#9333ea', x: 66.5, z: 39,
-        role: '最下方 · 南停機坪 16 號飛機泊位',
-        desc: '位於大型長方形動態島最下方（南停機坪）第 8 個寬敞飛機停泊位。',
-        quote: '「南停機坪 16 號泊位運作正常。」',
-        facilities: [{ name: '南停機坪泊位 16', desc: '支援廣體貨機停泊與裝機團隊作業' }]
+        id: '15', code: '15', name: '', shape: 'bay', apron: 'south', orientation: 'vertical', color: '#0284c7', x: 59.5, z: 39,
+        role: '跑道下方 · 南停機坪 15 號泊位 (預設對應 X30)',
+        desc: '位於跑道下方由左至右第 7 個飛機停泊位 (自動對應雙位數 X30)，滑行支線直連南機坪主滑行道與飛行跑道。',
+        quote: '「南停機坪 15 號泊位滑行道連貫正常。」',
+        facilities: [{ name: '跑道下方泊位 15', desc: '自動編排雙位數 X30，連貫南滑行道與飛行跑道' }]
+      },
+      {
+        id: '16', code: '16', name: '', shape: 'bay', apron: 'south', orientation: 'vertical', color: '#9333ea', x: 78.5, z: 39,
+        role: '跑道下方 · 南停機坪 16 號泊位',
+        desc: '位於跑道下方由左至右第 8 個飛機停泊位，滑行支線直連南機坪主滑行道與飛行跑道。',
+        quote: '「南停機坪 16 號泊位滑行道連貫正常。」',
+        facilities: [{ name: '跑道下方泊位 16', desc: '連貫南滑行道與飛行跑道' }]
+      },
+      // Top-Left Corner: 4 Horizontal Aircraft Parking Bays (17, 18 on Left; 19, 20 on Right; with 1 central vertical taxiway at x = -57.0 — 自動對應三位數 Bay 位)
+      {
+        id: '17', code: '17', name: '', shape: 'bay', apron: 'northwest', orientation: 'horizontal-left', taxiwayX: -57.0, color: '#06b6d4', x: -73.5, z: -46.5,
+        role: '左上角 · 17 號橫向飛機泊位 (三位數自動編排 · 左上)',
+        desc: '位於動態島左上角左側第 1 個橫向飛機停泊位，當輸入三位數字 Bay 位時自動編排，由中央飛機行路 (x=-57) 連貫至下方飛行跑道。',
+        quote: '「左上角 17 號橫向泊位已連貫中央飛機行路與飛行跑道。」',
+        facilities: [{ name: '左上橫向泊位 17', desc: '三位數字自動編排（左側上），直通左上中央飛機行路與下方跑道' }]
+      },
+      {
+        id: '18', code: '18', name: '', shape: 'bay', apron: 'northwest', orientation: 'horizontal-left', taxiwayX: -57.0, color: '#3b82f6', x: -73.5, z: -32.5,
+        role: '左上角 · 18 號橫向飛機泊位 (三位數自動編排 · 左下)',
+        desc: '位於動態島左上角左側第 2 個橫向飛機停泊位，當輸入三位數字 Bay 位時自動編排，由中央飛機行路 (x=-57) 連貫至下方飛行跑道。',
+        quote: '「左上角 18 號橫向泊位已連貫中央飛機行路與飛行跑道。」',
+        facilities: [{ name: '左上橫向泊位 18', desc: '三位數字自動編排（左側下），直通左上中央飛機行路與下方跑道' }]
+      },
+      {
+        id: '19', code: '19', name: '', shape: 'bay', apron: 'northwest', orientation: 'horizontal-right', taxiwayX: -57.0, color: '#8b5cf6', x: -40.5, z: -46.5,
+        role: '左上角 · 19 號橫向飛機泊位 (三位數自動編排 · 右上)',
+        desc: '位於動態島左上角右側第 1 個橫向飛機停泊位，當輸入三位數字 Bay 位時自動編排，由中央飛機行路 (x=-57) 連貫至下方飛行跑道。',
+        quote: '「左上角 19 號橫向泊位已連貫中央飛機行路與飛行跑道。」',
+        facilities: [{ name: '左上橫向泊位 19', desc: '三位數字自動編排（右側上），直通左上中央飛機行路與下方跑道' }]
+      },
+      {
+        id: '20', code: '20', name: '', shape: 'bay', apron: 'northwest', orientation: 'horizontal-right', taxiwayX: -57.0, color: '#ec4899', x: -40.5, z: -32.5,
+        role: '左上角 · 20 號橫向飛機泊位 (三位數自動編排 · 右下)',
+        desc: '位於動態島左上角右側第 2 個橫向飛機停泊位，當輸入三位數字 Bay 位時自動編排，由中央飛機行路 (x=-57) 連貫至下方飛行跑道。',
+        quote: '「左上角 20 號橫向泊位已連貫中央飛機行路與飛行跑道。」',
+        facilities: [{ name: '左上橫向泊位 20', desc: '三位數字自動編排（右側下），直通左上中央飛機行路與下方跑道' }]
+      },
+      // Bottom-Left Corner: 2 Horizontal Aircraft Parking Bays (21, 22 — 移至左下角橫向擺位，連貫西側飛機行路 x=-73.5 與下方飛行跑道，自動對應單位數 Bay 位)
+      {
+        id: '21', code: '21', name: '', shape: 'bay', apron: 'southwest', orientation: 'horizontal-left', taxiwayX: -73.5, color: '#eab308', x: -89.0, z: 32.5,
+        role: '左下角 · 21 號橫向飛機泊位 (單位數自動編排 · 左上)',
+        desc: '位於動態島左下角第 1 個橫向飛機停泊位，當輸入單位數字 Bay 位時自動編排，透過西側飛機行路 (x=-73.5) 直接連貫飛行跑道與南機坪滑行道。',
+        quote: '「左下角 21 號橫向泊位已連貫西側飛機行路與飛行跑道。」',
+        facilities: [{ name: '左下橫向泊位 21', desc: '橫向擺位（左下角），自動編排單位數 Bay 位，直通西側飛機行路與飛行跑道' }]
+      },
+      {
+        id: '22', code: '22', name: '', shape: 'bay', apron: 'southwest', orientation: 'horizontal-left', taxiwayX: -73.5, color: '#10b981', x: -89.0, z: 46.5,
+        role: '左下角 · 22 號橫向飛機泊位 (單位數自動編排 · 左下)',
+        desc: '位於動態島左下角第 2 個橫向飛機停泊位，當輸入單位數字 Bay 位時自動編排，透過西側飛機行路 (x=-73.5) 直接連貫飛行跑道與南機坪滑行道。',
+        quote: '「左下角 22 號橫向泊位已連貫西側飛機行路與飛行跑道。」',
+        facilities: [{ name: '左下橫向泊位 22', desc: '橫向擺位（左下角），自動編排單位數 Bay 位，直通西側飛機行路與飛行跑道' }]
       }
     ];
 
-    // Logistics & Data Arcs connecting UPS HKG Gateway to the 8 North Bays (01-08) and 8 South Bays (09-16) (like the glowing red arcs in the photo!)
-    const BRIDGES_DATA = [
-      ['UPS', '01'], ['UPS', '02'], ['UPS', '03'], ['UPS', '04'],
-      ['UPS', '05'], ['UPS', '06'], ['UPS', '07'], ['UPS', '08'],
-      ['UPS', '09'], ['UPS', '10'], ['UPS', '11'], ['UPS', '12'],
-      ['UPS', '13'], ['UPS', '14'], ['UPS', '15'], ['UPS', '16']
-    ];
+    // Collaboration lines removed per user request
+    const BRIDGES_DATA = [];
 
     // HKO Chek Lap Kok (HKA) verified 24-hour weather series
     const HKA_24H_SERIES = [
@@ -953,8 +1100,9 @@
       activeWarnings: new Set(), // Active warning codes synced automatically from HKO
       showLabels: true,
       showBubbles: true,
-      showArcs: true,
+      showArcs: false,
       autoRotate: false,
+      viewLocked: false,
       paused: false,
       chartElement: 'temp', // 'temp' | 'hum' | 'wind'
       searchQuery: '',
@@ -976,9 +1124,9 @@
     // =========================================================================
     const container = document.getElementById('canvas-container');
     const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x8fd2dc, 0.0042);
+    scene.fog = new THREE.FogExp2(0x8fd2dc, 0.0024);
 
-    const camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 1, 600);
+    const camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 1, 900);
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -986,12 +1134,12 @@
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     container.appendChild(renderer.domElement);
 
-    // Custom Smooth Orbit & Pan Camera Controller
+    // Custom Smooth Orbit & Pan Camera Controller (pulled back further for wider Dynamic Island overview)
     const camCtrl = {
       target: new THREE.Vector3(0, 0, 2),
       desiredTarget: new THREE.Vector3(0, 0, 2),
-      spherical: { radius: 138, phi: 0.88, theta: -0.22 },
-      desiredSpherical: { radius: 138, phi: 0.88, theta: -0.22 },
+      spherical: { radius: 212, phi: 0.86, theta: -0.22 },
+      desiredSpherical: { radius: 212, phi: 0.86, theta: -0.22 },
       isDragging: false,
       isPanning: false,
       prevMouse: { x: 0, y: 0 }
@@ -1449,9 +1597,9 @@
       group.position.set(0, 0, 0);
       group.userData = { islandId: data.id };
 
-      // 1. Giant Unified Rectangular Dynamic Island Platform (168 x 104, matching 8d1fe971.jpeg!)
-      const megaW = 168.0;
-      const megaD = 114.0;
+      // 1. Giant Unified Rectangular Dynamic Island Platform (204 x 122, accommodating Top-Left 4 Horizontal Bays + Bottom-Right 2 Horizontal Bays + Full Taxiway Network)
+      const megaW = 204.0;
+      const megaD = 122.0;
 
       // Deep dark cliff hull in water
       const hull = new THREE.Mesh(new THREE.BoxGeometry(megaW - 1.2, 2.8, megaD - 1.2), darkHullMat);
@@ -1509,7 +1657,7 @@
       const hubW = 46.0;
       const hubH = 5.2;
       const hubD = 12.5;
-      const hubX = -10.0;
+      const hubX = 12.0;
       const hubZ = -40.0;
 
       const mainHubBox = new THREE.Mesh(new THREE.BoxGeometry(hubW, hubH, hubD), upsDarkBrownMat);
@@ -1645,7 +1793,7 @@
       const officeW = 10.5;
       const officeH = 8.2;
       const officeD = 9.5;
-      const officeX = 23.5;
+      const officeX = 46.0;
       const officeZ = -38.5;
 
       const officeTower = new THREE.Mesh(new THREE.BoxGeometry(officeW, officeH, officeD), officeWallMat);
@@ -1675,33 +1823,33 @@
         }
       }
 
-      // 5. Ground Service Road, Yellow Safety Gantry Arch & Colorful Staging Sheds directly in front of the Top UPS HKG Gateway Building (z = -25.5)
+      // 5. Ground Service Road, Yellow Safety Gantry Arch & Colorful Staging Sheds directly in front of the Top UPS HKG Gateway Building (z = -25.5, positioned to the right of the Top-Left 4 Horizontal Bays)
       const roadMat = new THREE.MeshStandardMaterial({ color: 0x263445, roughness: 0.75 });
-      const serviceRoad = new THREE.Mesh(new THREE.BoxGeometry(142.0, 0.06, 3.8), roadMat);
-      serviceRoad.position.set(0, 0.03, -25.5);
+      const serviceRoad = new THREE.Mesh(new THREE.BoxGeometry(108.0, 0.06, 3.6), roadMat);
+      serviceRoad.position.set(28.0, 0.03, -25.5);
       deckSurface.add(serviceRoad);
 
       // Yellow safety gantry arch over the service road
       const gantryMat = new THREE.MeshStandardMaterial({ color: 0xeab308, roughness: 0.4 });
       const postL = new THREE.Mesh(new THREE.BoxGeometry(0.32, 3.0, 0.32), gantryMat);
-      postL.position.set(3.5, 1.5, -27.4);
+      postL.position.set(22.5, 1.5, -27.3);
       const postR = postL.clone();
-      postR.position.set(3.5, 1.5, -23.6);
-      const beamTop = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.35, 4.2), gantryMat);
-      beamTop.position.set(3.5, 3.0, -25.5);
+      postR.position.set(22.5, 1.5, -23.7);
+      const beamTop = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.35, 4.0), gantryMat);
+      beamTop.position.set(22.5, 3.0, -25.5);
       deckSurface.add(postL, postR, beamTop);
 
-      // Colorful cargo staging sheds along the service road
+      // Colorful cargo staging sheds along the service road in front of the UPS building
       const shedConfigs = [
-        { x: -48, z: -21.5, col: 0x3b4cca },
-        { x: -28, z: -21.5, col: 0x38a169 },
-        { x: 8,   z: -21.5, col: 0x84cc16 },
-        { x: 26,  z: -21.5, col: 0x8b4560 },
-        { x: 44,  z: -21.5, col: 0x3b82f6 }
+        { x: -18, z: -21.5, col: 0x3b4cca },
+        { x: 0,   z: -21.5, col: 0x38a169 },
+        { x: 18,  z: -21.5, col: 0x84cc16 },
+        { x: 36,  z: -21.5, col: 0x8b4560 },
+        { x: 54,  z: -21.5, col: 0x3b82f6 }
       ];
       shedConfigs.forEach(sh => {
         const shed = new THREE.Mesh(
-          new THREE.BoxGeometry(9.5, 1.35, 3.8),
+          new THREE.BoxGeometry(9.5, 1.35, 3.6),
           new THREE.MeshStandardMaterial({ color: sh.col, roughness: 0.5 })
         );
         shed.position.set(sh.x, 0.68, sh.z);
@@ -1713,13 +1861,11 @@
       upsBeaconLight.position.set(hubX, 12.0, hubZ);
       group.add(upsBeaconLight);
 
-      // Small round stylized trees matching photo positions
-      addStylizedTree(deckSurface, -38.0, -34.0, 1.1, 'round');
-      addStylizedTree(deckSurface, -34.0, -28.5, 0.95, 'round');
-      addStylizedTree(deckSurface, 15.0, -28.0, 1.0, 'round');
-      addStylizedTree(deckSurface, 34.0, -28.0, 1.05, 'round');
-      addStylizedTree(deckSurface, -74.0, -42.0, 1.1, 'round');
-      addStylizedTree(deckSurface, 74.0, -42.0, 1.1, 'round');
+      // Small round stylized trees around the UPS Gateway & Office Tower
+      addStylizedTree(deckSurface, -22.0, -36.0, 1.05, 'round');
+      addStylizedTree(deckSurface, 36.0, -28.0, 1.0, 'round');
+      addStylizedTree(deckSurface, 56.0, -34.0, 1.05, 'round');
+      addStylizedTree(deckSurface, 78.0, -42.0, 1.1, 'round');
 
       // Build 2 Free-Roaming 3D Airport Tractors each pulling 3 Cargo Containers (roaming across the ENTIRE giant Dynamic Island!)
       buildRoamingTractorTrains(deckSurface);
@@ -1735,7 +1881,100 @@
 
     // Store Chibi Egg-Planes keyed by islandId (hidden by default; only shown when flight is active in HK time!)
     const islandChibiPlanesMap = new Map();
+    const islandRoadSignsMap = new Map();
     const runwayChibiPlanes = [];
+
+    // Draw a 3D Rectangular Green-Background White-Border Road Sign (長方形綠底白框路牌，無方向箭頭，圓潤字體)
+    function createBayRoadSignMesh() {
+      const signGroup = new THREE.Group();
+      const postMat = new THREE.MeshStandardMaterial({ color: 0xcbd5e1, metalness: 0.65, roughness: 0.3 });
+      const postL = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 2.5, 10), postMat);
+      postL.position.set(-1.7, 1.25, 0);
+      const postR = postL.clone();
+      postR.position.set(1.7, 1.25, 0);
+      signGroup.add(postL, postR);
+
+      // Pure rectangular road sign board holder tilted slightly upward for clear 3D readability
+      const boardHolder = new THREE.Group();
+      boardHolder.position.set(0, 2.65, 0);
+      boardHolder.rotation.x = -0.24;
+
+      const boardBacking = new THREE.Mesh(
+        new THREE.BoxGeometry(5.4, 1.85, 0.22),
+        new THREE.MeshStandardMaterial({ color: 0x047857, roughness: 0.38 })
+      );
+      boardBacking.castShadow = true;
+      boardHolder.add(boardBacking);
+
+      const cvs = document.createElement('canvas');
+      cvs.width = 320;
+      cvs.height = 112;
+      const ctx = cvs.getContext('2d');
+      const tex = new THREE.CanvasTexture(cvs);
+
+      const frontPlane = new THREE.Mesh(
+        new THREE.PlaneGeometry(5.3, 1.78),
+        new THREE.MeshBasicMaterial({ map: tex, transparent: true, side: THREE.DoubleSide })
+      );
+      frontPlane.position.set(0, 0, 0.13);
+      const backPlane = frontPlane.clone();
+      backPlane.position.set(0, 0, -0.13);
+      backPlane.rotation.y = Math.PI;
+      boardHolder.add(frontPlane, backPlane);
+
+      signGroup.add(boardHolder);
+      signGroup.visible = false;
+      signGroup.userData = { cvs, ctx, tex, lastText: '' };
+      return signGroup;
+    }
+
+    function drawRoundedRectPath(ctx, x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + w - r, y);
+      ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+      ctx.lineTo(x + w, y + h - r);
+      ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+      ctx.lineTo(x + r, y + h);
+      ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+      ctx.lineTo(x, y + r);
+      ctx.quadraticCurveTo(x, y, x + r, y);
+      ctx.closePath();
+    }
+
+    function updateBayRoadSignText(islandId, textRaw) {
+      const signGroup = islandRoadSignsMap.get(islandId);
+      if (!signGroup) return;
+      const clean = String(textRaw || '').trim();
+      if (!clean) {
+        signGroup.visible = false;
+        signGroup.userData.lastText = '';
+        return;
+      }
+      signGroup.visible = true;
+      if (signGroup.userData.lastText === clean) return;
+      signGroup.userData.lastText = clean;
+
+      const { cvs, ctx, tex } = signGroup.userData;
+      ctx.clearRect(0, 0, cvs.width, cvs.height);
+
+      // Pure Rectangular Green Sign Plate with White Border (長方形綠底白框，無方向箭頭)
+      ctx.fillStyle = '#047857';
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 9;
+      drawRoundedRectPath(ctx, 8, 8, 304, 96, 18);
+      ctx.fill();
+      ctx.stroke();
+
+      // Rounded, friendly font matching the 3D Dynamic Island
+      ctx.fillStyle = '#ffffff';
+      const fontSize = clean.length > 7 ? 38 : (clean.length > 4 ? 48 : 56);
+      ctx.font = `700 ${fontSize}px "Fredoka", "Nunito", "M PLUS Rounded 1c", sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(clean, 160, 58);
+      tex.needsUpdate = true;
+    }
 
     // Factory: Build a 3D Chibi Egg-Plane (Q版蛋機 3D 模型)
     function createChibiEggPlane(accentColorHex, islandId) {
@@ -1827,14 +2066,15 @@
       return chibiGroup;
     }
 
-    // Build Each of the 16 Spacious Aircraft Parking Bays (01–08 on Top North Apron, 09–16 on Bottom South Apron) directly on the Unified Rectangular Dynamic Island!
+    // Build Each of the 22 Spacious Aircraft Parking Bays (01–08 North, 09–16 South, 17–20 Top-Left Horizontal, 21–22 Bottom-Right Horizontal)
     function buildHexagonalIsland(data) {
       const group = new THREE.Group();
       group.position.set(data.x, 0.96, data.z);
       group.userData = { islandId: data.id };
 
-      const bayW = 14.5;
-      const bayD = 13.5;
+      const isHorizontal = data.orientation === 'horizontal-left' || data.orientation === 'horizontal-right';
+      const bayW = isHorizontal ? 14.2 : 14.5;
+      const bayD = isHorizontal ? 11.6 : 13.5;
 
       // 1. Subtle Apron Stand Pad & Clickable Area on the Mega-Island Surface
       const apronMat = new THREE.MeshStandardMaterial({ color: 0x647d94, roughness: 0.7 });
@@ -1845,29 +2085,94 @@
       clickableMeshes.push(apronPad);
       group.add(apronPad);
 
-      // 2. Yellow Aircraft Lead-in Centerline & T-Stop Bar Markings (matching 8d1fe971.jpeg!)
       const yellowLineMat = new THREE.MeshBasicMaterial({ color: 0xfacc15 });
-      const leadLine = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.06, bayD * 0.82), yellowLineMat);
-      leadLine.position.set(0, 0.04, 0);
-      group.add(leadLine);
-
-      const stopBar = new THREE.Mesh(new THREE.BoxGeometry(3.2, 0.06, 0.24), yellowLineMat);
-      stopBar.position.set(0, 0.04, data.apron === 'north' ? 3.8 : 3.8);
-      group.add(stopBar);
-
-      // Red Wingtip Clearance Lines on Left & Right of each Stand
       const redLineMat = new THREE.MeshBasicMaterial({ color: 0xdc2626 });
-      const leftBound = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.05, bayD * 0.82), redLineMat);
-      leftBound.position.set(-bayW * 0.46, 0.035, 0);
-      const rightBound = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.05, bayD * 0.82), redLineMat);
-      rightBound.position.set(bayW * 0.46, 0.035, 0);
-      group.add(leftBound, rightBound);
 
-      // 3. 3D Chibi Egg-Plane (oriented toward the front/south-east just like in 8d1fe971.jpeg!)
+      if (isHorizontal) {
+        // HORIZONTAL PARKING BAY (橫向停泊位: 17-20 in Top-Left, 21-22 in Bottom-Right)
+        // Connect lead-in line horizontally all the way from the T-stop bar inside the bay to the adjacent vertical taxiway (data.taxiwayX)
+        const dirToTaxiway = data.orientation === 'horizontal-left' ? 1 : -1; // +1 = taxiway is to the right (+X); -1 = taxiway is to the left (-X)
+        const stopX = -dirToTaxiway * 4.2;
+        const taxiwayLocalX = (typeof data.taxiwayX === 'number') ? (data.taxiwayX - data.x) : (dirToTaxiway * 16.5);
+        const lineLenX = Math.abs(taxiwayLocalX - stopX);
+        const lineCenterX = (stopX + taxiwayLocalX) * 0.5;
+
+        // Dark asphalt taxiway branch connecting this horizontal bay straight to the vertical taxiway
+        const branchAsphalt = new THREE.Mesh(
+          new THREE.BoxGeometry(lineLenX + 2.4, 0.05, 4.2),
+          new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.78 })
+        );
+        branchAsphalt.position.set(lineCenterX, 0.03, 0);
+        branchAsphalt.receiveShadow = true;
+        group.add(branchAsphalt);
+
+        // Continuous yellow horizontal lead-in centerline from the T-stop bar right into the vertical taxiway centerline
+        const leadLine = new THREE.Mesh(new THREE.BoxGeometry(lineLenX, 0.065, 0.26), yellowLineMat);
+        leadLine.position.set(lineCenterX, 0.055, 0);
+        group.add(leadLine);
+
+        // Vertical T-stop bar at the head of the horizontal bay
+        const stopBar = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.065, 3.2), yellowLineMat);
+        stopBar.position.set(stopX, 0.055, 0);
+        group.add(stopBar);
+
+        // Horizontal Red Wingtip Clearance Lines on Top (-Z) & Bottom (+Z) of the horizontal stand
+        const topBound = new THREE.Mesh(new THREE.BoxGeometry(bayW * 0.84, 0.05, 0.16), redLineMat);
+        topBound.position.set(0, 0.04, -bayD * 0.45);
+        const botBound = new THREE.Mesh(new THREE.BoxGeometry(bayW * 0.84, 0.05, 0.16), redLineMat);
+        botBound.position.set(0, 0.04, bayD * 0.45);
+        group.add(topBound, botBound);
+      } else {
+        // VERTICAL PARKING BAY (01–08 on North Apron at z=-9 connects to North Taxiway at z=+2.2; 09–16 on South Apron at z=+39 connects to South Taxiway at z=+27.2)
+        const isNorth = data.apron === 'north';
+        const stopZ = isNorth ? -4.2 : 4.2;
+        const taxiwayWorldZ = isNorth ? 2.2 : 27.2;
+        const taxiwayLocalZ = taxiwayWorldZ - data.z;
+        const lineLenZ = Math.abs(taxiwayLocalZ - stopZ);
+        const lineCenterZ = (stopZ + taxiwayLocalZ) * 0.5;
+
+        // Dark asphalt taxiway spur connecting this bay straight to the parallel horizontal taxiway
+        const spurAsphalt = new THREE.Mesh(
+          new THREE.BoxGeometry(4.2, 0.05, lineLenZ + 1.8),
+          new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.78 })
+        );
+        spurAsphalt.position.set(0, 0.03, lineCenterZ);
+        spurAsphalt.receiveShadow = true;
+        group.add(spurAsphalt);
+
+        // Continuous yellow lead-in centerline from the bay T-stop bar right into the parallel horizontal taxiway centerline
+        const leadLine = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.065, lineLenZ), yellowLineMat);
+        leadLine.position.set(0, 0.055, lineCenterZ);
+        group.add(leadLine);
+
+        const stopBar = new THREE.Mesh(new THREE.BoxGeometry(3.2, 0.065, 0.26), yellowLineMat);
+        stopBar.position.set(0, 0.055, stopZ);
+        group.add(stopBar);
+
+        // Red Wingtip Clearance Lines on Left & Right of each Stand
+        const leftBound = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.05, bayD * 0.82), redLineMat);
+        leftBound.position.set(-bayW * 0.46, 0.04, 0);
+        const rightBound = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.05, bayD * 0.82), redLineMat);
+        rightBound.position.set(bayW * 0.46, 0.04, 0);
+        group.add(leftBound, rightBound);
+      }
+
+      // 3. 3D Chibi Egg-Plane (oriented horizontally for horizontal bays 17-22, and vertically for 01-16!)
       const chibiPlane = createChibiEggPlane(new THREE.Color(data.color).getHex(), data.id);
       chibiPlane.position.set(0, 0.14, 0);
-      // Nose of createChibiEggPlane is -Z; rotate by Math.PI (facing South/+Z) with a slight angled presentation matching the photo!
-      chibiPlane.rotation.y = Math.PI - 0.15;
+      if (data.orientation === 'horizontal-left') {
+        // Nose (-Z) rotated to face +X (East, toward the middle vertical taxiway)
+        chibiPlane.rotation.y = -Math.PI / 2;
+      } else if (data.orientation === 'horizontal-right') {
+        // Nose (-Z) rotated to face -X (West, toward the vertical taxiway)
+        chibiPlane.rotation.y = Math.PI / 2;
+      } else if (data.apron === 'south') {
+        // Facing North (-Z) toward the South Taxiway & Main Runway
+        chibiPlane.rotation.y = 0.12;
+      } else {
+        // Facing South (+Z) toward the North Taxiway & Main Runway
+        chibiPlane.rotation.y = Math.PI - 0.12;
+      }
       chibiPlane.visible = false;
       group.add(chibiPlane);
       islandChibiPlanesMap.set(data.id, chibiPlane);
@@ -1890,6 +2195,17 @@
 
       group.add(crewGroup);
       islandLoadingCrewMap.set(data.id, { group: crewGroup, workersContainer, workers: [], signature: '', bubbleEl: null });
+
+      // 5. 3D Road-Sign Shape Signpost (路牌形狀顯示輸入的 Bay 位文字，如 x18)
+      const roadSign = createBayRoadSignMesh();
+      if (isHorizontal) {
+        const dirToTaxi = data.orientation === 'horizontal-left' ? 1 : -1;
+        roadSign.position.set(dirToTaxi * 5.2, 0.05, 4.6);
+      } else {
+        roadSign.position.set(4.8, 0.05, data.apron === 'north' ? 4.8 : -4.8);
+      }
+      group.add(roadSign);
+      islandRoadSignsMap.set(data.id, roadSign);
 
       scene.add(group);
       islandMeshesMap.set(data.id, group);
@@ -1960,10 +2276,51 @@
     scene.add(runwayGroup);
 
     function buildBottomRunwayAndTaxiways() {
-      const rwLength = 156;
+      const rwLength = 192;
       const rwWidth = 10.5;
+      const taxiwayAsphaltMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.78 });
+      const yellowLineMat = new THREE.MeshBasicMaterial({ color: 0xfacc15 });
+      const taxiEdgeLightMat = new THREE.MeshStandardMaterial({
+        color: 0x4ade80,
+        emissive: 0x22c55e,
+        emissiveIntensity: 0.9
+      });
 
-      // Main Dark Asphalt Runway Surface (07R / 25L) flush on the Giant Rectangular Dynamic Island
+      // Helper to add a straight taxiway road segment (in world X, Z coordinates; converted to runwayGroup local coordinates where runwayGroup is at z = +15.0)
+      function addTaxiwaySegment(worldX1, worldZ1, worldX2, worldZ2, width = 4.6) {
+        const localZ1 = worldZ1 - 15.0;
+        const localZ2 = worldZ2 - 15.0;
+        const isHorizontalSeg = Math.abs(worldZ1 - worldZ2) < 0.01;
+        const segW = isHorizontalSeg ? Math.abs(worldX2 - worldX1) + width : width;
+        const segD = isHorizontalSeg ? width : Math.abs(localZ2 - localZ1) + width;
+        const cx = (worldX1 + worldX2) * 0.5;
+        const cz = (localZ1 + localZ2) * 0.5;
+
+        const asphalt = new THREE.Mesh(new THREE.BoxGeometry(segW, 0.08, segD), taxiwayAsphaltMat);
+        asphalt.position.set(cx, 0.04, cz);
+        asphalt.receiveShadow = true;
+        runwayGroup.add(asphalt);
+
+        const lineW = isHorizontalSeg ? Math.abs(worldX2 - worldX1) + 0.4 : 0.28;
+        const lineD = isHorizontalSeg ? 0.28 : Math.abs(localZ2 - localZ1) + 0.4;
+        const centerLine = new THREE.Mesh(new THREE.BoxGeometry(lineW, 0.095, lineD), yellowLineMat);
+        centerLine.position.set(cx, 0.06, cz);
+        runwayGroup.add(centerLine);
+
+        // Subtle green taxiway centerline lights along the segment
+        const len = isHorizontalSeg ? Math.abs(worldX2 - worldX1) : Math.abs(localZ2 - localZ1);
+        const steps = Math.max(2, Math.floor(len / 9));
+        for (let s = 0; s <= steps; s++) {
+          const t = s / steps;
+          const lx = worldX1 + (worldX2 - worldX1) * t;
+          const lz = localZ1 + (localZ2 - localZ1) * t;
+          const gl = new THREE.Mesh(new THREE.SphereGeometry(0.13, 6, 6), taxiEdgeLightMat);
+          gl.position.set(lx, 0.1, lz);
+          runwayGroup.add(gl);
+        }
+      }
+
+      // 1. Main Dark Asphalt Flight Runway Surface (07R / 25L at world z = +15.0)
       const rwSurface = new THREE.Mesh(
         new THREE.BoxGeometry(rwLength, 0.14, rwWidth),
         new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.75 })
@@ -1972,16 +2329,42 @@
       rwSurface.receiveShadow = true;
       runwayGroup.add(rwSurface);
 
+      // 2. INTERCONNECTED AIRCRAFT TAXIWAY NETWORK (所有飛機行路連貫下方飛行跑道 · 每條行路也連貫所有飛機停泊位)
+      // (A) North Parallel Horizontal Taxiway (world z = +2.2, connecting all North Bays 01–08 from x = -73.5 to x = +73.5)
+      addTaxiwaySegment(-73.5, 2.2, 73.5, 2.2, 4.6);
+
+      // (B) Top-Left Middle Vertical Taxiway (world x = -57.0, running between Left Horizontal Bays 17,18 and Right Horizontal Bays 19,20 from z = -49.0 straight down through North Taxiway z = +2.2 into Main Flight Runway z = +15.0!)
+      addTaxiwaySegment(-57.0, -49.0, -57.0, 15.0, 4.8);
+
+      // (C) Additional North-to-Runway Vertical Connector Taxiways linking the North Parallel Taxiway (z = +2.2) straight into the Main Flight Runway (z = +15.0)
+      addTaxiwaySegment(-73.5, 2.2, -73.5, 15.0, 4.4);
+      addTaxiwaySegment(-31.0, 2.2, -31.0, 15.0, 4.4);
+      addTaxiwaySegment(7.0,   2.2, 7.0,   15.0, 4.4);
+      addTaxiwaySegment(45.0,  2.2, 45.0,  15.0, 4.4);
+      addTaxiwaySegment(73.5,  2.2, 73.5,  15.0, 4.6);
+
+      // (D) South Parallel Horizontal Taxiway (world z = +27.2, connecting Bottom-Left Vertical Spine x = -73.5 and all South Bays 09–16 up to x = +78.5)
+      addTaxiwaySegment(-73.5, 27.2, 78.5, 27.2, 4.6);
+
+      // (E) South-to-Runway Vertical Connector Taxiways linking the South Parallel Taxiway (z = +27.2) straight into the Main Flight Runway (z = +15.0)
+      addTaxiwaySegment(-45.0, 15.0, -45.0, 27.2, 4.4);
+      addTaxiwaySegment(-7.0,  15.0, -7.0,  27.2, 4.4);
+      addTaxiwaySegment(31.0,  15.0, 31.0,  27.2, 4.4);
+      addTaxiwaySegment(73.5,  15.0, 73.5,  27.2, 4.6);
+
+      // (F) Bottom-Left Vertical Taxiway Spine (world x = -73.5, running from Main Flight Runway z = +15.0 through South Parallel Taxiway z = +27.2 down to z = +48.5 to serve Bottom-Left Horizontal Bays 21 & 22!)
+      addTaxiwaySegment(-73.5, 15.0, -73.5, 48.5, 4.8);
+
       // White dashed runway centerline markings
       const whiteLineMat = new THREE.MeshBasicMaterial({ color: 0xf8fafc });
-      for (let x = -64; x <= 64; x += 7.5) {
+      for (let x = -80; x <= 80; x += 7.5) {
         const dash = new THREE.Mesh(new THREE.BoxGeometry(3.8, 0.05, 0.32), whiteLineMat);
         dash.position.set(x, 0.15, 0);
         runwayGroup.add(dash);
       }
 
-      // Threshold Piano Key Stripes at West (-72) & East (+72) ends (matching 8d1fe971.jpeg!)
-      [-71, 71].forEach(endX => {
+      // Threshold Piano Key Stripes at West (-88) & East (+88) ends
+      [-88, 88].forEach(endX => {
         for (let z = -3.8; z <= 3.8; z += 1.1) {
           const keyStripe = new THREE.Mesh(new THREE.BoxGeometry(4.2, 0.05, 0.55), whiteLineMat);
           keyStripe.position.set(endX, 0.15, z);
@@ -1990,7 +2373,7 @@
       });
 
       // Runway Edge Lights
-      for (let x = -74; x <= 74; x += 8) {
+      for (let x = -90; x <= 90; x += 8) {
         [-4.9, 4.9].forEach(zSide => {
           const edgeBulbMat = new THREE.MeshStandardMaterial({
             color: 0xfef08a,
@@ -2004,21 +2387,23 @@
         });
       }
 
-      // Create 2 One-Shot Animated Chibi Egg-Planes on the Central Runway (07R / 25L)
-      for (let i = 0; i < 2; i++) {
-        const rwPlane = createChibiEggPlane(i === 0 ? 0x10b981 : 0xffb500, null);
+      // Create 4 Animated Chibi Egg-Planes for Runway <-> Taxiway <-> Parking Bay Arrival & Departure Animations
+      for (let i = 0; i < 4; i++) {
+        const isArrSlot = i % 2 === 0;
+        const rwPlane = createChibiEggPlane(isArrSlot ? 0x10b981 : 0xffb500, null);
         rwPlane.rotation.y = -Math.PI / 2;
-        rwPlane.position.set(-45 + i * 40, 0.22, i === 0 ? -2.0 : 2.0);
-        rwPlane.visible = false; // Hidden by default; only appears ONCE at exact arrival/departure time!
+        rwPlane.position.set(-45 + i * 25, 0.22, isArrSlot ? -1.5 : 1.5);
+        rwPlane.visible = false;
         runwayGroup.add(rwPlane);
 
         const rwBadge = document.createElement('div');
-        rwBadge.className = 'staff-badge !bg-slate-950/95 !border-amber-400 !px-2 !py-1';
+        rwBadge.className = 'staff-badge !bg-slate-900/20 !border-amber-400/80 !px-2 !py-1';
         rwBadge.style.display = 'none';
         rwBadge.addEventListener('click', (e) => {
           e.stopPropagation();
+          if (state.viewLocked) return;
           camCtrl.desiredTarget.set(0, 1.5, 15);
-          camCtrl.desiredSpherical = { radius: 68, phi: 0.95, theta: -0.15 };
+          camCtrl.desiredSpherical = { radius: 85, phi: 0.95, theta: -0.15 };
         });
         document.getElementById('labels-layer').appendChild(rwBadge);
 
@@ -2028,8 +2413,13 @@
           active: false,
           progress: 0,
           eventKey: '',
-          mode: i === 0 ? 'arriving' : 'departing',
-          laneZ: i === 0 ? -2.0 : 2.0,
+          targetIslandId: '',
+          mode: isArrSlot ? 'arriving' : 'departing',
+          laneZ: isArrSlot ? -1.5 : 1.5,
+          waypoints: [],
+          segLengths: [],
+          totalLength: 1,
+          currentYaw: -Math.PI / 2,
           labelHtml: ''
         });
       }
@@ -2161,18 +2551,38 @@
     // =========================================================================
     const labelsLayer = document.getElementById('labels-layer');
     const labelDomMap = new Map();
+    let upsGatewayUldBubbleEl = null;
 
     function createProjectedLabels() {
       labelsLayer.innerHTML = '';
       runwayChibiPlanes.forEach(rwObj => { if (rwObj.badgeEl) labelsLayer.appendChild(rwObj.badgeEl); });
+
+      // Create the UPS HKG Gateway Upper Bubble (Serviceable as of 6:00am Breakdown)
+      upsGatewayUldBubbleEl = document.createElement('div');
+      upsGatewayUldBubbleEl.id = 'ups-gateway-uld-bubble';
+      upsGatewayUldBubbleEl.className = 'uld-bubble-card';
+      upsGatewayUldBubbleEl.title = '點擊開啟「每日工作編排」手動修改數目字';
+      upsGatewayUldBubbleEl.addEventListener('click', (e) => {
+        e.stopPropagation();
+        renderOperationPlanTable();
+        const rm = document.getElementById('roster-modal');
+        if (rm) {
+          rm.classList.remove('hidden');
+          rm.classList.add('flex');
+        }
+      });
+      labelsLayer.appendChild(upsGatewayUldBubbleEl);
+
       ISLANDS_DATA.forEach((isl) => {
         const tag = document.createElement('div');
         tag.className = 'island-tag' + (isl.shape === 'rectangle' ? ' center-ups' : '');
         if (isl.shape === 'rectangle') {
           tag.innerHTML = `<img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/United_Parcel_Service_logo_2014.svg" alt="UPS" class="w-4 h-5 object-contain flex-shrink-0" /><span>${isl.name}</span>`;
         } else {
-          // Outer islands have NO island theme name — only their bay code badge
-          tag.innerHTML = `<span class="hex-badge" style="background:${isl.color}">${isl.code}</span>`;
+          // Bay number nameplates (01..22) removed per user request
+          tag.innerHTML = '';
+          tag.dataset.hideDeparted = '1';
+          tag.style.display = 'none';
         }
         tag.addEventListener('click', (e) => {
           e.stopPropagation();
@@ -2191,14 +2601,14 @@
         const group = islandMeshesMap.get(isl.id);
         if (!group) return;
 
-        // Tag position near front base of island
+        // Tag position near front base of island/bay
         const tagWorld = isl.shape === 'rectangle'
           ? new THREE.Vector3(isl.x, group.position.y + 7.5, isl.z)
-          : new THREE.Vector3(isl.x, group.position.y + 0.5, isl.z + 6.2);
+          : new THREE.Vector3(isl.x, group.position.y + 0.5, isl.z + (isl.orientation ? 5.2 : 6.2));
         tagWorld.project(camera);
         const tagEl = labelDomMap.get(isl.id);
         if (tagEl) {
-          if (!state.showLabels || tagWorld.z > 1 || tagEl.dataset.hideDeparted === '1') {
+          if (!state.showLabels || tagWorld.z > 1 || tagEl.dataset.hideDeparted === '1' || !tagEl.innerHTML.trim()) {
             tagEl.style.display = 'none';
           } else {
             tagEl.style.display = 'inline-flex';
@@ -2209,6 +2619,24 @@
           }
         }
       });
+
+      // Pin the UPS HKG Gateway Upper Bubble (Serviceable as of 6:00am Breakdown) to the very top of the screen so it never blocks the 3D island or left HUD panel!
+      if (upsGatewayUldBubbleEl) {
+        if (!state.showBubbles) {
+          upsGatewayUldBubbleEl.style.display = 'none';
+        } else {
+          upsGatewayUldBubbleEl.style.display = 'block';
+          const bubW = upsGatewayUldBubbleEl.offsetWidth || 680;
+          const leftPanelRightEdge = 378;
+          const minCenterX = leftPanelRightEdge + bubW * 0.5 + 10;
+          const maxCenterX = w - 12 - bubW * 0.5;
+          const bx = maxCenterX >= minCenterX
+            ? Math.max(minCenterX, Math.min(maxCenterX, (leftPanelRightEdge + w) * 0.5))
+            : w * 0.5;
+          upsGatewayUldBubbleEl.style.left = `${bx.toFixed(1)}px`;
+          upsGatewayUldBubbleEl.style.top = '10px';
+        }
+      }
 
       // 1. Project 1-to-1 Individual Permanent Staff Badges on UPS HKG Gateway (1 badge per 1 3D worker!)
       const upsGroup = islandMeshesMap.get('UPS');
@@ -2805,231 +3233,748 @@
     }
 
     // =========================================================================
-    // 9B. FLIGHTRADAR24 5X/UPS (HKG) 1-SECOND DIRECT AUTO-SYNC (SHOWN ON DYNAMIC ISLAND)
+    // 9B. HKIA CARGO ARRIVALS & DEPARTURES (5X · TODAY'S DATE) 1-SECOND AUTO-SYNC
+    //     Arrivals URL:   https://www.hongkongairport.com/tc/flights/arrivals/cargo.page
+    //     Departures URL: https://www.hongkongairport.com/tc/flights/departures/cargo.page
     // =========================================================================
     let isFetchingFR24 = false;
 
-    function formatUnixToHKTime(unixSec) {
-      if (!unixSec || typeof unixSec !== 'number' || unixSec <= 0) return null;
-      const d = new Date(unixSec * 1000);
+    const HKIA_ARRIVALS_PAGE_URL = 'https://www.hongkongairport.com/tc/flights/arrivals/cargo.page';
+    const HKIA_DEPARTURES_PAGE_URL = 'https://www.hongkongairport.com/tc/flights/departures/cargo.page';
+
+    // Reference HKIA 5X Cargo Flights for Today (matching user's HKIA screenshots + 5X daily cargo schedule)
+    const HKIA_5X_TODAY_ARRIVALS_REF = [
+      { fltNo: '5X 142', numKey: '142', schedTime: '05:35', origin: '路易斯維爾 / 克拉克', statusText: '到閘口 07:06' },
+      { fltNo: '5X 067', numKey: '67',  schedTime: '08:05', origin: '路易斯維爾 / 安克雷奇 / 胡志明市', statusText: '到閘口 08:06' },
+      { fltNo: '5X 062', numKey: '62',  schedTime: '13:10', origin: '路易斯維爾 / 安克雷奇', statusText: '到閘口 13:21' },
+      { fltNo: '5X 054', numKey: '54',  schedTime: '14:15', origin: '台北', statusText: '到閘口 14:25' },
+      { fltNo: '5X 058', numKey: '58',  schedTime: '14:30', origin: '檀香山', statusText: '到閘口 14:37' },
+      { fltNo: '5X 064', numKey: '64',  schedTime: '14:40', origin: '安克雷奇', statusText: '到閘口 14:42' },
+      { fltNo: '5X 078', numKey: '78',  schedTime: '19:15', origin: '安克雷奇', statusText: '預計時間 19:29' },
+      { fltNo: '5X 022', numKey: '22',  schedTime: '04:00', origin: '巴黎戴高樂', statusText: '到閘口 04:05' }
+    ];
+
+    const HKIA_5X_TODAY_DEPARTURES_REF = [
+      { fltNo: '5X 003', numKey: '3',   schedTime: '11:10', dest: '班加羅爾 / 科隆 / 費城', statusText: '啟航 11:32' },
+      { fltNo: '5X 067', numKey: '67',  schedTime: '13:25', dest: '安克雷奇 / 路易斯維爾', statusText: '-' },
+      { fltNo: '5X 059', numKey: '59',  schedTime: '12:15', dest: '安克雷奇', statusText: '啟航 12:24' },
+      { fltNo: '5X 141', numKey: '141', schedTime: '23:10', dest: '克拉克', statusText: '預計時間 23:10' },
+      { fltNo: '5X 061', numKey: '61',  schedTime: '23:30', dest: '安克雷奇', statusText: '預計時間 23:30' },
+      { fltNo: '5X 001', numKey: '1',   schedTime: '23:45', dest: '科隆 / 班加羅爾', statusText: '-' },
+      { fltNo: '5X 063', numKey: '63',  schedTime: '02:35', dest: '安克雷奇', statusText: '預計時間 02:35' }
+    ];
+
+    function getHKTodayDateStrings() {
+      const now = new Date();
       const parts = new Intl.DateTimeFormat('en-GB', {
         timeZone: 'Asia/Hong_Kong',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false
-      }).formatToParts(d);
-      const hh = parts.find(p => p.type === 'hour')?.value;
-      const mm = parts.find(p => p.type === 'minute')?.value;
-      return (hh && mm) ? `${hh}:${mm}` : null;
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      }).formatToParts(now);
+      const yyyy = parts.find(p => p.type === 'year')?.value || '2026';
+      const mm = parts.find(p => p.type === 'month')?.value || '10';
+      const dd = parts.find(p => p.type === 'day')?.value || '27';
+      return {
+        isoDate: `${yyyy}-${mm}-${dd}`,
+        zhDate: `${yyyy}年${parseInt(mm, 10)}月${parseInt(dd, 10)}日`
+      };
+    }
+
+    // Extract normalized numeric flight key from e.g. "5X 142", "142-CRK", "5X003", "003-BLR" -> "142", "3"
+    function extract5XFlightNumKey(fltStr) {
+      if (!fltStr || typeof fltStr !== 'string') return '';
+      const cleaned = fltStr.trim().toUpperCase().replace(/^UPS\s*/, '').replace(/^5X\s*[-]?\s*/, '');
+      const m = cleaned.match(/^0*(\d+)/);
+      return m ? m[1] : '';
+    }
+
+    function isSame5XFlightNum(fltA, fltB) {
+      const kA = extract5XFlightNumKey(fltA);
+      const kB = extract5XFlightNumKey(fltB);
+      return Boolean(kA && kB && kA === kB);
+    }
+
+    function formatUnified5XFlightTitle(inFlt, outFlt) {
+      const inTrim = String(inFlt || '').trim();
+      const outTrim = String(outFlt || '').trim();
+      if (inTrim && outTrim) {
+        if (isSame5XFlightNum(inTrim, outTrim) || inTrim.toUpperCase() === outTrim.toUpperCase()) {
+          return inTrim;
+        }
+        return `${inTrim} / ${outTrim}`;
+      }
+      return inTrim || outTrim || '--';
+    }
+
+    // =========================================================================
+    // AUTOMATIC PARKING BAY ROUTING BY BAY INPUT & RUNWAY <-> BAY TAXI PATHS
+    // Rules:
+    //  1. 剛出現三位數字 (e.g. D327, D324, X458>X25) -> 自動編排左上角橫向的停泊位 (17, 18, 19, 20)
+    //  2. 輸入雙位數 (X16–X23) -> 由左至右自動編排近 UPS 大樓的停泊位 (01–08)
+    //  3. 輸入雙位數 (X24–X30) -> 由左至右自動編排跑道下方的停泊位 (09–16)
+    //  4. 單位數字 (1–9, e.g. X1–X9) -> 自動編排左下角橫向停泊位 (21, 22)
+    // =========================================================================
+    function classifyParkingBayZone(bayStr) {
+      if (!bayStr || typeof bayStr !== 'string') return null;
+      const clean = bayStr.trim();
+      if (!clean) return null;
+      const numTokens = clean.match(/\d+/g);
+      if (!numTokens || numTokens.length === 0) return null;
+
+      // 1. Check if a 3-digit number appears (剛出現三位數字 -> 左上角橫向停泊位 17–20)
+      const threeDigit = numTokens.find(t => t.length === 3);
+      if (threeDigit) {
+        return { zone: 'top-left-3digit', num: parseInt(threeDigit, 10), rawToken: threeDigit };
+      }
+
+      const firstToken = numTokens[0];
+      const val = parseInt(firstToken, 10);
+
+      // 2. Single-digit number (單位數字 -> 左下角橫向停泊位 21–22)
+      if (firstToken.length === 1 && val >= 1 && val <= 9) {
+        return { zone: 'bottom-left-1digit', num: val, rawToken: firstToken };
+      }
+
+      // 3. Two-digit numbers:
+      //    - 16..23 (or <=23) -> 近 UPS 大樓的停泊位 (01–08) 由左至右
+      //    - 24..30 (or >=24) -> 跑道下方的停泊位 (09–16) 由左至右
+      if (val >= 16 && val <= 23) {
+        return { zone: 'north-2digit', num: val, preferredSlotIdx: val - 16 }; // 16->0 (Bay 01) .. 23->7 (Bay 08)
+      }
+      if (val >= 24 && val <= 31) {
+        return { zone: 'south-2digit', num: val, preferredSlotIdx: val - 24 }; // 24->0 (Bay 09) .. 30->6 (Bay 15), 31->7 (Bay 16)
+      }
+      if (val >= 10 && val < 16) {
+        return { zone: 'north-2digit', num: val, preferredSlotIdx: -1 };
+      }
+      if (val > 31 && val <= 99) {
+        return { zone: 'south-2digit', num: val, preferredSlotIdx: -1 };
+      }
+      return null;
+    }
+
+    function autoAssignFlightBays(flightsList) {
+      if (!Array.isArray(flightsList)) return;
+      const northPool = ['01', '02', '03', '04', '05', '06', '07', '08'];
+      const southPool = ['09', '10', '11', '12', '13', '14', '15', '16'];
+      const topLeftPool = ['17', '18', '19', '20'];
+      const bottomLeftPool = ['21', '22'];
+
+      const usedBays = new Set();
+
+      // First pass: assign flights with explicit 16..23 or 24..31 preferred left-to-right bay index
+      flightsList.forEach(flt => {
+        const info = classifyParkingBayZone(flt.parkingBay);
+        if (!info) return;
+        if (info.zone === 'north-2digit' && info.preferredSlotIdx >= 0 && info.preferredSlotIdx < northPool.length) {
+          const candidate = northPool[info.preferredSlotIdx];
+          if (!usedBays.has(candidate)) {
+            flt.islandId = candidate;
+            usedBays.add(candidate);
+            flt._assignedByRule = true;
+          } else {
+            flt._assignedByRule = false;
+          }
+        } else if (info.zone === 'south-2digit' && info.preferredSlotIdx >= 0 && info.preferredSlotIdx < southPool.length) {
+          const candidate = southPool[info.preferredSlotIdx];
+          if (!usedBays.has(candidate)) {
+            flt.islandId = candidate;
+            usedBays.add(candidate);
+            flt._assignedByRule = true;
+          } else {
+            flt._assignedByRule = false;
+          }
+        } else {
+          flt._assignedByRule = false;
+        }
+      });
+
+      // Second pass: assign 3-digit (top-left 17–20), 1-digit (bottom-left 21–22), and any remaining 2-digit from left to right in their respective pools
+      flightsList.forEach(flt => {
+        if (flt._assignedByRule) {
+          delete flt._assignedByRule;
+          return;
+        }
+        const info = classifyParkingBayZone(flt.parkingBay);
+        if (!info) return;
+        let pool = northPool;
+        if (info.zone === 'top-left-3digit') pool = topLeftPool;
+        else if (info.zone === 'bottom-left-1digit') pool = bottomLeftPool;
+        else if (info.zone === 'south-2digit') pool = southPool;
+        else if (info.zone === 'north-2digit') pool = northPool;
+
+        const freeInPool = pool.find(id => !usedBays.has(id)) || pool[0];
+        flt.islandId = freeInPool;
+        usedBays.add(freeInPool);
+      });
+    }
+
+    // Build exact 3D multi-waypoint path (in runwayGroup local coordinates where runwayGroup is at world z = +15.0)
+    // connecting the Flight Runway (07R/25L), Taxiways, and the specific Parking Bay (01–22)
+    function buildBayTaxiWaypoints(islandId, mode) {
+      const isl = ISLANDS_DATA.find(i => i.id === islandId) || ISLANDS_DATA[1];
+      const bayX = isl.x;
+      const bayLocalZ = isl.z - 15.0; // relative to runwayGroup at z = +15.0
+
+      const pickClosestConnector = (candidates, targetX) => {
+        let best = candidates[0];
+        let bestDist = Math.abs(targetX - best);
+        candidates.forEach(c => {
+          const d = Math.abs(targetX - c);
+          if (d < bestDist) {
+            bestDist = d;
+            best = c;
+          }
+        });
+        return best;
+      };
+
+      if (mode === 'arriving') {
+        // ARRIVAL: Western Sky -> Touchdown on Runway -> Rollout to Taxiway Turnoff -> Taxi along Taxiway -> Enter Parking Bay
+        if (isl.apron === 'northwest') {
+          // Top-Left 4 Horizontal Bays (17–20) via Middle Vertical Taxiway x = -57.0
+          return [
+            { x: -92.0, y: 12.0, z: -1.5 },
+            { x: -75.0, y: 0.22, z: -1.5 },
+            { x: -57.0, y: 0.22, z: 0.0 },
+            { x: -57.0, y: 0.22, z: bayLocalZ },
+            { x: bayX,  y: 0.14, z: bayLocalZ }
+          ];
+        }
+        if (isl.apron === 'southwest') {
+          // Bottom-Left 2 Horizontal Bays (21–22) via West-South Vertical Taxiway x = -73.5
+          return [
+            { x: -92.0, y: 11.5, z: 1.5 },
+            { x: -82.0, y: 0.22, z: 1.5 },
+            { x: -73.5, y: 0.22, z: 0.0 },
+            { x: -73.5, y: 0.22, z: bayLocalZ },
+            { x: bayX,  y: 0.14, z: bayLocalZ }
+          ];
+        }
+        if (isl.apron === 'south') {
+          // South Row Bays (09–16) via South Parallel Taxiway (world z = +27.2 -> localZ = +12.2)
+          const connX = pickClosestConnector([-73.5, -45.0, -7.0, 31.0, 73.5], bayX);
+          const tdX = Math.min(-66.0, connX - 16.0);
+          return [
+            { x: -92.0, y: 12.0, z: 1.5 },
+            { x: tdX,   y: 0.22, z: 1.5 },
+            { x: connX, y: 0.22, z: 0.0 },
+            { x: connX, y: 0.22, z: 12.2 },
+            { x: bayX,  y: 0.22, z: 12.2 },
+            { x: bayX,  y: 0.14, z: bayLocalZ }
+          ];
+        }
+        // Default: North Row Bays (01–08) via North Parallel Taxiway (world z = +2.2 -> localZ = -12.8)
+        const connX = pickClosestConnector([-73.5, -57.0, -31.0, 7.0, 45.0, 73.5], bayX);
+        const tdX = Math.min(-66.0, connX - 16.0);
+        return [
+          { x: -92.0, y: 12.0, z: -1.5 },
+          { x: tdX,   y: 0.22, z: -1.5 },
+          { x: connX, y: 0.22, z: 0.0 },
+          { x: connX, y: 0.22, z: -12.8 },
+          { x: bayX,  y: 0.22, z: -12.8 },
+          { x: bayX,  y: 0.14, z: bayLocalZ }
+        ];
+      } else {
+        // DEPARTURE: Start at Assigned Parking Bay -> Taxi along Bay Spur & Taxiway -> Enter Flight Runway -> Takeoff Roll & Climb!
+        if (isl.apron === 'northwest') {
+          return [
+            { x: bayX,  y: 0.14, z: bayLocalZ },
+            { x: -57.0, y: 0.22, z: bayLocalZ },
+            { x: -57.0, y: 0.22, z: 1.5 },
+            { x: 26.0,  y: 0.22, z: 1.5 },
+            { x: 92.0,  y: 15.0, z: 1.5 }
+          ];
+        }
+        if (isl.apron === 'southwest') {
+          return [
+            { x: bayX,  y: 0.14, z: bayLocalZ },
+            { x: -73.5, y: 0.22, z: bayLocalZ },
+            { x: -73.5, y: 0.22, z: 1.5 },
+            { x: 24.0,  y: 0.22, z: 1.5 },
+            { x: 92.0,  y: 15.0, z: 1.5 }
+          ];
+        }
+        if (isl.apron === 'south') {
+          const connX = pickClosestConnector([-73.5, -45.0, -7.0, 31.0], Math.min(bayX, 31.0));
+          const liftoffX = Math.max(connX + 46.0, 36.0);
+          return [
+            { x: bayX,     y: 0.14, z: bayLocalZ },
+            { x: bayX,     y: 0.22, z: 12.2 },
+            { x: connX,    y: 0.22, z: 12.2 },
+            { x: connX,    y: 0.22, z: 1.5 },
+            { x: liftoffX, y: 0.22, z: 1.5 },
+            { x: 94.0,     y: 15.0, z: 1.5 }
+          ];
+        }
+        const connX = pickClosestConnector([-73.5, -57.0, -31.0, 7.0], Math.min(bayX, 7.0));
+        const liftoffX = Math.max(connX + 46.0, 36.0);
+        return [
+          { x: bayX,     y: 0.14, z: bayLocalZ },
+          { x: bayX,     y: 0.22, z: -12.8 },
+          { x: connX,    y: 0.22, z: -12.8 },
+          { x: connX,    y: 0.22, z: 1.5 },
+          { x: liftoffX, y: 0.22, z: 1.5 },
+          { x: 94.0,     y: 15.0, z: 1.5 }
+        ];
+      }
+    }
+
+    function launchRunwayBayAnimation(mode, islandId, flt, statusLabel, eventKey) {
+      // Find a free animation slot matching mode (or reuse oldest slot of that mode)
+      const candidates = runwayChibiPlanes.filter(p => p.mode === mode);
+      let slot = candidates.find(p => !p.active) || candidates[0];
+      if (!slot) return;
+
+      const pts = buildBayTaxiWaypoints(islandId, mode);
+      const segLengths = [];
+      let totalLength = 0;
+      for (let i = 0; i < pts.length - 1; i++) {
+        const d = Math.hypot(pts[i + 1].x - pts[i].x, pts[i + 1].y - pts[i].y, pts[i + 1].z - pts[i].z);
+        segLengths.push(Math.max(0.01, d));
+        totalLength += Math.max(0.01, d);
+      }
+
+      slot.active = true;
+      slot.progress = 0;
+      slot.eventKey = eventKey;
+      slot.targetIslandId = islandId;
+      slot.waypoints = pts;
+      slot.segLengths = segLengths;
+      slot.totalLength = Math.max(1, totalLength);
+      slot.mesh.position.set(pts[0].x, pts[0].y, pts[0].z);
+      if (pts.length > 1) {
+        slot.currentYaw = Math.atan2(pts[1].x - pts[0].x, pts[1].z - pts[0].z) + Math.PI;
+        slot.mesh.rotation.y = slot.currentYaw;
+      }
+      slot.mesh.visible = true;
+
+      const bayText = flt.parkingBay || (`停機位 ${islandId}`);
+      if (mode === 'arriving') {
+        slot.labelHtml = `<span class="role-tag !bg-emerald-400">🛬 到港滑行入位中</span><span>${flt.inFlt || '5X'} (${statusLabel}) → 滑行至 ${bayText} (泊位 ${islandId})</span>`;
+      } else {
+        slot.labelHtml = `<span class="role-tag !bg-amber-400">🛫 離港滑行起飛中</span><span>${flt.outFlt || '5X'} (${statusLabel}) · 由 ${bayText} (泊位 ${islandId}) 移至跑道起飛</span>`;
+      }
+    }
+
+    // Merge & deduplicate flights that share the same Inbound or Outbound FLT Number
+    // so the same FLT Number is unified and NEVER appears twice simultaneously!
+    function getUnifiedUniqueFlights(flightsList) {
+      if (!Array.isArray(flightsList)) return [];
+      const unified = [];
+      const byInKey = new Map();
+      const byOutKey = new Map();
+
+      flightsList.forEach((flt, idx) => {
+        const inKey = extract5XFlightNumKey(flt.inFlt);
+        const outKey = extract5XFlightNumKey(flt.outFlt);
+
+        let existing = null;
+        if (inKey && byInKey.has(inKey)) {
+          existing = byInKey.get(inKey);
+        } else if (outKey && byOutKey.has(outKey)) {
+          existing = byOutKey.get(outKey);
+        }
+
+        if (existing) {
+          // Merge any missing/supplementary fields into the unified flight entry
+          Object.keys(flt).forEach(k => {
+            if ((!existing[k] || existing[k] === '-' || existing[k] === '預計時間 -') && flt[k]) {
+              existing[k] = flt[k];
+            }
+          });
+          if (inKey) byInKey.set(inKey, existing);
+          if (outKey) byOutKey.set(outKey, existing);
+        } else {
+          const clone = { ...flt, _origColIdx: idx };
+          unified.push(clone);
+          if (inKey) byInKey.set(inKey, clone);
+          if (outKey) byOutKey.set(outKey, clone);
+        }
+      });
+
+      return unified;
+    }
+
+    // Parse HKIA Arrival "現況" (Status):
+    // - 現況 "到閘口" (e.g. "到閘口 07:06" / "At gate 07:06") -> 代表已到港 (hasArrived = true)
+    // - 現況 "預計時間" (e.g. "預計時間 19:29" / "-" / 尚未到閘口) -> 代表還沒到港 (hasArrived = false)
+    function parseHKIAArrivalStatus(statusRaw, schedTimeRaw) {
+      const raw = String(statusRaw || '').trim();
+      const sched = String(schedTimeRaw || '').trim();
+      const timeMatch = raw.match(/(\d{1,2}:\d{2})/);
+      const extractedTime = timeMatch ? timeMatch[1].padStart(5, '0') : (sched || '--:--');
+      const isAtGate = raw.includes('到閘口') || /at\s*gate/i.test(raw);
+      if (isAtGate) {
+        return {
+          hasArrived: true,
+          statusLabel: `到閘口 ${extractedTime}`,
+          displayTime: extractedTime,
+          schedTime: sched || extractedTime
+        };
+      }
+      const estLabel = raw.includes('預計')
+        ? `預計時間 ${extractedTime}`
+        : (extractedTime !== '--:--' ? `預計時間 ${extractedTime}` : '預計時間 -');
+      return {
+        hasArrived: false,
+        statusLabel: estLabel,
+        displayTime: extractedTime,
+        schedTime: sched || extractedTime
+      };
+    }
+
+    // Parse HKIA Departure "現況" (Status):
+    // - 現況 "啟航 HH:MM" 有時間 (e.g. "啟航 11:32" / "Dep 11:32") -> 代表已離港 (hasDeparted = true)
+    // - 現況 "預計時間 HH:MM" 或 "-" -> 代表還沒離港 (hasDeparted = false)
+    function parseHKIADepartureStatus(statusRaw, schedTimeRaw) {
+      const raw = String(statusRaw || '').trim();
+      const sched = String(schedTimeRaw || '').trim();
+      const timeMatch = raw.match(/(\d{1,2}:\d{2})/);
+      const hasDepTime = (raw.includes('啟航') || /\bdep\b/i.test(raw)) && Boolean(timeMatch);
+      if (hasDepTime) {
+        const depTime = timeMatch[1].padStart(5, '0');
+        return {
+          hasDeparted: true,
+          statusLabel: `啟航 ${depTime}`,
+          displayTime: depTime,
+          schedTime: sched || depTime
+        };
+      }
+      if (raw.includes('預計') && timeMatch) {
+        const estTime = timeMatch[1].padStart(5, '0');
+        return {
+          hasDeparted: false,
+          statusLabel: `預計時間 ${estTime}`,
+          displayTime: estTime,
+          schedTime: sched || estTime
+        };
+      }
+      return {
+        hasDeparted: false,
+        statusLabel: '-',
+        displayTime: sched || '--:--',
+        schedTime: sched || '--:--'
+      };
     }
 
     function renderFR24LiveBoard() {
-      // 1. Update On-Screen Top-Left HUD Mini List (Visible directly on the Dynamic Island!)
+      const { zhDate } = getHKTodayDateStrings();
+      const uniqueFlights = getUnifiedUniqueFlights(operationPlan.flights);
+
+      // 1. Update On-Screen Top-Left HUD Mini List (Unified by FLT Number — no duplicates!)
       const hudListEl = document.getElementById('hud-fr24-mini-list');
       if (hudListEl) {
-        // Filter out departed flights so departed flight nameplates are not shown on the Dynamic Island HUD
-        hudListEl.innerHTML = operationPlan.flights
-          .filter(flt => (flt.outStatus || 'Scheduled').toLowerCase().includes('scheduled'))
+        hudListEl.innerHTML = uniqueFlights
+          .filter(flt => {
+            const depInfo = parseHKIADepartureStatus(flt.outStatus, flt.hkiaDepSched);
+            return !depInfo.hasDeparted && (flt.inFlt || flt.outFlt);
+          })
           .slice(0, 8)
           .map((flt) => {
-            const isLanded = (flt.inStatus || '').toLowerCase().includes('landed');
-            const badgeCol = isLanded ? 'bg-emerald-500 text-slate-950' : 'bg-slate-700 text-slate-300';
-            const statusLabel = isLanded ? `Landed ${flt.sta || ''}` : `未到港 ${flt.sta || ''}`;
+            const arrInfo = parseHKIAArrivalStatus(flt.inStatus, flt.hkiaArrSched);
+            const badgeCol = arrInfo.hasArrived ? 'bg-emerald-500 text-slate-950' : 'bg-slate-700 text-amber-200';
+            const unifiedTitle = formatUnified5XFlightTitle(flt.inFlt, flt.outFlt);
             return `
-              <div class="bg-slate-900/95 text-white px-1.5 py-1 rounded-lg flex items-center justify-between border ${isLanded ? 'border-emerald-400/70' : 'border-slate-700'}">
-                <span class="font-mono font-bold text-amber-300">[${flt.parkingBay || flt.islandId}] ${flt.outFlt || flt.inFlt || '--'}</span>
-                <span class="px-1 rounded font-mono text-[8.5px] font-black ${badgeCol}">${statusLabel}</span>
+              <div class="bg-slate-900/95 text-white px-1.5 py-1 rounded-lg flex items-center justify-between border ${arrInfo.hasArrived ? 'border-emerald-400/70' : 'border-slate-700'}">
+                <span class="font-mono font-bold text-amber-300">[${flt.parkingBay || flt.islandId}] ${unifiedTitle}</span>
+                <span class="px-1 rounded font-mono text-[8.5px] font-black ${badgeCol}">${arrInfo.statusLabel}</span>
               </div>
             `;
           }).join('');
       }
 
-      // 2. Update Modal Live Board (Modeled directly after IMG_6286.jpg & IMG_6288.jpg!)
+      // 2. Update Modal Live Board (Unified by FLT Number — same FLT Number appears once!)
       const boardEl = document.getElementById('fr24-live-board');
       if (!boardEl) return;
 
-      boardEl.innerHTML = operationPlan.flights.map((flt, idx) => {
-        const isLanded = (flt.inStatus || '').toLowerCase().includes('landed');
-        const isScheduledDep = (flt.outStatus || 'Scheduled').toLowerCase().includes('scheduled');
-        const onIsland = isLanded && isScheduledDep;
+      boardEl.innerHTML = uniqueFlights.map((flt) => {
+        const arrInfo = parseHKIAArrivalStatus(flt.inStatus, flt.hkiaArrSched);
+        const depInfo = parseHKIADepartureStatus(flt.outStatus, flt.hkiaDepSched);
+        const onIsland = arrInfo.hasArrived && !depInfo.hasDeparted;
+        const sameFltNo = isSame5XFlightNum(flt.inFlt, flt.outFlt);
+
+        const stateBadge = depInfo.hasDeparted
+          ? '🛫 已離港'
+          : (arrInfo.hasArrived ? '✈️ 在港停泊中' : '⏳ 還沒到港');
+
+        if (sameFltNo) {
+          // When Inbound FLT Number and Outbound FLT Number are identical (e.g. 5X 067), unify into a single flight block!
+          return `
+            <div class="bg-slate-800/95 border ${onIsland ? 'border-emerald-400' : 'border-slate-700'} rounded-lg p-1.5 flex flex-col justify-between">
+              <div class="flex items-center justify-between text-[9.5px] text-amber-400 font-black border-b border-slate-700/80 pb-0.5">
+                <span>Bay ${flt.parkingBay || flt.islandId} (島 ${flt.islandId})</span>
+                <span class="px-1 rounded text-[8.5px] ${onIsland ? 'bg-emerald-500 text-slate-950' : (depInfo.hasDeparted ? 'bg-rose-500/30 text-rose-200' : 'bg-slate-700 text-slate-300')}">${stateBadge}</span>
+              </div>
+              <div class="mt-1 bg-slate-900/90 p-1.5 rounded border border-amber-400/40 space-y-1 text-[9.5px]">
+                <div class="flex items-center justify-between border-b border-slate-700/80 pb-0.5">
+                  <span class="text-amber-300 font-mono font-black">✈️ ${flt.inFlt || flt.outFlt}</span>
+                  <span class="text-[8px] px-1 rounded bg-amber-500/20 text-amber-200 font-bold">同班號統一顯示</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-sky-300 text-[8.5px]">🛬 到港 (${arrInfo.schedTime}):</span>
+                  <span class="px-1 rounded font-black text-[8.5px] ${arrInfo.hasArrived ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' : 'bg-slate-700 text-amber-200'}">${arrInfo.statusLabel}</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-amber-300 text-[8.5px]">🛫 離港 (${depInfo.schedTime}):</span>
+                  <span class="px-1 rounded font-black text-[8.5px] ${!depInfo.hasDeparted ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40' : 'bg-rose-500/30 text-rose-200 border border-rose-400/40'}">${depInfo.statusLabel}</span>
+                </div>
+              </div>
+            </div>
+          `;
+        }
+
         return `
           <div class="bg-slate-800/95 border ${onIsland ? 'border-emerald-400' : 'border-slate-700'} rounded-lg p-1.5 flex flex-col justify-between">
             <div class="flex items-center justify-between text-[9.5px] text-amber-400 font-black border-b border-slate-700/80 pb-0.5">
               <span>Bay ${flt.parkingBay || flt.islandId} (島 ${flt.islandId})</span>
-              <span class="px-1 rounded text-[8.5px] ${onIsland ? 'bg-emerald-500 text-slate-950' : 'bg-slate-700 text-slate-300'}">${onIsland ? '✈️ 停泊中' : (!isScheduledDep ? '🛫 已離港' : '⏳ 未到港')}</span>
+              <span class="px-1 rounded text-[8.5px] ${onIsland ? 'bg-emerald-500 text-slate-950' : (depInfo.hasDeparted ? 'bg-rose-500/30 text-rose-200' : 'bg-slate-700 text-slate-300')}">${stateBadge}</span>
             </div>
             <div class="mt-1 space-y-1 text-[9.5px]">
               <div class="bg-slate-900/90 p-1 rounded border border-slate-700/80">
                 <div class="flex items-center justify-between">
                   <span class="text-sky-300 font-mono font-bold">🛬 ${flt.inFlt || '--'}</span>
-                  <span class="font-mono text-[8.5px] text-slate-400">${flt.tailNbr || ''}</span>
+                  <span class="font-mono text-[8.5px] text-slate-300">時間 ${arrInfo.schedTime}</span>
                 </div>
+                ${flt.hkiaOrigin ? `<div class="text-[8px] text-slate-400 truncate mt-0.5">出發地：${flt.hkiaOrigin}</div>` : ''}
                 <div class="flex items-center justify-between mt-0.5">
-                  <span class="text-slate-400 text-[8.5px]">STATUS:</span>
-                  <span class="px-1 rounded font-black text-[8.5px] ${isLanded ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' : 'bg-slate-700 text-slate-300'}">${isLanded ? ('Landed ' + (flt.sta || '')) : ('En Route ' + (flt.sta || ''))}</span>
+                  <span class="text-slate-400 text-[8.5px]">現況:</span>
+                  <span class="px-1 rounded font-black text-[8.5px] ${arrInfo.hasArrived ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' : 'bg-slate-700 text-amber-200'}">${arrInfo.statusLabel}</span>
                 </div>
               </div>
               <div class="bg-slate-900/90 p-1 rounded border border-slate-700/80">
                 <div class="flex items-center justify-between">
                   <span class="text-amber-300 font-mono font-bold">🛫 ${flt.outFlt || '--'}</span>
-                  <span class="text-slate-300 font-mono text-[8.5px]">STD ${flt.std || 'N/A'}</span>
+                  <span class="text-slate-300 font-mono text-[8.5px]">時間 ${depInfo.schedTime}</span>
                 </div>
+                ${flt.hkiaDest ? `<div class="text-[8px] text-slate-400 truncate mt-0.5">目的地：${flt.hkiaDest}</div>` : ''}
                 <div class="flex items-center justify-between mt-0.5">
-                  <span class="text-slate-400 text-[8.5px]">STATUS:</span>
-                  <span class="px-1 rounded font-black text-[8.5px] ${isScheduledDep ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40' : 'bg-rose-500/30 text-rose-200 border border-rose-400/40'}">${isScheduledDep ? 'Scheduled (未離港)' : 'Departed (已離港)'}</span>
+                  <span class="text-slate-400 text-[8.5px]">現況:</span>
+                  <span class="px-1 rounded font-black text-[8.5px] ${!depInfo.hasDeparted ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40' : 'bg-rose-500/30 text-rose-200 border border-rose-400/40'}">${depInfo.statusLabel}</span>
                 </div>
               </div>
             </div>
           </div>
         `;
       }).join('');
+
+      const tickEl = document.getElementById('fr24-last-tick');
+      if (tickEl) {
+        const nowStr = new Date().toLocaleTimeString('en-GB', { timeZone: 'Asia/Hong_Kong', hour12: false });
+        tickEl.textContent = `當日日期：${zhDate} · 同班號自動統一 · 每 1 秒更新 (${nowStr})`;
+      }
     }
 
-    // Automatically query Flightradar24 HKG schedule & UPS live feed every 1 second for 5X / UPS flights to/from HKG
-    // Directly writes discovered 5X/UPS HKG arrivals & departures in order without needing flight-number matching!
+    // Parse HTML from HKIA cargo.page if returned via direct or CORS proxy fetch
+    function parseHKIACargoPageHTML(htmlText, isArrival) {
+      const results = [];
+      if (!htmlText || typeof htmlText !== 'string') return results;
+      try {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(htmlText, 'text/html');
+        const textBlocks = doc.body ? doc.body.innerText.split(/\n+/) : [];
+        for (let i = 0; i < textBlocks.length; i++) {
+          const line = textBlocks[i].trim();
+          const mFlt = line.match(/^5X\s*0*(\d+)/i);
+          if (mFlt) {
+            const numKey = mFlt[1];
+            const windowText = textBlocks.slice(i, i + 10).join(' ');
+            const mTime = windowText.match(/時間\s*(\d{1,2}:\d{2})/);
+            const schedTime = mTime ? mTime[1] : '';
+            let statusText = '-';
+            if (isArrival) {
+              const mGate = windowText.match(/到閘口\s*(\d{1,2}:\d{2})/);
+              const mEst = windowText.match(/預計時間\s*(\d{1,2}:\d{2})/);
+              if (mGate) statusText = `到閘口 ${mGate[1]}`;
+              else if (mEst) statusText = `預計時間 ${mEst[1]}`;
+            } else {
+              const mDep = windowText.match(/啟航\s*(\d{1,2}:\d{2})/);
+              const mEst = windowText.match(/預計時間\s*(\d{1,2}:\d{2})/);
+              if (mDep) statusText = `啟航 ${mDep[1]}`;
+              else if (mEst) statusText = `預計時間 ${mEst[1]}`;
+              else statusText = '-';
+            }
+            results.push({
+              fltNo: `5X ${numKey.padStart(3, '0')}`,
+              numKey,
+              schedTime,
+              statusText
+            });
+          }
+        }
+      } catch (e) {}
+      return results;
+    }
+
+    // Parse JSON from HKIA flightinfo-rest endpoint (the data source behind hongkongairport.com/tc/flights/arrivals/cargo.page & departures/cargo.page)
+    function parseHKIACargoJSON(jsonData) {
+      const results = [];
+      if (!Array.isArray(jsonData)) return results;
+      jsonData.forEach(dayBlock => {
+        const list = dayBlock?.list || [];
+        list.forEach(item => {
+          const flightsArr = item?.flight || [];
+          const upsFlight = flightsArr.find(f => {
+            const no = String(f?.no || '').trim().toUpperCase();
+            const air = String(f?.airline || '').trim().toUpperCase();
+            return no.startsWith('5X') || air === '5X' || air === 'UPS';
+          });
+          if (!upsFlight) return;
+          const noStr = String(upsFlight.no || '').trim();
+          const numKey = extract5XFlightNumKey(noStr);
+          const schedTime = String(item?.time || '').trim();
+          const rawStatus = String(item?.status || '-').trim();
+          const places = (item?.origin || item?.destination || []).join(' / ');
+          results.push({
+            fltNo: noStr,
+            numKey,
+            schedTime,
+            places,
+            statusText: rawStatus || '-'
+          });
+        });
+      });
+      return results;
+    }
+
+    // Automatically read HKIA Cargo Arrivals (arrivals/cargo.page) & Cargo Departures (departures/cargo.page) for 5X on Today's Date every 1 second!
+    // Matches the Daily Operation Plan's FLT Number (inFlt / outFlt) directly to HKIA's 5X flights and unifies identical FLT Numbers.
     async function fetchFlightradar24UPSHKG() {
       if (isFetchingFR24) return;
       isFetchingFR24 = true;
 
-      operationPlan.flights.forEach(flt => {
-        if (!flt.staType) flt.staType = 'STA';
-        if (!flt.stdType) flt.stdType = 'STD';
+      const { isoDate, zhDate } = getHKTodayDateStrings();
+
+      const arrMap = new Map();
+      const depMap = new Map();
+
+      const upsertFlightInMap = (map, numKey, newEntry, isArr) => {
+        if (!numKey) return;
+        if (!map.has(numKey)) {
+          map.set(numKey, { ...newEntry });
+          return;
+        }
+        // Unify duplicate flight entries from HKIA website (same FLT Number only kept once, prioritizing active gate/departed status)
+        const prev = map.get(numKey);
+        const newSt = String(newEntry.statusText || '');
+        const preferNew = isArr
+          ? newSt.includes('到閘口')
+          : (newSt.includes('啟航') && /(\d{1,2}:\d{2})/.test(newSt));
+        if (preferNew) {
+          map.set(numKey, { ...prev, ...newEntry });
+        } else {
+          if (!prev.schedTime && newEntry.schedTime) prev.schedTime = newEntry.schedTime;
+          if (isArr && !prev.origin && newEntry.origin) prev.origin = newEntry.origin;
+          if (!isArr && !prev.dest && newEntry.dest) prev.dest = newEntry.dest;
+        }
+      };
+
+      HKIA_5X_TODAY_ARRIVALS_REF.forEach(item => {
+        upsertFlightInMap(arrMap, item.numKey, item, true);
+      });
+      HKIA_5X_TODAY_DEPARTURES_REF.forEach(item => {
+        upsertFlightInMap(depMap, item.numKey, item, false);
       });
 
-      let discoveredCount = 0;
-
       try {
-        const endpoints = [
-          'https://api.flightradar24.com/common/v1/airport.json?code=hkg&page=1&limit=100',
-          'https://data-cloud.flightradar24.com/zones/fcgi/feed.js?airline=UPS&bounds=60,-180,-30,180'
-        ];
+        const hkiaArrApi = `https://www.hongkongairport.com/flightinfo-rest/rest/flights/past?date=${isoDate}&lang=zh_HK&cargo=true&arrival=true`;
+        const hkiaDepApi = `https://www.hongkongairport.com/flightinfo-rest/rest/flights/past?date=${isoDate}&lang=zh_HK&cargo=true&arrival=false`;
 
-        const responses = await Promise.allSettled(
-          endpoints.map(url => fetch(url, { mode: 'cors', cache: 'no-store' }))
-        );
+        const requests = await Promise.allSettled([
+          fetch(hkiaArrApi, { mode: 'cors', cache: 'no-store' }),
+          fetch(hkiaDepApi, { mode: 'cors', cache: 'no-store' }),
+          fetch(HKIA_ARRIVALS_PAGE_URL, { mode: 'cors', cache: 'no-store' }),
+          fetch(HKIA_DEPARTURES_PAGE_URL, { mode: 'cors', cache: 'no-store' })
+        ]);
 
-        const discoveredArrivals = [];
-        const discoveredDepartures = [];
-
-        if (responses[0].status === 'fulfilled' && responses[0].value.ok) {
-          const data = await responses[0].value.json();
-          const arrList = data?.result?.response?.airport?.pluginData?.schedule?.arrivals?.data || [];
-          const depList = data?.result?.response?.airport?.pluginData?.schedule?.departures?.data || [];
-
-          arrList.forEach(item => {
-            const fl = item?.flight;
-            const iata = fl?.identification?.number?.default || '';
-            const callsign = fl?.identification?.callsign || '';
-            const airlineIcao = fl?.airline?.code?.icao || '';
-            const airlineIata = fl?.airline?.code?.iata || '';
-            const origCode = fl?.airport?.origin?.code?.iata || '';
-            if (airlineIata === '5X' || airlineIcao === 'UPS' || iata.startsWith('5X') || callsign.startsWith('UPS')) {
-              const statusText = (fl?.status?.text || '').trim();
-              const realArrStr = formatUnixToHKTime(fl?.time?.real?.arrival);
-              const etaStr = formatUnixToHKTime(fl?.time?.estimated?.arrival);
-              const staStr = formatUnixToHKTime(fl?.time?.scheduled?.arrival);
-              const isLanded = statusText.toLowerCase().includes('landed') || Boolean(realArrStr);
-              const landedMatch = statusText.match(/(\d{1,2}:\d{2})/);
-              const displayTime = (landedMatch ? landedMatch[1] : null) || realArrStr || etaStr || staStr;
-              if (displayTime) {
-                const labelCode = origCode ? `${(iata || callsign).replace(/^(5X|UPS)/, '')}-${origCode}` : (iata || callsign);
-                discoveredArrivals.push({
-                  fltCode: labelCode,
-                  timeStr: displayTime,
-                  inStatus: isLanded ? 'Landed' : 'EnRoute',
-                  reg: fl?.aircraft?.registration || ''
-                });
-              }
-            }
-          });
-
-          depList.forEach(item => {
-            const fl = item?.flight;
-            const iata = fl?.identification?.number?.default || '';
-            const callsign = fl?.identification?.callsign || '';
-            const airlineIcao = fl?.airline?.code?.icao || '';
-            const airlineIata = fl?.airline?.code?.iata || '';
-            const destCode = fl?.airport?.destination?.code?.iata || '';
-            if (airlineIata === '5X' || airlineIcao === 'UPS' || iata.startsWith('5X') || callsign.startsWith('UPS')) {
-              const statusText = (fl?.status?.text || '').trim();
-              const schedDepStr = formatUnixToHKTime(fl?.time?.scheduled?.departure);
-              const realDepStr = formatUnixToHKTime(fl?.time?.real?.departure);
-              const isStillScheduled = statusText.toLowerCase() === 'scheduled' && !realDepStr;
-              const displayTime = schedDepStr || realDepStr;
-              if (displayTime) {
-                const labelCode = destCode ? `${(iata || callsign).replace(/^(5X|UPS)/, '')}-${destCode}` : (iata || callsign);
-                discoveredDepartures.push({
-                  fltCode: labelCode,
-                  timeStr: displayTime,
-                  outStatus: isStillScheduled ? 'Scheduled' : 'Departed',
-                  reg: fl?.aircraft?.registration || ''
-                });
-              }
-            }
+        if (requests[0].status === 'fulfilled' && requests[0].value.ok) {
+          const arrJson = await requests[0].value.json();
+          parseHKIACargoJSON(arrJson).forEach(item => {
+            upsertFlightInMap(arrMap, item.numKey, {
+              fltNo: item.fltNo,
+              numKey: item.numKey,
+              schedTime: item.schedTime,
+              origin: item.places || '',
+              statusText: item.statusText
+            }, true);
           });
         }
 
-        if (responses[1].status === 'fulfilled' && responses[1].value.ok) {
-          const feedData = await responses[1].value.json();
-          Object.keys(feedData || {}).forEach(k => {
-            const row = feedData[k];
-            if (!Array.isArray(row) || row.length < 18) return;
-            const reg = row[9] || '';
-            const origIata = row[11] || '';
-            const destIata = row[12] || '';
-            const fltCode = row[13] || '';
-            const callsign = row[16] || '';
-            const etaUnix = row[17] || 0;
-
-            if (!fltCode.startsWith('5X') && !callsign.startsWith('UPS')) return;
-            if (destIata === 'HKG') {
-              const etaStr = formatUnixToHKTime(etaUnix);
-              if (etaStr) {
-                const cleanNum = (fltCode || callsign).replace(/^(5X|UPS)/, '');
-                discoveredArrivals.push({
-                  fltCode: origIata ? `${cleanNum}-${origIata}` : (fltCode || callsign),
-                  timeStr: etaStr,
-                  timeType: 'ETA',
-                  reg
-                });
-              }
-            }
+        if (requests[1].status === 'fulfilled' && requests[1].value.ok) {
+          const depJson = await requests[1].value.json();
+          parseHKIACargoJSON(depJson).forEach(item => {
+            upsertFlightInMap(depMap, item.numKey, {
+              fltNo: item.fltNo,
+              numKey: item.numKey,
+              schedTime: item.schedTime,
+              dest: item.places || '',
+              statusText: item.statusText
+            }, false);
           });
         }
 
-        discoveredArrivals.slice(0, operationPlan.flights.length).forEach((arr, idx) => {
-          const slot = operationPlan.flights[idx];
-          slot.inFlt = arr.fltCode || slot.inFlt;
-          slot.sta = arr.timeStr;
-          slot.inStatus = arr.inStatus || slot.inStatus || 'Landed';
-          if (arr.reg) slot.tailNbr = arr.reg;
-          discoveredCount++;
-        });
+        if (requests[2].status === 'fulfilled' && requests[2].value.ok) {
+          const htmlArr = await requests[2].value.text();
+          parseHKIACargoPageHTML(htmlArr, true).forEach(item => {
+            upsertFlightInMap(arrMap, item.numKey, item, true);
+          });
+        }
 
-        discoveredDepartures.slice(0, operationPlan.flights.length).forEach((dep, idx) => {
-          const slot = operationPlan.flights[idx];
-          slot.outFlt = dep.fltCode || slot.outFlt;
-          slot.std = dep.timeStr;
-          slot.outStatus = dep.outStatus || slot.outStatus || 'Scheduled';
-          if (dep.reg && !slot.tailNbr) slot.tailNbr = dep.reg;
-          discoveredCount++;
-        });
+        if (requests[3].status === 'fulfilled' && requests[3].value.ok) {
+          const htmlDep = await requests[3].value.text();
+          parseHKIACargoPageHTML(htmlDep, false).forEach(item => {
+            upsertFlightInMap(depMap, item.numKey, item, false);
+          });
+        }
       } catch (e) {}
 
+      // Match each column's FLT Number (inFlt / outFlt) in the Daily Operation Plan to the HKIA website's 5X records
+      operationPlan.flights.forEach((slot) => {
+        const inKey = extract5XFlightNumKey(slot.inFlt);
+        const outKey = extract5XFlightNumKey(slot.outFlt);
+
+        if (inKey && arrMap.has(inKey)) {
+          const hkiaArr = arrMap.get(inKey);
+          const parsed = parseHKIAArrivalStatus(hkiaArr.statusText, hkiaArr.schedTime);
+          slot.hkiaArrSched = parsed.schedTime;
+          slot.hkiaOrigin = hkiaArr.origin || slot.hkiaOrigin || '';
+          slot.inStatus = parsed.statusLabel;
+          slot.sta = parsed.displayTime;
+        } else if (inKey) {
+          const parsed = parseHKIAArrivalStatus(slot.inStatus || '到閘口 --:--', slot.hkiaArrSched || '');
+          slot.inStatus = parsed.statusLabel;
+          slot.sta = parsed.displayTime;
+        } else {
+          slot.inStatus = '預計時間 -';
+          slot.sta = '';
+        }
+
+        if (outKey && depMap.has(outKey)) {
+          const hkiaDep = depMap.get(outKey);
+          const parsed = parseHKIADepartureStatus(hkiaDep.statusText, hkiaDep.schedTime);
+          slot.hkiaDepSched = parsed.schedTime;
+          slot.hkiaDest = hkiaDep.dest || slot.hkiaDest || '';
+          slot.outStatus = parsed.statusLabel;
+          slot.std = parsed.displayTime;
+        } else if (outKey) {
+          const parsed = parseHKIADepartureStatus(slot.outStatus || '-', slot.hkiaDepSched || '');
+          slot.outStatus = parsed.statusLabel;
+          slot.std = parsed.displayTime;
+        } else {
+          slot.outStatus = '-';
+          slot.std = '';
+        }
+      });
+
       const nowStr = new Date().toLocaleTimeString('en-GB', { timeZone: 'Asia/Hong_Kong', hour12: false });
-      const tickEl = document.getElementById('fr24-last-tick');
-      if (tickEl) {
-        tickEl.textContent = `每 1 秒自動同步 · 最後更新：${nowStr}`;
-      }
       const hudTickEl = document.getElementById('hud-fr24-tick');
       if (hudTickEl) {
-        hudTickEl.textContent = `1s 同步 (${nowStr}) ↗`;
+        hudTickEl.textContent = `抵港 (${nowStr}) ↗`;
       }
       const fr24TextEl = document.getElementById('fr24-sync-text');
       if (fr24TextEl) {
-        fr24TextEl.textContent = discoveredCount > 0
-          ? `FR24 5X/UPS (HKG) 已同步 ${discoveredCount} 班 · 1s (${nowStr})`
-          : `FR24 5X/UPS (HKG) 1s 實時同步中 (${nowStr} · 無 ETA/ETD 時顯示 STA/STD)`;
+        fr24TextEl.textContent = `HKIA 貨機抵港/離港 (5X · ${zhDate}) 1s 自動同步 (${nowStr})`;
       }
       renderFR24LiveBoard();
       isFetchingFR24 = false;
@@ -3064,7 +4009,6 @@
       const facContainer = document.getElementById('detail-facilities');
       facContainer.innerHTML = '';
 
-      // If UPS HKG Gateway is selected, show the Permanent Gateway Staff Roster (HUB BIC, New WH BIC, HUB WIC, New WH WIC, UC, BKG, LH, Outsource)
       if (isl.id === 'UPS') {
         const br = operationPlan.bottomRoles || {};
         const lhNames = [...new Set(operationPlan.flights.map(f => (f.lh || '').trim()).filter(Boolean))].join(' / ') || '--';
@@ -3089,9 +4033,16 @@
         facContainer.appendChild(gwBox);
       }
 
-      // If this island has an assigned flight in the Daily Operation Plan, display its live flight & crew roster card first!
-      const assignedFlt = operationPlan.flights.find(f => f.islandId === isl.id && (f.inFlt || f.outFlt || f.parkingBay));
+      const uniqueFlights = getUnifiedUniqueFlights(operationPlan.flights);
+      const assignedFlt = uniqueFlights.find(f => f.islandId === isl.id && (f.inFlt || f.outFlt || f.parkingBay));
       if (assignedFlt) {
+        const arrInfo = parseHKIAArrivalStatus(assignedFlt.inStatus, assignedFlt.hkiaArrSched);
+        const depInfo = parseHKIADepartureStatus(assignedFlt.outStatus, assignedFlt.hkiaDepSched);
+        const sameFlt = isSame5XFlightNum(assignedFlt.inFlt, assignedFlt.outFlt);
+        const fltHeaderHtml = sameFlt
+          ? `<div class="col-span-2 text-amber-300 font-mono font-bold">✈️ 統一航班：${assignedFlt.inFlt || assignedFlt.outFlt} (到港: ${arrInfo.statusLabel} · 離港: ${depInfo.statusLabel})</div>`
+          : `<div>抵港：<strong>${assignedFlt.inFlt || '--'} (${arrInfo.statusLabel})</strong></div>
+             <div>離港：<strong>${assignedFlt.outFlt || '--'} (${depInfo.statusLabel})</strong></div>`;
         const fltBox = document.createElement('div');
         fltBox.className = 'bg-slate-900 text-white p-2.5 rounded-xl border border-amber-400/60 mb-2 space-y-1';
         fltBox.innerHTML = `
@@ -3100,8 +4051,7 @@
             <span class="font-mono text-[10px] bg-slate-800 px-1.5 py-0.5 rounded">${assignedFlt.tailNbr || ''}</span>
           </div>
           <div class="grid grid-cols-2 gap-1 text-[10.5px] pt-1 border-t border-slate-700">
-            <div>到港：<strong>${assignedFlt.inFlt || '--'} (${assignedFlt.sta || '--'})</strong></div>
-            <div>離港：<strong>${assignedFlt.outFlt || '--'} (${assignedFlt.std || '--'})</strong></div>
+            ${fltHeaderHtml}
             <div>FOD：<strong class="text-amber-300">${assignedFlt.fod || '--'}</strong></div>
             <div>RIC / 帶板：<strong>${assignedFlt.ric || '--'} / ${assignedFlt.belt || '--'}</strong></div>
             <div>CCD：<strong>${assignedFlt.ccdMdp || '--'}</strong></div>
@@ -3132,9 +4082,11 @@
     function focusOnIsland(islandId) {
       const isl = ISLANDS_DATA.find(i => i.id === islandId);
       if (!isl) return;
-      camCtrl.desiredTarget.set(isl.x, 1.2, isl.z);
-      camCtrl.desiredSpherical.radius = isl.shape === 'rectangle' ? 42 : 34;
-      camCtrl.desiredSpherical.phi = 0.85;
+      if (!state.viewLocked) {
+        camCtrl.desiredTarget.set(isl.x, 1.2, isl.z);
+        camCtrl.desiredSpherical.radius = isl.shape === 'rectangle' ? 68 : 48;
+        camCtrl.desiredSpherical.phi = 0.85;
+      }
       renderSelectedIslandDetail(isl.id);
     }
 
@@ -3223,18 +4175,35 @@
       drawCanvasChart('full-hka-chart', state.chartElement);
     }
 
-    
     // =========================================================================
-    // 10B. DAILY OPERATION PLAN (每日工作編排 — 依照相片 IMG_6257.PNG 預設資料)
+    // 10B. DAILY OPERATION PLAN (每日工作編排 — 不再讀取編排表內之 ETA/STA 與 SCHEDULED DEPARTURE)
     // =========================================================================
+    // Fixed Schema for UPS HKG Gateway Upper Bubble: "Serviceable (as of 6:00am) Breakdown" (matches uploaded photo!)
+    const ULD_BREAKDOWN_COLS = [
+      { key: 'AAD',    label: 'AAD',     sub: 'small',  subBg: 'transparent', hdrBg: '#f4cccc', cellBg: '#f4cccc', defaultVal: '65' },
+      { key: 'AAY',    label: 'AAY',     sub: 'small',  subBg: 'transparent', hdrBg: '#f4cccc', cellBg: '#f4cccc', defaultVal: '39' },
+      { key: 'AAZ',    label: 'AAZ',     sub: 'small',  subBg: 'transparent', hdrBg: '#f4cccc', cellBg: '#f4cccc', defaultVal: '2' },
+      { key: 'ALP',    label: 'ALP',     sub: 'small',  subBg: 'transparent', hdrBg: '#f4cccc', cellBg: '#f4cccc', defaultVal: '20' },
+      { key: 'AMD',    label: 'AMD',     sub: 'large',  subBg: 'transparent', hdrBg: '#d9ead3', cellBg: '#f4cccc', defaultVal: '37' },
+      { key: 'AMJ',    label: 'AMJ',     sub: 'large',  subBg: 'transparent', hdrBg: '#d9ead3', cellBg: '#f4cccc', defaultVal: '77' },
+      { key: 'AMP',    label: 'AMP',     sub: 'small',  subBg: 'transparent', hdrBg: '#f4cccc', cellBg: '#f4cccc', defaultVal: '90' },
+      { key: 'PAG',    label: 'PAG',     sub: 'pallet', subBg: 'transparent', hdrBg: '#ffe599', cellBg: '#f4cccc', defaultVal: '44' },
+      { key: 'PMC',    label: 'PMC',     sub: 'pallet', subBg: 'transparent', hdrBg: '#ffe599', cellBg: '#f4cccc', defaultVal: '179' },
+      { key: 'PM2',    label: 'PM2',     sub: 'pallet', subBg: 'transparent', hdrBg: '#ffe599', cellBg: '#f4cccc', defaultVal: '0' },
+      { key: 'Lease',  label: 'Lease',   sub: 'pallet', subBg: 'transparent', hdrBg: '#ffe599', cellBg: '#f4cccc', defaultVal: '0' },
+      { key: 'Total',  label: 'Total',   sub: '',       subBg: 'transparent', hdrBg: '#b6d7a8', cellBg: '#b6d7a8', defaultVal: '553' },
+      { key: 'FCC96',  label: 'FCC 96',  sub: '',       subBg: 'transparent', hdrBg: '#cfe2f3', cellBg: '#f4cccc', defaultVal: '12' },
+      { key: 'FCC118', label: 'FCC 118', sub: '',       subBg: 'transparent', hdrBg: '#cfe2f3', cellBg: '#f4cccc', defaultVal: '23' },
+      { key: 'Net',    label: 'Net',     sub: 'ests',   subBg: '#fff2cc',     hdrBg: '#d9d9d9', cellBg: '#d9d9d9', defaultVal: '478' },
+      { key: 'Straps', label: 'Straps',  sub: '',       subBg: 'transparent', hdrBg: '#d9d9d9', cellBg: '#d9d9d9', defaultVal: '520' }
+    ];
+
     const OP_FIXED_ROWS = [
       { key: 'inFlt', label: 'Flt Nbr (到港航班)' },
-      { key: 'sta', label: 'STA/ETA (到港時間)' },
       { key: 'inCrewPick', label: 'In/Crew Pick up' },
       { key: 'meetPlane', label: '接機' },
       { key: 'inboundUld', label: 'Inbound Uld' },
       { key: 'outFlt', label: 'Flt Nbr (離港航班)' },
-      { key: 'std', label: 'SCHEDULED DEPARTURE (預計起飛)' },
       { key: 'tailNbr', label: 'Tail Nbr (機尾編號)' },
       { key: 'crewPickTime', label: 'Crew pick up time' },
       { key: 'meetCrew', label: '接 CREW' },
@@ -3254,7 +4223,12 @@
     ];
 
     const DEFAULT_OPERATION_PLAN = {
-      dateTitle: 'Monday, October 26, 2026',
+      dateTitle: 'Tuesday, October 27, 2026',
+      uldBreakdown: {
+        AAD: '65', AAY: '39', AAZ: '2', ALP: '20', AMD: '37', AMJ: '77', AMP: '90',
+        PAG: '44', PMC: '179', PM2: '0', Lease: '0', Total: '553',
+        FCC96: '12', FCC118: '23', Net: '478', Straps: '520'
+      },
       tractorBanner: '1 x 24 Tractor (1200-0800)',
       customRowLabels: {
         custom1: 'Tractor / 拖車',
@@ -3286,64 +4260,64 @@
       flights: [
         {
           islandId: '01',
-          inFlt: '5X54-TPE', inStatus: 'Landed', sta: '14:25', inCrewPick: '', meetPlane: '', inboundUld: '文仔',
-          outFlt: '5X1-CGN', std: '23:45', outStatus: 'Scheduled', tailNbr: 'N626UP', crewPickTime: '15:30', meetCrew: '',
-          parkingBay: 'X20', loadTime: '15:00', fod: 'Kevin', ric: 'Kevin', belt: '文仔',
-          ccdMdp: 'Yin', ccdP1P5: 'Yin', ccdP6P9: 'Kwok Fai', rc: 'Kwok Fai',
-          bulk: 'Kevin', lh: 'Hoi', exp: 'Day Shift', outsource: '1x0800'
-        },
-        {
-          islandId: '02',
-          inFlt: '142-CRK', inStatus: 'Landed', sta: '06:12', inCrewPick: '', meetPlane: '', inboundUld: '',
-          outFlt: '141-CRK', std: '23:10', outStatus: 'Scheduled', tailNbr: 'N316UP', crewPickTime: '21:40', meetCrew: 'After 19:00',
+          inFlt: '5X 142', inStatus: '到閘口 07:06', hkiaArrSched: '05:35', hkiaOrigin: '路易斯維爾 / 克拉克', sta: '07:06', inCrewPick: '', meetPlane: '', inboundUld: '文仔',
+          outFlt: '5X 141', outStatus: '預計時間 23:10', hkiaDepSched: '23:10', hkiaDest: '克拉克', std: '23:10', tailNbr: 'N316UP', crewPickTime: '21:40', meetCrew: 'After 19:00',
           parkingBay: 'X458>X25', loadTime: '16:30', fod: 'Martin', ric: 'Martin', belt: 'Lee Fai',
           ccdMdp: 'Ting Fung', ccdP1P5: 'Ting Fung', ccdP6P9: 'Chiu', rc: 'Chiu',
           bulk: 'Martin', lh: 'Paris', exp: 'Alan', outsource: '1x0900'
         },
         {
+          islandId: '02',
+          inFlt: '5X 067', inStatus: '到閘口 08:06', hkiaArrSched: '08:05', hkiaOrigin: '路易斯維爾 / 安克雷奇 / 胡志明市', sta: '08:06', inCrewPick: '', meetPlane: '', inboundUld: '文仔',
+          outFlt: '5X 067', outStatus: '-', hkiaDepSched: '13:25', hkiaDest: '安克雷奇 / 路易斯維爾', std: '13:25', tailNbr: 'N626UP', crewPickTime: '15:30', meetCrew: '',
+          parkingBay: 'X20', loadTime: '15:00', fod: 'Kevin', ric: 'Kevin', belt: '文仔',
+          ccdMdp: 'Yin', ccdP1P5: 'Yin', ccdP6P9: 'Kwok Fai', rc: 'Kwok Fai',
+          bulk: 'Kevin', lh: 'Hoi', exp: 'Day Shift', outsource: '1x0800'
+        },
+        {
           islandId: '03',
-          inFlt: '062-ANC', inStatus: 'Landed', sta: '13:21', inCrewPick: '', meetPlane: '', inboundUld: '文仔',
-          outFlt: '061-ANC', std: '23:30', outStatus: 'Scheduled', tailNbr: 'N612UP', crewPickTime: '22:00', meetCrew: '',
+          inFlt: '5X 062', inStatus: '到閘口 13:21', hkiaArrSched: '13:10', hkiaOrigin: '路易斯維爾 / 安克雷奇', sta: '13:21', inCrewPick: '', meetPlane: '', inboundUld: '文仔',
+          outFlt: '5X 061', outStatus: '預計時間 23:30', hkiaDepSched: '23:30', hkiaDest: '安克雷奇', std: '23:30', tailNbr: 'N612UP', crewPickTime: '22:00', meetCrew: '',
           parkingBay: 'X21', loadTime: '16:30', fod: 'Peter', ric: 'Peter', belt: 'Billy',
           ccdMdp: 'Fung', ccdP1P5: 'Fung', ccdP6P9: 'Daniel', rc: 'Daniel',
           bulk: 'Billy', lh: 'Hoi', exp: 'Night', outsource: '4x1230'
         },
         {
           islandId: '04',
-          inFlt: '078-ANC', inStatus: 'EnRoute', sta: '19:29', inCrewPick: '', meetPlane: '', inboundUld: '大丹',
-          outFlt: '063-ANC', std: '02:35', outStatus: 'Scheduled', tailNbr: 'N613UP', crewPickTime: '01:05', meetCrew: '',
+          inFlt: '5X 078', inStatus: '預計時間 19:29', hkiaArrSched: '19:15', hkiaOrigin: '安克雷奇', sta: '19:29', inCrewPick: '', meetPlane: '', inboundUld: '大丹',
+          outFlt: '5X 063', outStatus: '預計時間 02:35', hkiaDepSched: '02:35', hkiaDest: '安克雷奇', std: '02:35', tailNbr: 'N613UP', crewPickTime: '01:05', meetCrew: '',
           parkingBay: 'X22', loadTime: '23:45', fod: 'Martin', ric: 'Martin', belt: '大丹',
           ccdMdp: 'Billy', ccdP1P5: 'Billy', ccdP6P9: 'Daniel', rc: 'Daniel',
           bulk: 'Martin', lh: 'Paris', exp: 'Chris', outsource: '4x2230'
         },
         {
           islandId: '05',
-          inFlt: '058-HNL', inStatus: 'Landed', sta: '14:37', inCrewPick: '', meetPlane: '', inboundUld: '文仔',
-          outFlt: '001-BLR', std: '03:15', outStatus: 'Scheduled', tailNbr: 'N616UP', crewPickTime: '01:45', meetCrew: '',
+          inFlt: '5X 058', inStatus: '到閘口 14:37', hkiaArrSched: '14:30', hkiaOrigin: '檀香山', sta: '14:37', inCrewPick: '', meetPlane: '', inboundUld: '文仔',
+          outFlt: '5X 001', outStatus: '-', hkiaDepSched: '23:45', hkiaDest: '科隆 / 班加羅爾', std: '23:45', tailNbr: 'N616UP', crewPickTime: '01:45', meetCrew: '',
           parkingBay: 'D327', loadTime: '00:15', fod: 'Peter', ric: 'Peter', belt: 'Lee Fai',
           ccdMdp: 'Ting Fung', ccdP1P5: 'Ting Fung', ccdP6P9: 'Fung/Chiu', rc: 'Fung/Chiu',
           bulk: 'Peter', lh: 'Shun', exp: 'Kin chi', outsource: ''
         },
         {
           islandId: '06',
-          inFlt: '064-ANC', inStatus: 'Landed', sta: '14:42', inCrewPick: '', meetPlane: '', inboundUld: '文仔',
-          outFlt: '003-BLR', std: '07:50', outStatus: 'Scheduled', tailNbr: 'N630UP', crewPickTime: '06:20', meetCrew: '',
+          inFlt: '5X 064', inStatus: '到閘口 14:42', hkiaArrSched: '14:40', hkiaOrigin: '安克雷奇', sta: '14:42', inCrewPick: '', meetPlane: '', inboundUld: '文仔',
+          outFlt: '5X 003', outStatus: '啟航 11:32', hkiaDepSched: '11:10', hkiaDest: '班加羅爾 / 科隆 / 費城', std: '11:32', tailNbr: 'N630UP', crewPickTime: '06:20', meetCrew: '',
           parkingBay: 'D324', loadTime: '04:00', fod: 'Peter', ric: 'Peter', belt: 'Chiu',
           ccdMdp: 'Ting Fung', ccdP1P5: 'Ting Fung', ccdP6P9: 'Fung', rc: 'Fung',
           bulk: 'Peter', lh: 'Sam', exp: '', outsource: ''
         },
         {
           islandId: '07',
-          inFlt: '022-CDG', inStatus: 'Landed', sta: '04:00', inCrewPick: '', meetPlane: '', inboundUld: '大丹',
-          outFlt: '059-ANC', std: '12:15', outStatus: 'Departed', tailNbr: 'N614UP', crewPickTime: '', meetCrew: '',
+          inFlt: '5X 022', inStatus: '到閘口 04:05', hkiaArrSched: '04:00', hkiaOrigin: '巴黎戴高樂', sta: '04:05', inCrewPick: '', meetPlane: '', inboundUld: '大丹',
+          outFlt: '5X 059', outStatus: '啟航 12:24', hkiaDepSched: '12:15', hkiaDest: '安克雷奇', std: '12:24', tailNbr: 'N614UP', crewPickTime: '', meetCrew: '',
           parkingBay: 'X23', loadTime: '', fod: '', ric: '', belt: '',
           ccdMdp: '', ccdP1P5: '', ccdP6P9: '', rc: '',
           bulk: '', lh: '', exp: '', outsource: ''
         },
         {
           islandId: '08',
-          inFlt: '142-CRK', inStatus: 'Landed', sta: '06:50', inCrewPick: '', meetPlane: '', inboundUld: '大丹',
-          outFlt: '', std: '', outStatus: 'Scheduled', tailNbr: 'N606UP', crewPickTime: '', meetCrew: '',
+          inFlt: '5X 054', inStatus: '到閘口 14:25', hkiaArrSched: '14:15', hkiaOrigin: '台北', sta: '14:25', inCrewPick: '', meetPlane: '', inboundUld: '大丹',
+          outFlt: '', outStatus: '-', hkiaDepSched: '', hkiaDest: '', std: '', tailNbr: 'N606UP', crewPickTime: '', meetCrew: '',
           parkingBay: 'X24', loadTime: '', fod: '', ric: '', belt: '',
           ccdMdp: 'Night WH', ccdP1P5: 'Ting Fung', ccdP6P9: 'Ho', rc: 'Ling Fung',
           bulk: '', lh: '', exp: '', outsource: ''
@@ -3353,10 +4327,10 @@
 
     let operationPlan = JSON.parse(JSON.stringify(DEFAULT_OPERATION_PLAN));
     try {
-      const savedPlan = localStorage.getItem('ups_hka_operation_plan_v6');
+      const savedPlan = localStorage.getItem('ups_hka_operation_plan_v8');
       if (savedPlan) {
         const parsed = JSON.parse(savedPlan);
-        if (parsed && Array.isArray(parsed.flights) && parsed.flights.length >= 8) {
+        if (parsed && Array.isArray(parsed.flights) && parsed.flights.length >= 1) {
           operationPlan = Object.assign({}, JSON.parse(JSON.stringify(DEFAULT_OPERATION_PLAN)), parsed);
           if (!operationPlan.customRowLabels) {
             operationPlan.customRowLabels = JSON.parse(JSON.stringify(DEFAULT_OPERATION_PLAN.customRowLabels));
@@ -3371,9 +4345,47 @@
       }
     } catch (e) {}
 
+    if (!operationPlan.uldBreakdown) {
+      operationPlan.uldBreakdown = JSON.parse(JSON.stringify(DEFAULT_OPERATION_PLAN.uldBreakdown));
+    }
+    autoAssignFlightBays(operationPlan.flights);
+
+    function renderUPSGatewayUldBubble() {
+      if (!upsGatewayUldBubbleEl) return;
+      const ub = operationPlan.uldBreakdown || DEFAULT_OPERATION_PLAN.uldBreakdown;
+
+      const hdrRowCells = ULD_BREAKDOWN_COLS.map(col => (
+        `<th style="background:${col.hdrBg}; color:#1e293b; font-size:10.5px; font-weight:800; padding:3px 6px;">${col.label}</th>`
+      )).join('');
+
+      const valRowCells = ULD_BREAKDOWN_COLS.map(col => {
+        const val = ub[col.key] !== undefined && ub[col.key] !== null ? ub[col.key] : col.defaultVal;
+        return `<td style="background:${col.cellBg}; color:#0f172a; font-size:13px; font-weight:800; padding:3px 6px;">${val}</td>`;
+      }).join('');
+
+      upsGatewayUldBubbleEl.innerHTML = `
+        <table class="uld-mini-table">
+          <tbody>
+            <tr>
+              <th rowspan="2" style="background:#d9d9d9; color:#1e293b; font-size:10.5px; font-weight:800; line-height:1.25; padding:4px 8px; text-align:center;">
+                Serviceable (as of<br/>6:00am)<br/>Breakdown
+              </th>
+              ${hdrRowCells}
+            </tr>
+            <tr>
+              ${valRowCells}
+            </tr>
+          </tbody>
+        </table>
+      `;
+    }
+    renderUPSGatewayUldBubble();
+
     function saveOperationPlan() {
+      renderUPSGatewayUldBubble();
+      autoAssignFlightBays(operationPlan.flights);
       try {
-        localStorage.setItem('ups_hka_operation_plan_v6', JSON.stringify(operationPlan));
+        localStorage.setItem('ups_hka_operation_plan_v8', JSON.stringify(operationPlan));
       } catch (e) {}
     }
 
@@ -3396,19 +4408,11 @@
       return nowMins >= startMins || nowMins <= endMins;
     }
 
-    // Evaluate flight status based on Flightradar24 STATUS rules (IMG_6286.jpg & IMG_6288.jpg):
-    // 1. 到港 STATUS 出現 "Landed" 同時間 -> 代表「已到港」 (hasArrived = true)
-    // 2. 離港 SCHEDULED DEPARTURE 代表「預計起飛時間」;
-    //    離港 STATUS 出現 "Scheduled" -> 代表「還未離港」 (hasDeparted = false);
-    //    離港 STATUS 沒有出現 "Scheduled" (如 Departed / En Route) -> 代表「已離港」 (hasDeparted = true)
-    // 3. 當飛機「已到港」且「還未離港」時，按照 Operation plan 裏的 Bay 位出現在動態島停泊位；
-    //    當出現「已離港」，飛機就不再出現在動態島上！
     // Global tracking sets for Runway -> Bay and Bay -> Runway sequence
     if (!window._completedRunwayEvents) window._completedRunwayEvents = new Set();
     if (!window._finishedLandingEvents) window._finishedLandingEvents = new Set();
     if (!window._prevFlightStatusSnap) window._prevFlightStatusSnap = new Map();
 
-    // Helper: check if `nowMins` is in `[startMins, endMins)` (strictly before `endMins`, because at `nowMins === endMins` the plane leaves the bay for the runway!)
     function isTimeInParkedWindow(nowMins, startMins, endMins) {
       if (startMins === null || endMins === null) return false;
       if (startMins === endMins) return false;
@@ -3418,89 +4422,47 @@
       return nowMins >= startMins || nowMins < endMins;
     }
 
+    // Evaluate flight status strictly from HKIA Cargo Arrivals & Departures (5X · Today's Date):
+    // - 到港現況「到閘口」 -> 代表已到港 (hasArrived = true)
+    // - 到港現況「預計時間」 -> 代表還沒到港 (hasArrived = false)
+    // - 離港現況「啟航 HH:MM」(有時間) -> 代表已離港 (hasDeparted = true)
+    // - 離港現況「預計時間」或「-」 -> 代表還沒離港 (hasDeparted = false)
+    // (不再讀取每日工作編排裏面的 ETA/STA 和 SCHEDULED DEPARTURE)
     function evaluateFlightStatusAtHKTime(flt, nowMins, colIdx = 0) {
-      const staMins = parseTimeStrToMinutes(flt.sta);
-      const stdMins = parseTimeStrToMinutes(flt.std);
+      const arrInfo = parseHKIAArrivalStatus(flt.inStatus, flt.hkiaArrSched);
+      const depInfo = parseHKIADepartureStatus(flt.outStatus, flt.hkiaDepSched);
       const loadMins = parseTimeStrToMinutes(flt.loadTime);
 
-      const inStatusRaw = (flt.inStatus || '').trim().toLowerCase();
-      const outStatusRaw = (flt.outStatus || 'Scheduled').trim().toLowerCase();
+      const hasArrived = arrInfo.hasArrived;
+      const hasDeparted = depInfo.hasDeparted;
 
-      let hasDeparted = !(outStatusRaw === '' || outStatusRaw.includes('scheduled') || outStatusRaw.includes('還未離港'));
-      let hasArrived = inStatusRaw.includes('landed');
+      const arrEventKey = `ARR_${colIdx}_${flt.inFlt || ''}_${arrInfo.statusLabel}_${flt.islandId || ''}`;
+      const depEventKey = `DEP_${colIdx}_${flt.outFlt || ''}_${depInfo.statusLabel}_${flt.islandId || ''}`;
 
-      const arrEventKey = `ARR_${colIdx}_${flt.inFlt || ''}_${flt.sta || ''}`;
-      const depEventKey = `DEP_${colIdx}_${flt.outFlt || ''}_${flt.std || ''}`;
-
-      // 1. Check if this flight is at or past its Departure Time (`stdMins`)
-      if (staMins !== null && stdMins !== null) {
-        if (nowMins === stdMins) {
-          // Exact Departure Minute: plane leaves the parking bay to take off on the runway!
-          return {
-            active: false,
-            phase: 'taking_off',
-            isLoading: false,
-            hasArrived: true,
-            hasDeparted: false,
-            arrEventKey,
-            depEventKey
-          };
-        }
-        const inParkedWin = isTimeInParkedWindow(nowMins, staMins, stdMins);
-        if (inParkedWin) {
-          hasArrived = true;
-          hasDeparted = false;
-        } else {
-          const diffToSta = (staMins - nowMins + 1440) % 1440;
-          if (diffToSta <= 360 && diffToSta > 0) {
-            hasArrived = false;
-            hasDeparted = false;
-          } else {
-            hasDeparted = true;
-          }
-        }
-      } else if (stdMins !== null && staMins === null) {
-        if (nowMins === stdMins) {
-          return {
-            active: false,
-            phase: 'taking_off',
-            isLoading: false,
-            hasArrived: true,
-            hasDeparted: false,
-            arrEventKey,
-            depEventKey
-          };
-        }
-        const diffFromStd = (nowMins - stdMins + 1440) % 1440;
-        if (diffFromStd > 0 && diffFromStd < 600) {
-          hasDeparted = true;
-        } else {
-          hasArrived = true;
-          hasDeparted = false;
-        }
-      } else if (staMins !== null && stdMins === null) {
-        const diffFromSta = (nowMins - staMins + 1440) % 1440;
-        if (diffFromSta >= 0 && diffFromSta < 720) {
-          hasArrived = true;
-          hasDeparted = false;
-        } else {
-          hasArrived = false;
-          hasDeparted = false;
-        }
+      const isTakingOffNow = runwayChibiPlanes.some(p => p.active && p.mode === 'departing' && (p.eventKey === depEventKey || p.targetIslandId === flt.islandId));
+      if (isTakingOffNow) {
+        return {
+          active: false,
+          phase: 'taking_off',
+          isLoading: false,
+          hasArrived,
+          hasDeparted: false,
+          arrEventKey,
+          depEventKey,
+          arrInfo,
+          depInfo
+        };
       }
 
       if (hasDeparted) {
-        return { active: false, phase: 'departed', isLoading: false, hasArrived, hasDeparted, arrEventKey, depEventKey };
+        return { active: false, phase: 'departed', isLoading: false, hasArrived, hasDeparted: true, arrEventKey, depEventKey, arrInfo, depInfo };
       }
 
       if (!hasArrived) {
-        return { active: false, phase: 'enroute', isLoading: false, hasArrived: false, hasDeparted: false, arrEventKey, depEventKey };
+        return { active: false, phase: 'enroute', isLoading: false, hasArrived: false, hasDeparted: false, arrEventKey, depEventKey, arrInfo, depInfo };
       }
 
-      // 2. If it is the exact Arrival Minute (`nowMins === staMins`) OR if the Runway Landing Animation for this flight is currently playing and has NOT finished yet:
-      //    Keep `active: false` in the Parking Bay so the 3D plane ONLY appears on the Runway first, and appears in the Parking Bay AFTER landing finishes!
-      const isLandingNow = (runwayChibiPlanes[0] && runwayChibiPlanes[0].active && runwayChibiPlanes[0].eventKey === arrEventKey) ||
-                           (staMins !== null && nowMins === staMins && !window._finishedLandingEvents.has(arrEventKey));
+      const isLandingNow = runwayChibiPlanes.some(p => p.active && p.mode === 'arriving' && (p.eventKey === arrEventKey || p.targetIslandId === flt.islandId));
       if (isLandingNow) {
         return {
           active: false,
@@ -3509,18 +4471,20 @@
           hasArrived: true,
           hasDeparted: false,
           arrEventKey,
-          depEventKey
+          depEventKey,
+          arrInfo,
+          depInfo
         };
       }
 
-      // 3. The aircraft has finished landing and is parked in its assigned Bay!
-      const effStd = stdMins !== null ? stdMins : (((staMins || 0) + 180) % 1440);
       let isLoading = false;
       if (loadMins !== null) {
-        isLoading = isTimeInParkedWindow(nowMins, loadMins, effStd);
+        const depMins = parseTimeStrToMinutes(depInfo.displayTime);
+        const effEnd = depMins !== null ? depMins : ((loadMins + 240) % 1440);
+        isLoading = isTimeInParkedWindow(nowMins, loadMins, effEnd);
       }
 
-      return { active: true, phase: 'parked', isLoading, hasArrived: true, hasDeparted: false, arrEventKey, depEventKey };
+      return { active: true, phase: 'parked', isLoading, hasArrived: true, hasDeparted: false, arrEventKey, depEventKey, arrInfo, depInfo };
     }
 
     // Split a cell string (e.g. "文仔 / Ping" or "Fung/Chiu") into individual person names so EVERY name gets 1 dedicated 3D worker!
@@ -3686,7 +4650,7 @@
 
       if (!crewObj.bubbleEl) {
         const bub = document.createElement('div');
-        bub.className = 'speech-bubble !max-w-[260px] !min-w-[205px] !bg-slate-900/95 !text-white !border !border-amber-400';
+        bub.className = 'speech-bubble !max-w-[260px] !min-w-[205px] !bg-slate-900/18 !text-white !border !border-amber-400/75';
         bub.addEventListener('click', (e) => {
           e.stopPropagation();
           focusOnIsland(islandId);
@@ -3696,16 +4660,17 @@
       }
 
       const deduplicatedSummaryChips = allFlightPersonList
-        .map(p => `<div class="bg-slate-800/90 px-1.5 py-0.5 rounded border border-slate-700"><span class="text-amber-300 font-bold">${p.role}</span> <span class="text-white font-semibold">${p.name}</span></div>`)
+        .map(p => `<div class="bg-slate-900/20 px-1.5 py-0.5 rounded border border-white/25"><span class="text-amber-300 font-bold">${p.role}</span> <span class="text-white font-semibold">${p.name}</span></div>`)
         .join('');
 
+      const unifiedFltLabel = formatUnified5XFlightTitle(flt.inFlt, flt.outFlt);
       crewObj.bubbleEl.innerHTML = `
-        <div class="flex items-center justify-between border-b border-slate-700 pb-1 mb-1">
-          <span class="text-[10px] font-black text-amber-400">💬 裝機作業氣泡 · ${flt.parkingBay || ('停機位 ' + islandId)}</span>
-          <span class="text-[9.5px] font-mono bg-emerald-600 text-white px-1.5 py-0.2 rounded">${flt.outFlt || flt.inFlt || ''}</span>
+        <div class="flex items-center justify-between border-b border-white/25 pb-1 mb-1">
+          <span class="text-[10px] font-black text-amber-300">💬 裝機作業氣泡 · ${flt.parkingBay || ('停機位 ' + islandId)}</span>
+          <span class="text-[9.5px] font-mono bg-emerald-600/75 text-white px-1.5 py-0.2 rounded">${unifiedFltLabel}</span>
         </div>
         <div class="grid grid-cols-2 gap-1 text-[9.5px] leading-snug">
-          ${deduplicatedSummaryChips || '<div class="col-span-2 text-slate-300">裝機作業進行中</div>'}
+          ${deduplicatedSummaryChips || '<div class="col-span-2 text-slate-100">裝機作業進行中</div>'}
         </div>
       `;
 
@@ -3731,18 +4696,9 @@
         wMesh.position.set(lx, 0, lz);
         crewObj.workersContainer.add(wMesh);
 
-        const badge = document.createElement('div');
-        badge.className = 'staff-badge';
-        badge.innerHTML = `<span class="role-tag">${p.role}</span><span>${p.name}</span>`;
-        badge.addEventListener('click', (e) => {
-          e.stopPropagation();
-          focusOnIsland(islandId);
-        });
-        labelsLayer.appendChild(badge);
-
         crewObj.workers.push({
           mesh: wMesh,
-          badgeEl: badge,
+          badgeEl: null,
           baseAngle: angle,
           radiusX,
           radiusZ,
@@ -3754,102 +4710,137 @@
       });
     }
 
-    // Sync 3D Chibi Egg-Planes, Runway Landing/Takeoff Sequence & Loading Crew with Daily Operation Plan + Current Hong Kong Time
+    // Sync 3D Chibi Egg-Planes, Runway Landing/Takeoff Sequence & Loading Crew strictly with HKIA Cargo 5X Statuses
+    // Ensures identical FLT Numbers are unified and NEVER appear twice simultaneously on the 3D Dynamic Island!
+    function triggerDemoRunwayTaxiSequence() {
+      autoAssignFlightBays(operationPlan.flights);
+      const uniqueFlights = getUnifiedUniqueFlights(operationPlan.flights);
+      const arrivedFlt = uniqueFlights.find(f => {
+        const a = parseHKIAArrivalStatus(f.inStatus, f.hkiaArrSched);
+        const d = parseHKIADepartureStatus(f.outStatus, f.hkiaDepSched);
+        return a.hasArrived && !d.hasDeparted;
+      }) || uniqueFlights[0];
+
+      const departedFlt = uniqueFlights.find(f => {
+        const d = parseHKIADepartureStatus(f.outStatus, f.hkiaDepSched);
+        return d.hasDeparted;
+      }) || uniqueFlights[uniqueFlights.length - 1];
+
+      if (arrivedFlt) {
+        const aInfo = parseHKIAArrivalStatus(arrivedFlt.inStatus, arrivedFlt.hkiaArrSched);
+        const colIdx = arrivedFlt._origColIdx ?? 0;
+        const arrEventKey = `ARR_${colIdx}_${arrivedFlt.inFlt || ''}_${aInfo.statusLabel}_${arrivedFlt.islandId || '01'}`;
+        launchRunwayBayAnimation('arriving', arrivedFlt.islandId || '01', arrivedFlt, aInfo.statusLabel, arrEventKey);
+      }
+      if (departedFlt && departedFlt !== arrivedFlt) {
+        const dInfo = parseHKIADepartureStatus(departedFlt.outStatus, departedFlt.hkiaDepSched);
+        const colIdx = departedFlt._origColIdx ?? 1;
+        const depEventKey = `DEP_${colIdx}_${departedFlt.outFlt || ''}_${dInfo.statusLabel}_${departedFlt.islandId || '19'}`;
+        launchRunwayBayAnimation('departing', departedFlt.islandId || '19', departedFlt, dInfo.statusLabel, depEventKey);
+      }
+    }
+
     function syncAircraftWithOperationPlan(hkHour, hkMinute) {
       const nowMins = hkHour * 60 + hkMinute;
+      autoAssignFlightBays(operationPlan.flights);
+      const uniqueFlights = getUnifiedUniqueFlights(operationPlan.flights);
 
-      // Step A: First check if any flight has just reached its Arrival Time (`staMins === nowMins`) or Departure Time (`stdMins === nowMins`)
-      //         so we start the Runway Landing or Takeoff animation BEFORE evaluating bay visibility!
-      operationPlan.flights.forEach((flt, colIdx) => {
-        const staMins = parseTimeStrToMinutes(flt.sta);
-        const stdMins = parseTimeStrToMinutes(flt.std);
+      if (!window._initialDemoTriggered && uniqueFlights.length > 0) {
+        window._initialDemoTriggered = true;
+        triggerDemoRunwayTaxiSequence();
+      }
+
+      // Step A: Trigger Runway->Taxiway->Bay Landing when arrival status transitions to "到閘口" (or bay changes), and Bay->Taxiway->Runway Takeoff when departure status transitions to "啟航 HH:MM"
+      uniqueFlights.forEach((flt) => {
+        const colIdx = flt._origColIdx ?? 0;
+        const arrInfo = parseHKIAArrivalStatus(flt.inStatus, flt.hkiaArrSched);
+        const depInfo = parseHKIADepartureStatus(flt.outStatus, flt.hkiaDepSched);
+
         const prevSnap = window._prevFlightStatusSnap.get(colIdx) || {
-          inStatus: flt.inStatus,
-          outStatus: flt.outStatus,
-          sta: flt.sta,
-          std: flt.std
+          hasArrived: arrInfo.hasArrived,
+          hasDeparted: depInfo.hasDeparted,
+          islandId: flt.islandId
         };
 
-        const arrEventKey = `ARR_${colIdx}_${flt.inFlt || ''}_${flt.sta || ''}`;
-        const depEventKey = `DEP_${colIdx}_${flt.outFlt || ''}_${flt.std || ''}`;
+        const arrEventKey = `ARR_${colIdx}_${flt.inFlt || ''}_${arrInfo.statusLabel}_${flt.islandId || ''}`;
+        const depEventKey = `DEP_${colIdx}_${flt.outFlt || ''}_${depInfo.statusLabel}_${flt.islandId || ''}`;
 
-        // If the user edited `sta` or `std` in the Operation Plan table, clear previous completion locks for this new time
-        if (prevSnap.sta !== flt.sta) {
-          window._completedRunwayEvents.delete(arrEventKey);
-          window._finishedLandingEvents.delete(arrEventKey);
-        }
-        if (prevSnap.std !== flt.std) {
-          window._completedRunwayEvents.delete(depEventKey);
-        }
-
-        // 1. Trigger One-Shot Runway Landing FIRST when HK time reaches `staMins` (or FR24 `inStatus` just turned `'Landed'`)
-        //    While this landing animation plays on the runway, `evaluateFlightStatusAtHKTime` keeps the Parking Bay empty (`active: false`),
-        //    and only shows the aircraft in the Parking Bay AFTER `runwayChibiPlanes[0]` finishes landing!
-        const justTurnedLanded = prevSnap.inStatus !== flt.inStatus && (flt.inStatus || '').toLowerCase().includes('landed');
-        const isAtArrivalMinute = staMins !== null && staMins === nowMins;
-
-        if ((isAtArrivalMinute || justTurnedLanded) && !window._completedRunwayEvents.has(arrEventKey) && runwayChibiPlanes[0] && !runwayChibiPlanes[0].active) {
+        const justArrivedAtGate = (!prevSnap.hasArrived && arrInfo.hasArrived) || (arrInfo.hasArrived && !depInfo.hasDeparted && prevSnap.islandId !== flt.islandId);
+        if (justArrivedAtGate && !window._completedRunwayEvents.has(arrEventKey)) {
           window._completedRunwayEvents.add(arrEventKey);
           window._finishedLandingEvents.delete(arrEventKey);
-          runwayChibiPlanes[0].active = true;
-          runwayChibiPlanes[0].progress = 0;
-          runwayChibiPlanes[0].eventKey = arrEventKey;
-          runwayChibiPlanes[0].mesh.visible = true;
-          runwayChibiPlanes[0].mode = 'arriving';
-          runwayChibiPlanes[0].labelHtml = `<span class="role-tag !bg-emerald-400">🛬 跑道降落中</span><span>5X ${flt.inFlt || 'HKG'} (STA/ETA ${flt.sta || '--:--'}) → 降落後進駐停機位 ${flt.parkingBay || flt.islandId}</span>`;
+          launchRunwayBayAnimation('arriving', flt.islandId || '01', flt, arrInfo.statusLabel, arrEventKey);
         }
 
-        // 2. Trigger One-Shot Runway Takeoff when HK time reaches `stdMins` (or FR24 `outStatus` just turned `'Departed'`)
-        //    At this exact moment, `evaluateFlightStatusAtHKTime` removes the aircraft from its Parking Bay (`離開停泊位`)
-        //    and `runwayChibiPlanes[1]` performs the Takeoff & Climb animation on the runway!
-        const justTurnedDeparted = prevSnap.outStatus !== flt.outStatus && !(flt.outStatus || '').toLowerCase().includes('scheduled');
-        const isAtDepartureMinute = stdMins !== null && stdMins === nowMins;
-
-        if ((isAtDepartureMinute || justTurnedDeparted) && !window._completedRunwayEvents.has(depEventKey) && runwayChibiPlanes[1] && !runwayChibiPlanes[1].active) {
+        const justDeparted = !prevSnap.hasDeparted && depInfo.hasDeparted;
+        if (justDeparted && !window._completedRunwayEvents.has(depEventKey)) {
           window._completedRunwayEvents.add(depEventKey);
-          runwayChibiPlanes[1].active = true;
-          runwayChibiPlanes[1].progress = 0;
-          runwayChibiPlanes[1].eventKey = depEventKey;
-          runwayChibiPlanes[1].mesh.visible = true;
-          runwayChibiPlanes[1].mode = 'departing';
-          runwayChibiPlanes[1].labelHtml = `<span class="role-tag !bg-amber-400">🛫 跑道起飛中</span><span>5X ${flt.outFlt || 'HKG'} (STD ${flt.std || '--:--'}) · 已離開停機位 ${flt.parkingBay || flt.islandId} 滑行升空</span>`;
+          launchRunwayBayAnimation('departing', flt.islandId || '01', flt, depInfo.statusLabel, depEventKey);
         }
 
         window._prevFlightStatusSnap.set(colIdx, {
-          inStatus: flt.inStatus,
-          outStatus: flt.outStatus,
-          sta: flt.sta,
-          std: flt.std
+          hasArrived: arrInfo.hasArrived,
+          hasDeparted: depInfo.hasDeparted,
+          islandId: flt.islandId
         });
       });
 
-      // Step B: Reset all 16 Parking Bay aircraft and crew visibility, then populate bays according to the sequential state machine
+      // Step B: Reset all 22 Parking Bay aircraft, crew visibility, and 3D road signs, then populate bays with unified unique flights
       islandChibiPlanesMap.forEach((planeMesh) => {
         planeMesh.visible = false;
       });
       islandLoadingCrewMap.forEach((crewObj) => {
         crewObj.group.visible = false;
       });
+      islandRoadSignsMap.forEach((signGroup, islId) => {
+        updateBayRoadSignText(islId, '');
+      });
       ISLANDS_DATA.forEach((isl) => {
         if (isl.id === 'UPS') return;
         const tagEl = labelDomMap.get(isl.id);
         if (tagEl) {
-          tagEl.dataset.hideDeparted = '0';
-          tagEl.innerHTML = `<span class="hex-badge" style="background:${isl.color}">${isl.code}</span>`;
+          tagEl.dataset.hideDeparted = '1';
+          tagEl.innerHTML = '';
+          tagEl.style.display = 'none';
         }
       });
 
       let activeInPortCount = 0;
       let activeLoadingCount = 0;
       const globalActiveLoadingNames = new Set();
+      const occupiedIslands = new Set();
+      const renderedFlightKeys = new Set();
 
-      operationPlan.flights.forEach((flt, colIdx) => {
-        const targetIslandId = flt.islandId || String(colIdx + 1).padStart(2, '0');
+      uniqueFlights.forEach((flt, uIdx) => {
+        const colIdx = flt._origColIdx ?? uIdx;
+        const inKey = extract5XFlightNumKey(flt.inFlt);
+        const outKey = extract5XFlightNumKey(flt.outFlt);
+
+        // Guarantee the same FLT Number never appears twice simultaneously
+        if ((inKey && renderedFlightKeys.has('IN_' + inKey)) || (outKey && renderedFlightKeys.has('OUT_' + outKey))) {
+          return;
+        }
+        if (inKey) renderedFlightKeys.add('IN_' + inKey);
+        if (outKey) renderedFlightKeys.add('OUT_' + outKey);
+
+        let targetIslandId = flt.islandId || String((colIdx % 22) + 1).padStart(2, '0');
+        if (occupiedIslands.has(targetIslandId)) {
+          const freeIsl = ISLANDS_DATA.find(i => i.id !== 'UPS' && !occupiedIslands.has(i.id));
+          if (freeIsl) targetIslandId = freeIsl.id;
+        }
+        occupiedIslands.add(targetIslandId);
+
         const status = evaluateFlightStatusAtHKTime(flt, nowMins, colIdx);
         const planeMesh = islandChibiPlanesMap.get(targetIslandId);
         const crewObj = islandLoadingCrewMap.get(targetIslandId);
         const tagEl = labelDomMap.get(targetIslandId);
         const islData = ISLANDS_DATA.find(i => i.id === targetIslandId);
+
+        // Show 3D Road Sign on the parking bay whenever parkingBay text is entered (even before arrival or while parked; hide after departed)
+        const bayStrTrim = String(flt.parkingBay || '').trim();
+        if (bayStrTrim && !status.hasDeparted) {
+          updateBayRoadSignText(targetIslandId, bayStrTrim);
+        }
 
         if (status.active) {
           activeInPortCount++;
@@ -3865,25 +4856,10 @@
         }
 
         if (tagEl && islData) {
-          const bayLabel = flt.parkingBay ? `<span>${flt.parkingBay}</span>` : '';
-          if (status.hasDeparted) {
-            tagEl.dataset.hideDeparted = '1';
-            tagEl.style.display = 'none';
-          } else if (status.phase === 'landing_on_runway') {
-            tagEl.innerHTML = `<span class="hex-badge" style="background:${islData.color}">${islData.code}</span>${bayLabel}<span class="ml-1 px-1.5 py-0.2 rounded bg-emerald-500 text-slate-950 text-[9px] font-black">🛬 跑道降落中 (即將進駐)</span>`;
-          } else if (status.phase === 'taking_off') {
-            tagEl.innerHTML = `<span class="hex-badge" style="background:${islData.color}">${islData.code}</span>${bayLabel}<span class="ml-1 px-1.5 py-0.2 rounded bg-amber-500 text-slate-950 text-[9px] font-black">🛫 已離開泊位 · 跑道起飛中</span>`;
-          } else if (status.hasArrived) {
-            const arrSpan = flt.inFlt ? `<span class="ml-1 px-1.5 py-0.2 rounded bg-emerald-600 text-white text-[9px] font-mono">🛬 Landed ${flt.sta || '--'}</span>` : '';
-            const depSpan = flt.outFlt ? `<span class="ml-1 px-1.5 py-0.2 rounded bg-sky-700 text-amber-200 text-[9px] font-mono">🛫 STD ${flt.std || '--'} (Scheduled)</span>` : '';
-            const loadBadge = status.isLoading
-              ? `<span class="ml-1 px-1.5 py-0.2 rounded bg-amber-500 text-slate-950 text-[9px] font-black">👷 裝機中</span>`
-              : '';
-            tagEl.innerHTML = `<span class="hex-badge" style="background:${islData.color}">${islData.code}</span>${bayLabel}${arrSpan}${depSpan}${loadBadge}`;
-          } else {
-            const waitSpan = flt.inFlt ? `<span class="ml-1 px-1.5 py-0.2 rounded bg-slate-200 text-slate-600 text-[9px] font-mono">⏳ ${flt.inFlt} 未到港 (${flt.sta || '--'})</span>` : '';
-            tagEl.innerHTML = `<span class="hex-badge" style="background:${islData.color}">${islData.code}</span>${bayLabel}${waitSpan}`;
-          }
+          // Parking bay floating number/text nameplates removed per user request (each bay uses its 3D rectangular road sign instead)
+          tagEl.dataset.hideDeparted = '1';
+          tagEl.innerHTML = '';
+          tagEl.style.display = 'none';
         }
       });
 
@@ -3902,10 +4878,52 @@
       const bottomBodyEl = document.getElementById('op-bottom-roles-body');
       if (!headEl || !bodyEl || !bottomBodyEl) return;
 
-      document.getElementById('op-date-input').value = operationPlan.dateTitle || 'Sunday, October 25, 2026';
+      // Render Serviceable (as of 6:00am) Breakdown manual input table (no small/large/pallet/ests row; input boxes aligned starting directly under AAD through Straps!)
+      const uldHeadEl = document.getElementById('op-uld-breakdown-head');
+      const uldBodyEl = document.getElementById('op-uld-breakdown-body');
+      if (uldHeadEl && uldBodyEl) {
+        if (!operationPlan.uldBreakdown) {
+          operationPlan.uldBreakdown = JSON.parse(JSON.stringify(DEFAULT_OPERATION_PLAN.uldBreakdown));
+        }
+        const ub = operationPlan.uldBreakdown;
+
+        const hdrRowHtml = ULD_BREAKDOWN_COLS.map(col => (
+          `<th style="border:1px solid #64748b; background:${col.hdrBg}; color:#1e293b; font-size:11.5px; font-weight:800; padding:4px 6px;">${col.label}</th>`
+        )).join('');
+
+        const valRowHtml = ULD_BREAKDOWN_COLS.map(col => {
+          const val = String(ub[col.key] !== undefined ? ub[col.key] : col.defaultVal).replace(/"/g, '&quot;');
+          return `
+            <td style="border:1px solid #64748b; background:${col.cellBg}; padding:2px;">
+              <input type="text" data-uld-key="${col.key}" value="${val}" class="op-uld-input w-full min-w-[46px] text-center font-extrabold text-sm text-slate-900 bg-white/55 hover:bg-white/85 focus:bg-white rounded px-1 py-0.5 focus:outline-none focus:ring-2 focus:ring-amber-500" />
+            </td>`;
+        }).join('');
+
+        uldHeadEl.innerHTML = '';
+        uldBodyEl.innerHTML = `
+          <tr>
+            <th rowspan="2" style="border:1px solid #64748b; background:#d9d9d9; color:#1e293b; font-size:11px; font-weight:800; line-height:1.25; padding:4px 10px; min-width:130px; text-align:center;">
+              Serviceable (as of<br/>6:00am)<br/>Breakdown
+            </th>
+            ${hdrRowHtml}
+          </tr>
+          <tr>
+            ${valRowHtml}
+          </tr>
+        `;
+
+        document.querySelectorAll('.op-uld-input').forEach(inp => {
+          inp.addEventListener('input', (e) => {
+            const k = e.target.getAttribute('data-uld-key');
+            operationPlan.uldBreakdown[k] = e.target.value;
+            saveOperationPlan();
+          });
+        });
+      }
+
+      document.getElementById('op-date-input').value = operationPlan.dateTitle || 'Tuesday, October 27, 2026';
       document.getElementById('op-tractor-banner').value = operationPlan.tractorBanner || '1 x 24 Tractor (1200-0800)';
 
-      // Current HK time in minutes to highlight active columns
       const now = new Date();
       const parts = new Intl.DateTimeFormat('en-GB', {
         timeZone: 'Asia/Hong_Kong',
@@ -3913,17 +4931,19 @@
         minute: '2-digit',
         hour12: false
       }).formatToParts(now);
-      const hh = parseInt(parts.find(p => p.type === 'hour')?.value || '20', 10);
-      const mm = parseInt(parts.find(p => p.type === 'minute')?.value || '51', 10);
+      const hh = parseInt(parts.find(p => p.type === 'hour')?.value || '18', 10);
+      const mm = parseInt(parts.find(p => p.type === 'minute')?.value || '0', 10);
       const nowMins = hh * 60 + mm;
 
-      // Table Head: Island selector per column
+      // Table Head: Island selector per column + Live HKIA Arrival/Departure Status Readout
       let headHtml = '<tr class="bg-slate-800 text-white"><th class="op-label-cell !bg-slate-900 !text-amber-400">固定項目 \ 航班欄</th>';
       operationPlan.flights.forEach((flt, colIdx) => {
         const st = evaluateFlightStatusAtHKTime(flt, nowMins, colIdx);
         const stBadge = st.active
           ? `<span class="inline-block px-1.5 py-0.2 rounded bg-emerald-500 text-slate-950 text-[9.5px] font-black ml-1">✈️ 在港</span>`
-          : `<span class="inline-block px-1.5 py-0.2 rounded bg-slate-700 text-slate-300 text-[9.5px] ml-1">未在港</span>`;
+          : (st.hasDeparted
+              ? `<span class="inline-block px-1.5 py-0.2 rounded bg-rose-500/40 text-rose-200 text-[9.5px] ml-1">🛫 已離港</span>`
+              : `<span class="inline-block px-1.5 py-0.2 rounded bg-slate-700 text-slate-300 text-[9.5px] ml-1">⏳ 未到港</span>`);
         let islandOptions = '';
         ISLANDS_DATA.filter(i => i.id !== 'UPS').forEach(isl => {
           const sel = flt.islandId === isl.id ? 'selected' : '';
@@ -3940,7 +4960,7 @@
       headHtml += '</tr>';
       headEl.innerHTML = headHtml;
 
-      // Table Body: Fixed Rows + Multiple Customizable Extra Rows
+      // Table Body: Fixed Rows (without ETA/STA and SCHEDULED DEPARTURE)
       const allUpperRows = OP_FIXED_ROWS;
       let bodyHtml = '';
       allUpperRows.forEach(rowDef => {
@@ -3953,7 +4973,7 @@
         bodyHtml += `<tr class="${rowClass}"><td class="op-label-cell">${labelCellContent}</td>`;
         operationPlan.flights.forEach((flt, colIdx) => {
           const val = (flt[rowDef.key] || '').replace(/"/g, '&quot;');
-          const placeholder = (rowDef.key === 'sta' || rowDef.key === 'std' || rowDef.key === 'loadTime') ? 'HH:MM' : '';
+          const placeholder = (rowDef.key === 'loadTime' || rowDef.key === 'crewPickTime') ? 'HH:MM' : '';
           bodyHtml += `
             <td>
               <input type="text" data-col="${colIdx}" data-key="${rowDef.key}" value="${val}" placeholder="${placeholder}" class="op-input op-cell-input" />
@@ -3963,7 +4983,7 @@
       });
       bodyEl.innerHTML = bodyHtml;
 
-      // Bottom Fixed Roles Table: Primary Row + Multiple Extra Rows (多數行)
+      // Bottom Fixed Roles Table: Primary Row + Multiple Extra Rows
       const br = operationPlan.bottomRoles;
       let bottomHtml = `
         <tr>
@@ -4005,7 +5025,13 @@
           const c = parseInt(e.target.getAttribute('data-col'), 10);
           const k = e.target.getAttribute('data-key');
           operationPlan.flights[c][k] = e.target.value;
+          if (k === 'parkingBay') {
+            autoAssignFlightBays(operationPlan.flights);
+            const selEl = document.querySelector(`.op-island-select[data-col="${c}"]`);
+            if (selEl) selEl.value = operationPlan.flights[c].islandId;
+          }
           saveOperationPlan();
+          fetchFlightradar24UPSHKG();
           updateHongKongClock();
         });
       });
@@ -4022,8 +5048,6 @@
         });
       });
 
-
-
       document.querySelectorAll('.op-island-select').forEach(sel => {
         sel.addEventListener('change', (e) => {
           const c = parseInt(e.target.getAttribute('data-col'), 10);
@@ -4039,7 +5063,7 @@
           const bk = e.target.getAttribute('data-bkey');
           operationPlan.bottomRoles[bk] = e.target.value;
           saveOperationPlan();
-          syncGatewayPermanentStaffBadges(globalActiveLoadingNames);
+          syncGatewayPermanentStaffBadges();
         });
       });
 
@@ -4050,7 +5074,7 @@
           if (operationPlan.bottomExtraRows && operationPlan.bottomExtraRows[rIdx]) {
             operationPlan.bottomExtraRows[rIdx][ek] = e.target.value;
             saveOperationPlan();
-            syncGatewayPermanentStaffBadges(globalActiveLoadingNames);
+            syncGatewayPermanentStaffBadges();
           }
         });
       });
@@ -4064,14 +5088,18 @@
     let pointerDownPos = { x: 0, y: 0 };
 
     container.addEventListener('pointerdown', (e) => {
+      pointerDownPos = { x: e.clientX, y: e.clientY };
+      if (state.viewLocked) {
+        camCtrl.isDragging = false;
+        return;
+      }
       camCtrl.isDragging = true;
       camCtrl.isPanning = e.button === 2 || e.shiftKey;
       camCtrl.prevMouse = { x: e.clientX, y: e.clientY };
-      pointerDownPos = { x: e.clientX, y: e.clientY };
     });
 
     window.addEventListener('pointermove', (e) => {
-      if (!camCtrl.isDragging) return;
+      if (!camCtrl.isDragging || state.viewLocked) return;
       const dx = e.clientX - camCtrl.prevMouse.x;
       const dy = e.clientY - camCtrl.prevMouse.y;
       camCtrl.prevMouse = { x: e.clientX, y: e.clientY };
@@ -4087,11 +5115,11 @@
     });
 
     window.addEventListener('pointerup', (e) => {
-      if (!camCtrl.isDragging) return;
+      const wasDragging = camCtrl.isDragging;
       camCtrl.isDragging = false;
+      if (!wasDragging && !state.viewLocked) return;
       const moveDist = Math.hypot(e.clientX - pointerDownPos.x, e.clientY - pointerDownPos.y);
       if (moveDist < 6 && e.target === renderer.domElement) {
-        // Raycast to check island click
         pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
         pointer.y = -(e.clientY / window.innerHeight) * 2 + 1;
         raycaster.setFromCamera(pointer, camera);
@@ -4107,27 +5135,56 @@
 
     container.addEventListener('wheel', (e) => {
       e.preventDefault();
-      camCtrl.desiredSpherical.radius = Math.max(24, Math.min(220, camCtrl.desiredSpherical.radius + e.deltaY * 0.05));
+      if (state.viewLocked) return;
+      camCtrl.desiredSpherical.radius = Math.max(24, Math.min(360, camCtrl.desiredSpherical.radius + e.deltaY * 0.05));
     }, { passive: false });
 
-    // Camera view preset buttons
+    // Camera view preset buttons & View Lock toggle
     document.getElementById('btn-cam-panorama').addEventListener('click', () => {
+      if (state.viewLocked) return;
       camCtrl.desiredTarget.set(0, 0, 2);
-      camCtrl.desiredSpherical = { radius: 138, phi: 0.88, theta: -0.22 };
+      camCtrl.desiredSpherical = { radius: 212, phi: 0.86, theta: -0.22 };
     });
     document.getElementById('btn-cam-top').addEventListener('click', () => {
+      if (state.viewLocked) return;
       camCtrl.desiredTarget.set(0, 0, 0);
-      camCtrl.desiredSpherical = { radius: 155, phi: 0.18, theta: 0.0 };
+      camCtrl.desiredSpherical = { radius: 235, phi: 0.18, theta: 0.0 };
     });
     document.getElementById('btn-cam-ups').addEventListener('click', () => {
       focusOnIsland('UPS');
     });
     document.getElementById('btn-cam-runway').addEventListener('click', () => {
+      triggerDemoRunwayTaxiSequence();
+      if (state.viewLocked) return;
       camCtrl.desiredTarget.set(0, 2.0, 15);
-      camCtrl.desiredSpherical = { radius: 62, phi: 1.04, theta: 0.15 };
+      camCtrl.desiredSpherical = { radius: 115, phi: 0.96, theta: 0.08 };
     });
-
-
+    document.getElementById('btn-lock-view').addEventListener('click', () => {
+      state.viewLocked = !state.viewLocked;
+      if (state.viewLocked) {
+        camCtrl.isDragging = false;
+        // Freeze desired camera state to current instant position so any in-flight transition stops immediately
+        camCtrl.desiredSpherical.radius = camCtrl.spherical.radius;
+        camCtrl.desiredSpherical.phi = camCtrl.spherical.phi;
+        camCtrl.desiredSpherical.theta = camCtrl.spherical.theta;
+        camCtrl.desiredTarget.copy(camCtrl.target);
+      }
+      const btn = document.getElementById('btn-lock-view');
+      const iconEl = document.getElementById('lock-view-icon');
+      const labelEl = document.getElementById('lock-view-label');
+      btn.setAttribute('aria-pressed', String(state.viewLocked));
+      if (state.viewLocked) {
+        btn.className = 'px-2.5 py-1.5 rounded-xl text-xs font-bold bg-rose-600 text-white shadow-md hover:bg-rose-500 transition flex items-center gap-1 border border-rose-400 ring-2 ring-rose-300/60';
+        iconEl.textContent = '🔒';
+        labelEl.textContent = '已鎖定';
+        container.style.cursor = 'default';
+      } else {
+        btn.className = 'px-2.5 py-1.5 rounded-xl text-xs font-bold bg-white/90 text-slate-700 shadow hover:bg-white transition flex items-center gap-1 border border-slate-200/80';
+        iconEl.textContent = '🔓';
+        labelEl.textContent = '鎖定視角';
+        container.style.cursor = 'grab';
+      }
+    });
 
     // Modals
     const chartModal = document.getElementById('chart-modal');
@@ -4151,7 +5208,7 @@
       helpModal.classList.remove('flex');
     });
 
-    // Daily Operation Plan Modal (每日工作編排 — 修改完可隱藏)
+    // Daily Operation Plan Modal
     const rosterModal = document.getElementById('roster-modal');
     document.getElementById('btn-open-roster').addEventListener('click', () => {
       renderOperationPlanTable();
@@ -4161,7 +5218,10 @@
     function closeAndSaveRosterModal() {
       operationPlan.dateTitle = document.getElementById('op-date-input').value;
       operationPlan.tractorBanner = document.getElementById('op-tractor-banner').value;
+      // Unify any duplicate FLT Numbers on save so identical flights never appear twice
+      operationPlan.flights = getUnifiedUniqueFlights(operationPlan.flights);
       saveOperationPlan();
+      fetchFlightradar24UPSHKG();
       updateHongKongClock();
       renderSelectedIslandDetail(state.selectedIslandId);
       rosterModal.classList.add('hidden');
@@ -4169,21 +5229,365 @@
     }
     document.getElementById('btn-close-roster').addEventListener('click', closeAndSaveRosterModal);
 
-
-
     document.getElementById('btn-add-flight-col').addEventListener('click', () => {
       const nextColIdx = operationPlan.flights.length + 1;
-      const defaultIslId = String(((nextColIdx - 1) % 15) + 1).padStart(2, '0');
+      const defaultIslId = String(((nextColIdx - 1) % 22) + 1).padStart(2, '0');
       operationPlan.flights.push({
         islandId: defaultIslId,
-        inFlt: '', inStatus: 'Landed', sta: '', inCrewPick: '', meetPlane: '', inboundUld: '',
-        outFlt: '', std: '', outStatus: 'Scheduled', tailNbr: '', crewPickTime: '', meetCrew: '',
+        inFlt: '', inStatus: '預計時間 -', sta: '', inCrewPick: '', meetPlane: '', inboundUld: '',
+        outFlt: '', std: '', outStatus: '-', tailNbr: '', crewPickTime: '', meetCrew: '',
         parkingBay: `BAY-${defaultIslId}`, loadTime: '', fod: '', ric: '', belt: '',
         ccdMdp: '', ccdP1P5: '', ccdP6P9: '', rc: '', bulk: '', lh: '', exp: '', outsource: ''
       });
       saveOperationPlan();
       renderOperationPlanTable();
       updateHongKongClock();
+    });
+
+    // Manual Excel (.xlsx / .xls / .csv) Upload & Template Export for Daily Operation Plan
+    // NOTE: Does NOT read ETA/STA or SCHEDULED DEPARTURE from Excel, and automatically unifies identical FLT Numbers!
+    function showExcelUploadStatus(msg, isError = false) {
+      const statusEl = document.getElementById('excel-upload-status');
+      if (!statusEl) return;
+      statusEl.textContent = msg;
+      statusEl.className = isError
+        ? 'px-2.5 py-0.5 rounded-lg text-[11px] font-bold bg-rose-100 text-rose-800 border border-rose-300'
+        : 'px-2.5 py-0.5 rounded-lg text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300';
+      statusEl.classList.remove('hidden');
+      if (window._excelStatusTimer) clearTimeout(window._excelStatusTimer);
+      window._excelStatusTimer = setTimeout(() => {
+        statusEl.classList.add('hidden');
+      }, 6000);
+    }
+
+    function normalizeExcelCellValue(rawVal, isTimeField = false) {
+      if (rawVal === null || rawVal === undefined) return '';
+      if (rawVal instanceof Date && !isNaN(rawVal.getTime())) {
+        const hh = String(rawVal.getHours()).padStart(2, '0');
+        const mm = String(rawVal.getMinutes()).padStart(2, '0');
+        return `${hh}:${mm}`;
+      }
+      if (typeof rawVal === 'number') {
+        if (isTimeField || (rawVal >= 0 && rawVal < 1)) {
+          const totalMins = Math.round(rawVal * 24 * 60) % 1440;
+          const hh = String(Math.floor(totalMins / 60)).padStart(2, '0');
+          const mm = String(totalMins % 60).padStart(2, '0');
+          return `${hh}:${mm}`;
+        }
+        if (isTimeField && rawVal >= 0 && rawVal <= 2400 && Number.isInteger(rawVal)) {
+          const s = String(rawVal).padStart(4, '0');
+          return `${s.slice(0, 2)}:${s.slice(2, 4)}`;
+        }
+        return String(rawVal).trim();
+      }
+      let str = String(rawVal).trim();
+      if (!str) return '';
+      if (isTimeField) {
+        const mSec = str.match(/^(\d{1,2}):(\d{2}):\d{2}$/);
+        if (mSec) {
+          return `${mSec[1].padStart(2, '0')}:${mSec[2]}`;
+        }
+        const m4 = str.match(/^(\d{2})(\d{2})$/);
+        if (m4) {
+          return `${m4[1]}:${m4[2]}`;
+        }
+        const mHm = str.match(/^(\d{1,2}):(\d{2})$/);
+        if (mHm) {
+          return `${mHm[1].padStart(2, '0')}:${mHm[2]}`;
+        }
+      }
+      return str;
+    }
+
+    function matchOpRowKey(labelStr, seenInFlt) {
+      const clean = String(labelStr || '').trim().toLowerCase();
+      if (!clean) return null;
+      // Explicitly ignore ETA/STA and SCHEDULED DEPARTURE rows in Excel per user requirement
+      if (clean.includes('sta') || clean.includes('eta') || clean.includes('到港時間')) return null;
+      if (clean.includes('scheduled departure') || clean.includes('預計起飛') || clean === 'std' || clean === 'etd' || clean.startsWith('std/')) return null;
+
+      if (clean.includes('到港航班') || clean.includes('in flt') || clean.includes('inbound flt')) return 'inFlt';
+      if (clean.includes('離港航班') || clean.includes('out flt') || clean.includes('outbound flt')) return 'outFlt';
+      if (clean.startsWith('flt nbr') || clean === 'flt' || clean === 'flight' || clean === '航班') {
+        return seenInFlt ? 'outFlt' : 'inFlt';
+      }
+      if (clean.includes('in/crew') || clean.includes('in crew')) return 'inCrewPick';
+      if (clean === '接機' || clean.includes('接機')) return 'meetPlane';
+      if (clean.includes('inbound uld')) return 'inboundUld';
+      if (clean.includes('tail nbr') || clean.includes('機尾編號') || clean === 'tail') return 'tailNbr';
+      if (clean.includes('crew pick up time') || clean.includes('crew pickup time')) return 'crewPickTime';
+      if (clean.includes('接 crew') || clean.includes('接crew')) return 'meetCrew';
+      if (clean.includes('parking bay') || clean.includes('停機位') || clean === 'bay') return 'parkingBay';
+      if (clean === '裝機' || clean.startsWith('裝機') || clean === 'loading' || clean === 'load time') return 'loadTime';
+      if (clean.startsWith('fod') || clean.includes('after loading')) return 'fod';
+      if (clean === 'ric' || clean.startsWith('ric ')) return 'ric';
+      if (clean === '帶板' || clean.includes('帶板')) return 'belt';
+      if (clean.includes('ccd (mdp)') || clean.includes('ccd(mdp)') || clean === 'ccd mdp') return 'ccdMdp';
+      if (clean.includes('ccd p1-p5') || clean.includes('ccd p1')) return 'ccdP1P5';
+      if (clean.includes('ccd p6-p9') || clean.includes('ccd p6')) return 'ccdP6P9';
+      if (clean === 'rc' || clean.startsWith('rc ')) return 'rc';
+      if (clean === 'bulk' || clean.startsWith('bulk ')) return 'bulk';
+      if (clean === 'lh' || clean.startsWith('lh ')) return 'lh';
+      if (clean === 'exp' || clean.startsWith('exp ')) return 'exp';
+      if (clean.includes('outsource')) return 'outsource';
+      return null;
+    }
+
+    function applyExcelRowsToOperationPlan(rows) {
+      if (!Array.isArray(rows) || rows.length === 0) {
+        showExcelUploadStatus('⚠️ Excel 檔案內容為空，請檢查工作表', true);
+        return;
+      }
+
+      const timeKeys = new Set(['crewPickTime', 'loadTime']);
+      let seenInFlt = false;
+      const matchedRowMap = new Map();
+      let maxFlightCols = 0;
+      let detectedDateTitle = '';
+      let detectedTractorBanner = '';
+      let bottomHeaderRowIdx = -1;
+      let islandHeaderRow = null;
+
+      for (let r = 0; r < rows.length; r++) {
+        const row = rows[r] || [];
+        const firstCell = String(row[0] ?? '').trim();
+        const firstLower = firstCell.toLowerCase();
+
+        if (!detectedDateTitle && r <= 3) {
+          if (firstLower.includes('編排日期') && row[1]) {
+            detectedDateTitle = String(row[1]).trim();
+            continue;
+          }
+          const nonEmptyCells = row.map(c => String(c ?? '').trim()).filter(Boolean);
+          if (nonEmptyCells.length === 1 && /(\d{4}|monday|tuesday|wednesday|thursday|friday|saturday|sunday|january|february|march|april|may|june|july|august|september|october|november|december|月|日)/i.test(nonEmptyCells[0])) {
+            detectedDateTitle = nonEmptyCells[0];
+            continue;
+          }
+        }
+
+        if (firstLower.includes('固定項目') || firstLower.includes('航班欄') || firstLower === 'island' || firstLower === '停機位編號') {
+          islandHeaderRow = row;
+          continue;
+        }
+
+        const rowJoined = row.map(c => String(c ?? '').trim().toLowerCase()).join('|');
+        if (firstLower === 'hub bic' || (rowJoined.includes('hub bic') && rowJoined.includes('hub wic'))) {
+          bottomHeaderRowIdx = r;
+          break;
+        }
+
+        const nonEmpty = row.map(c => String(c ?? '').trim()).filter(Boolean);
+        if (nonEmpty.length === 1 && /tractor/i.test(nonEmpty[0])) {
+          detectedTractorBanner = nonEmpty[0];
+          continue;
+        }
+
+        const matchedKey = matchOpRowKey(firstCell, seenInFlt);
+        if (matchedKey) {
+          if (matchedKey === 'inFlt') seenInFlt = true;
+          matchedRowMap.set(matchedKey, row);
+          for (let c = 1; c < row.length; c++) {
+            if (String(row[c] ?? '').trim() !== '') {
+              if (c > maxFlightCols) maxFlightCols = c;
+            }
+          }
+        }
+      }
+
+      if (matchedRowMap.size === 0 && bottomHeaderRowIdx === -1) {
+        showExcelUploadStatus('⚠️ 未能識別編排表欄位，請確認左側第一欄包含 Flt Nbr / PARKING BAY 等項目', true);
+        return;
+      }
+
+      if (detectedDateTitle) {
+        operationPlan.dateTitle = detectedDateTitle;
+      }
+      if (detectedTractorBanner) {
+        operationPlan.tractorBanner = detectedTractorBanner;
+      }
+
+      if (matchedRowMap.size > 0) {
+        const numCols = Math.max(maxFlightCols, 1);
+        const rawFlights = [];
+        for (let c = 1; c <= numCols; c++) {
+          const colIdx = c - 1;
+          const prevFlt = operationPlan.flights[colIdx] || {};
+          let defaultIslId = prevFlt.islandId || String((colIdx % 22) + 1).padStart(2, '0');
+          if (islandHeaderRow && islandHeaderRow[c]) {
+            const mIsl = String(islandHeaderRow[c]).match(/(\d{1,2})/);
+            if (mIsl) {
+              const num = parseInt(mIsl[1], 10);
+              if (num >= 1 && num <= 22) defaultIslId = String(num).padStart(2, '0');
+            }
+          }
+
+          const fltObj = {
+            islandId: defaultIslId,
+            inFlt: '', inStatus: '預計時間 -', sta: '', inCrewPick: '', meetPlane: '', inboundUld: '',
+            outFlt: '', std: '', outStatus: '-', tailNbr: '', crewPickTime: '', meetCrew: '',
+            parkingBay: '', loadTime: '', fod: '', ric: '', belt: '',
+            ccdMdp: '', ccdP1P5: '', ccdP6P9: '', rc: '', bulk: '', lh: '', exp: '', outsource: ''
+          };
+
+          OP_FIXED_ROWS.forEach(rDef => {
+            const rArr = matchedRowMap.get(rDef.key);
+            if (rArr !== undefined) {
+              fltObj[rDef.key] = normalizeExcelCellValue(rArr[c], timeKeys.has(rDef.key));
+            } else if (prevFlt[rDef.key]) {
+              fltObj[rDef.key] = prevFlt[rDef.key];
+            }
+          });
+
+          rawFlights.push(fltObj);
+        }
+        // Automatically unify duplicate FLT Numbers from Excel (e.g. if 142-CRK appears in 2 columns, merge into 1 unified column!)
+        operationPlan.flights = getUnifiedUniqueFlights(rawFlights);
+      }
+
+      if (bottomHeaderRowIdx !== -1) {
+        const bottomDataRows = [];
+        for (let r = bottomHeaderRowIdx + 1; r < rows.length; r++) {
+          const row = rows[r] || [];
+          const hasAny = row.slice(0, 8).some(cell => String(cell ?? '').trim() !== '');
+          if (!hasAny) continue;
+          bottomDataRows.push({
+            rowLabel: normalizeExcelCellValue(row[0]),
+            newWhBic: normalizeExcelCellValue(row[1]),
+            hubWic: normalizeExcelCellValue(row[2]),
+            newWhWic: normalizeExcelCellValue(row[3]),
+            uc: normalizeExcelCellValue(row[4]),
+            bkg: normalizeExcelCellValue(row[5]),
+            extra1: normalizeExcelCellValue(row[6]),
+            extra2: normalizeExcelCellValue(row[7])
+          });
+        }
+        if (bottomDataRows.length > 0) {
+          operationPlan.bottomRoles = bottomDataRows[0];
+          const extraRows = bottomDataRows.slice(1);
+          while (extraRows.length < 4) {
+            extraRows.push({ rowLabel: '', newWhBic: '', hubWic: '', newWhWic: '', uc: '', bkg: '', extra1: '', extra2: '' });
+          }
+          operationPlan.bottomExtraRows = extraRows;
+        }
+      }
+
+      if (window._completedRunwayEvents) window._completedRunwayEvents.clear();
+      if (window._finishedLandingEvents) window._finishedLandingEvents.clear();
+      if (window._prevFlightStatusSnap) window._prevFlightStatusSnap.clear();
+
+      saveOperationPlan();
+      fetchFlightradar24UPSHKG();
+      renderOperationPlanTable();
+      updateHongKongClock();
+      renderSelectedIslandDetail(state.selectedIslandId);
+      showExcelUploadStatus(`✓ 已從 Excel 更新並統一相同航班編號（共 ${operationPlan.flights.length} 班獨立航班）！`);
+      addLiveLogEntry('UPS', `已透過 Excel 更新每日工作編排並自動統一重複航班編號（共 ${operationPlan.flights.length} 班獨立航班）。`);
+    }
+
+    function parseCSVFallback(text) {
+      return text.split(/\r?\n/).map(line => {
+        const result = [];
+        let cur = '';
+        let inQuotes = false;
+        for (let i = 0; i < line.length; i++) {
+          const ch = line[i];
+          if (ch === '"') {
+            inQuotes = !inQuotes;
+          } else if ((ch === ',' || ch === '\t') && !inQuotes) {
+            result.push(cur.trim());
+            cur = '';
+          } else {
+            cur += ch;
+          }
+        }
+        result.push(cur.trim());
+        return result;
+      });
+    }
+
+    document.getElementById('btn-upload-excel').addEventListener('click', () => {
+      const fileInp = document.getElementById('input-upload-excel');
+      if (fileInp) {
+        fileInp.value = '';
+        fileInp.click();
+      }
+    });
+
+    document.getElementById('input-upload-excel').addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+
+      const isCSV = file.name.toLowerCase().endsWith('.csv');
+      const reader = new FileReader();
+
+      reader.onload = (evt) => {
+        try {
+          if (typeof XLSX !== 'undefined' && !isCSV) {
+            const data = new Uint8Array(evt.target.result);
+            const workbook = XLSX.read(data, { type: 'array', cellDates: true });
+            const firstSheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[firstSheetName];
+            const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: true, defval: '' });
+            applyExcelRowsToOperationPlan(rows);
+          } else if (typeof XLSX !== 'undefined' && isCSV) {
+            const workbook = XLSX.read(evt.target.result, { type: 'string' });
+            const firstSheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[firstSheetName];
+            const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false, defval: '' });
+            applyExcelRowsToOperationPlan(rows);
+          } else {
+            const rows = parseCSVFallback(evt.target.result);
+            applyExcelRowsToOperationPlan(rows);
+          }
+        } catch (err) {
+          showExcelUploadStatus('⚠️ 讀取 Excel 檔案失敗，請確認檔案格式 (.xlsx / .xls / .csv)', true);
+        }
+      };
+
+      if (isCSV) {
+        reader.readAsText(file, 'utf-8');
+      } else {
+        reader.readAsArrayBuffer(file);
+      }
+    });
+
+    document.getElementById('btn-export-excel').addEventListener('click', () => {
+      const aoa = [];
+      aoa.push([operationPlan.dateTitle || 'Tuesday, October 27, 2026']);
+      aoa.push(['固定項目 \ 航班欄', ...operationPlan.flights.map(f => `停機位 ${f.islandId || '01'}`)]);
+
+      OP_FIXED_ROWS.forEach(rDef => {
+        aoa.push([rDef.label, ...operationPlan.flights.map(f => f[rDef.key] || '')]);
+      });
+
+      aoa.push([]);
+      aoa.push([operationPlan.tractorBanner || '1 x 24 Tractor (1200-0800)']);
+      aoa.push(['Hub BIC', 'New warehouse BIC', 'Hub WIC', 'New warehouse WIC', 'UC', 'BKG', '其他職位 1 (選填)', '其他職位 2 (選填)']);
+
+      const br = operationPlan.bottomRoles || {};
+      aoa.push([br.rowLabel || '', br.newWhBic || '', br.hubWic || '', br.newWhWic || '', br.uc || '', br.bkg || '', br.extra1 || '', br.extra2 || '']);
+
+      (operationPlan.bottomExtraRows || []).forEach(er => {
+        aoa.push([er.rowLabel || '', er.newWhBic || '', er.hubWic || '', er.newWhWic || '', er.uc || '', er.bkg || '', er.extra1 || '', er.extra2 || '']);
+      });
+
+      if (typeof XLSX !== 'undefined') {
+        const ws = XLSX.utils.aoa_to_sheet(aoa);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Operation Plan');
+        XLSX.writeFile(wb, `UPS_HKG_Operation_Plan_${(operationPlan.dateTitle || 'Daily').replace(/[^a-zA-Z0-9_-]+/g, '_')}.xlsx`);
+        showExcelUploadStatus('✓ 已匯出每日工作編排 Excel (.xlsx) 範本！');
+      } else {
+        const csvContent = aoa.map(r => r.map(c => `"${String(c ?? '').replace(/"/g, '""')}"`).join(',')).join('\n');
+        const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'UPS_HKG_Operation_Plan.csv';
+        a.click();
+        URL.revokeObjectURL(url);
+        showExcelUploadStatus('✓ 已匯出每日工作編排 CSV 範本！');
+      }
     });
     document.getElementById('btn-save-hide-roster').addEventListener('click', () => {
       closeAndSaveRosterModal();
@@ -4223,13 +5627,6 @@
         ? 'px-2.5 py-1 rounded-xl text-[11px] font-bold bg-slate-900 text-white transition'
         : 'px-2.5 py-1 rounded-xl text-[11px] font-bold bg-slate-100 text-slate-700 transition';
     });
-    document.getElementById('toggle-arcs').addEventListener('click', (e) => {
-      state.showArcs = !state.showArcs;
-      arcsGroup.visible = state.showArcs;
-      e.currentTarget.className = state.showArcs
-        ? 'px-2.5 py-1 rounded-xl text-[11px] font-bold bg-slate-900 text-white transition'
-        : 'px-2.5 py-1 rounded-xl text-[11px] font-bold bg-slate-100 text-slate-700 transition';
-    });
     document.getElementById('toggle-rotate').addEventListener('click', (e) => {
       state.autoRotate = !state.autoRotate;
       e.currentTarget.className = state.autoRotate
@@ -4260,7 +5657,7 @@
       const elapsed = clock.getElapsedTime();
 
       if (!state.paused) {
-        if (state.autoRotate && !camCtrl.isDragging) {
+        if (state.autoRotate && !camCtrl.isDragging && !state.viewLocked) {
           camCtrl.desiredSpherical.theta += 0.0022;
         }
 
@@ -4426,10 +5823,10 @@
           upsDrone.rotation.y = Math.sin(elapsed * 0.8) * 0.4;
         }
 
-        // Bottom Runway Chibi Egg-Planes: One-Shot 3D Landing (降落) & Takeoff (起飛) Animations (出現一次即完成，不重複)!
+        // Runway <-> Taxiway <-> Parking Bay 3D Arrival (滑行跑道移至對應停泊位) & Departure (在停泊位移至滑行跑道) Animations!
         runwayChibiPlanes.forEach((rwObj) => {
           if (!rwObj.active || !rwObj.mesh.visible) return;
-          rwObj.progress += 0.0016; // Plays once over ~10 seconds
+          rwObj.progress += 0.0018;
           if (rwObj.progress >= 1.0) {
             rwObj.active = false;
             rwObj.mesh.visible = false;
@@ -4440,56 +5837,48 @@
             updateHongKongClock();
             return;
           }
-          const cycle = rwObj.progress;
-          rwObj.mesh.rotation.order = 'YXZ';
-          rwObj.mesh.rotation.y = -Math.PI / 2;
-          rwObj.mesh.rotation.z = 0;
 
-          if (rwObj.mode === 'arriving') {
-            // LANDING (到港降落): Approach from western sky -> flare & touchdown -> rollout -> turn onto taxiway
-            if (cycle < 0.45) {
-              const p = cycle / 0.45;
-              rwObj.mesh.position.x = -76 + p * 58;
-              rwObj.mesh.position.y = 0.82 + Math.pow(1 - p, 1.45) * 13.8;
-              rwObj.mesh.position.z = rwObj.laneZ;
-              rwObj.mesh.rotation.x = p > 0.75 ? (p - 0.75) * 0.65 : -0.12;
-            } else if (cycle < 0.82) {
-              const p = (cycle - 0.45) / 0.37;
-              rwObj.mesh.position.x = -18 + (1 - Math.pow(1 - p, 1.6)) * 56;
-              rwObj.mesh.position.y = 0.82;
-              rwObj.mesh.position.z = rwObj.laneZ;
-              rwObj.mesh.rotation.x = Math.max(0, (1 - p * 3) * 0.16);
-            } else {
-              const p = (cycle - 0.82) / 0.18;
-              rwObj.mesh.position.x = 38 + p * 10;
-              rwObj.mesh.position.y = 0.82;
-              rwObj.mesh.position.z = rwObj.laneZ - p * 7.5;
-              rwObj.mesh.rotation.y = -Math.PI / 2 + p * 0.65;
-              rwObj.mesh.rotation.x = 0;
+          const pts = rwObj.waypoints;
+          if (!pts || pts.length < 2) return;
+
+          const targetDist = rwObj.progress * rwObj.totalLength;
+          let acc = 0;
+          let segIdx = 0;
+          let localT = 0;
+          for (let i = 0; i < rwObj.segLengths.length; i++) {
+            const sLen = rwObj.segLengths[i];
+            if (acc + sLen >= targetDist || i === rwObj.segLengths.length - 1) {
+              segIdx = i;
+              localT = Math.max(0, Math.min(1, (targetDist - acc) / sLen));
+              break;
             }
-          } else {
-            // TAKEOFF (離港起飛): Enter runway from taxiway -> high-speed roll -> nose rotation -> steep climb into eastern sky
-            if (cycle < 0.18) {
-              const p = cycle / 0.18;
-              rwObj.mesh.position.x = -64 + p * 16;
-              rwObj.mesh.position.y = 0.82;
-              rwObj.mesh.position.z = rwObj.laneZ - (1 - p) * 4.5;
-              rwObj.mesh.rotation.y = -Math.PI / 2 - (1 - p) * 0.45;
-              rwObj.mesh.rotation.x = 0;
-            } else if (cycle < 0.55) {
-              const p = (cycle - 0.18) / 0.37;
-              rwObj.mesh.position.x = -48 + Math.pow(p, 1.65) * 56;
-              rwObj.mesh.position.y = 0.82;
-              rwObj.mesh.position.z = rwObj.laneZ;
-              rwObj.mesh.rotation.x = p > 0.78 ? ((p - 0.78) / 0.22) * 0.28 : 0;
-            } else {
-              const p = (cycle - 0.55) / 0.45;
-              rwObj.mesh.position.x = 8 + p * 70;
-              rwObj.mesh.position.y = 0.82 + Math.pow(p, 1.35) * 16.2;
-              rwObj.mesh.position.z = rwObj.laneZ;
-              rwObj.mesh.rotation.x = 0.30;
-            }
+            acc += sLen;
           }
+
+          const p0 = pts[segIdx];
+          const p1 = pts[segIdx + 1];
+          const curX = p0.x + (p1.x - p0.x) * localT;
+          const curY = p0.y + (p1.y - p0.y) * localT;
+          const curZ = p0.z + (p1.z - p0.z) * localT;
+          rwObj.mesh.position.set(curX, curY, curZ);
+
+          // Orient nose (-Z of createChibiEggPlane) smoothly along current segment direction
+          const dx = p1.x - p0.x;
+          const dy = p1.y - p0.y;
+          const dz = p1.z - p0.z;
+          const horizDist = Math.hypot(dx, dz);
+          rwObj.mesh.rotation.order = 'YXZ';
+          if (horizDist > 0.001) {
+            const desiredYaw = Math.atan2(dx, dz) + Math.PI;
+            let diff = desiredYaw - rwObj.currentYaw;
+            while (diff > Math.PI) diff -= Math.PI * 2;
+            while (diff < -Math.PI) diff += Math.PI * 2;
+            rwObj.currentYaw += diff * 0.18;
+            rwObj.mesh.rotation.y = rwObj.currentYaw;
+          }
+          // Pitch up during climb or flare
+          rwObj.mesh.rotation.x = horizDist > 0.01 ? Math.max(-0.22, Math.min(0.32, Math.atan2(dy, horizDist))) : 0;
+          rwObj.mesh.rotation.z = 0;
         });
 
         // UPS Beacon pulsing during active warnings
