@@ -111,50 +111,76 @@
       line-height: 1.15;
     }
     .uld-bubble-card {
-      position: fixed;
-      top: 10px;
-      left: 50%;
-      transform: translate(-50%, 0);
+      position: absolute;
+      transform-origin: bottom center;
+      transform: translate(-50%, -100%);
       pointer-events: auto;
       cursor: pointer;
-      background: rgba(255, 255, 255, 0.97);
-      border-radius: 18px;
-      padding: 6px 10px 7px 10px;
-      box-shadow: 0 10px 26px rgba(15, 23, 42, 0.24), 0 0 0 2.5px #ffb500;
-      z-index: 32;
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%);
+      border-radius: 12px;
+      padding: 5px 7px 5px 7px;
+      border: 2.5px solid #ffb500;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.35), inset 0 0 0 1px rgba(254, 243, 199, 0.22);
+      z-index: 8;
       backdrop-filter: blur(10px);
-      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
+      transition: box-shadow 0.2s ease;
       font-family: 'Fredoka', 'Nunito', 'M PLUS Rounded 1c', 'Noto Sans TC', sans-serif;
+      width: max-content;
     }
     .uld-bubble-card:hover {
-      transform: translate(-50%, 2px) scale(1.02);
-      box-shadow: 0 14px 32px rgba(15, 23, 42, 0.32), 0 0 0 3px #f59e0b;
-    }
-    .uld-bubble-card::after {
-      content: '';
-      position: absolute;
-      bottom: -7px;
-      left: 50%;
-      transform: translateX(-50%) rotate(45deg);
-      width: 13px;
-      height: 13px;
-      background: rgba(255, 255, 255, 0.97);
-      border-right: 2.5px solid #ffb500;
-      border-bottom: 2.5px solid #ffb500;
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.45), 0 0 0 2px #fbbf24;
+      z-index: 26;
     }
     .uld-mini-table {
       border-collapse: separate;
       border-spacing: 0;
-      border-radius: 10px;
+      border-radius: 6px;
       overflow: hidden;
-      border: 1.5px solid #64748b;
+      border: 1px solid #475569;
+      width: 100%;
     }
     .uld-mini-table th, .uld-mini-table td {
-      border: 1px solid #64748b;
-      padding: 1.5px 5px;
+      border: 1px solid #cbd5e1;
+      padding: 1px 3.5px;
       text-align: center;
       white-space: nowrap;
-      font-family: 'Fredoka', 'Nunito', 'M PLUS Rounded 1c', sans-serif;
+      line-height: 1.08;
+      font-family: 'Fredoka', 'Nunito', 'M PLUS Rounded 1c', 'Noto Sans TC', sans-serif;
+    }
+    .uld-op-grid-table {
+      border-collapse: separate;
+      border-spacing: 0;
+      border-radius: 5px;
+      overflow: hidden;
+      border: 1px solid #475569;
+      width: 100%;
+    }
+    .uld-op-grid-table th, .uld-op-grid-table td {
+      border: 1px solid #cbd5e1;
+      padding: 0.5px 2.5px;
+      font-size: 7.8px;
+      line-height: 1.06;
+      text-align: center;
+      white-space: nowrap;
+      font-family: 'Fredoka', 'Nunito', 'M PLUS Rounded 1c', 'Noto Sans TC', sans-serif;
+    }
+    .uld-op-grid-table .op-b-lbl {
+      background: #efe8d8;
+      color: #1e293b;
+      font-weight: 800;
+      text-align: left;
+      padding-left: 4px;
+      padding-right: 4px;
+    }
+    .uld-op-grid-table .op-b-cell {
+      background: #faf8f5;
+      color: #0f172a;
+      font-weight: 700;
+    }
+    .uld-op-grid-table .op-b-fod td {
+      background: #f59e0b !important;
+      color: #0f172a !important;
+      font-weight: 900;
     }
     .island-tag .ups-badge {
       display: inline-flex;
@@ -2620,21 +2646,50 @@
         }
       });
 
-      // Pin the UPS HKG Gateway Upper Bubble (Serviceable as of 6:00am Breakdown) to the very top of the screen so it never blocks the 3D island or left HUD panel!
-      if (upsGatewayUldBubbleEl) {
+      // Project the UPS HKG Gateway Bulletin Board (大樓後面上方 3D 壁報板) at the top of the 3D support gantry behind the UPS HKG Gateway building!
+      const upsGroupForBub = islandMeshesMap.get('UPS');
+      if (upsGatewayUldBubbleEl && upsGroupForBub) {
         if (!state.showBubbles) {
           upsGatewayUldBubbleEl.style.display = 'none';
         } else {
-          upsGatewayUldBubbleEl.style.display = 'block';
-          const bubW = upsGatewayUldBubbleEl.offsetWidth || 680;
-          const leftPanelRightEdge = 378;
-          const minCenterX = leftPanelRightEdge + bubW * 0.5 + 10;
-          const maxCenterX = w - 12 - bubW * 0.5;
-          const bx = maxCenterX >= minCenterX
-            ? Math.max(minCenterX, Math.min(maxCenterX, (leftPanelRightEdge + w) * 0.5))
-            : w * 0.5;
-          upsGatewayUldBubbleEl.style.left = `${bx.toFixed(1)}px`;
-          upsGatewayUldBubbleEl.style.top = '10px';
+          // 3D Gantry top behind & above UPS HKG Gateway building (x = 16, y = 14.2, z = -50.5)
+          const gantryTopWorld = new THREE.Vector3(16.0, upsGroupForBub.position.y + 14.2, -50.5);
+          const roofFrontWorld = new THREE.Vector3(12.0, upsGroupForBub.position.y + 9.2, -40.0);
+          gantryTopWorld.project(camera);
+          roofFrontWorld.project(camera);
+
+          if (gantryTopWorld.z > 1) {
+            upsGatewayUldBubbleEl.style.display = 'none';
+          } else {
+            upsGatewayUldBubbleEl.style.display = 'block';
+            const rawBx = (gantryTopWorld.x * 0.5 + 0.5) * w;
+            const rawBy = (-gantryTopWorld.y * 0.5 + 0.5) * h;
+            const roofSy = (-roofFrontWorld.y * 0.5 + 0.5) * h;
+
+            const natW = upsGatewayUldBubbleEl.offsetWidth || 640;
+            const natH = upsGatewayUldBubbleEl.offsetHeight || 168;
+
+            // Keep the bottom of the Bulletin Board strictly above the UPS HKG Gateway roof & tag so it never covers the building or foreground bubbles
+            let targetBy = Math.min(rawBy, roofSy - 16);
+            targetBy = Math.max(92, Math.min(h - 120, targetBy));
+
+            const leftHudClear = w >= 740 ? 374 : 8;
+            const availW = Math.max(280, w - leftHudClear - 12);
+            const availH = Math.max(84, targetBy - 6);
+
+            const scaleW = Math.min(1.0, availW / natW);
+            const scaleH = Math.min(1.0, availH / natH);
+            const fitScale = Math.max(0.52, Math.min(scaleW, scaleH));
+
+            const scaledHalfW = (natW * fitScale) * 0.5;
+            const minBx = leftHudClear + scaledHalfW + 4;
+            const maxBx = Math.max(minBx, w - scaledHalfW - 6);
+            const bx = Math.max(minBx, Math.min(maxBx, rawBx));
+
+            upsGatewayUldBubbleEl.style.transform = `translate(-50%, -100%) scale(${fitScale.toFixed(3)})`;
+            upsGatewayUldBubbleEl.style.left = `${bx.toFixed(1)}px`;
+            upsGatewayUldBubbleEl.style.top = `${targetBy.toFixed(1)}px`;
+          }
         }
       }
 
@@ -4083,9 +4138,15 @@
       const isl = ISLANDS_DATA.find(i => i.id === islandId);
       if (!isl) return;
       if (!state.viewLocked) {
-        camCtrl.desiredTarget.set(isl.x, 1.2, isl.z);
-        camCtrl.desiredSpherical.radius = isl.shape === 'rectangle' ? 68 : 48;
-        camCtrl.desiredSpherical.phi = 0.85;
+        if (isl.shape === 'rectangle') {
+          camCtrl.desiredTarget.set(isl.x, 4.5, isl.z - 4.0);
+          camCtrl.desiredSpherical.radius = 108;
+          camCtrl.desiredSpherical.phi = 0.86;
+        } else {
+          camCtrl.desiredTarget.set(isl.x, 1.2, isl.z);
+          camCtrl.desiredSpherical.radius = 48;
+          camCtrl.desiredSpherical.phi = 0.85;
+        }
       }
       renderSelectedIslandDetail(isl.id);
     }
@@ -4180,22 +4241,22 @@
     // =========================================================================
     // Fixed Schema for UPS HKG Gateway Upper Bubble: "Serviceable (as of 6:00am) Breakdown" (matches uploaded photo!)
     const ULD_BREAKDOWN_COLS = [
-      { key: 'AAD',    label: 'AAD',     sub: 'small',  subBg: 'transparent', hdrBg: '#f4cccc', cellBg: '#f4cccc', defaultVal: '65' },
-      { key: 'AAY',    label: 'AAY',     sub: 'small',  subBg: 'transparent', hdrBg: '#f4cccc', cellBg: '#f4cccc', defaultVal: '39' },
-      { key: 'AAZ',    label: 'AAZ',     sub: 'small',  subBg: 'transparent', hdrBg: '#f4cccc', cellBg: '#f4cccc', defaultVal: '2' },
-      { key: 'ALP',    label: 'ALP',     sub: 'small',  subBg: 'transparent', hdrBg: '#f4cccc', cellBg: '#f4cccc', defaultVal: '20' },
-      { key: 'AMD',    label: 'AMD',     sub: 'large',  subBg: 'transparent', hdrBg: '#d9ead3', cellBg: '#f4cccc', defaultVal: '37' },
-      { key: 'AMJ',    label: 'AMJ',     sub: 'large',  subBg: 'transparent', hdrBg: '#d9ead3', cellBg: '#f4cccc', defaultVal: '77' },
-      { key: 'AMP',    label: 'AMP',     sub: 'small',  subBg: 'transparent', hdrBg: '#f4cccc', cellBg: '#f4cccc', defaultVal: '90' },
-      { key: 'PAG',    label: 'PAG',     sub: 'pallet', subBg: 'transparent', hdrBg: '#ffe599', cellBg: '#f4cccc', defaultVal: '44' },
-      { key: 'PMC',    label: 'PMC',     sub: 'pallet', subBg: 'transparent', hdrBg: '#ffe599', cellBg: '#f4cccc', defaultVal: '179' },
-      { key: 'PM2',    label: 'PM2',     sub: 'pallet', subBg: 'transparent', hdrBg: '#ffe599', cellBg: '#f4cccc', defaultVal: '0' },
-      { key: 'Lease',  label: 'Lease',   sub: 'pallet', subBg: 'transparent', hdrBg: '#ffe599', cellBg: '#f4cccc', defaultVal: '0' },
-      { key: 'Total',  label: 'Total',   sub: '',       subBg: 'transparent', hdrBg: '#b6d7a8', cellBg: '#b6d7a8', defaultVal: '553' },
-      { key: 'FCC96',  label: 'FCC 96',  sub: '',       subBg: 'transparent', hdrBg: '#cfe2f3', cellBg: '#f4cccc', defaultVal: '12' },
-      { key: 'FCC118', label: 'FCC 118', sub: '',       subBg: 'transparent', hdrBg: '#cfe2f3', cellBg: '#f4cccc', defaultVal: '23' },
-      { key: 'Net',    label: 'Net',     sub: 'ests',   subBg: '#fff2cc',     hdrBg: '#d9d9d9', cellBg: '#d9d9d9', defaultVal: '478' },
-      { key: 'Straps', label: 'Straps',  sub: '',       subBg: 'transparent', hdrBg: '#d9d9d9', cellBg: '#d9d9d9', defaultVal: '520' }
+      { key: 'AAD',    label: 'AAD',     sub: '', hdrBg: '#1e293b', hdrText: '#fde68a', cellBg: '#efe8d8', cellText: '#0f172a', defaultVal: '65' },
+      { key: 'AAY',    label: 'AAY',     sub: '', hdrBg: '#1e293b', hdrText: '#fde68a', cellBg: '#efe8d8', cellText: '#0f172a', defaultVal: '39' },
+      { key: 'AAZ',    label: 'AAZ',     sub: '', hdrBg: '#1e293b', hdrText: '#fde68a', cellBg: '#efe8d8', cellText: '#0f172a', defaultVal: '2' },
+      { key: 'ALP',    label: 'ALP',     sub: '', hdrBg: '#1e293b', hdrText: '#fde68a', cellBg: '#efe8d8', cellText: '#0f172a', defaultVal: '20' },
+      { key: 'AMD',    label: 'AMD',     sub: '', hdrBg: '#065f46', hdrText: '#a7f3d0', cellBg: '#d1fae5', cellText: '#064e3b', defaultVal: '37' },
+      { key: 'AMJ',    label: 'AMJ',     sub: '', hdrBg: '#065f46', hdrText: '#a7f3d0', cellBg: '#d1fae5', cellText: '#064e3b', defaultVal: '77' },
+      { key: 'AMP',    label: 'AMP',     sub: '', hdrBg: '#1e293b', hdrText: '#fde68a', cellBg: '#efe8d8', cellText: '#0f172a', defaultVal: '90' },
+      { key: 'PAG',    label: 'PAG',     sub: '', hdrBg: '#78350f', hdrText: '#fde68a', cellBg: '#fef3c7', cellText: '#78350f', defaultVal: '44' },
+      { key: 'PMC',    label: 'PMC',     sub: '', hdrBg: '#78350f', hdrText: '#fde68a', cellBg: '#fef3c7', cellText: '#78350f', defaultVal: '179' },
+      { key: 'PM2',    label: 'PM2',     sub: '', hdrBg: '#78350f', hdrText: '#fde68a', cellBg: '#fef3c7', cellText: '#78350f', defaultVal: '0' },
+      { key: 'Lease',  label: 'Lease',   sub: '', hdrBg: '#78350f', hdrText: '#fde68a', cellBg: '#fef3c7', cellText: '#78350f', defaultVal: '0' },
+      { key: 'Total',  label: 'Total',   sub: '', hdrBg: '#f59e0b', hdrText: '#0f172a', cellBg: '#fde68a', cellText: '#0f172a', defaultVal: '553' },
+      { key: 'FCC96',  label: 'FCC 96',  sub: '', hdrBg: '#0369a1', hdrText: '#e0f2fe', cellBg: '#e0f2fe', cellText: '#0c4a6e', defaultVal: '12' },
+      { key: 'FCC118', label: 'FCC 118', sub: '', hdrBg: '#0369a1', hdrText: '#e0f2fe', cellBg: '#e0f2fe', cellText: '#0c4a6e', defaultVal: '23' },
+      { key: 'Net',    label: 'Net',     sub: '', hdrBg: '#334155', hdrText: '#f1f5f9', cellBg: '#e2e8f0', cellText: '#0f172a', defaultVal: '478' },
+      { key: 'Straps', label: 'Straps',  sub: '', hdrBg: '#334155', hdrText: '#f1f5f9', cellBg: '#e2e8f0', cellText: '#0f172a', defaultVal: '520' }
     ];
 
     const OP_FIXED_ROWS = [
@@ -4353,30 +4414,128 @@
     function renderUPSGatewayUldBubble() {
       if (!upsGatewayUldBubbleEl) return;
       const ub = operationPlan.uldBreakdown || DEFAULT_OPERATION_PLAN.uldBreakdown;
+      const flights = (operationPlan && Array.isArray(operationPlan.flights)) ? operationPlan.flights : DEFAULT_OPERATION_PLAN.flights;
+      const br = (operationPlan && operationPlan.bottomRoles) ? operationPlan.bottomRoles : DEFAULT_OPERATION_PLAN.bottomRoles;
 
       const hdrRowCells = ULD_BREAKDOWN_COLS.map(col => (
-        `<th style="background:${col.hdrBg}; color:#1e293b; font-size:10.5px; font-weight:800; padding:3px 6px;">${col.label}</th>`
+        `<th style="background:${col.hdrBg}; color:${col.hdrText || '#fde68a'}; font-size:9px; font-weight:800; padding:1.5px 4px;">${col.label}</th>`
       )).join('');
 
       const valRowCells = ULD_BREAKDOWN_COLS.map(col => {
         const val = ub[col.key] !== undefined && ub[col.key] !== null ? ub[col.key] : col.defaultVal;
-        return `<td style="background:${col.cellBg}; color:#0f172a; font-size:13px; font-weight:800; padding:3px 6px;">${val}</td>`;
+        return `<td style="background:${col.cellBg}; color:${col.cellText || '#0f172a'}; font-size:10.5px; font-weight:900; padding:1.5px 4px;">${val}</td>`;
       }).join('');
 
+      // Split OP_FIXED_ROWS into two balanced side-by-side 11-row / 10-row panels so ALL 21 rows + Bottom Roles display clearly without covering the 3D building below
+      const leftRows = [
+        { key: 'inFlt', label: 'Flt Nbr (到港)' },
+        { key: 'inCrewPick', label: 'In/Crew Pick' },
+        { key: 'meetPlane', label: '接機' },
+        { key: 'inboundUld', label: 'Inbound Uld' },
+        { key: 'outFlt', label: 'Flt Nbr (離港)' },
+        { key: 'tailNbr', label: 'Tail Nbr' },
+        { key: 'crewPickTime', label: 'Crew Pick Time' },
+        { key: 'meetCrew', label: '接 CREW' },
+        { key: 'parkingBay', label: 'PARKING BAY', isBay: true },
+        { key: 'loadTime', label: '裝機' },
+        { key: 'fod', label: 'FOD (After Load)', highlight: true }
+      ];
+      const rightRows = [
+        { key: 'ric', label: 'RIC' },
+        { key: 'belt', label: '帶板' },
+        { key: 'ccdMdp', label: 'CCD (MDP)' },
+        { key: 'ccdP1P5', label: 'CCD P1-P5' },
+        { key: 'ccdP6P9', label: 'CCD P6-P9' },
+        { key: 'rc', label: 'RC' },
+        { key: 'bulk', label: 'BULK' },
+        { key: 'lh', label: 'LH' },
+        { key: 'exp', label: 'Exp' },
+        { key: 'outsource', label: 'Outsource' }
+      ];
+
+      const fltHeadCells = flights.map((flt, idx) => (
+        `<th style="background:#1e293b; color:#fbbf24; font-weight:800; padding:1px 3px;">#${idx + 1}</th>`
+      )).join('');
+
+      const buildPanelRows = (rowDefs) => rowDefs.map(rDef => {
+        const trCls = rDef.highlight ? 'op-b-fod' : '';
+        const tds = flights.map(flt => {
+          const v = (flt[rDef.key] || '-').trim() || '-';
+          if (rDef.isBay && v !== '-') {
+            return `<td class="op-b-cell" style="background:#d1fae5; color:#065f46; font-weight:900;">${v}</td>`;
+          }
+          return `<td class="op-b-cell">${v}</td>`;
+        }).join('');
+        return `<tr class="${trCls}"><td class="op-b-lbl">${rDef.label}</td>${tds}</tr>`;
+      }).join('');
+
+      const rightBayRepeatRow = `
+        <tr>
+          <td class="op-b-lbl">PARKING BAY</td>
+          ${flights.map(flt => {
+            const v = (flt.parkingBay || '-').trim() || '-';
+            return v !== '-'
+              ? `<td class="op-b-cell" style="background:#d1fae5; color:#065f46; font-weight:900;">${v}</td>`
+              : `<td class="op-b-cell">-</td>`;
+          }).join('')}
+        </tr>
+      `;
+
       upsGatewayUldBubbleEl.innerHTML = `
-        <table class="uld-mini-table">
-          <tbody>
-            <tr>
-              <th rowspan="2" style="background:#d9d9d9; color:#1e293b; font-size:10.5px; font-weight:800; line-height:1.25; padding:4px 8px; text-align:center;">
-                Serviceable (as of<br/>6:00am)<br/>Breakdown
-              </th>
-              ${hdrRowCells}
-            </tr>
-            <tr>
-              ${valRowCells}
-            </tr>
-          </tbody>
-        </table>
+        <div style="display:flex; flex-direction:column; gap:2.5px;">
+          <table class="uld-mini-table">
+            <tbody>
+              <tr>
+                <th rowspan="2" style="background:#2b1711; color:#fbbf24; font-size:8.5px; font-weight:800; line-height:1.12; padding:1.5px 5px; text-align:center; border-right:1.5px solid #f59e0b;">
+                  Serviceable (as of 6:00am)<br/>Breakdown
+                </th>
+                ${hdrRowCells}
+              </tr>
+              <tr>
+                ${valRowCells}
+              </tr>
+            </tbody>
+          </table>
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; padding:1px 4px; background:#0f172a; border:1px solid #475569; border-radius:4px; font-size:8px; font-weight:800; color:#fde68a; line-height:1.1;">
+            <span>📋 每日工作編排壁報板 (${operationPlan.dateTitle || 'Tuesday, October 27, 2026'})</span>
+            <span style="color:#38bdf8;">🚜 ${operationPlan.tractorBanner || '1 x 24 Tractor (1200-0800)'}</span>
+            <span style="color:#a7f3d0;">✏️ 點擊壁報板可修改</span>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:3px; align-items:stretch;">
+            <table class="uld-op-grid-table">
+              <thead>
+                <tr>
+                  <th style="background:#0f172a; color:#fbbf24; text-align:left; padding:1px 3px;">航班項目 \ 欄</th>
+                  ${fltHeadCells}
+                </tr>
+              </thead>
+              <tbody>
+                ${buildPanelRows(leftRows)}
+              </tbody>
+            </table>
+            <table class="uld-op-grid-table">
+              <thead>
+                <tr>
+                  <th style="background:#0f172a; color:#fbbf24; text-align:left; padding:1px 3px;">裝機與人員 \ 欄</th>
+                  ${fltHeadCells}
+                </tr>
+              </thead>
+              <tbody>
+                ${rightBayRepeatRow}
+                ${buildPanelRows(rightRows)}
+              </tbody>
+            </table>
+          </div>
+          <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:nowrap; gap:6px; background:#efe8d8; color:#0f172a; border:1px solid #475569; border-radius:4px; padding:1.5px 6px; font-size:8px; font-weight:800; line-height:1.1; white-space:nowrap;">
+            <span style="background:#2b1711; color:#fbbf24; padding:0.5px 4px; border-radius:3px;">常駐崗位</span>
+            <span><strong style="color:#b45309;">Hub BIC:</strong> ${br.rowLabel || 'Chak'}</span>
+            <span><strong style="color:#0369a1;">New WH BIC:</strong> ${br.newWhBic || 'David'}</span>
+            <span><strong style="color:#047857;">Hub WIC:</strong> ${br.hubWic || 'Hei Wah'}</span>
+            <span><strong style="color:#047857;">New WH WIC:</strong> ${br.newWhWic || 'Kee Hong'}</span>
+            <span><strong style="color:#7c3aed;">UC:</strong> ${br.uc || '文仔 / Ping'}</span>
+            <span><strong style="color:#be123c;">BKG:</strong> ${br.bkg || 'Yin / Billy'}</span>
+          </div>
+        </div>
       `;
     }
     renderUPSGatewayUldBubble();
@@ -4888,21 +5047,21 @@
         const ub = operationPlan.uldBreakdown;
 
         const hdrRowHtml = ULD_BREAKDOWN_COLS.map(col => (
-          `<th style="border:1px solid #64748b; background:${col.hdrBg}; color:#1e293b; font-size:11.5px; font-weight:800; padding:4px 6px;">${col.label}</th>`
+          `<th style="border:1px solid #475569; background:${col.hdrBg}; color:${col.hdrText || '#fde68a'}; font-size:11.5px; font-weight:800; padding:4px 6px;">${col.label}</th>`
         )).join('');
 
         const valRowHtml = ULD_BREAKDOWN_COLS.map(col => {
           const val = String(ub[col.key] !== undefined ? ub[col.key] : col.defaultVal).replace(/"/g, '&quot;');
           return `
-            <td style="border:1px solid #64748b; background:${col.cellBg}; padding:2px;">
-              <input type="text" data-uld-key="${col.key}" value="${val}" class="op-uld-input w-full min-w-[46px] text-center font-extrabold text-sm text-slate-900 bg-white/55 hover:bg-white/85 focus:bg-white rounded px-1 py-0.5 focus:outline-none focus:ring-2 focus:ring-amber-500" />
+            <td style="border:1px solid #cbd5e1; background:${col.cellBg}; color:${col.cellText || '#0f172a'}; padding:2px;">
+              <input type="text" data-uld-key="${col.key}" value="${val}" class="op-uld-input w-full min-w-[46px] text-center font-extrabold text-sm text-slate-900 bg-white/65 hover:bg-white/90 focus:bg-white rounded px-1 py-0.5 focus:outline-none focus:ring-2 focus:ring-amber-500" />
             </td>`;
         }).join('');
 
         uldHeadEl.innerHTML = '';
         uldBodyEl.innerHTML = `
           <tr>
-            <th rowspan="2" style="border:1px solid #64748b; background:#d9d9d9; color:#1e293b; font-size:11px; font-weight:800; line-height:1.25; padding:4px 10px; min-width:130px; text-align:center;">
+            <th rowspan="2" style="border:1px solid #475569; background:#2b1711; color:#fbbf24; font-size:11px; font-weight:800; line-height:1.25; padding:4px 10px; min-width:130px; text-align:center;">
               Serviceable (as of<br/>6:00am)<br/>Breakdown
             </th>
             ${hdrRowHtml}
@@ -5017,6 +5176,7 @@
         `;
       });
       bottomBodyEl.innerHTML = bottomHtml;
+      renderUPSGatewayUldBubble();
       renderFR24LiveBoard();
 
       // Bind input listeners for live updates
