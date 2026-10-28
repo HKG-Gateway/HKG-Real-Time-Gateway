@@ -637,6 +637,13 @@
           </div>
         </div>
         <div class="flex items-center gap-2">
+          <div class="flex items-center gap-1.5 bg-slate-800/90 border border-sky-400/40 rounded-xl px-2.5 py-1 text-[11px]">
+            <span id="cloud-sync-dot" class="w-2 h-2 rounded-full bg-emerald-400 live-dot"></span>
+            <span class="font-bold text-sky-300">☁️ 跨設備同步頻道:</span>
+            <input id="cloud-sync-channel-input" type="text" value="UPS-HKG-GATEWAY" class="w-28 bg-slate-900 text-amber-300 font-mono font-bold text-[11px] px-1.5 py-0.5 rounded border border-slate-600 focus:outline-none focus:border-amber-400" title="所有設備輸入相同頻道碼即可即時同步每日工作編排" />
+            <button id="btn-cloud-pull-now" type="button" class="px-2 py-0.5 rounded bg-sky-600 hover:bg-sky-500 text-white font-bold text-[10px] transition" title="立即從雲端拉取其他設備最新儲存的編排">🔄 立即同步</button>
+            <span id="cloud-sync-status-text" class="text-[10px] font-bold text-emerald-300">雲端即時連線中</span>
+          </div>
           <span id="roster-active-flights-pill" class="px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/40 text-xs font-bold">
             現時在港飛機：計算中...
           </span>
@@ -657,11 +664,18 @@
         </div>
         <div class="flex flex-wrap items-center gap-2 text-[11px] text-slate-600 font-medium">
           <input id="input-upload-excel" type="file" accept=".xlsx,.xls,.csv" class="hidden" />
-          <button id="btn-upload-excel" type="button" class="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[11px] shadow-sm transition flex items-center gap-1" title="手動上傳 Excel (.xlsx / .xls / .csv) 更新每日工作編排">
+          <button id="btn-upload-excel" type="button" class="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[11px] shadow-sm transition flex items-center gap-1" title="上傳 Excel (.xlsx / .xls / .csv) 直接完整複製到每日工作編排">
             📤 上傳 Excel 更新
+          </button>
+          <select id="excel-sheet-select" class="hidden px-2 py-1 rounded-lg bg-emerald-50 text-emerald-900 border border-emerald-400 font-bold text-[11px] focus:outline-none" title="選擇 Excel 工作表分頁"></select>
+          <button id="btn-paste-excel" type="button" class="px-2.5 py-1 rounded-lg bg-teal-600 hover:bg-teal-500 text-white font-bold text-[11px] shadow-sm transition flex items-center gap-1" title="在 Excel 複製表格後，點擊此處或按 Ctrl+V 直接貼上到每日工作編排">
+            📋 貼上 Excel 內容
           </button>
           <button id="btn-export-excel" type="button" class="px-2.5 py-1 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-bold text-[11px] shadow-sm transition flex items-center gap-1" title="下載目前每日工作編排 Excel (.xlsx) 範本">
             📥 匯出 Excel 範本
+          </button>
+          <button id="btn-download-synced-html" type="button" class="px-2.5 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-[11px] shadow-sm transition flex items-center gap-1" title="下載已內嵌最新編排資料的 HTML 檔案，傳送至任何設備打開即可直接看到最新編排">
+            💾 下載含最新編排 HTML
           </button>
           <span id="excel-upload-status" class="hidden px-2.5 py-0.5 rounded-lg text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300"></span>
           <button id="btn-add-flight-col" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-300 font-bold text-[11px] shadow-sm transition">
@@ -676,6 +690,20 @@
           </a>
           <span class="inline-flex items-center gap-1 ml-1"><span class="w-2.5 h-2.5 rounded-sm bg-[#efe8d8] border border-slate-400 inline-block"></span>固定職位欄</span>
           <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-sm bg-amber-500 inline-block"></span>FOD 重點檢查欄</span>
+        </div>
+      </div>
+
+      <!-- Quick Excel Clipboard Paste Drawer (Hidden by default, toggled by 📋 貼上 Excel 內容) -->
+      <div id="excel-paste-drawer" class="hidden px-4 py-2.5 bg-teal-50 border-b border-teal-300 flex-col gap-2">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-extrabold text-teal-900">📋 直接從 Excel 複製貼上：請在 Excel 選取編排表範圍並按 Ctrl+C，然後在下方方框按 Ctrl+V 貼上，點擊「立即套用至每日工作編排」即可 1:1 直接複製！</span>
+          <button id="btn-close-paste-drawer" type="button" class="text-xs font-bold text-teal-700 hover:text-teal-950 px-2 py-0.5 rounded bg-teal-100">✕ 關閉</button>
+        </div>
+        <div class="flex gap-2 items-center">
+          <textarea id="excel-paste-textarea" rows="3" placeholder="在此處按 Ctrl+V 貼上從 Excel 複製的每日工作編排內容..." class="flex-1 text-xs font-mono p-2 rounded-lg border border-teal-400 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500"></textarea>
+          <button id="btn-apply-paste-excel" type="button" class="px-4 py-3 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-black text-xs shadow transition whitespace-nowrap">
+            ✓ 立即套用至每日工作編排
+          </button>
         </div>
       </div>
 
@@ -4526,26 +4554,244 @@
               </tbody>
             </table>
           </div>
-          <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:nowrap; gap:6px; background:#efe8d8; color:#0f172a; border:1px solid #475569; border-radius:4px; padding:1.5px 6px; font-size:8px; font-weight:800; line-height:1.1; white-space:nowrap;">
+          <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:5px; background:#efe8d8; color:#0f172a; border:1px solid #475569; border-radius:4px; padding:1.5px 6px; font-size:8px; font-weight:800; line-height:1.15; white-space:nowrap;">
             <span style="background:#2b1711; color:#fbbf24; padding:0.5px 4px; border-radius:3px;">常駐崗位</span>
-            <span><strong style="color:#b45309;">Hub BIC:</strong> ${br.rowLabel || 'Chak'}</span>
-            <span><strong style="color:#0369a1;">New WH BIC:</strong> ${br.newWhBic || 'David'}</span>
-            <span><strong style="color:#047857;">Hub WIC:</strong> ${br.hubWic || 'Hei Wah'}</span>
-            <span><strong style="color:#047857;">New WH WIC:</strong> ${br.newWhWic || 'Kee Hong'}</span>
-            <span><strong style="color:#7c3aed;">UC:</strong> ${br.uc || '文仔 / Ping'}</span>
-            <span><strong style="color:#be123c;">BKG:</strong> ${br.bkg || 'Yin / Billy'}</span>
+            <span><strong style="color:#b45309;">Hub BIC:</strong> ${[br.rowLabel, ...(operationPlan.bottomExtraRows || []).map(r => r.rowLabel)].map(v => String(v || '').trim()).filter(Boolean).join(' / ') || '-'}</span>
+            <span><strong style="color:#0369a1;">New WH BIC:</strong> ${[br.newWhBic, ...(operationPlan.bottomExtraRows || []).map(r => r.newWhBic)].map(v => String(v || '').trim()).filter(Boolean).join(' / ') || '-'}</span>
+            <span><strong style="color:#047857;">Hub WIC:</strong> ${[br.hubWic, ...(operationPlan.bottomExtraRows || []).map(r => r.hubWic)].map(v => String(v || '').trim()).filter(Boolean).join(' / ') || '-'}</span>
+            <span><strong style="color:#047857;">New WH WIC:</strong> ${[br.newWhWic, ...(operationPlan.bottomExtraRows || []).map(r => r.newWhWic)].map(v => String(v || '').trim()).filter(Boolean).join(' / ') || '-'}</span>
+            <span><strong style="color:#7c3aed;">UC:</strong> ${[br.uc, ...(operationPlan.bottomExtraRows || []).map(r => r.uc)].map(v => String(v || '').trim()).filter(Boolean).join(' / ') || '-'}</span>
+            <span><strong style="color:#be123c;">BKG:</strong> ${[br.bkg, ...(operationPlan.bottomExtraRows || []).map(r => r.bkg)].map(v => String(v || '').trim()).filter(Boolean).join(' / ') || '-'}</span>
+            ${(() => {
+              const ex1 = [br.extra1, ...(operationPlan.bottomExtraRows || []).map(r => r.extra1)].map(v => String(v || '').trim()).filter(Boolean).join(' / ');
+              const ex2 = [br.extra2, ...(operationPlan.bottomExtraRows || []).map(r => r.extra2)].map(v => String(v || '').trim()).filter(Boolean).join(' / ');
+              return (ex1 ? `<span><strong style="color:#0f766e;">其他 1:</strong> ${ex1}</span>` : '') +
+                     (ex2 ? `<span><strong style="color:#4338ca;">其他 2:</strong> ${ex2}</span>` : '');
+            })()}
           </div>
         </div>
       `;
     }
     renderUPSGatewayUldBubble();
 
-    function saveOperationPlan() {
+    // =========================================================================
+    // MULTI-DEVICE REAL-TIME CLOUD SYNC + LOCAL PERSISTENCE
+    // Solves why saving on one device previously couldn't be seen on other devices:
+    // 1. Saves to localStorage ('ups_hka_operation_plan_v8') for instant local reload
+    // 2. Broadcasts across tabs via BroadcastChannel
+    // 3. Pushes & subscribes to a real-time cloud channel (ntfy.sh JSON pub/sub)
+    //    so any other computer/tablet/phone on the same channel ID receives updates automatically!
+    // =========================================================================
+    const CLOUD_CLIENT_ID = 'client_' + Math.random().toString(36).slice(2, 10);
+    let cloudSyncChannel = localStorage.getItem('ups_hka_sync_channel_v1') || 'UPS-HKG-GATEWAY';
+    let lastCloudSyncTimestamp = Number(localStorage.getItem('ups_hka_op_updated_at_v8')) || 0;
+    let cloudEventSource = null;
+    let cloudPushDebounceTimer = null;
+    let isApplyingRemoteCloudPlan = false;
+
+    const localBroadcastChannel = (typeof BroadcastChannel !== 'undefined')
+      ? new BroadcastChannel('ups_hka_operation_plan_bc')
+      : null;
+
+    function getSanitizedCloudTopic(rawChannel) {
+      const clean = String(rawChannel || 'UPS-HKG-GATEWAY').trim().replace(/[^a-zA-Z0-9_-]/g, '_');
+      return 'ups_hkg_gateway_op_plan_v9_' + (clean || 'UPS-HKG-GATEWAY');
+    }
+
+    function updateCloudSyncBadge(text, stateType = 'ok') {
+      const statusEl = document.getElementById('cloud-sync-status-text');
+      const dotEl = document.getElementById('cloud-sync-dot');
+      if (statusEl) {
+        statusEl.textContent = text;
+        statusEl.className = stateType === 'error'
+          ? 'text-[10px] font-bold text-rose-300'
+          : (stateType === 'syncing' ? 'text-[10px] font-bold text-amber-300' : 'text-[10px] font-bold text-emerald-300');
+      }
+      if (dotEl) {
+        dotEl.className = stateType === 'error'
+          ? 'w-2 h-2 rounded-full bg-rose-400'
+          : (stateType === 'syncing' ? 'w-2 h-2 rounded-full bg-amber-400 live-dot' : 'w-2 h-2 rounded-full bg-emerald-400 live-dot');
+      }
+    }
+
+    function applyIncomingCloudOperationPlan(payload, sourceLabel = '雲端設備') {
+      if (!payload || !payload.operationPlan || !Array.isArray(payload.operationPlan.flights)) return;
+      const incomingTs = Number(payload.updatedAt) || 0;
+      if (incomingTs > 0 && incomingTs <= lastCloudSyncTimestamp) return;
+
+      isApplyingRemoteCloudPlan = true;
+      try {
+        lastCloudSyncTimestamp = incomingTs || Date.now();
+        operationPlan = Object.assign({}, JSON.parse(JSON.stringify(DEFAULT_OPERATION_PLAN)), payload.operationPlan);
+        if (!operationPlan.uldBreakdown) {
+          operationPlan.uldBreakdown = JSON.parse(JSON.stringify(DEFAULT_OPERATION_PLAN.uldBreakdown));
+        }
+        if (!Array.isArray(operationPlan.bottomExtraRows) || operationPlan.bottomExtraRows.length < 4) {
+          operationPlan.bottomExtraRows = JSON.parse(JSON.stringify(DEFAULT_OPERATION_PLAN.bottomExtraRows));
+        }
+        autoAssignFlightBays(operationPlan.flights);
+        try {
+          localStorage.setItem('ups_hka_operation_plan_v8', JSON.stringify(operationPlan));
+          localStorage.setItem('ups_hka_op_updated_at_v8', String(lastCloudSyncTimestamp));
+        } catch (e) {}
+
+        renderUPSGatewayUldBubble();
+        // Avoid overwriting an input field if the user is actively typing inside #roster-modal right now
+        const activeTag = document.activeElement ? document.activeElement.tagName : '';
+        const isTypingInModal = rosterModal && !rosterModal.classList.contains('hidden') && (activeTag === 'INPUT' || activeTag === 'TEXTAREA');
+        if (!isTypingInModal && typeof renderOperationPlanTable === 'function') {
+          renderOperationPlanTable();
+        }
+        if (typeof fetchFlightradar24UPSHKG === 'function') fetchFlightradar24UPSHKG();
+        if (typeof updateHongKongClock === 'function') updateHongKongClock();
+        if (typeof renderSelectedIslandDetail === 'function') renderSelectedIslandDetail(state.selectedIslandId);
+
+        const tStr = new Date(lastCloudSyncTimestamp).toLocaleTimeString('zh-HK', { hour12: false });
+        updateCloudSyncBadge(`已同步 (${tStr})`, 'ok');
+      } finally {
+        isApplyingRemoteCloudPlan = false;
+      }
+    }
+
+    async function pushOperationPlanToCloud(immediate = false) {
+      if (isApplyingRemoteCloudPlan) return;
+      const doPush = async () => {
+        const topic = getSanitizedCloudTopic(cloudSyncChannel);
+        const nowTs = Date.now();
+        lastCloudSyncTimestamp = nowTs;
+        try {
+          localStorage.setItem('ups_hka_op_updated_at_v8', String(nowTs));
+        } catch (e) {}
+        updateCloudSyncBadge('雲端上傳中...', 'syncing');
+        const bodyPayload = JSON.stringify({
+          clientId: CLOUD_CLIENT_ID,
+          updatedAt: nowTs,
+          operationPlan: operationPlan
+        });
+        try {
+          const resp = await fetch(`https://ntfy.sh/${topic}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8', 'Cache-Control': 'no-cache' },
+            body: bodyPayload
+          });
+          if (resp.ok) {
+            const tStr = new Date(nowTs).toLocaleTimeString('zh-HK', { hour12: false });
+            updateCloudSyncBadge(`已雲端同步 (${tStr})`, 'ok');
+          } else {
+            updateCloudSyncBadge('本機已存 (雲端稍後重試)', 'error');
+          }
+        } catch (err) {
+          updateCloudSyncBadge('本機已存 (離線模式)', 'error');
+        }
+      };
+
+      if (cloudPushDebounceTimer) clearTimeout(cloudPushDebounceTimer);
+      if (immediate) {
+        await doPush();
+      } else {
+        cloudPushDebounceTimer = setTimeout(doPush, 650);
+      }
+    }
+
+    async function pullLatestOperationPlanFromCloud(showFeedback = false) {
+      const topic = getSanitizedCloudTopic(cloudSyncChannel);
+      if (showFeedback) updateCloudSyncBadge('正在檢查雲端更新...', 'syncing');
+      try {
+        const resp = await fetch(`https://ntfy.sh/${topic}/json?poll=1&since=72h`, { cache: 'no-store' });
+        if (!resp.ok) {
+          if (showFeedback) updateCloudSyncBadge('雲端連線失敗', 'error');
+          return;
+        }
+        const text = await resp.text();
+        const lines = text.trim().split(/\r?\n/).filter(Boolean);
+        let newestPayload = null;
+        for (const line of lines) {
+          try {
+            const evt = JSON.parse(line);
+            if (evt && evt.event === 'message' && evt.message) {
+              const inner = JSON.parse(evt.message);
+              if (inner && inner.operationPlan && Array.isArray(inner.operationPlan.flights)) {
+                if (!newestPayload || (Number(inner.updatedAt) || 0) >= (Number(newestPayload.updatedAt) || 0)) {
+                  newestPayload = inner;
+                }
+              }
+            }
+          } catch (e) {}
+        }
+        if (newestPayload) {
+          if ((Number(newestPayload.updatedAt) || 0) > lastCloudSyncTimestamp) {
+            applyIncomingCloudOperationPlan(newestPayload, '跨設備雲端');
+            if (showFeedback && typeof showExcelUploadStatus === 'function') {
+              showExcelUploadStatus('✓ 已從跨設備雲端同步最新「每日工作編排」！');
+            }
+          } else if (showFeedback) {
+            const tStr = lastCloudSyncTimestamp ? new Date(lastCloudSyncTimestamp).toLocaleTimeString('zh-HK', { hour12: false }) : '最新';
+            updateCloudSyncBadge(`已是最新 (${tStr})`, 'ok');
+            if (typeof showExcelUploadStatus === 'function') {
+              showExcelUploadStatus('✓ 目前設備已是最新雲端編排版本！');
+            }
+          }
+        } else if (showFeedback) {
+          // No cloud record yet on this channel -> push our current plan so other devices can immediately see it!
+          await pushOperationPlanToCloud(true);
+          if (typeof showExcelUploadStatus === 'function') {
+            showExcelUploadStatus('✓ 已將目前編排上傳至雲端頻道，其他設備現在可即時看到！');
+          }
+        }
+      } catch (err) {
+        if (showFeedback) updateCloudSyncBadge('離線本機模式', 'error');
+      }
+    }
+
+    function subscribeCloudOperationPlanStream() {
+      if (cloudEventSource) {
+        try { cloudEventSource.close(); } catch (e) {}
+        cloudEventSource = null;
+      }
+      if (typeof EventSource === 'undefined') return;
+      const topic = getSanitizedCloudTopic(cloudSyncChannel);
+      try {
+        cloudEventSource = new EventSource(`https://ntfy.sh/${topic}/sse`);
+        cloudEventSource.onmessage = (evt) => {
+          try {
+            const data = JSON.parse(evt.data);
+            const rawMsg = data && data.message ? data.message : evt.data;
+            const inner = typeof rawMsg === 'string' ? JSON.parse(rawMsg) : rawMsg;
+            if (inner && inner.clientId !== CLOUD_CLIENT_ID && inner.operationPlan) {
+              applyIncomingCloudOperationPlan(inner, '雲端即時推送');
+            }
+          } catch (e) {}
+        };
+      } catch (e) {}
+    }
+
+    if (localBroadcastChannel) {
+      localBroadcastChannel.onmessage = (evt) => {
+        if (evt && evt.data && evt.data.clientId !== CLOUD_CLIENT_ID) {
+          applyIncomingCloudOperationPlan(evt.data, '同機跨分頁');
+        }
+      };
+    }
+
+    function saveOperationPlan(immediateCloud = false) {
       renderUPSGatewayUldBubble();
       autoAssignFlightBays(operationPlan.flights);
+      const nowTs = Date.now();
+      lastCloudSyncTimestamp = nowTs;
       try {
         localStorage.setItem('ups_hka_operation_plan_v8', JSON.stringify(operationPlan));
+        localStorage.setItem('ups_hka_op_updated_at_v8', String(nowTs));
       } catch (e) {}
+      if (localBroadcastChannel) {
+        try {
+          localBroadcastChannel.postMessage({
+            clientId: CLOUD_CLIENT_ID,
+            updatedAt: nowTs,
+            operationPlan: operationPlan
+          });
+        } catch (e) {}
+      }
+      pushOperationPlanToCloud(immediateCloud);
     }
 
     // Parse "HH:MM" into minutes since 00:00 (returns null if invalid/empty)
@@ -5080,8 +5326,28 @@
         });
       }
 
-      document.getElementById('op-date-input').value = operationPlan.dateTitle || 'Tuesday, October 27, 2026';
-      document.getElementById('op-tractor-banner').value = operationPlan.tractorBanner || '1 x 24 Tractor (1200-0800)';
+      const dateInpEl = document.getElementById('op-date-input');
+      const tractorInpEl = document.getElementById('op-tractor-banner');
+      if (dateInpEl) {
+        dateInpEl.value = operationPlan.dateTitle || 'Tuesday, October 27, 2026';
+        if (!dateInpEl.dataset.boundSync) {
+          dateInpEl.dataset.boundSync = '1';
+          dateInpEl.addEventListener('input', (e) => {
+            operationPlan.dateTitle = e.target.value;
+            saveOperationPlan();
+          });
+        }
+      }
+      if (tractorInpEl) {
+        tractorInpEl.value = operationPlan.tractorBanner || '1 x 24 Tractor (1200-0800)';
+        if (!tractorInpEl.dataset.boundSync) {
+          tractorInpEl.dataset.boundSync = '1';
+          tractorInpEl.addEventListener('input', (e) => {
+            operationPlan.tractorBanner = e.target.value;
+            saveOperationPlan();
+          });
+        }
+      }
 
       const now = new Date();
       const parts = new Intl.DateTimeFormat('en-GB', {
@@ -5378,9 +5644,7 @@
     function closeAndSaveRosterModal() {
       operationPlan.dateTitle = document.getElementById('op-date-input').value;
       operationPlan.tractorBanner = document.getElementById('op-tractor-banner').value;
-      // Unify any duplicate FLT Numbers on save so identical flights never appear twice
-      operationPlan.flights = getUnifiedUniqueFlights(operationPlan.flights);
-      saveOperationPlan();
+      saveOperationPlan(true);
       fetchFlightradar24UPSHKG();
       updateHongKongClock();
       renderSelectedIslandDetail(state.selectedIslandId);
@@ -5388,6 +5652,34 @@
       rosterModal.classList.remove('flex');
     }
     document.getElementById('btn-close-roster').addEventListener('click', closeAndSaveRosterModal);
+
+    // Cloud Sync Channel UI bindings
+    const syncChannelInput = document.getElementById('cloud-sync-channel-input');
+    if (syncChannelInput) {
+      syncChannelInput.value = cloudSyncChannel;
+      syncChannelInput.addEventListener('change', (e) => {
+        const val = String(e.target.value || '').trim() || 'UPS-HKG-GATEWAY';
+        cloudSyncChannel = val;
+        e.target.value = val;
+        try { localStorage.setItem('ups_hka_sync_channel_v1', val); } catch (err) {}
+        subscribeCloudOperationPlanStream();
+        pullLatestOperationPlanFromCloud(true);
+      });
+    }
+    const btnCloudPullNow = document.getElementById('btn-cloud-pull-now');
+    if (btnCloudPullNow) {
+      btnCloudPullNow.addEventListener('click', () => {
+        pullLatestOperationPlanFromCloud(true);
+      });
+    }
+    // Start real-time cloud subscription & periodic background sync (every 4 seconds)
+    setTimeout(() => {
+      pullLatestOperationPlanFromCloud(false);
+      subscribeCloudOperationPlanStream();
+    }, 300);
+    setInterval(() => {
+      pullLatestOperationPlanFromCloud(false);
+    }, 4000);
 
     document.getElementById('btn-add-flight-col').addEventListener('click', () => {
       const nextColIdx = operationPlan.flights.length + 1;
@@ -5399,13 +5691,18 @@
         parkingBay: `BAY-${defaultIslId}`, loadTime: '', fod: '', ric: '', belt: '',
         ccdMdp: '', ccdP1P5: '', ccdP6P9: '', rc: '', bulk: '', lh: '', exp: '', outsource: ''
       });
-      saveOperationPlan();
+      saveOperationPlan(true);
       renderOperationPlanTable();
       updateHongKongClock();
     });
 
-    // Manual Excel (.xlsx / .xls / .csv) Upload & Template Export for Daily Operation Plan
-    // NOTE: Does NOT read ETA/STA or SCHEDULED DEPARTURE from Excel, and automatically unifies identical FLT Numbers!
+    // =========================================================================
+    // DIRECT 1:1 EXCEL (.xlsx / .xls / .csv) & CLIPBOARD IMPORT INTO OPERATION PLAN
+    // Copies Serviceable Breakdown (AAD..Straps), all Flight Columns, Date Title,
+    // Tractor Banner, and Bottom Roles directly into 每日工作編排 & 3D Bulletin Board!
+    // =========================================================================
+    let lastUploadedWorkbook = null;
+
     function showExcelUploadStatus(msg, isError = false) {
       const statusEl = document.getElementById('excel-upload-status');
       if (!statusEl) return;
@@ -5417,7 +5714,7 @@
       if (window._excelStatusTimer) clearTimeout(window._excelStatusTimer);
       window._excelStatusTimer = setTimeout(() => {
         statusEl.classList.add('hidden');
-      }, 6000);
+      }, 8000);
     }
 
     function normalizeExcelCellValue(rawVal, isTimeField = false) {
@@ -5428,7 +5725,7 @@
         return `${hh}:${mm}`;
       }
       if (typeof rawVal === 'number') {
-        if (isTimeField || (rawVal >= 0 && rawVal < 1)) {
+        if (isTimeField || (rawVal > 0 && rawVal < 1)) {
           const totalMins = Math.round(rawVal * 24 * 60) % 1440;
           const hh = String(Math.floor(totalMins / 60)).padStart(2, '0');
           const mm = String(totalMins % 60).padStart(2, '0');
@@ -5440,12 +5737,21 @@
         }
         return String(rawVal).trim();
       }
-      let str = String(rawVal).trim();
+      let str = String(rawVal).replace(/\r?\n/g, ' ').trim();
       if (!str) return '';
       if (isTimeField) {
         const mSec = str.match(/^(\d{1,2}):(\d{2}):\d{2}$/);
         if (mSec) {
           return `${mSec[1].padStart(2, '0')}:${mSec[2]}`;
+        }
+        const mAmPm = str.match(/^(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM)$/i);
+        if (mAmPm) {
+          let h = parseInt(mAmPm[1], 10);
+          const min = mAmPm[2];
+          const ap = mAmPm[3].toUpperCase();
+          if (ap === 'PM' && h < 12) h += 12;
+          if (ap === 'AM' && h === 12) h = 0;
+          return `${String(h).padStart(2, '0')}:${min}`;
         }
         const m4 = str.match(/^(\d{2})(\d{2})$/);
         if (m4) {
@@ -5460,40 +5766,108 @@
     }
 
     function matchOpRowKey(labelStr, seenInFlt) {
-      const clean = String(labelStr || '').trim().toLowerCase();
+      const clean = String(labelStr || '').replace(/\r?\n/g, ' ').trim().toLowerCase();
       if (!clean) return null;
-      // Explicitly ignore ETA/STA and SCHEDULED DEPARTURE rows in Excel per user requirement
-      if (clean.includes('sta') || clean.includes('eta') || clean.includes('到港時間')) return null;
-      if (clean.includes('scheduled departure') || clean.includes('預計起飛') || clean === 'std' || clean === 'etd' || clean.startsWith('std/')) return null;
+      const compact = clean.replace(/[\s_\-.:/\\()（）]+/g, '');
 
-      if (clean.includes('到港航班') || clean.includes('in flt') || clean.includes('inbound flt')) return 'inFlt';
-      if (clean.includes('離港航班') || clean.includes('out flt') || clean.includes('outbound flt')) return 'outFlt';
-      if (clean.startsWith('flt nbr') || clean === 'flt' || clean === 'flight' || clean === '航班') {
+      // Explicitly skip ETA/STA and SCHEDULED DEPARTURE rows in Excel per user requirement
+      if (clean === 'sta' || clean === 'eta' || clean === 'eta/sta' || clean === 'sta/eta' || clean.includes('eta/sta') || clean.includes('到港時間')) return '__SKIP_TIME_ROW__';
+      if (clean.includes('scheduled departure') || clean.includes('預計起飛') || clean === 'std' || clean === 'etd' || clean.startsWith('std/')) return '__SKIP_TIME_ROW__';
+
+      if (clean.includes('到港航班') || clean.includes('in flt') || clean.includes('inbound flt') || compact === 'infltnbr' || compact === 'fltnbr到港') return 'inFlt';
+      if (clean.includes('離港航班') || clean.includes('out flt') || clean.includes('outbound flt') || compact === 'outfltnbr' || compact === 'fltnbr離港') return 'outFlt';
+      if (clean.startsWith('flt nbr') || clean.includes('flt nbr') || clean === 'flt' || clean === 'flight' || clean === 'flight nbr' || clean === 'flight no' || clean === '航班' || clean === '航班編號') {
         return seenInFlt ? 'outFlt' : 'inFlt';
       }
-      if (clean.includes('in/crew') || clean.includes('in crew')) return 'inCrewPick';
-      if (clean === '接機' || clean.includes('接機')) return 'meetPlane';
-      if (clean.includes('inbound uld')) return 'inboundUld';
-      if (clean.includes('tail nbr') || clean.includes('機尾編號') || clean === 'tail') return 'tailNbr';
-      if (clean.includes('crew pick up time') || clean.includes('crew pickup time')) return 'crewPickTime';
-      if (clean.includes('接 crew') || clean.includes('接crew')) return 'meetCrew';
-      if (clean.includes('parking bay') || clean.includes('停機位') || clean === 'bay') return 'parkingBay';
-      if (clean === '裝機' || clean.startsWith('裝機') || clean === 'loading' || clean === 'load time') return 'loadTime';
-      if (clean.startsWith('fod') || clean.includes('after loading')) return 'fod';
+      if (clean.includes('in/crew') || clean.includes('in crew') || compact.includes('increwpick')) return 'inCrewPick';
+      if (clean === '接機' || clean.includes('接機') || clean.includes('meet plane') || clean.includes('meet aircraft')) return 'meetPlane';
+      if (clean.includes('inbound uld') || compact.includes('inbounduld') || clean === 'uld') return 'inboundUld';
+      if (clean.includes('tail nbr') || clean.includes('tail no') || clean.includes('機尾編號') || clean.includes('機尾') || clean === 'tail' || clean === 'reg') return 'tailNbr';
+      if (clean.includes('crew pick up time') || clean.includes('crew pickup time') || clean.includes('crew pick time') || compact.includes('crewpickuptime') || compact.includes('crewpicktime')) return 'crewPickTime';
+      if (clean.includes('接 crew') || clean.includes('接crew') || clean.includes('meet crew')) return 'meetCrew';
+      if (clean.includes('parking bay') || clean.includes('停機位') || clean === 'bay' || clean === 'parking' || compact === 'parkingbay') return 'parkingBay';
+      if (clean === '裝機' || clean.startsWith('裝機') || clean === 'loading' || clean === 'load time' || clean === 'loading time') return 'loadTime';
+      if (clean.startsWith('fod') || clean.includes('after loading') || clean.includes('after load')) return 'fod';
       if (clean === 'ric' || clean.startsWith('ric ')) return 'ric';
-      if (clean === '帶板' || clean.includes('帶板')) return 'belt';
-      if (clean.includes('ccd (mdp)') || clean.includes('ccd(mdp)') || clean === 'ccd mdp') return 'ccdMdp';
-      if (clean.includes('ccd p1-p5') || clean.includes('ccd p1')) return 'ccdP1P5';
-      if (clean.includes('ccd p6-p9') || clean.includes('ccd p6')) return 'ccdP6P9';
+      if (clean === '帶板' || clean.includes('帶板') || clean === 'strap' || clean === 'belt') return 'belt';
+      if (clean.includes('ccd (mdp)') || clean.includes('ccd(mdp)') || clean === 'ccd mdp' || clean === 'mdp' || compact === 'ccdmdp') return 'ccdMdp';
+      if (clean.includes('ccd p1-p5') || clean.includes('ccd p1') || clean.includes('p1-p5') || clean.includes('p1~p5') || compact.includes('ccdp1')) return 'ccdP1P5';
+      if (clean.includes('ccd p6-p9') || clean.includes('ccd p6') || clean.includes('p6-p9') || clean.includes('p6~p9') || compact.includes('ccdp6')) return 'ccdP6P9';
       if (clean === 'rc' || clean.startsWith('rc ')) return 'rc';
       if (clean === 'bulk' || clean.startsWith('bulk ')) return 'bulk';
       if (clean === 'lh' || clean.startsWith('lh ')) return 'lh';
-      if (clean === 'exp' || clean.startsWith('exp ')) return 'exp';
-      if (clean.includes('outsource')) return 'outsource';
+      if (clean === 'exp' || clean.startsWith('exp ') || clean === 'express') return 'exp';
+      if (clean.includes('outsource') || clean.includes('外判')) return 'outsource';
       return null;
     }
 
-    function applyExcelRowsToOperationPlan(rows) {
+    // Detect & extract Serviceable (as of 6:00am) Breakdown (AAD .. Straps) from Excel rows
+    function extractUldBreakdownFromExcelRows(rows) {
+      const uldKeyAliases = {
+        'aad': 'AAD', 'aay': 'AAY', 'aaz': 'AAZ', 'alp': 'ALP',
+        'amd': 'AMD', 'amj': 'AMJ', 'amp': 'AMP', 'pag': 'PAG',
+        'pmc': 'PMC', 'pm2': 'PM2', 'lease': 'Lease', 'total': 'Total',
+        'fcc96': 'FCC96', 'fcc 96': 'FCC96', 'fcc118': 'FCC118', 'fcc 118': 'FCC118',
+        'net': 'Net', 'straps': 'Straps', 'strap': 'Straps'
+      };
+      for (let r = 0; r < Math.min(rows.length, 25); r++) {
+        const row = rows[r] || [];
+        const colToUldKey = new Map();
+        for (let c = 0; c < row.length; c++) {
+          const cellClean = String(row[c] ?? '').replace(/\r?\n/g, ' ').trim().toLowerCase();
+          if (uldKeyAliases[cellClean]) {
+            colToUldKey.set(c, uldKeyAliases[cellClean]);
+          }
+        }
+        // If at least 4 ULD header columns (e.g. AAD, AAY, AAZ, ALP...) are found on this row
+        if (colToUldKey.size >= 4) {
+          // Check r+1 or r+2 (in case r+1 is a subheader row like small/large/pallet/ests)
+          for (let offset = 1; offset <= 2; offset++) {
+            const valRow = rows[r + offset];
+            if (!valRow) continue;
+            const joinedLower = valRow.map(x => String(x ?? '').toLowerCase()).join('|');
+            if (joinedLower.includes('small') || joinedLower.includes('pallet') || joinedLower.includes('large')) {
+              continue;
+            }
+            const extracted = {};
+            let countVals = 0;
+            colToUldKey.forEach((uKey, colIdx) => {
+              const v = normalizeExcelCellValue(valRow[colIdx], false);
+              if (v !== '') {
+                extracted[uKey] = v;
+                countVals++;
+              }
+            });
+            if (countVals > 0) {
+              return extracted;
+            }
+          }
+        }
+      }
+      return null;
+    }
+
+    // Score a worksheet's rows to automatically pick the best sheet in a multi-sheet Excel workbook
+    function scoreExcelRowsForOperationPlan(rows) {
+      if (!Array.isArray(rows) || rows.length === 0) return 0;
+      let score = 0;
+      let seenIn = false;
+      for (let r = 0; r < rows.length; r++) {
+        const row = rows[r] || [];
+        for (let c = 0; c <= Math.min(4, row.length - 1); c++) {
+          const k = matchOpRowKey(row[c], seenIn);
+          if (k && k !== '__SKIP_TIME_ROW__') {
+            if (k === 'inFlt') seenIn = true;
+            score += 10;
+            break;
+          }
+        }
+      }
+      if (extractUldBreakdownFromExcelRows(rows)) score += 25;
+      return score;
+    }
+
+    function applyExcelRowsToOperationPlan(rows, sheetNameLabel = '') {
       if (!Array.isArray(rows) || rows.length === 0) {
         showExcelUploadStatus('⚠️ Excel 檔案內容為空，請檢查工作表', true);
         return;
@@ -5501,61 +5875,140 @@
 
       const timeKeys = new Set(['crewPickTime', 'loadTime']);
       let seenInFlt = false;
-      const matchedRowMap = new Map();
-      let maxFlightCols = 0;
+      const matchedRowMap = new Map(); // key -> { row, dataStartCol }
+      let detectedDataStartCol = 1;
+      let maxDataColIndex = 0;
       let detectedDateTitle = '';
       let detectedTractorBanner = '';
       let bottomHeaderRowIdx = -1;
+      let bottomHeaderStartCol = 0;
       let islandHeaderRow = null;
+      let islandHeaderStartCol = 1;
 
+      // 1. Extract Serviceable (as of 6:00am) Breakdown (AAD .. Straps) if present in Excel
+      const extractedUld = extractUldBreakdownFromExcelRows(rows);
+      if (extractedUld) {
+        if (!operationPlan.uldBreakdown) {
+          operationPlan.uldBreakdown = JSON.parse(JSON.stringify(DEFAULT_OPERATION_PLAN.uldBreakdown));
+        }
+        Object.keys(extractedUld).forEach(k => {
+          operationPlan.uldBreakdown[k] = extractedUld[k];
+        });
+      }
+
+      // 2. Scan all rows and detect label column (supports Column A, B, C, D, or E)
       for (let r = 0; r < rows.length; r++) {
         const row = rows[r] || [];
-        const firstCell = String(row[0] ?? '').trim();
-        const firstLower = firstCell.toLowerCase();
+        const nonEmptyCells = [];
+        for (let c = 0; c < row.length; c++) {
+          const valStr = String(row[c] ?? '').replace(/\r?\n/g, ' ').trim();
+          if (valStr !== '') nonEmptyCells.push({ c, valStr, lower: valStr.toLowerCase() });
+        }
+        if (nonEmptyCells.length === 0) continue;
 
-        if (!detectedDateTitle && r <= 3) {
-          if (firstLower.includes('編排日期') && row[1]) {
-            detectedDateTitle = String(row[1]).trim();
-            continue;
-          }
-          const nonEmptyCells = row.map(c => String(c ?? '').trim()).filter(Boolean);
-          if (nonEmptyCells.length === 1 && /(\d{4}|monday|tuesday|wednesday|thursday|friday|saturday|sunday|january|february|march|april|may|june|july|august|september|october|november|december|月|日)/i.test(nonEmptyCells[0])) {
-            detectedDateTitle = nonEmptyCells[0];
-            continue;
+        // Detect Date Title (e.g. "Saturday, October 24, 2026" or "編排日期：...")
+        if (!detectedDateTitle && r <= 8) {
+          for (let i = 0; i < nonEmptyCells.length; i++) {
+            const cell = nonEmptyCells[i];
+            if (cell.lower.includes('編排日期') && nonEmptyCells[i + 1]) {
+              detectedDateTitle = nonEmptyCells[i + 1].valStr;
+              break;
+            }
+            if (nonEmptyCells.length <= 2 && /(\d{4}|monday|tuesday|wednesday|thursday|friday|saturday|sunday|january|february|march|april|may|june|july|august|september|october|november|december|\d{1,2}月\d{1,2}日)/i.test(cell.valStr) && !cell.lower.includes('serviceable') && !cell.lower.includes('tractor')) {
+              detectedDateTitle = cell.valStr;
+              break;
+            }
           }
         }
 
-        if (firstLower.includes('固定項目') || firstLower.includes('航班欄') || firstLower === 'island' || firstLower === '停機位編號') {
+        // Detect Island Header Row
+        const firstNonEmpty = nonEmptyCells[0];
+        if (firstNonEmpty.lower.includes('固定項目') || firstNonEmpty.lower.includes('航班欄') || firstNonEmpty.lower === 'island' || firstNonEmpty.lower === '停機位編號') {
           islandHeaderRow = row;
+          islandHeaderStartCol = firstNonEmpty.c + 1;
           continue;
         }
 
-        const rowJoined = row.map(c => String(c ?? '').trim().toLowerCase()).join('|');
-        if (firstLower === 'hub bic' || (rowJoined.includes('hub bic') && rowJoined.includes('hub wic'))) {
+        // Detect Bottom Roles Section ("Hub BIC", "New warehouse BIC", "Hub WIC"...)
+        const rowJoined = nonEmptyCells.map(x => x.lower).join('|');
+        if (firstNonEmpty.lower === 'hub bic' || (rowJoined.includes('hub bic') && (rowJoined.includes('hub wic') || rowJoined.includes('warehouse')))) {
           bottomHeaderRowIdx = r;
+          bottomHeaderStartCol = firstNonEmpty.c;
           break;
         }
 
-        const nonEmpty = row.map(c => String(c ?? '').trim()).filter(Boolean);
-        if (nonEmpty.length === 1 && /tractor/i.test(nonEmpty[0])) {
-          detectedTractorBanner = nonEmpty[0];
+        // Detect Tractor Banner (e.g. "1 x 24 Tractor (1200-0800)")
+        if (nonEmptyCells.length <= 3 && nonEmptyCells.some(x => /tractor/i.test(x.valStr))) {
+          const trCell = nonEmptyCells.find(x => /tractor/i.test(x.valStr));
+          if (trCell) {
+            detectedTractorBanner = trCell.valStr;
+            continue;
+          }
+        }
+
+        // Scan Columns 0..4 for an Operation Plan row label
+        let matchedKey = null;
+        let labelCol = 0;
+        for (let c = 0; c <= Math.min(4, row.length - 1); c++) {
+          const candidate = String(row[c] ?? '').trim();
+          if (!candidate) continue;
+          const mKey = matchOpRowKey(candidate, seenInFlt);
+          if (mKey) {
+            matchedKey = mKey;
+            labelCol = c;
+            break;
+          }
+        }
+
+        if (matchedKey === '__SKIP_TIME_ROW__') {
           continue;
         }
 
-        const matchedKey = matchOpRowKey(firstCell, seenInFlt);
         if (matchedKey) {
           if (matchedKey === 'inFlt') seenInFlt = true;
-          matchedRowMap.set(matchedKey, row);
-          for (let c = 1; c < row.length; c++) {
+          // If parkingBay appears twice in the Excel sheet, keep the one with more non-empty values
+          if (matchedRowMap.has(matchedKey)) {
+            const existing = matchedRowMap.get(matchedKey);
+            const existingCount = existing.row.slice(existing.dataStartCol).filter(x => String(x ?? '').trim() !== '').length;
+            const newCount = row.slice(labelCol + 1).filter(x => String(x ?? '').trim() !== '').length;
+            if (newCount < existingCount) continue;
+          }
+          const dataStartCol = labelCol + 1;
+          detectedDataStartCol = dataStartCol;
+          matchedRowMap.set(matchedKey, { row, dataStartCol });
+          for (let c = dataStartCol; c < row.length; c++) {
             if (String(row[c] ?? '').trim() !== '') {
-              if (c > maxFlightCols) maxFlightCols = c;
+              const relCol = c - dataStartCol + 1;
+              if (relCol > maxDataColIndex) maxDataColIndex = relCol;
             }
           }
         }
       }
 
-      if (matchedRowMap.size === 0 && bottomHeaderRowIdx === -1) {
-        showExcelUploadStatus('⚠️ 未能識別編排表欄位，請確認左側第一欄包含 Flt Nbr / PARKING BAY 等項目', true);
+      // 3. Fallback: If the user selected/pasted a raw block of cells without header labels in Col A, copy rows positionally into OP_FIXED_ROWS!
+      if (matchedRowMap.size === 0 && bottomHeaderRowIdx === -1 && !extractedUld) {
+        const nonEmptyRows = rows.filter(r => Array.isArray(r) && r.some(c => String(c ?? '').trim() !== ''));
+        if (nonEmptyRows.length >= 2) {
+          const firstRow = nonEmptyRows[0];
+          const hasLabelCol = isNaN(Number(firstRow[0])) && firstRow.length > 1;
+          const startC = hasLabelCol ? 1 : 0;
+          nonEmptyRows.slice(0, OP_FIXED_ROWS.length).forEach((rArr, idx) => {
+            const rDef = OP_FIXED_ROWS[idx];
+            if (rDef) {
+              matchedRowMap.set(rDef.key, { row: rArr, dataStartCol: startC });
+              for (let c = startC; c < rArr.length; c++) {
+                if (String(rArr[c] ?? '').trim() !== '') {
+                  const relCol = c - startC + 1;
+                  if (relCol > maxDataColIndex) maxDataColIndex = relCol;
+                }
+              }
+            }
+          });
+        }
+      }
+
+      if (matchedRowMap.size === 0 && bottomHeaderRowIdx === -1 && !extractedUld) {
+        showExcelUploadStatus('⚠️ 未能識別 Excel 編排表內容，請確認工作表包含航班或職位資料', true);
         return;
       }
 
@@ -5566,15 +6019,15 @@
         operationPlan.tractorBanner = detectedTractorBanner;
       }
 
+      // 4. Directly copy every flight column 1-to-1 from the Excel sheet (NO old prevFlt fallback, NO column merging!)
       if (matchedRowMap.size > 0) {
-        const numCols = Math.max(maxFlightCols, 1);
-        const rawFlights = [];
-        for (let c = 1; c <= numCols; c++) {
-          const colIdx = c - 1;
-          const prevFlt = operationPlan.flights[colIdx] || {};
-          let defaultIslId = prevFlt.islandId || String((colIdx % 22) + 1).padStart(2, '0');
-          if (islandHeaderRow && islandHeaderRow[c]) {
-            const mIsl = String(islandHeaderRow[c]).match(/(\d{1,2})/);
+        const numCols = Math.max(maxDataColIndex, 1);
+        const directFlights = [];
+        for (let colOffset = 0; colOffset < numCols; colOffset++) {
+          const prevFlt = operationPlan.flights[colOffset] || {};
+          let defaultIslId = String((colOffset % 22) + 1).padStart(2, '0');
+          if (islandHeaderRow && islandHeaderRow[islandHeaderStartCol + colOffset]) {
+            const mIsl = String(islandHeaderRow[islandHeaderStartCol + colOffset]).match(/(\d{1,2})/);
             if (mIsl) {
               const num = parseInt(mIsl[1], 10);
               if (num >= 1 && num <= 22) defaultIslId = String(num).padStart(2, '0');
@@ -5583,42 +6036,83 @@
 
           const fltObj = {
             islandId: defaultIslId,
-            inFlt: '', inStatus: '預計時間 -', sta: '', inCrewPick: '', meetPlane: '', inboundUld: '',
-            outFlt: '', std: '', outStatus: '-', tailNbr: '', crewPickTime: '', meetCrew: '',
-            parkingBay: '', loadTime: '', fod: '', ric: '', belt: '',
-            ccdMdp: '', ccdP1P5: '', ccdP6P9: '', rc: '', bulk: '', lh: '', exp: '', outsource: ''
+            inFlt: '',
+            inStatus: prevFlt.inStatus || '預計時間 -',
+            hkiaArrSched: prevFlt.hkiaArrSched || '',
+            hkiaOrigin: prevFlt.hkiaOrigin || '',
+            sta: '',
+            inCrewPick: '',
+            meetPlane: '',
+            inboundUld: '',
+            outFlt: '',
+            std: '',
+            outStatus: prevFlt.outStatus || '-',
+            hkiaDepSched: prevFlt.hkiaDepSched || '',
+            hkiaDest: prevFlt.hkiaDest || '',
+            tailNbr: '',
+            crewPickTime: '',
+            meetCrew: '',
+            parkingBay: '',
+            loadTime: '',
+            fod: '',
+            ric: '',
+            belt: '',
+            ccdMdp: '',
+            ccdP1P5: '',
+            ccdP6P9: '',
+            rc: '',
+            bulk: '',
+            lh: '',
+            exp: '',
+            outsource: ''
           };
 
           OP_FIXED_ROWS.forEach(rDef => {
-            const rArr = matchedRowMap.get(rDef.key);
-            if (rArr !== undefined) {
-              fltObj[rDef.key] = normalizeExcelCellValue(rArr[c], timeKeys.has(rDef.key));
-            } else if (prevFlt[rDef.key]) {
-              fltObj[rDef.key] = prevFlt[rDef.key];
+            const matchedEntry = matchedRowMap.get(rDef.key);
+            if (matchedEntry) {
+              const rawCell = matchedEntry.row[matchedEntry.dataStartCol + colOffset];
+              fltObj[rDef.key] = normalizeExcelCellValue(rawCell, timeKeys.has(rDef.key));
+            } else {
+              fltObj[rDef.key] = '';
             }
           });
 
-          rawFlights.push(fltObj);
+          directFlights.push(fltObj);
         }
-        // Automatically unify duplicate FLT Numbers from Excel (e.g. if 142-CRK appears in 2 columns, merge into 1 unified column!)
-        operationPlan.flights = getUnifiedUniqueFlights(rawFlights);
+
+        // Remove trailing completely empty columns if any
+        while (directFlights.length > 1) {
+          const lastCol = directFlights[directFlights.length - 1];
+          const hasAnyVal = OP_FIXED_ROWS.some(rDef => String(lastCol[rDef.key] || '').trim() !== '');
+          if (!hasAnyVal) {
+            directFlights.pop();
+          } else {
+            break;
+          }
+        }
+
+        operationPlan.flights = directFlights;
+        autoAssignFlightBays(operationPlan.flights);
       }
 
+      // 5. Directly copy Bottom Roles (Hub BIC, New warehouse BIC, Hub WIC, New warehouse WIC, UC, BKG...)
       if (bottomHeaderRowIdx !== -1) {
         const bottomDataRows = [];
+        const sc = bottomHeaderStartCol;
         for (let r = bottomHeaderRowIdx + 1; r < rows.length; r++) {
           const row = rows[r] || [];
-          const hasAny = row.slice(0, 8).some(cell => String(cell ?? '').trim() !== '');
+          const slice8 = row.slice(sc, sc + 8);
+          const hasAny = slice8.some(cell => String(cell ?? '').trim() !== '');
           if (!hasAny) continue;
           bottomDataRows.push({
-            rowLabel: normalizeExcelCellValue(row[0]),
-            newWhBic: normalizeExcelCellValue(row[1]),
-            hubWic: normalizeExcelCellValue(row[2]),
-            newWhWic: normalizeExcelCellValue(row[3]),
-            uc: normalizeExcelCellValue(row[4]),
-            bkg: normalizeExcelCellValue(row[5]),
-            extra1: normalizeExcelCellValue(row[6]),
-            extra2: normalizeExcelCellValue(row[7])
+            rowLabel: normalizeExcelCellValue(row[sc]),
+            newWhBic: normalizeExcelCellValue(row[sc + 1]),
+            hubWic: normalizeExcelCellValue(row[sc + 2]),
+            newWhWic: normalizeExcelCellValue(row[sc + 3]),
+            uc: normalizeExcelCellValue(row[sc + 4]),
+            bkg: normalizeExcelCellValue(row[sc + 5]),
+            extra1: normalizeExcelCellValue(row[sc + 6]),
+            extra2: normalizeExcelCellValue(row[sc + 7])
           });
         }
         if (bottomDataRows.length > 0) {
@@ -5635,17 +6129,45 @@
       if (window._finishedLandingEvents) window._finishedLandingEvents.clear();
       if (window._prevFlightStatusSnap) window._prevFlightStatusSnap.clear();
 
-      saveOperationPlan();
+      // Save locally AND immediately push to Cloud so all other devices update right away!
+      saveOperationPlan(true);
       fetchFlightradar24UPSHKG();
       renderOperationPlanTable();
+      renderUPSGatewayUldBubble();
       updateHongKongClock();
       renderSelectedIslandDetail(state.selectedIslandId);
-      showExcelUploadStatus(`✓ 已從 Excel 更新並統一相同航班編號（共 ${operationPlan.flights.length} 班獨立航班）！`);
-      addLiveLogEntry('UPS', `已透過 Excel 更新每日工作編排並自動統一重複航班編號（共 ${operationPlan.flights.length} 班獨立航班）。`);
+
+      const sheetSuffix = sheetNameLabel ? `（工作表：${sheetNameLabel}）` : '';
+      showExcelUploadStatus(`✓ 已直接複製 Excel 內容至每日工作編排${sheetSuffix}（共 ${operationPlan.flights.length} 欄航班）並同步至雲端！`);
+      addLiveLogEntry('UPS', `已從 Excel 直接複製每日工作編排${sheetSuffix}（共 ${operationPlan.flights.length} 欄航班），並完成跨設備雲端同步。`);
+    }
+
+    function extractRowsFromWorksheet(worksheet) {
+      // Combine formatted text (raw: false) with raw values so dates/times/strings match Excel display 100%
+      const formattedRows = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false, defval: '' });
+      const rawRows = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: true, defval: '' });
+      const maxLen = Math.max(formattedRows.length, rawRows.length);
+      const merged = [];
+      for (let r = 0; r < maxLen; r++) {
+        const fRow = formattedRows[r] || [];
+        const rRow = rawRows[r] || [];
+        const cLen = Math.max(fRow.length, rRow.length);
+        const rowArr = [];
+        for (let c = 0; c < cLen; c++) {
+          const fVal = fRow[c] !== undefined && fRow[c] !== null ? String(fRow[c]).trim() : '';
+          rowArr.push(fVal !== '' ? fVal : (rRow[c] ?? ''));
+        }
+        merged.push(rowArr);
+      }
+      return merged;
     }
 
     function parseCSVFallback(text) {
       return text.split(/\r?\n/).map(line => {
+        // If line contains tabs (e.g. copied directly from Excel), split by tab first!
+        if (line.includes('\t')) {
+          return line.split('\t').map(c => c.trim());
+        }
         const result = [];
         let cur = '';
         let inQuotes = false;
@@ -5653,7 +6175,7 @@
           const ch = line[i];
           if (ch === '"') {
             inQuotes = !inQuotes;
-          } else if ((ch === ',' || ch === '\t') && !inQuotes) {
+          } else if (ch === ',' && !inQuotes) {
             result.push(cur.trim());
             cur = '';
           } else {
@@ -5673,6 +6195,17 @@
       }
     });
 
+    const sheetSelectEl = document.getElementById('excel-sheet-select');
+    if (sheetSelectEl) {
+      sheetSelectEl.addEventListener('change', (e) => {
+        const chosenName = e.target.value;
+        if (lastUploadedWorkbook && lastUploadedWorkbook.Sheets && lastUploadedWorkbook.Sheets[chosenName]) {
+          const rows = extractRowsFromWorksheet(lastUploadedWorkbook.Sheets[chosenName]);
+          applyExcelRowsToOperationPlan(rows, chosenName);
+        }
+      });
+    }
+
     document.getElementById('input-upload-excel').addEventListener('change', (e) => {
       const file = e.target.files && e.target.files[0];
       if (!file) return;
@@ -5685,16 +6218,38 @@
           if (typeof XLSX !== 'undefined' && !isCSV) {
             const data = new Uint8Array(evt.target.result);
             const workbook = XLSX.read(data, { type: 'array', cellDates: true });
-            const firstSheetName = workbook.SheetNames[0];
-            const worksheet = workbook.Sheets[firstSheetName];
-            const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: true, defval: '' });
-            applyExcelRowsToOperationPlan(rows);
+            lastUploadedWorkbook = workbook;
+
+            // Find the worksheet with the highest Operation Plan match score
+            let bestSheetName = workbook.SheetNames[0];
+            let bestScore = -1;
+            workbook.SheetNames.forEach(sName => {
+              const candidateRows = extractRowsFromWorksheet(workbook.Sheets[sName]);
+              const sc = scoreExcelRowsForOperationPlan(candidateRows);
+              if (sc > bestScore) {
+                bestScore = sc;
+                bestSheetName = sName;
+              }
+            });
+
+            if (sheetSelectEl) {
+              if (workbook.SheetNames.length > 1) {
+                sheetSelectEl.innerHTML = workbook.SheetNames.map(sName => (
+                  `<option value="${sName.replace(/"/g, '&quot;')}" ${sName === bestSheetName ? 'selected' : ''}>📄 分頁: ${sName}</option>`
+                )).join('');
+                sheetSelectEl.classList.remove('hidden');
+              } else {
+                sheetSelectEl.classList.add('hidden');
+              }
+            }
+
+            const rows = extractRowsFromWorksheet(workbook.Sheets[bestSheetName]);
+            applyExcelRowsToOperationPlan(rows, bestSheetName);
           } else if (typeof XLSX !== 'undefined' && isCSV) {
             const workbook = XLSX.read(evt.target.result, { type: 'string' });
             const firstSheetName = workbook.SheetNames[0];
-            const worksheet = workbook.Sheets[firstSheetName];
-            const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false, defval: '' });
-            applyExcelRowsToOperationPlan(rows);
+            const rows = extractRowsFromWorksheet(workbook.Sheets[firstSheetName]);
+            applyExcelRowsToOperationPlan(rows, firstSheetName);
           } else {
             const rows = parseCSVFallback(evt.target.result);
             applyExcelRowsToOperationPlan(rows);
@@ -5711,8 +6266,56 @@
       }
     });
 
+    // Direct Excel Clipboard Paste UI bindings
+    const pasteDrawer = document.getElementById('excel-paste-drawer');
+    const pasteTextarea = document.getElementById('excel-paste-textarea');
+    document.getElementById('btn-paste-excel').addEventListener('click', async () => {
+      if (navigator.clipboard && navigator.clipboard.readText) {
+        try {
+          const clipText = await navigator.clipboard.readText();
+          if (clipText && clipText.trim().length > 5 && (clipText.includes('\t') || clipText.includes('\n'))) {
+            const rows = parseCSVFallback(clipText);
+            if (scoreExcelRowsForOperationPlan(rows) > 0) {
+              applyExcelRowsToOperationPlan(rows, '剪貼簿直接貼上');
+              return;
+            }
+            if (pasteTextarea) pasteTextarea.value = clipText;
+          }
+        } catch (e) {}
+      }
+      if (pasteDrawer) {
+        pasteDrawer.classList.toggle('hidden');
+        pasteDrawer.classList.toggle('flex');
+        if (pasteTextarea) pasteTextarea.focus();
+      }
+    });
+    document.getElementById('btn-close-paste-drawer').addEventListener('click', () => {
+      if (pasteDrawer) {
+        pasteDrawer.classList.add('hidden');
+        pasteDrawer.classList.remove('flex');
+      }
+    });
+    document.getElementById('btn-apply-paste-excel').addEventListener('click', () => {
+      const rawText = pasteTextarea ? pasteTextarea.value : '';
+      if (!rawText || !rawText.trim()) {
+        showExcelUploadStatus('⚠️ 請先在方框內按 Ctrl+V 貼上從 Excel 複製的內容', true);
+        return;
+      }
+      const rows = parseCSVFallback(rawText);
+      applyExcelRowsToOperationPlan(rows, '剪貼簿貼上');
+      if (pasteDrawer) {
+        pasteDrawer.classList.add('hidden');
+        pasteDrawer.classList.remove('flex');
+      }
+    });
+
+    // Export Excel (.xlsx) Template including Serviceable Breakdown (AAD..Straps), Flights, and Bottom Roles
     document.getElementById('btn-export-excel').addEventListener('click', () => {
       const aoa = [];
+      const ub = operationPlan.uldBreakdown || DEFAULT_OPERATION_PLAN.uldBreakdown;
+      aoa.push(['Serviceable (as of 6:00am) Breakdown', ...ULD_BREAKDOWN_COLS.map(c => c.label)]);
+      aoa.push(['', ...ULD_BREAKDOWN_COLS.map(c => ub[c.key] !== undefined ? ub[c.key] : c.defaultVal)]);
+      aoa.push([]);
       aoa.push([operationPlan.dateTitle || 'Tuesday, October 27, 2026']);
       aoa.push(['固定項目 \ 航班欄', ...operationPlan.flights.map(f => `停機位 ${f.islandId || '01'}`)]);
 
@@ -5749,9 +6352,33 @@
         showExcelUploadStatus('✓ 已匯出每日工作編排 CSV 範本！');
       }
     });
+
+    // Download Self-Contained HTML with Latest Operation Plan Baked In (works across any device even offline!)
+    document.getElementById('btn-download-synced-html').addEventListener('click', () => {
+      saveOperationPlan(true);
+      try {
+        const fullHtml = document.documentElement.outerHTML;
+        const bakedJson = JSON.stringify(operationPlan, null, 2);
+        const updatedHtml = '<!DOCTYPE html>\n<html lang="zh-HK">\n' + fullHtml.replace(
+          /const DEFAULT_OPERATION_PLAN = \{[\s\S]*?\n    \};/,
+          `const DEFAULT_OPERATION_PLAN = ${bakedJson};`
+        );
+        const blob = new Blob([updatedHtml], { type: 'text/html;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'Operation Plan.html';
+        a.click();
+        URL.revokeObjectURL(url);
+        showExcelUploadStatus('✓ 已下載內嵌最新編排的 Operation Plan.html，傳送至任何設備打開即可看到最新資料！');
+      } catch (err) {
+        showExcelUploadStatus('⚠️ 下載 HTML 失敗', true);
+      }
+    });
+
     document.getElementById('btn-save-hide-roster').addEventListener('click', () => {
       closeAndSaveRosterModal();
-      addLiveLogEntry('UPS', '已更新並隱藏「每日工作編排表」，3D Q版蛋機將依香港實際時間自動起降與停泊。');
+      addLiveLogEntry('UPS', '已更新並透過雲端同步「每日工作編排表」，其他設備打開相同頻道即可即時看到最新編排。');
     });
 
     document.getElementById('btn-close-detail').addEventListener('click', () => {
