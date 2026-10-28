@@ -375,7 +375,7 @@
   <div class="fixed top-3 left-3 z-30 flex flex-col gap-2 max-w-[330px] sm:max-w-[360px]">
     <div class="glass-card rounded-2xl px-4 py-3">
       <div class="flex items-center justify-between gap-2">
-        <span class="text-[10px] font-bold tracking-widest uppercase text-slate-400">HKO · CHEK LAP KOK (LOC=HKA) · 3D HUB</span>
+        <span class="text-[10px] font-bold tracking-widest uppercase text-slate-400">HKG · CHEK LAP KOK · 3D Gateway</span>
         <span id="api-status-badge" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-700">
           <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 live-dot"></span>
           <span id="api-status-text">全自動同步 · 1s</span>
@@ -389,9 +389,6 @@
           <span id="header-phase-badge">赤鱲角 · 上午</span>
         </span>
       </div>
-      <p class="text-[11px] text-slate-500 mt-1 font-medium">
-        左上 4 橫向泊位 (17–20) · 近UPS大樓 8 泊位 (01–08) · 跑道下方 8 泊位 (09–16) · 左下 2 橫向泊位 (21–22)
-      </p>
 
       <!-- Live Chek Lap Kok Weather Strip inside Top-Left Card -->
       <div class="mt-2.5 pt-2.5 border-t border-slate-200/80 grid grid-cols-4 gap-1.5 text-center">
@@ -413,28 +410,13 @@
         </div>
       </div>
 
-      <!-- Active Weather Warnings Banner -->
-      <div id="warning-strip" class="mt-2 flex flex-wrap items-center gap-1.5"></div>
+      <!-- Active Weather Warnings Banner (only shown when an actual HKO warning is in effect; "無生效天氣警告 1s 自動監測中" text removed per user request) -->
+      <div id="warning-strip" class="hidden mt-2 flex-wrap items-center gap-1.5"></div>
 
-      <!-- HKO Automatic Rainstorm Detection Status & HKA Portal Link (No manual buttons) -->
-      <div class="mt-2 pt-1.5 border-t border-slate-200/80 flex items-center justify-between text-[10px] font-bold text-slate-500">
-        <span>🌧️ HKO 黃/紅/黑暴雨信號 1s 自動偵測連動中</span>
-        <a href="https://www.hko.gov.hk/tc/wxinfo/awsgis/regional_portal.html?loc=hka&ele=Temperature&show=chart" target="_blank" rel="noopener noreferrer" class="text-sky-600 hover:underline font-extrabold">HKO 赤鱲角網頁 ↗</a>
-      </div>
-
-      <!-- On-Screen Live HKIA Cargo 5X (arrivals/cargo.page & departures/cargo.page) 1s Direct Feed Strip -->
+      <!-- Live HKIA Cargo 5X Mini Flight List (kept active; "1s 自動偵測連動中" & "1秒自動讀取" text rows removed per user request) -->
       <div class="mt-2 pt-2 border-t border-slate-200/80">
-        <div class="flex items-center justify-between text-[10px]">
-          <span class="font-black text-slate-800 flex items-center gap-1">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 live-dot"></span>
-            ✈️ 香港機場貨機 (5X) · 1秒自動讀取
-          </span>
-          <div class="flex items-center gap-1.5">
-            <a href="https://www.hongkongairport.com/tc/flights/arrivals/cargo.page" target="_blank" rel="noopener noreferrer" id="hud-fr24-tick" class="font-mono text-[9.5px] text-emerald-700 font-bold hover:underline">抵港 ↗</a>
-            <a href="https://www.hongkongairport.com/tc/flights/departures/cargo.page" target="_blank" rel="noopener noreferrer" class="font-mono text-[9.5px] text-sky-700 font-bold hover:underline">離港 ↗</a>
-          </div>
-        </div>
-        <div id="hud-fr24-mini-list" class="mt-1 grid grid-cols-2 gap-1 text-[9.5px] max-h-[68px] overflow-y-auto custom-scroll"></div>
+        <a href="https://www.hongkongairport.com/tc/flights/arrivals/cargo.page" id="hud-fr24-tick" class="hidden" aria-hidden="true"></a>
+        <div id="hud-fr24-mini-list" class="grid grid-cols-2 gap-1 text-[9.5px] max-h-[68px] overflow-y-auto custom-scroll"></div>
       </div>
     </div>
 
@@ -473,7 +455,7 @@
   </div>
 
   <!-- LEFT FLOATING ISLAND DETAIL CARD (Matches Reference Video Left Drawer) -->
-  <div id="island-detail-card" class="fixed top-[332px] left-3 max-h-[calc(100vh-410px)] z-30 w-[310px] sm:w-[340px] max-h-[calc(100vh-310px)] glass-card rounded-2xl p-4 flex flex-col overflow-hidden transition-all duration-300">
+  <div id="island-detail-card" class="fixed top-[268px] left-3 max-h-[calc(100vh-410px)] z-30 w-[310px] sm:w-[340px] max-h-[calc(100vh-310px)] glass-card rounded-2xl p-4 flex flex-col overflow-hidden transition-all duration-300">
     <div class="flex items-start justify-between gap-2 pb-2.5 border-b border-slate-200/80">
       <div class="flex items-center gap-2.5">
         <div id="detail-badge" class="w-9 h-9 rounded-xl flex items-center justify-center text-xs font-black text-white shadow-sm p-1" style="background:#351c15; border: 2px solid #ffb500;">
@@ -521,7 +503,6 @@
     <!-- Secondary Legend Pill -->
     <div class="glass-card rounded-full px-3.5 py-1 flex items-center gap-3 text-[10.5px] font-semibold text-slate-700 shadow-sm">
       <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-sm bg-amber-500 inline-block"></span>中心長方形：UPS HKG Gateway</span>
-      <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-teal-500 inline-block"></span>左上 4 橫向泊位 (17-20) · 近UPS大樓 8 泊位 (01-08) · 跑道下方 8 泊位 (09-16) · 左下 2 橫向泊位 (21-22)</span>
       <span id="active-weather-summary" class="text-sky-700 font-bold">☀️ 赤鱲角：晴朗 · 27.0°C</span>
     </div>
 
@@ -567,7 +548,7 @@
       <div class="flex items-start justify-between gap-3 pb-3 border-b border-slate-200">
         <div>
           <div class="flex items-center gap-2">
-            <span class="px-2 py-0.5 rounded-md bg-amber-500 text-slate-950 text-[10px] font-black">LOC=HKA · 赤鱲角</span>
+            <span class="px-2 py-0.5 rounded-md bg-amber-500 text-slate-950 text-[10px] font-black">HKG · 赤鱲角</span>
             <span class="text-xs font-bold text-slate-500">香港天文台分區天氣資訊平台數據</span>
           </div>
           <h3 class="text-lg font-black text-slate-900 mt-1">赤鱲角自動氣象站 — 24 小時氣溫、濕度與風速變化圖</h3>
@@ -583,7 +564,7 @@
           <button data-chart-ele="wind" class="chart-ele-btn px-3 py-1 rounded-lg text-slate-600 hover:text-slate-900">風速 (km/h)</button>
         </div>
         <a href="https://www.hko.gov.hk/tc/wxinfo/awsgis/regional_portal.html?loc=hka&ele=Temperature&show=chart" target="_blank" rel="noopener noreferrer" class="text-xs font-bold text-sky-600 hover:text-sky-800 underline">
-          開啟香港天文台赤鱲角分區網頁 (loc=hka) ↗
+          開啟香港天文台赤鱲角分區網頁 ↗
         </a>
       </div>
 
@@ -640,24 +621,26 @@
             <p class="text-[11px] text-slate-300">到港/離港時間每秒自動讀取香港國際機場貨機網頁 (選取 5X · 當日日期：到港「到閘口」=已到港、「預計時間」=還沒到港；離港「啟航+時間」=已離港、「預計時間/-」=還沒離港)，不再讀取編排表內之 ETA/STA 與預計起飛時間</p>
           </div>
         </div>
-        <div class="flex items-center gap-2">
-          <div class="flex items-center gap-1.5 bg-slate-800/90 border border-sky-400/40 rounded-xl px-2.5 py-1 text-[11px]">
-            <span id="cloud-sync-dot" class="w-2 h-2 rounded-full bg-emerald-400 live-dot"></span>
-            <span class="font-bold text-sky-300">☁️ 跨設備同步頻道:</span>
+        <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
+          <div class="flex flex-wrap items-center gap-1.5 bg-slate-800/90 border border-sky-400/40 rounded-xl px-2.5 py-1 text-[11px]">
+            <span id="cloud-sync-dot" class="w-2 h-2 rounded-full bg-emerald-400 live-dot flex-shrink-0"></span>
+            <span class="font-bold text-sky-300 whitespace-nowrap">☁️ 同步頻道:</span>
             <input id="cloud-sync-channel-input" type="text" value="UPS-HKG-GATEWAY" class="w-28 bg-slate-900 text-amber-300 font-mono font-bold text-[11px] px-1.5 py-0.5 rounded border border-slate-600 focus:outline-none focus:border-amber-400" title="所有設備輸入相同頻道碼即可即時同步每日工作編排" />
-            <button id="btn-cloud-push-now" type="button" class="px-2 py-0.5 rounded bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-[10px] transition" title="立即將此設備目前的編排發送到雲端，讓其他設備即時看到">⬆️ 發送到其他設備</button>
-            <button id="btn-cloud-pull-now" type="button" class="px-2 py-0.5 rounded bg-sky-600 hover:bg-sky-500 text-white font-bold text-[10px] transition" title="立即從雲端拉取其他設備最新儲存的編排">🔄 立即同步</button>
-            <span id="cloud-sync-status-text" class="text-[10px] font-bold text-emerald-300">雲端即時連線中</span>
+            <button id="btn-cloud-push-now" type="button" class="px-2 py-0.5 rounded bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-[10px] transition whitespace-nowrap" title="立即將此設備目前的編排發送到雲端，讓其他設備即時看到">⬆️ 發送到其他設備</button>
+            <button id="btn-cloud-pull-now" type="button" class="px-2 py-0.5 rounded bg-sky-600 hover:bg-sky-500 text-white font-bold text-[10px] transition whitespace-nowrap" title="立即從雲端拉取其他設備最新儲存的編排">🔄 立即同步</button>
+            <span id="cloud-sync-status-text" class="text-[10px] font-bold text-emerald-300 whitespace-nowrap">雲端即時連線中</span>
           </div>
-          <span id="roster-active-flights-pill" class="px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/40 text-xs font-bold">
-            現時在港飛機：計算中...
-          </span>
-          <button id="btn-save-hide-roster" class="px-3.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs shadow transition">
-            ✓ 完成儲存並隱藏編排表
-          </button>
-          <button id="btn-close-roster" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold flex items-center justify-center" title="隱藏編排表">
-            ✕
-          </button>
+          <div class="flex items-center gap-1.5">
+            <span id="roster-active-flights-pill" class="px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/40 text-xs font-bold whitespace-nowrap">
+              現時在港飛機：計算中...
+            </span>
+            <button id="btn-save-hide-roster" class="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs shadow transition whitespace-nowrap">
+              ✓ 完成儲存並隱藏編排表
+            </button>
+            <button id="btn-close-roster" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold flex items-center justify-center flex-shrink-0" title="隱藏編排表">
+              ✕
+            </button>
+          </div>
         </div>
       </div>
 
@@ -990,17 +973,29 @@
       { hour: '08:00', temp: 26.2, hum: 55, wind: 19, wdir: '北 (355°)' }
     ];
 
-    // Hong Kong Observatory Official Weather Warnings Catalog
+    // Hong Kong Observatory Official Weather Warnings Catalog (Complete HKO Open Data Codes & Subtypes)
     const HKO_WARNINGS_CATALOG = [
       { code: 'WHOT', name: '酷熱天氣警告', icon: '🥵', color: '#ea580c', autoWx: null },
+      { code: 'WCOLD', name: '寒冷天氣警告', icon: '🥶', color: '#2563eb', autoWx: null },
       { code: 'WFIREY', name: '黃色火災危險警告', icon: '🔥', color: '#ca8a04', autoWx: null },
+      { code: 'WFIRER', name: '紅色火災危險警告', icon: '🔥', color: '#dc2626', autoWx: null },
+      { code: 'WMSGNL', name: '強烈季候風信號', icon: '💨', color: '#0f766e', autoWx: null },
       { code: 'WTS', name: '雷暴警告', icon: '⚡', color: '#7c3aed', autoWx: 'thunder' },
-      { code: 'WRAINA', name: '黃色暴雨警告信號', icon: '🌧️', color: '#eab308', autoWx: 'rain' },
-      { code: 'WRAINR', name: '紅色暴雨警告信號', icon: '🌧️', color: '#dc2626', autoWx: 'rain' },
-      { code: 'WRAINB', name: '黑色暴雨警告信號', icon: '⛈️', color: '#1e293b', autoWx: 'thunder' },
+      { code: 'WRAINA', name: '黃色暴雨警告信號', icon: '🟨', color: '#eab308', autoWx: 'amber_rain' },
+      { code: 'WRAINR', name: '紅色暴雨警告信號', icon: '🟥', color: '#dc2626', autoWx: 'red_rain' },
+      { code: 'WRAINB', name: '黑色暴雨警告信號', icon: '⬛', color: '#1e293b', autoWx: 'black_rain' },
+      { code: 'WFNTSA', name: '新界北部水浸特別報告', icon: '🌊', color: '#0369a1', autoWx: 'rain' },
+      { code: 'WL', name: '山泥傾瀉警告', icon: '⛰️', color: '#92400e', autoWx: 'rain' },
+      { code: 'WTMW', name: '海嘯警告', icon: '🌊', color: '#7f1d1d', autoWx: 'storm' },
+      { code: 'WFROST', name: '霜凍警告', icon: '❄️', color: '#0284c7', autoWx: null },
       { code: 'TC1', name: '一號戒備信號', icon: '🌀', color: '#0284c7', autoWx: null },
       { code: 'TC3', name: '三號強風信號', icon: '🌬️', color: '#0d9488', autoWx: 'rain' },
       { code: 'TC8', name: '八號烈風或暴風信號', icon: '🌪️', color: '#dc2626', autoWx: 'storm' },
+      { code: 'TC8NE', name: '八號東北烈風或暴風信號', icon: '🌪️', color: '#dc2626', autoWx: 'storm' },
+      { code: 'TC8SE', name: '八號東南烈風或暴風信號', icon: '🌪️', color: '#dc2626', autoWx: 'storm' },
+      { code: 'TC8NW', name: '八號西北烈風或暴風信號', icon: '🌪️', color: '#dc2626', autoWx: 'storm' },
+      { code: 'TC8SW', name: '八號西南烈風或暴風信號', icon: '🌪️', color: '#dc2626', autoWx: 'storm' },
+      { code: 'TC9', name: '九號烈風或暴風風力增強信號', icon: '🌪️', color: '#b91c1c', autoWx: 'storm' },
       { code: 'TC10', name: '十號颶風信號', icon: '🚨', color: '#7f1d1d', autoWx: 'storm' }
     ];
 
@@ -1166,13 +1161,21 @@
       chartElement: 'temp', // 'temp' | 'hum' | 'wind'
       searchQuery: '',
       logFilter: 'all',
+      celestial: {
+        isDaytime: true,
+        label: '☀️ 太陽軌跡',
+        azimuthDeg: 252,
+        elevationDeg: 18.5,
+        progressPct: 78
+      },
       hkaWeather: {
-        temp: 26.8,
-        hum: 55,
-        windDir: '北 (355°)',
-        windSpeed: 20,
+        temp: 29.5,
+        hum: 52,
+        windDir: '西北 (318°)',
+        windSpeed: 16,
+        windGust: 22,
         rainfall: 0,
-        pressure: 1015,
+        pressure: 1014.8,
         uv: 4,
         updateTime: '剛剛更新'
       }
@@ -2930,10 +2933,9 @@
       dirLight.intensity = state.weatherMode === 'clear'
         ? cfg.sunIntensity
         : (state.weatherMode === 'black_rain' ? 0.25 : 0.48);
-      dirLight.position.set(...cfg.sunPos);
-      sunOrb.position.set(cfg.sunPos[0] * 2.1, cfg.sunPos[1] * 2.1, cfg.sunPos[2] * 2.1);
       sunOrb.material.color.setHex(phaseKey === 'night' || phaseKey === 'latenight' ? 0xe2e8f0 : (phaseKey === 'sunset' ? 0xff4e1b : (phaseKey === 'sunrise' || phaseKey === 'dusk' ? 0xff8844 : 0xffdd55)));
-      sunOrb.visible = state.weatherMode === 'clear';
+      sunOrb.visible = state.weatherMode === 'clear' || state.weatherMode === 'cloudy';
+      updateCelestialTrajectoryByNow();
 
       scene.fog.color.setHex(
         state.weatherMode === 'amber_rain' ? 0x85682a :
@@ -3039,6 +3041,82 @@
       addLiveLogEntry('15', `赤鱲角氣象動畫切換為「${wxNames[wxMode] || wxNames.clear}」。`);
     }
 
+    // Real-time 1-second continuous Celestial (Sun / Moon) Trajectory Calculator for Hong Kong (Chek Lap Kok 22.308°N, 113.918°E)
+    function getHongKongHMS() {
+      const now = new Date();
+      const parts = new Intl.DateTimeFormat('en-GB', {
+        timeZone: 'Asia/Hong_Kong',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      }).formatToParts(now);
+      const hh = parseInt(parts.find(p => p.type === 'hour')?.value || '8', 10);
+      const mm = parseInt(parts.find(p => p.type === 'minute')?.value || '0', 10);
+      const ss = parseInt(parts.find(p => p.type === 'second')?.value || '0', 10);
+      return { hh, mm, ss, ms: now.getMilliseconds() };
+    }
+
+    function updateCelestialTrajectoryAtHKTime(hh, mm, ss, ms = 0) {
+      const decHours = hh + mm / 60 + (ss + ms / 1000) / 3600;
+      const sunriseStart = 5.5;  // 05:30 HKT (Dawn / Sunrise)
+      const duskEnd = 19.25;     // 19:15 HKT (Dusk end)
+
+      if (decHours >= sunriseStart && decHours <= duskEnd) {
+        // Daytime & Twilight Solar Trajectory: East (+X) -> South Zenith (+Y, +Z) -> West (-X)
+        const solarProgress = Math.max(0, Math.min(1, (decHours - sunriseStart) / (duskEnd - sunriseStart)));
+        const solarAngle = solarProgress * Math.PI; // 0 rad (East) -> PI/2 (Noon Zenith) -> PI (West)
+        const sx = Math.cos(solarAngle) * 68;
+        const sy = Math.max(3.2, Math.sin(solarAngle) * 72);
+        const sz = 16 + Math.sin(solarAngle) * 10;
+        dirLight.position.set(sx, sy, sz);
+        sunOrb.position.set(sx * 2.1, sy * 2.1, sz * 1.9);
+
+        const elevDeg = Math.max(0, Math.sin(solarAngle) * 76.5);
+        const azimDeg = Math.round(90 + solarProgress * 180);
+        const dirCard = azimDeg < 120 ? '東' : (azimDeg < 165 ? '東南' : (azimDeg <= 195 ? '正南' : (azimDeg < 240 ? '西南' : '西')));
+        state.celestial = {
+          isDaytime: true,
+          label: `☀️ 太陽軌跡 ${dirCard}${azimDeg}° · 仰角 ${elevDeg.toFixed(1)}°`,
+          azimuthDeg: azimDeg,
+          elevationDeg: elevDeg,
+          progressPct: Math.round(solarProgress * 100)
+        };
+      } else {
+        // Nighttime Lunar Trajectory (19:15 -> 05:30 HKT): East (+X) -> Night Zenith (+Y) -> West (-X)
+        const nightHours = decHours >= duskEnd ? decHours : decHours + 24;
+        const nightDuration = (24 - duskEnd) + sunriseStart; // 10.25 hours
+        const lunarProgress = Math.max(0, Math.min(1, (nightHours - duskEnd) / nightDuration));
+        const lunarAngle = lunarProgress * Math.PI;
+        const mx = Math.cos(lunarAngle) * 64;
+        const my = Math.max(6.0, Math.sin(lunarAngle) * 62);
+        const mz = -22;
+        dirLight.position.set(mx, my, mz);
+        sunOrb.position.set(mx * 2.1, my * 2.1, mz * 1.8);
+
+        const elevDeg = Math.max(2.0, Math.sin(lunarAngle) * 64.0);
+        const azimDeg = Math.round(90 + lunarProgress * 180);
+        const dirCard = azimDeg < 120 ? '東' : (azimDeg < 165 ? '東南' : (azimDeg <= 195 ? '正南' : (azimDeg < 240 ? '西南' : '西')));
+        state.celestial = {
+          isDaytime: false,
+          label: `🌙 月亮軌跡 ${dirCard}${azimDeg}° · 仰角 ${elevDeg.toFixed(1)}°`,
+          azimuthDeg: azimDeg,
+          elevationDeg: elevDeg,
+          progressPct: Math.round(lunarProgress * 100)
+        };
+      }
+    }
+
+    function updateCelestialTrajectoryByNow() {
+      const { hh, mm, ss, ms } = getHongKongHMS();
+      updateCelestialTrajectoryAtHKTime(hh, mm, ss, ms);
+    }
+
+    function formatShortWindDir(wdirStr) {
+      if (!wdirStr) return '北';
+      return String(wdirStr).replace(/\s*\([^)]*\)/g, '').trim() || '北';
+    }
+
     function updateBottomSummary() {
       const cfg = TIME_PHASES[state.currentPhase] || TIME_PHASES.morning;
       const phaseIcons = {
@@ -3055,12 +3133,14 @@
         thunder: '⛈️ 雷電',
         storm: '🌀 風暴'
       };
+      const shortWind = formatShortWindDir(state.hkaWeather.windDir);
+      const celLabel = state.celestial?.label || '☀️ 太陽軌跡';
       document.getElementById('active-weather-summary').textContent =
-        `${wxIcons[state.weatherMode] || wxIcons.clear} · ${cfg.name} (${cfg.hoursRange}) · 赤鱲角 ${state.hkaWeather.temp.toFixed(1)}°C`;
+        `${wxIcons[state.weatherMode] || wxIcons.clear} · ${cfg.name} (${cfg.hoursRange}) · ${celLabel} · 赤鱲角 ${state.hkaWeather.temp.toFixed(1)}°C (${shortWind} ${state.hkaWeather.windSpeed}km/h)`;
 
       const dockPhaseEl = document.getElementById('dock-auto-phase-badge');
       if (dockPhaseEl) {
-        dockPhaseEl.textContent = `${phaseIcons[cfg.id] || '🌤️'} 時段：${cfg.name} (${cfg.hoursRange})`;
+        dockPhaseEl.textContent = `${phaseIcons[cfg.id] || '🌤️'} 時段：${cfg.name} (${cfg.hoursRange}) · ${celLabel}`;
       }
       const dockWxEl = document.getElementById('dock-auto-wx-badge');
       if (dockWxEl) {
@@ -3094,10 +3174,12 @@
       if (warns.has('WRAINR')) return 'red_rain';
       if (warns.has('WRAINA')) return 'amber_rain';
 
-      // 2. Storm / Typhoon check
+      // 2. Storm / Typhoon / Tsunami check (including all No. 8 directional signals, No. 9, No. 10)
       if (
-        warns.has('TC8') || warns.has('TC9') || warns.has('TC10') ||
-        warns.has('WTCSGNL') || state.hkaWeather.windSpeed >= 63
+        warns.has('TC8') || warns.has('TC8NE') || warns.has('TC8SE') ||
+        warns.has('TC8NW') || warns.has('TC8SW') || warns.has('TC9') ||
+        warns.has('TC10') || warns.has('WTCSGNL') || warns.has('WTMW') ||
+        state.hkaWeather.windSpeed >= 63
       ) {
         return 'storm';
       }
@@ -3108,9 +3190,9 @@
       ) {
         return 'thunder';
       }
-      // 4. Rain / Showers / Strong Wind check
+      // 4. Rain / Showers / Strong Wind / Landslip / Northern NT Flooding check
       if (
-        warns.has('TC3') ||
+        warns.has('TC3') || warns.has('WFNTSA') || warns.has('WL') ||
         state.hkaWeather.rainfall > 0 ||
         (state.hkoIcon >= 53 && state.hkoIcon <= 54) ||
         (state.hkoIcon >= 62 && state.hkoIcon <= 63)
@@ -3130,30 +3212,35 @@
 
     function updateAutoSyncUI() {}
 
-    function updateHongKongClock() {
-      const now = new Date();
-      // Format in Asia/Hong_Kong timezone
-      const parts = new Intl.DateTimeFormat('en-GB', {
-        timeZone: 'Asia/Hong_Kong',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false
-      }).formatToParts(now);
+    let lastHKORegionalCsvFetchTs = 0;
 
-      const hh = parseInt(parts.find(p => p.type === 'hour')?.value || '8', 10);
-      const mm = parseInt(parts.find(p => p.type === 'minute')?.value || '0', 10);
-      const ss = parseInt(parts.find(p => p.type === 'second')?.value || '0', 10);
+    function updateHongKongClock() {
+      const { hh, mm, ss, ms } = getHongKongHMS();
       const timeStr = `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}:${String(ss).padStart(2, '0')}`;
 
       document.getElementById('hk-clock-time').textContent = timeStr;
 
-      // Sync hourly baseline from HKA_24H_SERIES for current HK hour
+      // Sync hourly baseline from HKA_24H_SERIES for current HK hour (and keep current hour slot updated with live HKO reading)
       const hourPad = `${String(hh).padStart(2, '0')}:00`;
       const matchedSlot = HKA_24H_SERIES.find(item => item.hour === hourPad);
       if (matchedSlot && state.autoWeatherSync) {
-        state.hkaWeather.windSpeed = matchedSlot.wind;
-        state.hkaWeather.windDir = matchedSlot.wdir;
+        if (!state._hasLiveHKOWind) {
+          state.hkaWeather.windSpeed = matchedSlot.wind;
+          state.hkaWeather.windDir = matchedSlot.wdir;
+        } else {
+          matchedSlot.wind = state.hkaWeather.windSpeed;
+          matchedSlot.wdir = state.hkaWeather.windDir;
+        }
+        if (state._hasLiveHKOTemp) {
+          matchedSlot.temp = state.hkaWeather.temp;
+        } else {
+          state.hkaWeather.temp = matchedSlot.temp;
+        }
+        if (state._hasLiveHKOHum) {
+          matchedSlot.hum = state.hkaWeather.hum;
+        } else {
+          state.hkaWeather.hum = matchedSlot.hum;
+        }
       }
 
       const detectedPhase = getPhaseFromHKTime(hh, mm);
@@ -3162,18 +3249,8 @@
         if (detectedPhase !== state.currentPhase) {
           applyTimePhase(detectedPhase);
         }
-        // Continuously interpolate sun/moon arc position across the sky by exact HK time (sunrise 06:24, sunset 17:50)
-        const decHours = hh + mm / 60 + ss / 3600;
-        const sunriseHour = 6.4;  // 06:24 HKT
-        const sunsetHour = 17.83; // 17:50 HKT
-        if (decHours >= 5.5 && decHours <= 19.25) {
-          const dayProgress = (decHours - sunriseHour) / (sunsetHour - sunriseHour);
-          const dayAngle = Math.max(-0.12, Math.min(Math.PI + 0.12, dayProgress * Math.PI));
-          const sx = Math.cos(dayAngle) * 66;
-          const sy = Math.max(3.5, Math.sin(dayAngle) * 72);
-          dirLight.position.set(sx, sy, 18);
-          sunOrb.position.set(sx * 2.1, sy * 2.1, 36);
-        }
+        // Continuously advance Sun / Moon 3D trajectory every second by exact Hong Kong time
+        updateCelestialTrajectoryAtHKTime(hh, mm, ss, ms);
       }
 
       // 1-second automatic Flightradar24 5X/UPS (HKG) & HKO Chek Lap Kok (loc=hka) real-time sync
@@ -3185,10 +3262,13 @@
         badgeText.textContent = `全自動同步 · 1s (${timeStr})`;
       }
 
+      const celShort = state.celestial ? `${state.celestial.isDaytime ? '☀️' : '🌙'} 仰角 ${state.celestial.elevationDeg.toFixed(1)}°` : '';
       document.getElementById('hk-clock-sub').textContent =
         state.autoTimeSync && state.autoWeatherSync
-          ? `香港自動跟隨 · ${phaseObj.name}`
+          ? `香港自動跟隨 · ${phaseObj.name} · ${celShort}`
           : `手動預覽 · ${TIME_PHASES[state.currentPhase].name}`;
+
+      updateBottomSummary();
 
       // Dynamically show/hide 3D Chibi Egg-Planes & Runway Landing/Takeoff according to Daily Operation Plan & current HK time
       syncAircraftWithOperationPlan(hh, mm);
@@ -3196,33 +3276,55 @@
     setInterval(updateHongKongClock, 1000);
 
     // =========================================================================
-    // 9. HKO REAL-TIME API & REGIONAL PORTAL (LOC=HKA) 1-SECOND SYNC & RAINSTORM WARNINGS
+    // 9. HKO REAL-TIME API & REGIONAL PORTAL (LOC=HKA) 1-SECOND SYNC & ALL WEATHER WARNINGS
     // =========================================================================
     let isFetchingHKO = false;
     async function fetchHKOWeather(isBackgroundTick = false) {
       if (isFetchingHKO) return;
       isFetchingHKO = true;
       try {
-        // Query HKO Open Data APIs + Chek Lap Kok (loc=hka) Regional Weather Portal endpoints
-        const [rhrRes, warnRes, warnInfoRes] = await Promise.allSettled([
+        const nowMs = Date.now();
+        const shouldFetchRegionalCsv = (nowMs - lastHKORegionalCsvFetchTs > 15000);
+        if (shouldFetchRegionalCsv) {
+          lastHKORegionalCsvFetchTs = nowMs;
+        }
+
+        // Query HKO Open Data APIs + Chek Lap Kok (loc=hka) Regional Weather Station CSV endpoints (Temperature, Humidity, Wind, Pressure)
+        const requests = [
           fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=rhrread&lang=tc', { cache: 'no-store' }),
           fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warnsum&lang=tc', { cache: 'no-store' }),
           fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=warningInfo&lang=tc', { cache: 'no-store' })
-        ]);
+        ];
+        if (shouldFetchRegionalCsv) {
+          requests.push(
+            fetch('https://data.weather.gov.hk/weatherAPI/hko_data/regional-weather/latest_1min_temperature_tc.csv', { cache: 'no-store' }),
+            fetch('https://data.weather.gov.hk/weatherAPI/hko_data/regional-weather/latest_1min_humidity_tc.csv', { cache: 'no-store' }),
+            fetch('https://data.weather.gov.hk/weatherAPI/hko_data/regional-weather/latest_10min_wind_tc.csv', { cache: 'no-store' }),
+            fetch('https://data.weather.gov.hk/weatherAPI/hko_data/regional-weather/latest_1min_pressure_tc.csv', { cache: 'no-store' })
+          );
+        }
 
-        if (rhrRes.status === 'fulfilled' && rhrRes.value.ok) {
+        const results = await Promise.allSettled(requests);
+        const [rhrRes, warnRes, warnInfoRes, csvTempRes, csvHumRes, csvWindRes, csvPresRes] = results;
+
+        if (rhrRes && rhrRes.status === 'fulfilled' && rhrRes.value.ok) {
           const rhr = await rhrRes.value.json();
           const tempList = rhr?.temperature?.data || [];
-          const clkTemp = tempList.find(d => d.place === '赤鱲角') || tempList[0];
+          const clkTemp = tempList.find(d => d.place === '赤鱲角');
           if (clkTemp && typeof clkTemp.value === 'number') {
             state.hkaWeather.temp = clkTemp.value;
+            state._hasLiveHKOTemp = true;
           }
-          const humVal = rhr?.humidity?.data?.[0]?.value;
-          if (typeof humVal === 'number') {
-            state.hkaWeather.hum = humVal;
+          // Fallback humidity from rhrread if regional HKA humidity CSV hasn't resolved yet
+          if (!state._hasLiveHKOHum) {
+            const humVal = rhr?.humidity?.data?.[0]?.value;
+            if (typeof humVal === 'number') {
+              state.hkaWeather.hum = humVal;
+            }
           }
           const rainList = rhr?.rainfall?.data || [];
-          const islRain = rainList.find(d => d.place && (d.place.includes('離島') || d.place.includes('赤鱲角')));
+          const islRain = rainList.find(d => d.place === '赤鱲角') ||
+                          rainList.find(d => d.place && (d.place.includes('赤鱲角') || d.place.includes('離島')));
           if (islRain && typeof islRain.max === 'number') {
             state.hkaWeather.rainfall = islRain.max;
           }
@@ -3232,22 +3334,90 @@
           }
         }
 
+        // Parse Chek Lap Kok (赤鱲角, loc=hka) 1-minute Regional Temperature CSV
+        if (csvTempRes && csvTempRes.status === 'fulfilled' && csvTempRes.value.ok) {
+          const txt = await csvTempRes.value.text();
+          const clkLine = txt.split(/\r?\n/).find(l => l.includes('赤鱲角'));
+          if (clkLine) {
+            const cols = clkLine.split(',');
+            const val = parseFloat(cols[2]);
+            if (!isNaN(val)) {
+              state.hkaWeather.temp = val;
+              state._hasLiveHKOTemp = true;
+            }
+          }
+        }
+
+        // Parse Chek Lap Kok (赤鱲角, loc=hka) 1-minute Regional Relative Humidity CSV
+        if (csvHumRes && csvHumRes.status === 'fulfilled' && csvHumRes.value.ok) {
+          const txt = await csvHumRes.value.text();
+          const clkLine = txt.split(/\r?\n/).find(l => l.includes('赤鱲角'));
+          if (clkLine) {
+            const cols = clkLine.split(',');
+            const val = parseInt(cols[2], 10);
+            if (!isNaN(val)) {
+              state.hkaWeather.hum = val;
+              state._hasLiveHKOHum = true;
+            }
+          }
+        }
+
+        // Parse Chek Lap Kok (赤鱲角, loc=hka) 10-minute Regional Wind Direction & Speed CSV
+        if (csvWindRes && csvWindRes.status === 'fulfilled' && csvWindRes.value.ok) {
+          const txt = await csvWindRes.value.text();
+          const clkLine = txt.split(/\r?\n/).find(l => l.includes('赤鱲角'));
+          if (clkLine) {
+            const cols = clkLine.split(',');
+            const wDir = (cols[2] || '').trim();
+            const wSpd = parseFloat(cols[3]);
+            const wGst = parseFloat(cols[4]);
+            if (wDir && wDir !== 'N/A') {
+              state.hkaWeather.windDir = wDir;
+            }
+            if (!isNaN(wSpd)) {
+              state.hkaWeather.windSpeed = wSpd;
+              state._hasLiveHKOWind = true;
+            }
+            if (!isNaN(wGst)) {
+              state.hkaWeather.windGust = wGst;
+            }
+          }
+        }
+
+        // Parse Chek Lap Kok (赤鱲角, loc=hka) 1-minute Regional Sea Level Pressure CSV
+        if (csvPresRes && csvPresRes.status === 'fulfilled' && csvPresRes.value.ok) {
+          const txt = await csvPresRes.value.text();
+          const clkLine = txt.split(/\r?\n/).find(l => l.includes('赤鱲角'));
+          if (clkLine) {
+            const cols = clkLine.split(',');
+            const pVal = parseFloat(cols[2]);
+            if (!isNaN(pVal)) {
+              state.hkaWeather.pressure = pVal;
+            }
+          }
+        }
+
         if (state.autoWeatherSync) {
           const detectedWarns = new Set();
-          if (warnRes.status === 'fulfilled' && warnRes.value.ok) {
+          if (warnRes && warnRes.status === 'fulfilled' && warnRes.value.ok) {
             const warns = await warnRes.value.json();
             Object.keys(warns || {}).forEach(k => {
-              const code = warns[k]?.code || k;
-              const subtype = warns[k]?.subtype || '';
-              if (subtype) detectedWarns.add(subtype);
-              detectedWarns.add(code);
+              const wObj = warns[k] || {};
+              const subtype = wObj.subtype || '';
+              const code = wObj.code || k;
+              // Prefer specific subtype (e.g. WRAINA/WRAINR/WRAINB, WFIREY/WFIRER, TC1/TC3/TC8NE/TC9/TC10)
+              if (subtype) {
+                detectedWarns.add(subtype);
+              } else if (code) {
+                detectedWarns.add(code);
+              }
             });
           }
-          if (warnInfoRes.status === 'fulfilled' && warnInfoRes.value.ok) {
+          if (warnInfoRes && warnInfoRes.status === 'fulfilled' && warnInfoRes.value.ok) {
             const wInfo = await warnInfoRes.value.json();
             (wInfo?.details || []).forEach(d => {
-              if (d.warningStatementCode === 'WRAIN' && d.subtype) {
-                detectedWarns.add(d.subtype); // WRAINA / WRAINR / WRAINB
+              if (d.subtype) {
+                detectedWarns.add(d.subtype);
               } else if (d.warningStatementCode) {
                 detectedWarns.add(d.warningStatementCode);
               }
@@ -3282,14 +3452,15 @@
 
     function renderWeatherMetrics() {
       const w = state.hkaWeather;
+      const shortWind = formatShortWindDir(w.windDir);
       document.getElementById('metric-temp').textContent = `${w.temp.toFixed(1)}°C`;
       document.getElementById('metric-hum').textContent = `${w.hum}%`;
-      document.getElementById('metric-wind').textContent = `北 ${w.windSpeed}km/h`;
+      document.getElementById('metric-wind').textContent = `${shortWind} ${w.windSpeed}km/h`;
       document.getElementById('metric-rain').textContent = `${w.rainfall} mm`;
 
       document.getElementById('modal-stat-temp').textContent = `${w.temp.toFixed(1)}°C`;
-      document.getElementById('modal-stat-wind').textContent = `北風 ${w.windSpeed} km/h`;
-      document.getElementById('detail-weather-tag').textContent = `赤鱲角 ${w.temp.toFixed(1)}°C`;
+      document.getElementById('modal-stat-wind').textContent = `${shortWind} ${w.windSpeed} km/h`;
+      document.getElementById('detail-weather-tag').textContent = `赤鱲角 ${w.temp.toFixed(1)}°C · ${shortWind} ${w.windSpeed}km/h`;
       updateBottomSummary();
     }
 
@@ -3297,14 +3468,16 @@
       const strip = document.getElementById('warning-strip');
       strip.innerHTML = '';
 
-      if (state.activeWarnings.size === 0) {
-        const pill = document.createElement('span');
-        pill.className = 'inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10.5px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200';
-        pill.textContent = '✓ 現時香港天文台無生效天氣警告 (1s 自動監測中)';
-        strip.appendChild(pill);
+      const parentCodesToSkip = new Set(['WRAIN', 'WFIRE', 'WTCSGNL']);
+      const visibleCodes = Array.from(state.activeWarnings).filter(c => !parentCodesToSkip.has(c));
+
+      if (visibleCodes.length === 0) {
+        strip.classList.add('hidden');
+        strip.classList.remove('flex');
       } else {
-        state.activeWarnings.forEach(code => {
-          if (code === 'WRAIN') return; // Skip generic parent code when subtype WRAINA/R/B is present
+        strip.classList.remove('hidden');
+        strip.classList.add('flex');
+        visibleCodes.forEach(code => {
           const item = HKO_WARNINGS_CATALOG.find(w => w.code === code) || {
             code,
             name: `天氣警告 (${code})`,
@@ -3321,36 +3494,108 @@
     }
 
     // =========================================================================
-    // 9B. HKIA CARGO ARRIVALS & DEPARTURES (5X · TODAY'S DATE) 1-SECOND AUTO-SYNC
+    // 9B. HKIA CARGO ARRIVALS & DEPARTURES (5X · TODAY'S DATE) AUTO-SYNC
     //     Arrivals URL:   https://www.hongkongairport.com/tc/flights/arrivals/cargo.page
     //     Departures URL: https://www.hongkongairport.com/tc/flights/departures/cargo.page
     // =========================================================================
     let isFetchingFR24 = false;
+    let lastHKIANetworkFetchTs = 0;
 
     const HKIA_ARRIVALS_PAGE_URL = 'https://www.hongkongairport.com/tc/flights/arrivals/cargo.page';
     const HKIA_DEPARTURES_PAGE_URL = 'https://www.hongkongairport.com/tc/flights/departures/cargo.page';
 
-    // Reference HKIA 5X Cargo Flights for Today (matching user's HKIA screenshots + 5X daily cargo schedule)
+    // IATA Airport Code -> Traditional Chinese City Name Mapping (matching HKIA official Chinese display)
+    const HKIA_IATA_TO_ZH = {
+      SDF: '路易斯維爾',
+      ANC: '安克雷奇',
+      ONT: '安大略',
+      PHL: '費城',
+      CDG: '巴黎',
+      CGN: '科隆',
+      CRK: '克拉克',
+      BKK: '曼谷',
+      SGN: '胡志明市',
+      ICN: '首爾/仁川',
+      TPE: '台北',
+      HNL: '檀香山',
+      SIN: '新加坡',
+      BLR: '班加羅爾',
+      DEL: '德里',
+      BOM: '孟買',
+      DXB: '杜拜',
+      PVG: '上海/浦東',
+      SZX: '深圳',
+      CAN: '廣州',
+      NRT: '東京/成田',
+      KIX: '大阪/關西',
+      NGO: '名古屋',
+      KKJ: '北九州',
+      SYD: '悉尼',
+      MEL: '墨爾本',
+      KUL: '吉隆坡',
+      PEN: '檳城',
+      MNL: '馬尼拉',
+      CEB: '宿霧',
+      HAN: '河內',
+      DAD: '峴港',
+      XMN: '廈門',
+      CGO: '鄭州',
+      CTU: '成都',
+      STN: '倫敦/史坦斯特',
+      FRA: '法蘭克福',
+      LEJ: '萊比錫',
+      WAW: '華沙',
+      IST: '伊斯坦堡',
+      ALA: '阿拉木圖',
+      ORD: '芝加哥',
+      JFK: '紐約',
+      LAX: '洛杉磯',
+      MIA: '邁阿密',
+      DFW: '達拉斯'
+    };
+
+    function translateIATAListToZh(codesOrNames) {
+      if (!codesOrNames) return '';
+      const arr = Array.isArray(codesOrNames)
+        ? codesOrNames
+        : String(codesOrNames).split(/[/,、]+/).map(s => s.trim()).filter(Boolean);
+      return arr.map(code => {
+        const up = String(code || '').trim().toUpperCase();
+        return HKIA_IATA_TO_ZH[up] || code;
+      }).join(' / ');
+    }
+
+    // Verified HKIA 5X Cargo Flights for Today (2026-10-28, matching hongkongairport.com cargo arrivals & departures pages)
     const HKIA_5X_TODAY_ARRIVALS_REF = [
-      { fltNo: '5X 142', numKey: '142', schedTime: '05:35', origin: '路易斯維爾 / 克拉克', statusText: '到閘口 07:06' },
-      { fltNo: '5X 067', numKey: '67',  schedTime: '08:05', origin: '路易斯維爾 / 安克雷奇 / 胡志明市', statusText: '到閘口 08:06' },
-      { fltNo: '5X 062', numKey: '62',  schedTime: '13:10', origin: '路易斯維爾 / 安克雷奇', statusText: '到閘口 13:21' },
+      { fltNo: '5X 004', numKey: '4',   schedTime: '02:00', origin: '費城 / 巴黎', statusText: '到閘口 01:42' },
+      { fltNo: '5X 142', numKey: '142', schedTime: '05:35', origin: '克拉克', statusText: '到閘口 06:57' },
+      { fltNo: '5X 067', numKey: '67',  schedTime: '08:05', origin: '路易斯維爾 / 胡志明市', statusText: '到閘口 08:01' },
+      { fltNo: '5X 062', numKey: '62',  schedTime: '14:35', origin: '路易斯維爾 / 安克雷奇', statusText: '到閘口 14:38' },
+      { fltNo: '5X 002', numKey: '2',   schedTime: '14:55', origin: '科隆', statusText: '到閘口 14:27' },
+      { fltNo: '5X 058', numKey: '58',  schedTime: '15:15', origin: '檀香山', statusText: '到閘口 14:11' },
+      { fltNo: '5X 064', numKey: '64',  schedTime: '16:30', origin: '路易斯維爾 / 首爾/仁川', statusText: '到閘口 17:18' },
+      { fltNo: '5X 167', numKey: '167', schedTime: '17:15', origin: '克拉克 / 曼谷', statusText: '到閘口 18:12' },
       { fltNo: '5X 054', numKey: '54',  schedTime: '14:15', origin: '台北', statusText: '到閘口 14:25' },
-      { fltNo: '5X 058', numKey: '58',  schedTime: '14:30', origin: '檀香山', statusText: '到閘口 14:37' },
-      { fltNo: '5X 064', numKey: '64',  schedTime: '14:40', origin: '安克雷奇', statusText: '到閘口 14:42' },
-      { fltNo: '5X 078', numKey: '78',  schedTime: '19:15', origin: '安克雷奇', statusText: '預計時間 19:29' },
-      { fltNo: '5X 022', numKey: '22',  schedTime: '04:00', origin: '巴黎戴高樂', statusText: '到閘口 04:05' }
+      { fltNo: '5X 022', numKey: '22',  schedTime: '04:00', origin: '巴黎', statusText: '到閘口 04:05' }
     ];
 
     const HKIA_5X_TODAY_DEPARTURES_REF = [
-      { fltNo: '5X 003', numKey: '3',   schedTime: '11:10', dest: '班加羅爾 / 科隆 / 費城', statusText: '啟航 11:32' },
-      { fltNo: '5X 067', numKey: '67',  schedTime: '13:25', dest: '安克雷奇 / 路易斯維爾', statusText: '-' },
-      { fltNo: '5X 059', numKey: '59',  schedTime: '12:15', dest: '安克雷奇', statusText: '啟航 12:24' },
-      { fltNo: '5X 141', numKey: '141', schedTime: '23:10', dest: '克拉克', statusText: '預計時間 23:10' },
-      { fltNo: '5X 061', numKey: '61',  schedTime: '23:30', dest: '安克雷奇', statusText: '預計時間 23:30' },
-      { fltNo: '5X 001', numKey: '1',   schedTime: '23:45', dest: '科隆 / 班加羅爾', statusText: '-' },
-      { fltNo: '5X 063', numKey: '63',  schedTime: '02:35', dest: '安克雷奇', statusText: '預計時間 02:35' }
+      { fltNo: '5X 003D', numKey: '3',   schedTime: '11:10', dest: '班加羅爾 / 科隆 / 費城', statusText: '預計 04:35 (29/10/2026)' },
+      { fltNo: '5X 067',  numKey: '67',  schedTime: '13:25', dest: '安克雷奇 / 路易斯維爾', statusText: '啟航 13:50' },
+      { fltNo: '5X 171',  numKey: '171', schedTime: '16:25', dest: '新加坡', statusText: '啟航 16:39' },
+      { fltNo: '5X 001',  numKey: '1',   schedTime: '16:30', dest: '科隆', statusText: '啟航 16:40' },
+      { fltNo: '5X 061',  numKey: '61',  schedTime: '17:10', dest: '安克雷奇 / 路易斯維爾', statusText: '啟航 17:29' },
+      { fltNo: '5X 063',  numKey: '63',  schedTime: '19:25', dest: '安克雷奇 / 路易斯維爾', statusText: '-' },
+      { fltNo: '5X 059',  numKey: '59',  schedTime: '20:00', dest: '安克雷奇 / 安大略', statusText: '-' },
+      { fltNo: '5X 141',  numKey: '141', schedTime: '23:10', dest: '克拉克', statusText: '-' }
     ];
+
+    const HKIA_SNAPSHOT_REF_DATE = '2026-10-28';
+    let activeHKIADate = '';
+
+    // Live cached maps populated dynamically per Hong Kong date + live multi-proxy fetch
+    const liveHKIAArrMap = new Map();
+    const liveHKIADepMap = new Map();
 
     function getHKTodayDateStrings() {
       const now = new Date();
@@ -3362,19 +3607,69 @@
       }).formatToParts(now);
       const yyyy = parts.find(p => p.type === 'year')?.value || '2026';
       const mm = parts.find(p => p.type === 'month')?.value || '10';
-      const dd = parts.find(p => p.type === 'day')?.value || '27';
+      const dd = parts.find(p => p.type === 'day')?.value || '28';
       return {
         isoDate: `${yyyy}-${mm}-${dd}`,
         zhDate: `${yyyy}年${parseInt(mm, 10)}月${parseInt(dd, 10)}日`
       };
     }
 
-    // Extract normalized numeric flight key from e.g. "5X 142", "142-CRK", "5X003", "003-BLR" -> "142", "3"
+    // Automatically reset & initialize HKIA maps whenever the Hong Kong date changes (so future days on GitHub Pages never get stuck with a previous day's departed/arrived status!)
+    function ensureHKIAMapsForCurrentDate() {
+      const { isoDate } = getHKTodayDateStrings();
+      if (activeHKIADate === isoDate) return;
+      activeHKIADate = isoDate;
+      liveHKIAArrMap.clear();
+      liveHKIADepMap.clear();
+
+      if (isoDate === HKIA_SNAPSHOT_REF_DATE) {
+        HKIA_5X_TODAY_ARRIVALS_REF.forEach(item => liveHKIAArrMap.set(item.numKey, { ...item }));
+        HKIA_5X_TODAY_DEPARTURES_REF.forEach(item => liveHKIADepMap.set(item.numKey, { ...item }));
+      } else {
+        // On any new date (e.g. 2026-10-29+), seed only the route & schedule times with '-' status until live HKIA data for today is fetched
+        HKIA_5X_TODAY_ARRIVALS_REF.forEach(item => {
+          liveHKIAArrMap.set(item.numKey, { ...item, statusText: '-' });
+        });
+        HKIA_5X_TODAY_DEPARTURES_REF.forEach(item => {
+          liveHKIADepMap.set(item.numKey, { ...item, statusText: '-' });
+        });
+      }
+
+      // Restore any live HKIA statuses already cached in localStorage for today's isoDate
+      try {
+        const cachedRaw = localStorage.getItem('ups_hkia_live_cache_' + isoDate);
+        if (cachedRaw) {
+          const cached = JSON.parse(cachedRaw);
+          if (Array.isArray(cached.arr)) {
+            cached.arr.forEach(([k, v]) => liveHKIAArrMap.set(k, v));
+          }
+          if (Array.isArray(cached.dep)) {
+            cached.dep.forEach(([k, v]) => liveHKIADepMap.set(k, v));
+          }
+        }
+      } catch (e) {}
+    }
+    ensureHKIAMapsForCurrentDate();
+
+    // Extract normalized numeric flight key from e.g. "5X 142", "142-CRK", "5X004", "004-CDG" -> "142", "4"
     function extract5XFlightNumKey(fltStr) {
       if (!fltStr || typeof fltStr !== 'string') return '';
-      const cleaned = fltStr.trim().toUpperCase().replace(/^UPS\s*/, '').replace(/^5X\s*[-]?\s*/, '');
+      const cleaned = fltStr
+        .replace(/[\s\u00A0\u200B-\u200D\uFEFF]+/g, '')
+        .toUpperCase()
+        .replace(/^UPS[-]?/, '')
+        .replace(/^5X[-]?/, '');
+      if (!cleaned || cleaned === '-' || cleaned === '--') return '';
       const m = cleaned.match(/^0*(\d+)/);
       return m ? m[1] : '';
+    }
+
+    // Extract route airport code suffix from e.g. "064-ICN" -> "首爾/仁川" if needed
+    function extractRouteCityFromFltStr(fltStr) {
+      if (!fltStr || typeof fltStr !== 'string') return '';
+      const m = fltStr.trim().toUpperCase().match(/-\s*([A-Z]{3})\b/);
+      if (m && HKIA_IATA_TO_ZH[m[1]]) return HKIA_IATA_TO_ZH[m[1]];
+      return '';
     }
 
     function isSame5XFlightNum(fltA, fltB) {
@@ -3394,7 +3689,6 @@
       }
       return inTrim || outTrim || '--';
     }
-
     // =========================================================================
     // AUTOMATIC PARKING BAY ROUTING BY BAY INPUT & RUNWAY <-> BAY TAXI PATHS
     // Rules:
@@ -3686,36 +3980,66 @@
     }
 
     // Parse HKIA Arrival "現況" (Status):
-    // - 現況 "到閘口" (e.g. "到閘口 07:06" / "At gate 07:06") -> 代表已到港 (hasArrived = true)
-    // - 現況 "預計時間" (e.g. "預計時間 19:29" / "-" / 尚未到閘口) -> 代表還沒到港 (hasArrived = false)
+    // - 現況 "到閘口 HH:MM" or "著陸於 HH:MM" -> 代表已到港 / 已著陸 (hasArrived = true)
+    // - 現況 "預計 HH:MM" / "預計時間 HH:MM" / "-" -> 代表還沒到港 (hasArrived = false)
     function parseHKIAArrivalStatus(statusRaw, schedTimeRaw) {
       const raw = String(statusRaw || '').trim();
       const sched = String(schedTimeRaw || '').trim();
       const timeMatch = raw.match(/(\d{1,2}:\d{2})/);
       const extractedTime = timeMatch ? timeMatch[1].padStart(5, '0') : (sched || '--:--');
-      const isAtGate = raw.includes('到閘口') || /at\s*gate/i.test(raw);
-      if (isAtGate) {
+
+      if (raw.includes('已到港') || raw.includes('已在港')) {
         return {
           hasArrived: true,
-          statusLabel: `到閘口 ${extractedTime}`,
+          statusLabel: raw,
+          displayTime: sched || '已在港',
+          schedTime: sched || '已在港'
+        };
+      }
+      if (raw.includes('到閘口') || /at\s*gate/i.test(raw)) {
+        return {
+          hasArrived: true,
+          statusLabel: extractedTime !== '--:--' ? `到閘口 ${extractedTime}` : '到閘口 (已到港)',
           displayTime: extractedTime,
           schedTime: sched || extractedTime
         };
       }
-      const estLabel = raw.includes('預計')
-        ? `預計時間 ${extractedTime}`
-        : (extractedTime !== '--:--' ? `預計時間 ${extractedTime}` : '預計時間 -');
+      if (raw.includes('著陸') || /landed/i.test(raw)) {
+        return {
+          hasArrived: true,
+          statusLabel: `著陸於 ${extractedTime}`,
+          displayTime: extractedTime,
+          schedTime: sched || extractedTime
+        };
+      }
+      if (raw.includes('預計') || /est/i.test(raw)) {
+        const prefix = raw.includes('預計時間') ? '預計時間' : '預計';
+        return {
+          hasArrived: false,
+          statusLabel: extractedTime !== '--:--' ? `${prefix} ${extractedTime}` : `${prefix} -`,
+          displayTime: extractedTime,
+          schedTime: sched || extractedTime
+        };
+      }
+      if (raw === '-' || !raw) {
+        return {
+          hasArrived: false,
+          statusLabel: sched ? `預計 ${sched}` : '-',
+          displayTime: sched || '--:--',
+          schedTime: sched || '--:--'
+        };
+      }
       return {
         hasArrived: false,
-        statusLabel: estLabel,
+        statusLabel: raw,
         displayTime: extractedTime,
         schedTime: sched || extractedTime
       };
     }
 
     // Parse HKIA Departure "現況" (Status):
-    // - 現況 "啟航 HH:MM" 有時間 (e.g. "啟航 11:32" / "Dep 11:32") -> 代表已離港 (hasDeparted = true)
-    // - 現況 "預計時間 HH:MM" 或 "-" -> 代表還沒離港 (hasDeparted = false)
+    // - 現況 "啟航 HH:MM" 有時間 (e.g. "啟航 16:40" / "Dep 16:40") -> 代表已離港 (hasDeparted = true)
+    // - 現況 "預計 HH:MM" / "預計時間 HH:MM" 或 "-" -> 代表還沒離港 (hasDeparted = false)
     function parseHKIADepartureStatus(statusRaw, schedTimeRaw) {
       const raw = String(statusRaw || '').trim();
       const sched = String(schedTimeRaw || '').trim();
@@ -3730,11 +4054,14 @@
           schedTime: sched || depTime
         };
       }
-      if (raw.includes('預計') && timeMatch) {
+      if ((raw.includes('預計') || /est/i.test(raw)) && timeMatch) {
         const estTime = timeMatch[1].padStart(5, '0');
+        const dateSuffixMatch = raw.match(/(\(\d{1,2}\/\d{1,2}\/\d{4}\))/);
+        const dateSuffix = dateSuffixMatch ? ` ${dateSuffixMatch[1]}` : '';
+        const prefix = raw.includes('預計時間') ? '預計時間' : '預計';
         return {
           hasDeparted: false,
-          statusLabel: `預計時間 ${estTime}`,
+          statusLabel: `${prefix} ${estTime}${dateSuffix}`,
           displayTime: estTime,
           schedTime: sched || estTime
         };
@@ -3759,9 +4086,13 @@
             const depInfo = parseHKIADepartureStatus(flt.outStatus, flt.hkiaDepSched);
             return !depInfo.hasDeparted && (flt.inFlt || flt.outFlt);
           })
-          .slice(0, 8)
           .map((flt) => {
-            const arrInfo = parseHKIAArrivalStatus(flt.inStatus, flt.hkiaArrSched);
+            const inKey = extract5XFlightNumKey(flt.inFlt);
+            const outKey = extract5XFlightNumKey(flt.outFlt);
+            const isOutboundOnlyInPort = !inKey && Boolean(outKey);
+            const arrInfo = isOutboundOnlyInPort
+              ? { hasArrived: true, statusLabel: '已到港 (同欄出口)', displayTime: '已在港', schedTime: '已在港' }
+              : parseHKIAArrivalStatus(flt.inStatus, flt.hkiaArrSched);
             const badgeCol = arrInfo.hasArrived ? 'bg-emerald-500 text-slate-950' : 'bg-slate-700 text-amber-200';
             const unifiedTitle = formatUnified5XFlightTitle(flt.inFlt, flt.outFlt);
             return `
@@ -3778,7 +4109,12 @@
       if (!boardEl) return;
 
       boardEl.innerHTML = uniqueFlights.map((flt) => {
-        const arrInfo = parseHKIAArrivalStatus(flt.inStatus, flt.hkiaArrSched);
+        const inKey = extract5XFlightNumKey(flt.inFlt);
+        const outKey = extract5XFlightNumKey(flt.outFlt);
+        const isOutboundOnlyInPort = !inKey && Boolean(outKey);
+        const arrInfo = isOutboundOnlyInPort
+          ? { hasArrived: true, statusLabel: '已到港 (同欄出口)', displayTime: '已在港', schedTime: '已在港' }
+          : parseHKIAArrivalStatus(flt.inStatus, flt.hkiaArrSched);
         const depInfo = parseHKIADepartureStatus(flt.outStatus, flt.hkiaDepSched);
         const onIsland = arrInfo.hasArrived && !depInfo.hasDeparted;
         const sameFltNo = isSame5XFlightNum(flt.inFlt, flt.outFlt);
@@ -3788,7 +4124,9 @@
           : (arrInfo.hasArrived ? '✈️ 在港停泊中' : '⏳ 還沒到港');
 
         if (sameFltNo) {
-          // When Inbound FLT Number and Outbound FLT Number are identical (e.g. 5X 067), unify into a single flight block!
+          const combinedTitle = (flt.inFlt && flt.outFlt && flt.inFlt.trim().toUpperCase() !== flt.outFlt.trim().toUpperCase())
+            ? `${flt.inFlt} / ${flt.outFlt}`
+            : (flt.inFlt || flt.outFlt);
           return `
             <div class="bg-slate-800/95 border ${onIsland ? 'border-emerald-400' : 'border-slate-700'} rounded-lg p-1.5 flex flex-col justify-between">
               <div class="flex items-center justify-between text-[9.5px] text-amber-400 font-black border-b border-slate-700/80 pb-0.5">
@@ -3797,9 +4135,10 @@
               </div>
               <div class="mt-1 bg-slate-900/90 p-1.5 rounded border border-amber-400/40 space-y-1 text-[9.5px]">
                 <div class="flex items-center justify-between border-b border-slate-700/80 pb-0.5">
-                  <span class="text-amber-300 font-mono font-black">✈️ ${flt.inFlt || flt.outFlt}</span>
+                  <span class="text-amber-300 font-mono font-black">✈️ ${combinedTitle}</span>
                   <span class="text-[8px] px-1 rounded bg-amber-500/20 text-amber-200 font-bold">同班號統一顯示</span>
                 </div>
+                ${flt.hkiaOrigin ? `<div class="text-[8px] text-slate-400 truncate">出發地：${flt.hkiaOrigin}</div>` : ''}
                 <div class="flex items-center justify-between">
                   <span class="text-sky-300 text-[8.5px]">🛬 到港 (${arrInfo.schedTime}):</span>
                   <span class="px-1 rounded font-black text-[8.5px] ${arrInfo.hasArrived ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' : 'bg-slate-700 text-amber-200'}">${arrInfo.statusLabel}</span>
@@ -3822,24 +4161,24 @@
             <div class="mt-1 space-y-1 text-[9.5px]">
               <div class="bg-slate-900/90 p-1 rounded border border-slate-700/80">
                 <div class="flex items-center justify-between">
-                  <span class="text-sky-300 font-mono font-bold">🛬 ${flt.inFlt || '--'}</span>
-                  <span class="font-mono text-[8.5px] text-slate-300">時間 ${arrInfo.schedTime}</span>
+                  <span class="text-sky-300 font-mono font-bold">🛬 ${inKey ? flt.inFlt : (isOutboundOnlyInPort ? '同欄出口代到港' : '--')}</span>
+                  <span class="font-mono text-[8.5px] text-slate-300">時間 ${inKey ? arrInfo.schedTime : (isOutboundOnlyInPort ? '已在港' : '--:--')}</span>
                 </div>
-                ${flt.hkiaOrigin ? `<div class="text-[8px] text-slate-400 truncate mt-0.5">出發地：${flt.hkiaOrigin}</div>` : ''}
+                ${(inKey && flt.hkiaOrigin) ? `<div class="text-[8px] text-slate-400 truncate mt-0.5">出發地：${flt.hkiaOrigin}</div>` : (isOutboundOnlyInPort ? `<div class="text-[8px] text-emerald-300/90 truncate mt-0.5">規則：無到港班號但同欄有出口班號＝已到港</div>` : '')}
                 <div class="flex items-center justify-between mt-0.5">
                   <span class="text-slate-400 text-[8.5px]">現況:</span>
-                  <span class="px-1 rounded font-black text-[8.5px] ${arrInfo.hasArrived ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' : 'bg-slate-700 text-amber-200'}">${arrInfo.statusLabel}</span>
+                  <span class="px-1 rounded font-black text-[8.5px] ${arrInfo.hasArrived ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' : 'bg-slate-700 text-amber-200'}">${(inKey || isOutboundOnlyInPort) ? arrInfo.statusLabel : '-'}</span>
                 </div>
               </div>
               <div class="bg-slate-900/90 p-1 rounded border border-slate-700/80">
                 <div class="flex items-center justify-between">
-                  <span class="text-amber-300 font-mono font-bold">🛫 ${flt.outFlt || '--'}</span>
-                  <span class="text-slate-300 font-mono text-[8.5px]">時間 ${depInfo.schedTime}</span>
+                  <span class="text-amber-300 font-mono font-bold">🛫 ${outKey ? flt.outFlt : '--'}</span>
+                  <span class="text-slate-300 font-mono text-[8.5px]">時間 ${outKey ? depInfo.schedTime : '--:--'}</span>
                 </div>
-                ${flt.hkiaDest ? `<div class="text-[8px] text-slate-400 truncate mt-0.5">目的地：${flt.hkiaDest}</div>` : ''}
+                ${(outKey && flt.hkiaDest) ? `<div class="text-[8px] text-slate-400 truncate mt-0.5">目的地：${flt.hkiaDest}</div>` : ''}
                 <div class="flex items-center justify-between mt-0.5">
                   <span class="text-slate-400 text-[8.5px]">現況:</span>
-                  <span class="px-1 rounded font-black text-[8.5px] ${!depInfo.hasDeparted ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40' : 'bg-rose-500/30 text-rose-200 border border-rose-400/40'}">${depInfo.statusLabel}</span>
+                  <span class="px-1 rounded font-black text-[8.5px] ${!depInfo.hasDeparted ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40' : 'bg-rose-500/30 text-rose-200 border border-rose-400/40'}">${outKey ? depInfo.statusLabel : '-'}</span>
                 </div>
               </div>
             </div>
@@ -3854,52 +4193,70 @@
       }
     }
 
-    // Parse HTML from HKIA cargo.page if returned via direct or CORS proxy fetch
+    // Parse HTML or Markdown/Text from HKIA cargo.page (supports table rows starting with HH:MM before 5X flight number)
     function parseHKIACargoPageHTML(htmlText, isArrival) {
       const results = [];
       if (!htmlText || typeof htmlText !== 'string') return results;
       try {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(htmlText, 'text/html');
-        const textBlocks = doc.body ? doc.body.innerText.split(/\n+/) : [];
-        for (let i = 0; i < textBlocks.length; i++) {
-          const line = textBlocks[i].trim();
-          const mFlt = line.match(/^5X\s*0*(\d+)/i);
-          if (mFlt) {
-            const numKey = mFlt[1];
-            const windowText = textBlocks.slice(i, i + 10).join(' ');
-            const mTime = windowText.match(/時間\s*(\d{1,2}:\d{2})/);
-            const schedTime = mTime ? mTime[1] : '';
-            let statusText = '-';
-            if (isArrival) {
-              const mGate = windowText.match(/到閘口\s*(\d{1,2}:\d{2})/);
-              const mEst = windowText.match(/預計時間\s*(\d{1,2}:\d{2})/);
-              if (mGate) statusText = `到閘口 ${mGate[1]}`;
-              else if (mEst) statusText = `預計時間 ${mEst[1]}`;
-            } else {
-              const mDep = windowText.match(/啟航\s*(\d{1,2}:\d{2})/);
-              const mEst = windowText.match(/預計時間\s*(\d{1,2}:\d{2})/);
-              if (mDep) statusText = `啟航 ${mDep[1]}`;
-              else if (mEst) statusText = `預計時間 ${mEst[1]}`;
-              else statusText = '-';
-            }
-            results.push({
-              fltNo: `5X ${numKey.padStart(3, '0')}`,
-              numKey,
-              schedTime,
-              statusText
-            });
+        const plain = htmlText
+          .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+          .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+          .replace(/<[^>]+>/g, ' ')
+          .replace(/\s+/g, ' ');
+        const fltRegex = /\b5X\s*0*(\d+)([A-Z]?)\b/gi;
+        let match;
+        while ((match = fltRegex.exec(plain)) !== null) {
+          const numKey = match[1];
+          const suffix = (match[2] || '').toUpperCase();
+          const idx = match.index;
+          const beforeText = plain.slice(Math.max(0, idx - 36), idx);
+          const afterText = plain.slice(idx, Math.min(plain.length, idx + 150));
+          // Stop afterText if another flight number starts
+          const nextFltMatch = afterText.slice(6).search(/\b[A-Z0-9]{2}\s+\d{2,4}\b/);
+          const rowAfter = nextFltMatch >= 0 ? afterText.slice(0, nextFltMatch + 6) : afterText;
+
+          const beforeTimes = beforeText.match(/(\d{1,2}:\d{2})/g);
+          const afterTimeMatch = rowAfter.match(/時間\s*(\d{1,2}:\d{2})/);
+          const schedTime = (beforeTimes && beforeTimes.length > 0)
+            ? beforeTimes[beforeTimes.length - 1]
+            : (afterTimeMatch ? afterTimeMatch[1] : '');
+
+          let statusText = '-';
+          if (isArrival) {
+            const mGate = rowAfter.match(/到閘口\s*(\d{1,2}:\d{2})/);
+            const mLand = rowAfter.match(/著陸於\s*(\d{1,2}:\d{2})/);
+            const mEst = rowAfter.match(/預計(?:時間)?\s*(\d{1,2}:\d{2}(?:\s*\(\d{1,2}\/\d{1,2}\/\d{4}\))?)/);
+            if (mGate) statusText = `到閘口 ${mGate[1]}`;
+            else if (mLand) statusText = `著陸於 ${mLand[1]}`;
+            else if (mEst) statusText = `預計 ${mEst[1]}`;
+          } else {
+            const mDep = rowAfter.match(/啟航\s*(\d{1,2}:\d{2})/);
+            const mEst = rowAfter.match(/預計(?:時間)?\s*(\d{1,2}:\d{2}(?:\s*\(\d{1,2}\/\d{1,2}\/\d{4}\))?)/);
+            if (mDep) statusText = `啟航 ${mDep[1]}`;
+            else if (mEst) statusText = `預計 ${mEst[1]}`;
+            else statusText = '-';
           }
+          results.push({
+            fltNo: `5X ${numKey.padStart(3, '0')}${suffix}`,
+            numKey,
+            schedTime,
+            statusText
+          });
         }
       } catch (e) {}
       return results;
     }
 
-    // Parse JSON from HKIA flightinfo-rest endpoint (the data source behind hongkongairport.com/tc/flights/arrivals/cargo.page & departures/cargo.page)
-    function parseHKIACargoJSON(jsonData) {
+    // Parse JSON from HKIA flightinfo-rest endpoint STRICTLY for today's date (targetIsoDate)
+    function parseHKIACargoJSON(jsonData, targetIsoDate) {
       const results = [];
       if (!Array.isArray(jsonData)) return results;
-      jsonData.forEach(dayBlock => {
+
+      // Filter strictly to today's date block so yesterday's flights never pollute today's statuses!
+      const matchingBlocks = jsonData.filter(b => !b.date || b.date === targetIsoDate);
+      const blocksToScan = matchingBlocks.length > 0 ? matchingBlocks : [jsonData[jsonData.length - 1]];
+
+      blocksToScan.forEach(dayBlock => {
         const list = dayBlock?.list || [];
         list.forEach(item => {
           const flightsArr = item?.flight || [];
@@ -3913,7 +4270,8 @@
           const numKey = extract5XFlightNumKey(noStr);
           const schedTime = String(item?.time || '').trim();
           const rawStatus = String(item?.status || '-').trim();
-          const places = (item?.origin || item?.destination || []).join(' / ');
+          const rawPlaces = item?.origin || item?.destination || [];
+          const places = translateIATAListToZh(rawPlaces);
           results.push({
             fltNo: noStr,
             numKey,
@@ -3926,130 +4284,118 @@
       return results;
     }
 
-    // Automatically read HKIA Cargo Arrivals (arrivals/cargo.page) & Cargo Departures (departures/cargo.page) for 5X on Today's Date every 1 second!
-    // Matches the Daily Operation Plan's FLT Number (inFlt / outFlt) directly to HKIA's 5X flights and unifies identical FLT Numbers.
-    async function fetchFlightradar24UPSHKG() {
-      if (isFetchingFR24) return;
-      isFetchingFR24 = true;
-
-      const { isoDate, zhDate } = getHKTodayDateStrings();
-
-      const arrMap = new Map();
-      const depMap = new Map();
-
-      const upsertFlightInMap = (map, numKey, newEntry, isArr) => {
-        if (!numKey) return;
-        if (!map.has(numKey)) {
-          map.set(numKey, { ...newEntry });
-          return;
-        }
-        // Unify duplicate flight entries from HKIA website (same FLT Number only kept once, prioritizing active gate/departed status)
-        const prev = map.get(numKey);
-        const newSt = String(newEntry.statusText || '');
-        const preferNew = isArr
-          ? newSt.includes('到閘口')
-          : (newSt.includes('啟航') && /(\d{1,2}:\d{2})/.test(newSt));
-        if (preferNew) {
-          map.set(numKey, { ...prev, ...newEntry });
-        } else {
-          if (!prev.schedTime && newEntry.schedTime) prev.schedTime = newEntry.schedTime;
-          if (isArr && !prev.origin && newEntry.origin) prev.origin = newEntry.origin;
-          if (!isArr && !prev.dest && newEntry.dest) prev.dest = newEntry.dest;
-        }
-      };
-
-      HKIA_5X_TODAY_ARRIVALS_REF.forEach(item => {
-        upsertFlightInMap(arrMap, item.numKey, item, true);
-      });
-      HKIA_5X_TODAY_DEPARTURES_REF.forEach(item => {
-        upsertFlightInMap(depMap, item.numKey, item, false);
-      });
-
+    // Fetch HKIA JSON via parallel multi-proxy race so GitHub Pages browsers get live data quickly even if one proxy is slow or blocked
+    async function fetchSingleCandidateJson(cand) {
+      const ctrl = new AbortController();
+      const tid = setTimeout(() => ctrl.abort(), 5500);
       try {
-        const hkiaArrApi = `https://www.hongkongairport.com/flightinfo-rest/rest/flights/past?date=${isoDate}&lang=zh_HK&cargo=true&arrival=true`;
-        const hkiaDepApi = `https://www.hongkongairport.com/flightinfo-rest/rest/flights/past?date=${isoDate}&lang=zh_HK&cargo=true&arrival=false`;
+        const resp = await fetch(cand.url, { cache: 'no-store', signal: ctrl.signal });
+        clearTimeout(tid);
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
 
-        const requests = await Promise.allSettled([
-          fetch(hkiaArrApi, { mode: 'cors', cache: 'no-store' }),
-          fetch(hkiaDepApi, { mode: 'cors', cache: 'no-store' }),
-          fetch(HKIA_ARRIVALS_PAGE_URL, { mode: 'cors', cache: 'no-store' }),
-          fetch(HKIA_DEPARTURES_PAGE_URL, { mode: 'cors', cache: 'no-store' })
-        ]);
-
-        if (requests[0].status === 'fulfilled' && requests[0].value.ok) {
-          const arrJson = await requests[0].value.json();
-          parseHKIACargoJSON(arrJson).forEach(item => {
-            upsertFlightInMap(arrMap, item.numKey, {
-              fltNo: item.fltNo,
-              numKey: item.numKey,
-              schedTime: item.schedTime,
-              origin: item.places || '',
-              statusText: item.statusText
-            }, true);
-          });
+        if (cand.mode === 'allorigins_get') {
+          const wrapper = await resp.json();
+          if (wrapper && typeof wrapper.contents === 'string') {
+            const data = JSON.parse(wrapper.contents);
+            if (Array.isArray(data) && data.length > 0) return data;
+          }
+        } else if (cand.mode === 'jina_text') {
+          const txt = await resp.text();
+          const firstBracket = txt.indexOf('[');
+          const lastBracket = txt.lastIndexOf(']');
+          if (firstBracket !== -1 && lastBracket > firstBracket) {
+            const data = JSON.parse(txt.slice(firstBracket, lastBracket + 1));
+            if (Array.isArray(data) && data.length > 0) return data;
+          }
+        } else {
+          const data = await resp.json();
+          if (Array.isArray(data) && data.length > 0) return data;
         }
+      } catch (e) {
+        clearTimeout(tid);
+      }
+      throw new Error('Failed candidate');
+    }
 
-        if (requests[1].status === 'fulfilled' && requests[1].value.ok) {
-          const depJson = await requests[1].value.json();
-          parseHKIACargoJSON(depJson).forEach(item => {
-            upsertFlightInMap(depMap, item.numKey, {
-              fltNo: item.fltNo,
-              numKey: item.numKey,
-              schedTime: item.schedTime,
-              dest: item.places || '',
-              statusText: item.statusText
-            }, false);
-          });
-        }
+    async function fetchHKIAJsonWithCORSFallback(targetUrl, altUrl = '') {
+      const urlsToWrap = altUrl ? [targetUrl, altUrl] : [targetUrl];
+      const candidates = [];
+      urlsToWrap.forEach(u => {
+        candidates.push(
+          { url: u, mode: 'raw' },
+          { url: `https://api.allorigins.win/get?url=${encodeURIComponent(u)}`, mode: 'allorigins_get' },
+          { url: `https://corsproxy.io/?${encodeURIComponent(u)}`, mode: 'raw' },
+          { url: `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`, mode: 'raw' },
+          { url: `https://r.jina.ai/${u}`, mode: 'jina_text' },
+          { url: `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`, mode: 'raw' }
+        );
+      });
+      try {
+        return await Promise.any(candidates.map(c => fetchSingleCandidateJson(c)));
+      } catch (e) {
+        return null;
+      }
+    }
 
-        if (requests[2].status === 'fulfilled' && requests[2].value.ok) {
-          const htmlArr = await requests[2].value.text();
-          parseHKIACargoPageHTML(htmlArr, true).forEach(item => {
-            upsertFlightInMap(arrMap, item.numKey, item, true);
-          });
-        }
+    // Apply liveHKIAArrMap & liveHKIADepMap to operationPlan.flights and refresh the board every 1 second
+    function applyHKIAMapsToOperationPlan() {
+      const { zhDate } = getHKTodayDateStrings();
 
-        if (requests[3].status === 'fulfilled' && requests[3].value.ok) {
-          const htmlDep = await requests[3].value.text();
-          parseHKIACargoPageHTML(htmlDep, false).forEach(item => {
-            upsertFlightInMap(depMap, item.numKey, item, false);
-          });
-        }
-      } catch (e) {}
-
-      // Match each column's FLT Number (inFlt / outFlt) in the Daily Operation Plan to the HKIA website's 5X records
       operationPlan.flights.forEach((slot) => {
         const inKey = extract5XFlightNumKey(slot.inFlt);
         const outKey = extract5XFlightNumKey(slot.outFlt);
 
-        if (inKey && arrMap.has(inKey)) {
-          const hkiaArr = arrMap.get(inKey);
+        if (inKey && liveHKIAArrMap.has(inKey)) {
+          const hkiaArr = liveHKIAArrMap.get(inKey);
           const parsed = parseHKIAArrivalStatus(hkiaArr.statusText, hkiaArr.schedTime);
           slot.hkiaArrSched = parsed.schedTime;
-          slot.hkiaOrigin = hkiaArr.origin || slot.hkiaOrigin || '';
+          slot.hkiaOrigin = hkiaArr.origin || extractRouteCityFromFltStr(slot.inFlt) || '';
           slot.inStatus = parsed.statusLabel;
           slot.sta = parsed.displayTime;
         } else if (inKey) {
-          const parsed = parseHKIAArrivalStatus(slot.inStatus || '到閘口 --:--', slot.hkiaArrSched || '');
-          slot.inStatus = parsed.statusLabel;
-          slot.sta = parsed.displayTime;
+          // If an inbound flight is not in liveHKIAArrMap but has In/Crew Pick time filled in, treat it as arrived at gate
+          const pickMatch = String(slot.inCrewPick || '').trim().match(/^(\d{1,2}:\d{2})$/);
+          if (pickMatch) {
+            const pickTime = pickMatch[1].padStart(5, '0');
+            slot.hkiaArrSched = pickTime;
+            slot.hkiaOrigin = extractRouteCityFromFltStr(slot.inFlt) || '';
+            slot.inStatus = `到閘口 ${pickTime}`;
+            slot.sta = pickTime;
+          } else {
+            slot.hkiaArrSched = '--:--';
+            slot.hkiaOrigin = extractRouteCityFromFltStr(slot.inFlt) || '';
+            slot.inStatus = '-';
+            slot.sta = '';
+          }
+        } else if (outKey) {
+          // 規則：如果每日工作編排沒有到港航班編號，但相同一行對落有出口航班編號 -> 代表已到港!
+          slot.hkiaArrSched = '已在港';
+          slot.hkiaOrigin = '同欄有出口航班 (已在港)';
+          slot.inStatus = '已到港 (同欄出口)';
+          slot.sta = '已在港';
         } else {
-          slot.inStatus = '預計時間 -';
+          slot.hkiaArrSched = '--:--';
+          slot.hkiaOrigin = '';
+          slot.inStatus = '-';
           slot.sta = '';
         }
 
-        if (outKey && depMap.has(outKey)) {
-          const hkiaDep = depMap.get(outKey);
+        if (outKey && liveHKIADepMap.has(outKey)) {
+          const hkiaDep = liveHKIADepMap.get(outKey);
           const parsed = parseHKIADepartureStatus(hkiaDep.statusText, hkiaDep.schedTime);
           slot.hkiaDepSched = parsed.schedTime;
-          slot.hkiaDest = hkiaDep.dest || slot.hkiaDest || '';
+          slot.hkiaDest = hkiaDep.dest || extractRouteCityFromFltStr(slot.outFlt) || '';
           slot.outStatus = parsed.statusLabel;
           slot.std = parsed.displayTime;
         } else if (outKey) {
-          const parsed = parseHKIADepartureStatus(slot.outStatus || '-', slot.hkiaDepSched || '');
-          slot.outStatus = parsed.statusLabel;
-          slot.std = parsed.displayTime;
+          // Flight entered in Operation Plan is not on today's HKIA Departure board
+          slot.hkiaDepSched = '--:--';
+          slot.hkiaDest = extractRouteCityFromFltStr(slot.outFlt) || '';
+          slot.outStatus = '-';
+          slot.std = '';
         } else {
+          slot.hkiaDepSched = '--:--';
+          slot.hkiaDest = '';
           slot.outStatus = '-';
           slot.std = '';
         }
@@ -4064,10 +4410,118 @@
       if (fr24TextEl) {
         fr24TextEl.textContent = `HKIA 貨機抵港/離港 (5X · ${zhDate}) 1s 自動同步 (${nowStr})`;
       }
+      // Also keep Operation Plan modal column header badges (#op-col-status-*) 100% synchronized every 1s
+      operationPlan.flights.forEach((flt, colIdx) => {
+        const badgeContainer = document.getElementById(`op-col-status-${colIdx}`);
+        if (!badgeContainer) return;
+        const st = evaluateFlightStatusAtHKTime(flt, 0, colIdx);
+        badgeContainer.innerHTML = st.active
+          ? `<span class="inline-block px-1.5 py-0.2 rounded bg-emerald-500 text-slate-950 text-[9.5px] font-black ml-1">✈️ 在港</span>`
+          : (st.hasDeparted
+              ? `<span class="inline-block px-1.5 py-0.2 rounded bg-rose-500/40 text-rose-200 text-[9.5px] ml-1">🛫 已離港</span>`
+              : `<span class="inline-block px-1.5 py-0.2 rounded bg-slate-700 text-slate-300 text-[9.5px] ml-1">⏳ 未到港</span>`);
+      });
       renderFR24LiveBoard();
-      isFetchingFR24 = false;
     }
 
+    async function fetchHKIACargoPageViaJina(pageUrl, isArrival) {
+      try {
+        const ctrl = new AbortController();
+        const tid = setTimeout(() => ctrl.abort(), 5000);
+        const resp = await fetch(`https://r.jina.ai/${pageUrl}`, { cache: 'no-store', signal: ctrl.signal });
+        clearTimeout(tid);
+        if (!resp.ok) return [];
+        const text = await resp.text();
+        return parseHKIACargoPageHTML(text, isArrival);
+      } catch (e) {
+        return [];
+      }
+    }
+
+    async function fetchFlightradar24UPSHKG(forceNetwork = false) {
+      // Ensure maps are scoped to today's Hong Kong date (auto-resets at midnight for new days!)
+      ensureHKIAMapsForCurrentDate();
+      // Always update the UI & flight statuses immediately on every 1s tick
+      applyHKIAMapsToOperationPlan();
+
+      const nowMs = Date.now();
+      if (isFetchingFR24 || (!forceNetwork && nowMs - lastHKIANetworkFetchTs < 15000)) {
+        return;
+      }
+      isFetchingFR24 = true;
+      lastHKIANetworkFetchTs = nowMs;
+
+      const { isoDate } = getHKTodayDateStrings();
+      try {
+        const hkiaArrApi = `https://www.hongkongairport.com/flightinfo-rest/rest/flights/past?date=${isoDate}&lang=zh_HK&cargo=true&arrival=true`;
+        const hkiaArrAlt = `https://www.hongkongairport.com/flightinfo-rest/rest/flights?span=1&date=${isoDate}&lang=zh_HK&cargo=true&arrival=true`;
+        const hkiaDepApi = `https://www.hongkongairport.com/flightinfo-rest/rest/flights/past?date=${isoDate}&lang=zh_HK&cargo=true&arrival=false`;
+        const hkiaDepAlt = `https://www.hongkongairport.com/flightinfo-rest/rest/flights?span=1&date=${isoDate}&lang=zh_HK&cargo=true&arrival=false`;
+
+        const [arrJson, depJson] = await Promise.all([
+          fetchHKIAJsonWithCORSFallback(hkiaArrApi, hkiaArrAlt),
+          fetchHKIAJsonWithCORSFallback(hkiaDepApi, hkiaDepAlt)
+        ]);
+
+        const upsertArrItem = (item) => {
+          if (!item || !item.numKey) return;
+          const prev = liveHKIAArrMap.get(item.numKey);
+          const prevArrived = prev ? parseHKIAArrivalStatus(prev.statusText, prev.schedTime).hasArrived : false;
+          const nextArrived = parseHKIAArrivalStatus(item.statusText, item.schedTime).hasArrived;
+          // Never downgrade an already-arrived flight ('到閘口' / '著陸於') back to '預計' or '-'
+          const chosenStatus = (prevArrived && !nextArrived) ? prev.statusText : (item.statusText || (prev?.statusText) || '-');
+          liveHKIAArrMap.set(item.numKey, {
+            fltNo: item.fltNo || (prev?.fltNo) || `5X ${item.numKey.padStart(3, '0')}`,
+            numKey: item.numKey,
+            schedTime: (item.schedTime && item.schedTime !== '--:--') ? item.schedTime : ((prev?.schedTime) || '--:--'),
+            origin: item.places || item.origin || (prev?.origin) || '',
+            statusText: chosenStatus
+          });
+        };
+
+        const upsertDepItem = (item) => {
+          if (!item || !item.numKey) return;
+          const prev = liveHKIADepMap.get(item.numKey);
+          const prevDeparted = prev ? parseHKIADepartureStatus(prev.statusText, prev.schedTime).hasDeparted : false;
+          const nextDeparted = parseHKIADepartureStatus(item.statusText, item.schedTime).hasDeparted;
+          // Never downgrade an already-departed flight ('啟航 HH:MM') back to '預計' or '-'
+          const chosenStatus = (prevDeparted && !nextDeparted) ? prev.statusText : (item.statusText || (prev?.statusText) || '-');
+          liveHKIADepMap.set(item.numKey, {
+            fltNo: item.fltNo || (prev?.fltNo) || `5X ${item.numKey.padStart(3, '0')}`,
+            numKey: item.numKey,
+            schedTime: (item.schedTime && item.schedTime !== '--:--') ? item.schedTime : ((prev?.schedTime) || '--:--'),
+            dest: item.places || item.dest || (prev?.dest) || '',
+            statusText: chosenStatus
+          });
+        };
+
+        if (arrJson) {
+          const parsedArr = parseHKIACargoJSON(arrJson, isoDate);
+          parsedArr.forEach(upsertArrItem);
+        } else {
+          const jinaArr = await fetchHKIACargoPageViaJina('https://www.hongkongairport.com/tc/flights/arrivals/cargo.page', true);
+          jinaArr.forEach(upsertArrItem);
+        }
+
+        if (depJson) {
+          const parsedDep = parseHKIACargoJSON(depJson, isoDate);
+          parsedDep.forEach(upsertDepItem);
+        } else {
+          const jinaDep = await fetchHKIACargoPageViaJina('https://www.hongkongairport.com/tc/flights/departures/cargo.page', false);
+          jinaDep.forEach(upsertDepItem);
+        }
+
+        try {
+          localStorage.setItem('ups_hkia_live_cache_' + isoDate, JSON.stringify({
+            arr: Array.from(liveHKIAArrMap.entries()),
+            dep: Array.from(liveHKIADepMap.entries())
+          }));
+        } catch (e) {}
+
+        applyHKIAMapsToOperationPlan();
+      } catch (e) {}
+      isFetchingFR24 = false;
+    }
     // =========================================================================
     // 10. UI DIRECTORY, DETAIL CARD, LIVE LOGS & HKA CHARTS
     // =========================================================================
@@ -4201,7 +4655,7 @@
       if (liveLogs.length > 30) liveLogs.pop();
     }
 
-    // Draw HKO Chek Lap Kok (loc=hka) 24-hour Chart on Canvas
+    // Draw HKO Chek Lap Kok (loc=hka) 24-hour Chart on Canvas (rolling 24h ending at current Hong Kong hour, matching HKO regional_portal.html?loc=hka)
     function drawCanvasChart(canvasId, elementKey) {
       const cvs = document.getElementById(canvasId);
       if (!cvs) return;
@@ -4210,11 +4664,18 @@
       const h = cvs.height;
       ctx.clearRect(0, 0, w, h);
 
-      const values = HKA_24H_SERIES.map(d => elementKey === 'hum' ? d.hum : (elementKey === 'wind' ? d.wind : d.temp));
+      const { hh } = getHongKongHMS();
+      const curHourStr = `${String(hh).padStart(2, '0')}:00`;
+      const curIdx = HKA_24H_SERIES.findIndex(d => d.hour === curHourStr);
+      const orderedSeries = curIdx >= 0
+        ? [...HKA_24H_SERIES.slice(curIdx + 1), ...HKA_24H_SERIES.slice(0, curIdx + 1)]
+        : HKA_24H_SERIES;
+
+      const values = orderedSeries.map(d => elementKey === 'hum' ? d.hum : (elementKey === 'wind' ? d.wind : d.temp));
       const minV = Math.min(...values) - 2;
       const maxV = Math.max(...values) + 2;
 
-      const padL = 32, padR = 14, padT = 18, padB = 24;
+      const padL = 34, padR = 22, padT = 20, padB = 26;
       const plotW = w - padL - padR;
       const plotH = h - padT - padB;
 
@@ -4256,13 +4717,32 @@
       ctx.fillStyle = fillCol;
       ctx.fill();
 
-      // X-axis hour labels
+      // Highlight latest (current Hong Kong hour) data point at right end
+      const lastVal = values[values.length - 1];
+      const lastX = padL + plotW;
+      const lastY = padT + (1 - (lastVal - minV) / (maxV - minV)) * plotH;
+      ctx.beginPath();
+      ctx.arc(lastX, lastY, 4.5, 0, Math.PI * 2);
+      ctx.fillStyle = strokeCol;
+      ctx.fill();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = '#ffffff';
+      ctx.stroke();
+
+      const unitStr = elementKey === 'hum' ? '%' : (elementKey === 'wind' ? 'km/h' : '°C');
+      ctx.fillStyle = '#0f172a';
+      ctx.font = 'bold 10px Inter, sans-serif';
+      ctx.fillText(`${lastVal}${unitStr}`, lastX - 36, Math.max(12, lastY - 8));
+
+      // X-axis hour labels (including current hour at the right edge)
       ctx.fillStyle = '#475569';
       ctx.font = 'bold 9px Inter, sans-serif';
-      for (let i = 0; i < HKA_24H_SERIES.length; i += 4) {
+      for (let i = 0; i < orderedSeries.length; i += 4) {
         const x = padL + (i / (values.length - 1)) * plotW;
-        ctx.fillText(HKA_24H_SERIES[i].hour.slice(0, 2) + '時', x - 10, h - 6);
+        ctx.fillText(orderedSeries[i].hour.slice(0, 2) + '時', x - 10, h - 6);
       }
+      ctx.fillStyle = strokeCol;
+      ctx.fillText(orderedSeries[orderedSeries.length - 1].hour.slice(0, 2) + '時(現時)', w - padR - 38, h - 6);
     }
 
     function drawCharts() {
@@ -4317,10 +4797,10 @@
     ];
 
     const DEFAULT_OPERATION_PLAN = {
-      dateTitle: 'Tuesday, October 27, 2026',
+      dateTitle: 'Wednesday, October 28, 2026',
       uldBreakdown: {
-        AAD: '65', AAY: '39', AAZ: '2', ALP: '20', AMD: '37', AMJ: '77', AMP: '90',
-        PAG: '44', PMC: '179', PM2: '0', Lease: '0', Total: '553',
+        AAD: '65', AAY: '39', AAZ: '2', ALP: '20', AMD: '39', AMJ: '79', AMP: '101',
+        PAG: '29', PMC: '177', PM2: '0', Lease: '0', Total: '551',
         FCC96: '12', FCC118: '23', Net: '478', Straps: '520'
       },
       tractorBanner: '1 x 24 Tractor (1200-0800)',
@@ -4354,65 +4834,73 @@
       flights: [
         {
           islandId: '01',
-          inFlt: '5X 142', inStatus: '到閘口 07:06', hkiaArrSched: '05:35', hkiaOrigin: '路易斯維爾 / 克拉克', sta: '07:06', inCrewPick: '', meetPlane: '', inboundUld: '文仔',
-          outFlt: '5X 141', outStatus: '預計時間 23:10', hkiaDepSched: '23:10', hkiaDest: '克拉克', std: '23:10', tailNbr: 'N316UP', crewPickTime: '21:40', meetCrew: 'After 19:00',
-          parkingBay: 'X458>X25', loadTime: '16:30', fod: 'Martin', ric: 'Martin', belt: 'Lee Fai',
-          ccdMdp: 'Ting Fung', ccdP1P5: 'Ting Fung', ccdP6P9: 'Chiu', rc: 'Chiu',
-          bulk: 'Martin', lh: 'Paris', exp: 'Alan', outsource: '1x0900'
+          inFlt: '142-CRK', inStatus: '到閘口 06:57', hkiaArrSched: '05:35', hkiaOrigin: '克拉克', sta: '06:57', inCrewPick: '05:38', meetPlane: 'Keith', inboundUld: '大丹',
+          outFlt: '', outStatus: '-', hkiaDepSched: '--:--', hkiaDest: '', std: '', tailNbr: 'N352UP', crewPickTime: '', meetCrew: '',
+          parkingBay: 'X19', loadTime: '', fod: '', ric: '', belt: '',
+          ccdMdp: 'Night WH', ccdP1P5: 'Ling', ccdP6P9: 'Keith', rc: 'Shun',
+          bulk: '', lh: '', exp: '', outsource: ''
         },
         {
           islandId: '02',
-          inFlt: '5X 067', inStatus: '到閘口 08:06', hkiaArrSched: '08:05', hkiaOrigin: '路易斯維爾 / 安克雷奇 / 胡志明市', sta: '08:06', inCrewPick: '', meetPlane: '', inboundUld: '文仔',
-          outFlt: '5X 067', outStatus: '-', hkiaDepSched: '13:25', hkiaDest: '安克雷奇 / 路易斯維爾', std: '13:25', tailNbr: 'N626UP', crewPickTime: '15:30', meetCrew: '',
-          parkingBay: 'X20', loadTime: '15:00', fod: 'Kevin', ric: 'Kevin', belt: '文仔',
-          ccdMdp: 'Yin', ccdP1P5: 'Yin', ccdP6P9: 'Kwok Fai', rc: 'Kwok Fai',
-          bulk: 'Kevin', lh: 'Hoi', exp: 'Day Shift', outsource: '1x0800'
+          inFlt: '067-SGN', inStatus: '到閘口 08:01', hkiaArrSched: '08:05', hkiaOrigin: '路易斯維爾 / 胡志明市', sta: '08:01', inCrewPick: '08:08', meetPlane: 'Mark', inboundUld: 'Mark',
+          outFlt: '067-ICN', outStatus: '啟航 13:50', hkiaDepSched: '13:25', hkiaDest: '安克雷奇 / 路易斯維爾', std: '13:50', tailNbr: 'N575UP', crewPickTime: '', meetCrew: 'Sam',
+          parkingBay: 'X17', loadTime: '08:15', fod: 'Keith', ric: 'Keith', belt: 'Fung',
+          ccdMdp: 'Shun', ccdP1P5: 'Shun', ccdP6P9: 'Lee Fai', rc: 'Lee Fai',
+          bulk: 'Keith', lh: '明', exp: 'Kin chi', outsource: ''
         },
         {
-          islandId: '03',
-          inFlt: '5X 062', inStatus: '到閘口 13:21', hkiaArrSched: '13:10', hkiaOrigin: '路易斯維爾 / 安克雷奇', sta: '13:21', inCrewPick: '', meetPlane: '', inboundUld: '文仔',
-          outFlt: '5X 061', outStatus: '預計時間 23:30', hkiaDepSched: '23:30', hkiaDest: '安克雷奇', std: '23:30', tailNbr: 'N612UP', crewPickTime: '22:00', meetCrew: '',
-          parkingBay: 'X21', loadTime: '16:30', fod: 'Peter', ric: 'Peter', belt: 'Billy',
-          ccdMdp: 'Fung', ccdP1P5: 'Fung', ccdP6P9: 'Daniel', rc: 'Daniel',
-          bulk: 'Billy', lh: 'Hoi', exp: 'Night', outsource: '4x1230'
+          islandId: '09',
+          inFlt: '', inStatus: '已到港 (同欄出口)', hkiaArrSched: '已在港', hkiaOrigin: '同欄有出口航班 (已在港)', sta: '已在港', inCrewPick: '', meetPlane: '', inboundUld: '',
+          outFlt: '003-BLR', outStatus: '預計 04:35 (29/10/2026)', hkiaDepSched: '11:10', hkiaDest: '班加羅爾 / 科隆 / 費城', std: '04:35', tailNbr: 'N280UP', crewPickTime: '10:35', meetCrew: '明',
+          parkingBay: 'X34', loadTime: '08:15', fod: 'Chiu', ric: 'Chiu', belt: 'Ling',
+          ccdMdp: 'Shun', ccdP1P5: 'Shun', ccdP6P9: 'Lee Fai', rc: 'Lee Fai',
+          bulk: 'Chiu', lh: 'Sam', exp: 'Kin chi', outsource: ''
+        },
+        {
+          islandId: '01',
+          inFlt: '062-ANC', inStatus: '到閘口 14:38', hkiaArrSched: '14:35', hkiaOrigin: '路易斯維爾 / 安克雷奇', sta: '14:38', inCrewPick: '14:43', meetPlane: 'Keith', inboundUld: '大丹',
+          outFlt: '061-ANC', outStatus: '啟航 17:29', hkiaDepSched: '17:10', hkiaDest: '安克雷奇 / 路易斯維爾', std: '17:29', tailNbr: 'N613UP', crewPickTime: '16:15', meetCrew: 'Sam',
+          parkingBay: 'X16', loadTime: '14:35', fod: 'Keith', ric: 'Keith', belt: 'Lee Fai',
+          ccdMdp: 'Ling', ccdP1P5: 'Ling', ccdP6P9: 'Fung', rc: 'Fung',
+          bulk: 'Keith', lh: '明', exp: 'Kin chi', outsource: ''
         },
         {
           islandId: '04',
-          inFlt: '5X 078', inStatus: '預計時間 19:29', hkiaArrSched: '19:15', hkiaOrigin: '安克雷奇', sta: '19:29', inCrewPick: '', meetPlane: '', inboundUld: '大丹',
-          outFlt: '5X 063', outStatus: '預計時間 02:35', hkiaDepSched: '02:35', hkiaDest: '安克雷奇', std: '02:35', tailNbr: 'N613UP', crewPickTime: '01:05', meetCrew: '',
-          parkingBay: 'X22', loadTime: '23:45', fod: 'Martin', ric: 'Martin', belt: '大丹',
-          ccdMdp: 'Billy', ccdP1P5: 'Billy', ccdP6P9: 'Daniel', rc: 'Daniel',
-          bulk: 'Martin', lh: 'Paris', exp: 'Chris', outsource: '4x2230'
+          inFlt: '002-CGN', inStatus: '到閘口 14:27', hkiaArrSched: '14:55', hkiaOrigin: '科隆', sta: '14:27', inCrewPick: '14:32', meetPlane: 'Chiu', inboundUld: 'Mark',
+          outFlt: '001-CGN', outStatus: '啟航 16:40', hkiaDepSched: '16:30', hkiaDest: '科隆', std: '16:40', tailNbr: 'N284UP', crewPickTime: '15:35', meetCrew: '明',
+          parkingBay: 'X18', loadTime: '14:35', fod: 'Shun', ric: 'Shun', belt: 'Fung',
+          ccdMdp: 'Ling', ccdP1P5: 'Ling', ccdP6P9: 'Lee Fai', rc: 'Lee Fai',
+          bulk: 'Shun', lh: 'Sam', exp: 'Kin chi', outsource: ''
+        },
+        {
+          islandId: '17',
+          inFlt: '058-HNL', inStatus: '到閘口 14:11', hkiaArrSched: '15:15', hkiaOrigin: '檀香山', sta: '14:11', inCrewPick: '14:15', meetPlane: 'Sam', inboundUld: '文仔',
+          outFlt: '059-ANC', outStatus: '-', hkiaDepSched: '20:00', hkiaDest: '安克雷奇 / 安大略', std: '20:00', tailNbr: 'N353UP', crewPickTime: '19:05', meetCrew: 'Peter',
+          parkingBay: 'X458>X25', loadTime: '16:45', fod: 'Peter', ric: 'Peter', belt: 'Fung',
+          ccdMdp: 'Ting Fung', ccdP1P5: 'Ting Fung', ccdP6P9: 'Lee Fai/Chiu', rc: 'Lee Fai/Chiu',
+          bulk: 'Peter', lh: 'Sam', exp: 'Kin chi', outsource: ''
+        },
+        {
+          islandId: '10',
+          inFlt: '', inStatus: '已到港 (同欄出口)', hkiaArrSched: '已在港', hkiaOrigin: '同欄有出口航班 (已在港)', sta: '已在港', inCrewPick: '', meetPlane: '', inboundUld: '',
+          outFlt: '171-SIN', outStatus: '啟航 16:39', hkiaDepSched: '16:25', hkiaDest: '新加坡', std: '16:39', tailNbr: 'N352UP', crewPickTime: '17:50', meetCrew: '明',
+          parkingBay: 'X25', loadTime: '15:00', fod: 'Chiu', ric: 'Chiu', belt: 'Fung',
+          ccdMdp: 'Ling', ccdP1P5: 'Ling', ccdP6P9: 'Shun', rc: 'Shun',
+          bulk: 'Chiu', lh: '明', exp: 'Kin chi', outsource: ''
         },
         {
           islandId: '05',
-          inFlt: '5X 058', inStatus: '到閘口 14:37', hkiaArrSched: '14:30', hkiaOrigin: '檀香山', sta: '14:37', inCrewPick: '', meetPlane: '', inboundUld: '文仔',
-          outFlt: '5X 001', outStatus: '-', hkiaDepSched: '23:45', hkiaDest: '科隆 / 班加羅爾', std: '23:45', tailNbr: 'N616UP', crewPickTime: '01:45', meetCrew: '',
-          parkingBay: 'D327', loadTime: '00:15', fod: 'Peter', ric: 'Peter', belt: 'Lee Fai',
+          inFlt: '064-ICN', inStatus: '到閘口 17:18', hkiaArrSched: '16:30', hkiaOrigin: '路易斯維爾 / 首爾/仁川', sta: '17:18', inCrewPick: '', meetPlane: '', inboundUld: '文仔',
+          outFlt: '063-ANC', outStatus: '-', hkiaDepSched: '19:25', hkiaDest: '安克雷奇 / 路易斯維爾', std: '19:25', tailNbr: 'N616UP', crewPickTime: '18:30', meetCrew: '',
+          parkingBay: 'X20', loadTime: '16:45', fod: 'Peter', ric: 'Peter', belt: 'Lee Fai',
           ccdMdp: 'Ting Fung', ccdP1P5: 'Ting Fung', ccdP6P9: 'Fung/Chiu', rc: 'Fung/Chiu',
           bulk: 'Peter', lh: 'Shun', exp: 'Kin chi', outsource: ''
         },
         {
-          islandId: '06',
-          inFlt: '5X 064', inStatus: '到閘口 14:42', hkiaArrSched: '14:40', hkiaOrigin: '安克雷奇', sta: '14:42', inCrewPick: '', meetPlane: '', inboundUld: '文仔',
-          outFlt: '5X 003', outStatus: '啟航 11:32', hkiaDepSched: '11:10', hkiaDest: '班加羅爾 / 科隆 / 費城', std: '11:32', tailNbr: 'N630UP', crewPickTime: '06:20', meetCrew: '',
-          parkingBay: 'D324', loadTime: '04:00', fod: 'Peter', ric: 'Peter', belt: 'Chiu',
-          ccdMdp: 'Ting Fung', ccdP1P5: 'Ting Fung', ccdP6P9: 'Fung', rc: 'Fung',
-          bulk: 'Peter', lh: 'Sam', exp: '', outsource: ''
-        },
-        {
           islandId: '07',
-          inFlt: '5X 022', inStatus: '到閘口 04:05', hkiaArrSched: '04:00', hkiaOrigin: '巴黎戴高樂', sta: '04:05', inCrewPick: '', meetPlane: '', inboundUld: '大丹',
-          outFlt: '5X 059', outStatus: '啟航 12:24', hkiaDepSched: '12:15', hkiaDest: '安克雷奇', std: '12:24', tailNbr: 'N614UP', crewPickTime: '', meetCrew: '',
-          parkingBay: 'X23', loadTime: '', fod: '', ric: '', belt: '',
-          ccdMdp: '', ccdP1P5: '', ccdP6P9: '', rc: '',
-          bulk: '', lh: '', exp: '', outsource: ''
-        },
-        {
-          islandId: '08',
-          inFlt: '5X 054', inStatus: '到閘口 14:25', hkiaArrSched: '14:15', hkiaOrigin: '台北', sta: '14:25', inCrewPick: '', meetPlane: '', inboundUld: '大丹',
-          outFlt: '', outStatus: '-', hkiaDepSched: '', hkiaDest: '', std: '', tailNbr: 'N606UP', crewPickTime: '', meetCrew: '',
-          parkingBay: 'X24', loadTime: '', fod: '', ric: '', belt: '',
+          inFlt: '167-BKK', inStatus: '到閘口 18:12', hkiaArrSched: '17:15', hkiaOrigin: '克拉克 / 曼谷', sta: '18:12', inCrewPick: '', meetPlane: '', inboundUld: '大丹',
+          outFlt: '', outStatus: '-', hkiaDepSched: '--:--', hkiaDest: '', std: '', tailNbr: 'N575UP', crewPickTime: '', meetCrew: '',
+          parkingBay: 'X22', loadTime: '', fod: '', ric: '', belt: '',
           ccdMdp: 'Night WH', ccdP1P5: 'Ting Fung', ccdP6P9: 'Ho', rc: 'Ling Fung',
           bulk: '', lh: '', exp: '', outsource: ''
         }
@@ -4759,6 +5247,7 @@
           localStorage.setItem('ups_hka_op_updated_at_v8', String(lastAppliedPlanTimestamp));
         } catch (e) {}
 
+        if (typeof applyHKIAMapsToOperationPlan === 'function') applyHKIAMapsToOperationPlan();
         renderUPSGatewayUldBubble();
         const activeTag = document.activeElement ? document.activeElement.tagName : '';
         const isTypingInModal = !forceRenderInputs && rosterModal && !rosterModal.classList.contains('hidden') && (activeTag === 'INPUT' || activeTag === 'TEXTAREA') && document.activeElement.id !== 'cloud-sync-channel-input';
@@ -5165,11 +5654,16 @@
     // - 離港現況「預計時間」或「-」 -> 代表還沒離港 (hasDeparted = false)
     // (不再讀取每日工作編排裏面的 ETA/STA 和 SCHEDULED DEPARTURE)
     function evaluateFlightStatusAtHKTime(flt, nowMins, colIdx = 0) {
-      const arrInfo = parseHKIAArrivalStatus(flt.inStatus, flt.hkiaArrSched);
+      const inKey = extract5XFlightNumKey(flt.inFlt);
+      const outKey = extract5XFlightNumKey(flt.outFlt);
+      const isOutboundOnlyInPort = !inKey && Boolean(outKey);
+      const arrInfo = isOutboundOnlyInPort
+        ? { hasArrived: true, statusLabel: '已到港 (同欄出口)', displayTime: '已在港', schedTime: '已在港' }
+        : parseHKIAArrivalStatus(flt.inStatus, flt.hkiaArrSched);
       const depInfo = parseHKIADepartureStatus(flt.outStatus, flt.hkiaDepSched);
       const loadMins = parseTimeStrToMinutes(flt.loadTime);
 
-      const hasArrived = arrInfo.hasArrived;
+      const hasArrived = arrInfo.hasArrived || isOutboundOnlyInPort;
       const hasDeparted = depInfo.hasDeparted;
 
       const arrEventKey = `ARR_${colIdx}_${flt.inFlt || ''}_${arrInfo.statusLabel}_${flt.islandId || ''}`;
@@ -5216,7 +5710,7 @@
       let isLoading = false;
       if (loadMins !== null) {
         const depMins = parseTimeStrToMinutes(depInfo.displayTime);
-        const effEnd = depMins !== null ? depMins : ((loadMins + 240) % 1440);
+        const effEnd = (depMins !== null && depMins > nowMins) ? depMins : ((loadMins + 360) % 1440);
         isLoading = isTimeInParkedWindow(nowMins, loadMins, effEnd);
       }
 
@@ -5691,6 +6185,9 @@
       const mm = parseInt(parts.find(p => p.type === 'minute')?.value || '0', 10);
       const nowMins = hh * 60 + mm;
 
+      // Ensure live HKIA arrival/departure statuses are applied to all slots before rendering headers
+      applyHKIAMapsToOperationPlan();
+
       // Table Head: Island selector per column + Live HKIA Arrival/Departure Status Readout
       let headHtml = '<tr class="bg-slate-800 text-white"><th class="op-label-cell !bg-slate-900 !text-amber-400">固定項目 \ 航班欄</th>';
       operationPlan.flights.forEach((flt, colIdx) => {
@@ -5707,7 +6204,7 @@
         });
         headHtml += `
           <th class="p-1.5 text-center min-w-[115px]">
-            <div class="flex items-center justify-center mb-1 text-[10px]">航班 #${colIdx + 1} ${stBadge}</div>
+            <div class="flex items-center justify-center mb-1 text-[10px]">航班 #${colIdx + 1} <span id="op-col-status-${colIdx}">${stBadge}</span></div>
             <select data-col="${colIdx}" class="op-island-select w-full bg-slate-700 text-amber-300 text-[10px] font-bold rounded px-1 py-0.5 border border-slate-600">
               ${islandOptions}
             </select>
