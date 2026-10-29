@@ -379,8 +379,9 @@
   <!-- 3D Projected HTML Labels & Speech Bubbles -->
   <div id="labels-layer"></div>
 
-  <!-- TOP-LEFT HEADER & VIEW CONTROLS (Matches Reference Video) -->
-  <div class="fixed top-3 left-3 z-30 flex flex-col gap-2 max-w-[330px] sm:max-w-[360px]">
+  <!-- TOP-LEFT STACK: (1) UPS HKG GATEWAY WEATHER CARD + (2) SEPARATED FLIGHT INFORMATION CARD BELOW IT -->
+  <div class="fixed top-3 left-3 z-30 flex flex-col gap-2.5 max-w-[330px] sm:max-w-[360px]">
+    <!-- Card 1: UPS HKG Gateway Weather Card -->
     <div class="glass-card rounded-2xl px-4 py-3">
       <div class="flex items-center justify-between gap-2">
         <span class="text-[10px] font-bold tracking-widest uppercase text-slate-400">HKG · CHEK LAP KOK · 3D Gateway</span>
@@ -418,133 +419,104 @@
         </div>
       </div>
 
-      <!-- Active Weather Warnings Banner (only shown when an actual HKO warning is in effect; "無生效天氣警告 1s 自動監測中" text removed per user request) -->
+      <!-- Active Weather Warnings Banner (only shown when an actual HKO warning is in effect) -->
       <div id="warning-strip" class="hidden mt-2 flex-wrap items-center gap-1.5"></div>
-
-      <!-- Live HKIA Cargo 5X Mini Flight List (kept active; "1s 自動偵測連動中" & "1秒自動讀取" text rows removed per user request) -->
-      <div class="mt-2 pt-2 border-t border-slate-200/80">
-        <a href="https://www.hongkongairport.com/tc/flights/arrivals/cargo.page" id="hud-fr24-tick" class="hidden" aria-hidden="true"></a>
-        <div id="hud-fr24-mini-list" class="grid grid-cols-2 gap-1 text-[9.5px] max-h-[68px] overflow-y-auto custom-scroll"></div>
-      </div>
     </div>
 
-    <!-- Camera Quick Buttons -->
-    <div class="flex items-center gap-1.5 flex-wrap">
-      <button id="btn-cam-panorama" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-white/90 text-slate-800 shadow hover:bg-white transition border border-slate-200/80">
-        全景
-      </button>
-      <button id="btn-cam-top" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-900 text-white shadow hover:bg-slate-800 transition">
-        俯瞰六角陣
-      </button>
-      <button id="btn-cam-ups" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-500 text-slate-950 shadow hover:bg-amber-400 transition">
-        UPS HKG Gateway
-      </button>
-      <button id="btn-cam-runway" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-sky-600 text-white shadow hover:bg-sky-500 transition flex items-center gap-1">
-        🛫 跑道起降
-      </button>
-      <button id="btn-lock-view" class="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-white/90 text-slate-700 shadow hover:bg-white transition flex items-center gap-1 border border-slate-200/80" title="鎖定/解鎖動態島 3D 視覺距離與角度" aria-pressed="false">
-        <span id="lock-view-icon">🔓</span>
-        <span id="lock-view-label">鎖定視角</span>
-      </button>
-      <button id="btn-open-chart" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-white/90 text-sky-700 shadow hover:bg-white transition border border-sky-200">
-        赤鱲角氣溫圖表
-      </button>
-      <button id="btn-open-roster" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 text-white shadow hover:bg-emerald-500 transition flex items-center gap-1">
-        📋 每日工作編排
-      </button>
-      <button id="btn-hud-cloud-sync" class="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-sky-600 text-white shadow hover:bg-sky-500 transition flex items-center gap-1" title="跨設備雲端即時同步狀態（點擊立即從雲端拉取最新每日工作編排）">
-        <span id="hud-cloud-dot" class="w-2 h-2 rounded-full bg-emerald-300 live-dot"></span>
-        <span id="hud-cloud-text">☁️ 雲端同步</span>
-      </button>
-      <button id="btn-open-help" class="w-8 h-8 rounded-xl text-xs font-bold bg-white/90 text-slate-700 shadow hover:bg-white transition flex items-center justify-center border border-slate-200/80" title="操作說明">
-        ?
-      </button>
+    <!-- Card 2: Separated Standalone Flight Information Card Directly Below UPS HKG Gateway Card -->
+    <div class="glass-card rounded-2xl px-3.5 py-3">
+      <a href="https://www.hongkongairport.com/tc/flights/arrivals/cargo.page" id="hud-fr24-tick" class="hidden" aria-hidden="true"></a>
+      <div id="hud-fr24-mini-list" class="grid grid-cols-2 gap-1.5 text-[9.5px] max-h-[260px] overflow-y-auto custom-scroll"></div>
     </div>
   </div>
 
-  <!-- LEFT FLOATING ISLAND DETAIL CARD (Matches Reference Video Left Drawer) -->
-  <div id="island-detail-card" class="fixed top-[268px] left-3 max-h-[calc(100vh-410px)] z-30 w-[310px] sm:w-[340px] max-h-[calc(100vh-310px)] glass-card rounded-2xl p-4 flex flex-col overflow-hidden transition-all duration-300">
-    <div class="flex items-start justify-between gap-2 pb-2.5 border-b border-slate-200/80">
-      <div class="flex items-center gap-2.5">
-        <div id="detail-badge" class="w-9 h-9 rounded-xl flex items-center justify-center text-xs font-black text-white shadow-sm p-1" style="background:#351c15; border: 2px solid #ffb500;">
-          <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/United_Parcel_Service_logo_2014.svg" alt="UPS" class="w-full h-full object-contain" />
-        </div>
-        <div>
-          <div id="detail-subtitle" class="text-[10px] font-bold uppercase tracking-wider text-amber-700">中心長方形 3D 動態島 · HKA 樞紐</div>
-          <h2 id="detail-title" class="text-base font-black text-slate-900 leading-tight">UPS HKG Gateway</h2>
-        </div>
-      </div>
-      <button id="btn-close-detail" class="w-7 h-7 rounded-lg bg-slate-200/70 hover:bg-slate-300/80 text-slate-600 flex items-center justify-center text-xs font-bold transition" title="收起詳情">
-        ✕
-      </button>
-    </div>
-
-    <div class="overflow-y-auto custom-scroll pr-1 mt-2.5 space-y-3 text-xs text-slate-600">
-      <p id="detail-desc" class="leading-relaxed text-slate-700 font-medium">
-        位於 15 座六角形動態島正中央的 3D 長方形旗艦動態島。即時接收香港天文台赤鱲角自動氣象站（HKA）溫度、風速、氣壓與天氣警告，智能調度亞太區貨機起降與全港電動速遞車隊。
-      </p>
-
-      <!-- Live Environment Status on Selected Island -->
-      <div class="bg-amber-50/90 border border-amber-200/80 rounded-xl p-2.5">
-        <div class="flex items-center justify-between text-[11px] font-bold text-amber-900">
-          <span id="detail-status-label">● 樞紐即時狀態：全速運作中</span>
-          <span id="detail-weather-tag" class="px-1.5 py-0.5 rounded bg-amber-200/80 text-amber-950 text-[10px]">赤鱲角 27.0°C</span>
-        </div>
-        <div id="detail-quote" class="mt-1 text-[11px] text-amber-800 italic">
-          「赤鱲角跑道能見度優良，UPS 貨機坪與 15 座六角形智能島協作順暢。」
-        </div>
-      </div>
-
-      <!-- Sub-modules list (like 01-06 in video) -->
-      <div>
-        <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">島上建築與智能設施</div>
-        <div id="detail-facilities" class="space-y-1.5"></div>
-      </div>
-    </div>
+  <!-- OLD DETAIL CARD REMOVED VISUALLY PER USER REQUEST (DOM IDs preserved inside hidden container so no function is affected) -->
+  <div id="island-detail-card" class="hidden" aria-hidden="true">
+    <div id="detail-badge"></div>
+    <div id="detail-subtitle"></div>
+    <h2 id="detail-title"></h2>
+    <button id="btn-close-detail"></button>
+    <p id="detail-desc"></p>
+    <span id="detail-status-label"></span>
+    <span id="detail-weather-tag"></span>
+    <div id="detail-quote"></div>
+    <div id="detail-facilities"></div>
   </div>
 
-  <!-- Right panels removed per user request -->
-
-  <!-- BOTTOM FLOATING DOCK: HK LIVE TIME + 7 TIME PERIODS + 4 WEATHER MODES + SCENE CONTROLS (Matches Video Bottom Bar) -->
+  <!-- BOTTOM FLOATING DOCK: HK LIVE TIME + WEATHER + SCENE CONTROLS + QUICK ACTION BUTTONS -->
   <div class="fixed bottom-3 left-1/2 -translate-x-1/2 z-30 max-w-[98vw] flex flex-col items-center gap-1.5">
     
-    <!-- Secondary Legend Pill -->
+    <!-- Secondary Legend Pill ("中心長方形：" removed per user request) -->
     <div class="glass-card rounded-full px-3.5 py-1 flex items-center gap-3 text-[10.5px] font-semibold text-slate-700 shadow-sm">
-      <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-sm bg-amber-500 inline-block"></span>中心長方形：UPS HKG Gateway</span>
+      <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-sm bg-amber-500 inline-block"></span>UPS HKG Gateway</span>
       <span id="active-weather-summary" class="text-sky-700 font-bold">☀️ 赤鱲角：晴朗 · 27.0°C</span>
     </div>
 
-    <!-- Main Bottom Bar -->
-    <div class="glass-card rounded-2xl px-3 py-2 flex flex-wrap items-center justify-center gap-2 shadow-xl border border-white">
-      
-      <!-- Live HK Clock & Automatic Phase/Weather Readout (No manual buttons needed) -->
-      <div class="flex items-center gap-2.5 pr-2 border-r border-slate-300/80">
-        <div>
-          <div id="hk-clock-time" class="text-base sm:text-lg font-black font-mono tracking-tight text-slate-900 leading-none">08:42:00</div>
-          <div id="hk-clock-sub" class="text-[10px] font-bold text-emerald-700 mt-0.5">香港時間 · 自動演進中</div>
+    <!-- Main Bottom Bar (now includes Quick Action Buttons inside) -->
+    <div class="glass-card rounded-2xl px-3.5 py-2 flex flex-col items-center justify-center gap-2 shadow-xl border border-white">
+      <div class="flex flex-wrap items-center justify-center gap-2">
+        <!-- Live HK Clock & Automatic Phase/Weather Readout -->
+        <div class="flex items-center gap-2.5 pr-2 border-r border-slate-300/80">
+          <div>
+            <div id="hk-clock-time" class="text-base sm:text-lg font-black font-mono tracking-tight text-slate-900 leading-none">08:42:00</div>
+            <div id="hk-clock-sub" class="text-[10px] font-bold text-emerald-700 mt-0.5">香港時間 · 自動演進中</div>
+          </div>
+        </div>
+
+        <!-- Read-only Automatic Time-of-Day & Weather Status Badges -->
+        <div class="flex items-center gap-2 px-2 py-1 rounded-xl bg-slate-900/90 text-white text-xs font-bold shadow-sm">
+          <span id="dock-auto-phase-badge" class="inline-flex items-center gap-1 text-amber-300">🌤️ 時段：上午 (07:00–11:30)</span>
+          <span class="text-slate-500">|</span>
+          <span id="dock-auto-wx-badge" class="inline-flex items-center gap-1 text-sky-300">☀️ 天氣：晴朗微風</span>
+        </div>
+
+        <!-- Scene Toggle Controls -->
+        <div class="flex items-center gap-1 pl-1 border-l border-slate-300/80">
+          <button id="toggle-labels" class="px-2.5 py-1 rounded-xl text-[11px] font-bold bg-slate-900 text-white transition" title="顯示/隱藏島嶼名牌">
+            🏷️ 名牌
+          </button>
+          <button id="toggle-bubbles" class="px-2.5 py-1 rounded-xl text-[11px] font-bold bg-slate-900 text-white transition" title="顯示/隱藏實時對話氣泡">
+            💬 氣泡
+          </button>
+          <button id="toggle-rotate" class="px-2.5 py-1 rounded-xl text-[11px] font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition" title="自動環繞鏡頭">
+            🎥 環繞
+          </button>
+          <button id="toggle-pause" class="px-2.5 py-1 rounded-xl text-[11px] font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition" title="暫停/繼續動畫">
+            ⏸️ 暫停
+          </button>
         </div>
       </div>
 
-      <!-- Read-only Automatic Time-of-Day & Weather Status Badges -->
-      <div class="flex items-center gap-2 px-2 py-1 rounded-xl bg-slate-900/90 text-white text-xs font-bold shadow-sm">
-        <span id="dock-auto-phase-badge" class="inline-flex items-center gap-1 text-amber-300">🌤️ 時段：上午 (07:00–11:30)</span>
-        <span class="text-slate-500">|</span>
-        <span id="dock-auto-wx-badge" class="inline-flex items-center gap-1 text-sky-300">☀️ 天氣：晴朗微風</span>
-      </div>
-
-      <!-- Scene Toggle Controls (Matches Video Bottom-Right Dock Icons) -->
-      <div class="flex items-center gap-1 pl-1 border-l border-slate-300/80">
-        <button id="toggle-labels" class="px-2.5 py-1 rounded-xl text-[11px] font-bold bg-slate-900 text-white transition" title="顯示/隱藏島嶼名牌">
-          🏷️ 名牌
+      <!-- Quick Action & Camera Buttons Row inside Bottom Info Bar -->
+      <div class="pt-1.5 border-t border-slate-200/80 flex items-center justify-center gap-1.5 flex-wrap">
+        <button id="btn-cam-panorama" class="px-3 py-1 rounded-xl text-xs font-bold bg-white/90 text-slate-800 shadow-sm hover:bg-white transition border border-slate-200/80">
+          全景
         </button>
-        <button id="toggle-bubbles" class="px-2.5 py-1 rounded-xl text-[11px] font-bold bg-slate-900 text-white transition" title="顯示/隱藏實時對話氣泡">
-          💬 氣泡
+        <button id="btn-cam-top" class="px-3 py-1 rounded-xl text-xs font-bold bg-slate-900 text-white shadow-sm hover:bg-slate-800 transition">
+          俯瞰六角陣
         </button>
-        <button id="toggle-rotate" class="px-2.5 py-1 rounded-xl text-[11px] font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition" title="自動環繞鏡頭">
-          🎥 環繞
+        <button id="btn-cam-ups" class="px-3 py-1 rounded-xl text-xs font-bold bg-amber-500 text-slate-950 shadow-sm hover:bg-amber-400 transition">
+          UPS HKG Gateway
         </button>
-        <button id="toggle-pause" class="px-2.5 py-1 rounded-xl text-[11px] font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition" title="暫停/繼續動畫">
-          ⏸️ 暫停
+        <button id="btn-cam-runway" class="px-3 py-1 rounded-xl text-xs font-bold bg-sky-600 text-white shadow-sm hover:bg-sky-500 transition flex items-center gap-1">
+          🛫 跑道起降
+        </button>
+        <button id="btn-lock-view" class="px-2.5 py-1 rounded-xl text-xs font-bold bg-white/90 text-slate-700 shadow-sm hover:bg-white transition flex items-center gap-1 border border-slate-200/80" title="鎖定/解鎖動態島 3D 視覺距離與角度" aria-pressed="false">
+          <span id="lock-view-icon">🔓</span>
+          <span id="lock-view-label">鎖定視角</span>
+        </button>
+        <button id="btn-open-chart" class="px-3 py-1 rounded-xl text-xs font-bold bg-white/90 text-sky-700 shadow-sm hover:bg-white transition border border-sky-200">
+          赤鱲角氣溫圖表
+        </button>
+        <button id="btn-open-roster" class="px-3 py-1 rounded-xl text-xs font-bold bg-emerald-600 text-white shadow-sm hover:bg-emerald-500 transition flex items-center gap-1">
+          📋 每日工作編排
+        </button>
+        <button id="btn-hud-cloud-sync" class="px-2.5 py-1 rounded-xl text-xs font-bold bg-sky-600 text-white shadow-sm hover:bg-sky-500 transition flex items-center gap-1" title="跨設備雲端即時同步狀態（點擊立即從雲端拉取最新每日工作編排）">
+          <span id="hud-cloud-dot" class="w-2 h-2 rounded-full bg-emerald-300 live-dot"></span>
+          <span id="hud-cloud-text">☁️ 雲端同步</span>
+        </button>
+        <button id="btn-open-help" class="w-7 h-7 rounded-xl text-xs font-bold bg-white/90 text-slate-700 shadow-sm hover:bg-white transition flex items-center justify-center border border-slate-200/80" title="操作說明">
+          ?
         </button>
       </div>
     </div>
@@ -3979,7 +3951,8 @@
     ];
 
     const HKIA_5X_TODAY_DEPARTURES_REF = [
-      { fltNo: '5X 003D', numKey: '3',   schedTime: '11:10', dest: '班加羅爾 / 科隆 / 費城', statusText: '預計 04:35 (29/10/2026)' },
+      { fltNo: '5X 003D', numKey: '3D',  schedTime: '11:10', dest: '班加羅爾 / 科隆 / 費城', statusText: '啟航 14:58 (29/10/2026)' },
+      { fltNo: '5X 003',  numKey: '3',   schedTime: '11:10', dest: '班加羅爾 / 費城', statusText: '啟航 11:11' },
       { fltNo: '5X 067',  numKey: '67',  schedTime: '13:25', dest: '安克雷奇 / 路易斯維爾', statusText: '啟航 13:50' },
       { fltNo: '5X 171',  numKey: '171', schedTime: '16:25', dest: '新加坡', statusText: '啟航 16:39' },
       { fltNo: '5X 001',  numKey: '1',   schedTime: '16:30', dest: '科隆', statusText: '啟航 16:40' },
@@ -3989,7 +3962,7 @@
       { fltNo: '5X 141',  numKey: '141', schedTime: '23:10', dest: '克拉克', statusText: '-' }
     ];
 
-    const HKIA_SNAPSHOT_REF_DATE = '2026-10-28';
+    const HKIA_SNAPSHOT_REF_DATES = new Set(['2026-10-28', '2026-10-29']);
     let activeHKIADate = '';
 
     // Live cached maps populated dynamically per Hong Kong date + live multi-proxy fetch
@@ -4009,11 +3982,12 @@
       const dd = parts.find(p => p.type === 'day')?.value || '28';
       return {
         isoDate: `${yyyy}-${mm}-${dd}`,
+        dmySlash: `${dd}/${mm}/${yyyy}`,
         zhDate: `${yyyy}年${parseInt(mm, 10)}月${parseInt(dd, 10)}日`
       };
     }
 
-    // Automatically reset & initialize HKIA maps whenever the Hong Kong date changes (so future days on GitHub Pages never get stuck with a previous day's departed/arrived status!)
+    // Automatically reset & initialize HKIA maps whenever the Hong Kong date changes
     function ensureHKIAMapsForCurrentDate() {
       const { isoDate } = getHKTodayDateStrings();
       if (activeHKIADate === isoDate) return;
@@ -4021,11 +3995,10 @@
       liveHKIAArrMap.clear();
       liveHKIADepMap.clear();
 
-      if (isoDate === HKIA_SNAPSHOT_REF_DATE) {
+      if (HKIA_SNAPSHOT_REF_DATES.has(isoDate)) {
         HKIA_5X_TODAY_ARRIVALS_REF.forEach(item => liveHKIAArrMap.set(item.numKey, { ...item }));
         HKIA_5X_TODAY_DEPARTURES_REF.forEach(item => liveHKIADepMap.set(item.numKey, { ...item }));
       } else {
-        // On any new date (e.g. 2026-10-29+), seed only the route & schedule times with '-' status until live HKIA data for today is fetched
         HKIA_5X_TODAY_ARRIVALS_REF.forEach(item => {
           liveHKIAArrMap.set(item.numKey, { ...item, statusText: '-' });
         });
@@ -4050,7 +4023,10 @@
     }
     ensureHKIAMapsForCurrentDate();
 
-    // Extract normalized numeric flight key from e.g. "5X 142", "142-CRK", "5X004", "004-CDG" -> "142", "4"
+    // Extract normalized flight key with '6'-prefix -> 'D'-suffix mapping rule:
+    // - Any '6'-prefixed flight code in Operation Plan (e.g. "6061" -> "61D", "6062" -> "62D", "6003-BLR" -> "3D", "6142" -> "142D") maps to HKIA's D-suffixed flight ("5X 061D", "5X 062D", "5X 003D", "5X 142D").
+    // - Direct D-suffixed flight numbers (e.g. "5X 003D", "061D-ANC") also produce "3D", "61D".
+    // - Standard flight numbers (e.g. "061-ANC", "5X 003", "142-CRK") produce "61", "3", "142".
     function extract5XFlightNumKey(fltStr) {
       if (!fltStr || typeof fltStr !== 'string') return '';
       const cleaned = fltStr
@@ -4059,8 +4035,30 @@
         .replace(/^UPS[-]?/, '')
         .replace(/^5X[-]?/, '');
       if (!cleaned || cleaned === '-' || cleaned === '--') return '';
-      const m = cleaned.match(/^0*(\d+)/);
-      return m ? m[1] : '';
+
+      // Extract leading flight token before any route separator like '-ANC', '/ICN'
+      const token = cleaned.split(/[-/]/)[0] || '';
+      if (!token) return '';
+
+      // Rule: Leading '6' on a flight code (e.g. 6003, 6061, 6062, 6142, 661) maps to 'D' suffix!
+      const mSixPrefix = token.match(/^6(\d{2,3})D?$/);
+      if (mSixPrefix) {
+        const strippedNum = String(parseInt(mSixPrefix[1], 10));
+        return strippedNum + 'D';
+      }
+
+      // Direct flight number with optional trailing letter (e.g. 5X 003D -> 3D, 061 -> 61, 142 -> 142)
+      const mStd = token.match(/^0*(\d+)([A-Z]?)$/);
+      if (mStd) {
+        return mStd[1] + (mStd[2] === 'D' ? 'D' : '');
+      }
+
+      const mFallback = token.match(/^6(\d+)/);
+      if (mFallback) {
+        return String(parseInt(mFallback[1], 10)) + 'D';
+      }
+      const mAny = token.match(/^0*(\d+)([A-Z]?)/);
+      return mAny ? (mAny[1] + (mAny[2] === 'D' ? 'D' : '')) : '';
     }
 
     // Extract route airport code suffix from e.g. "064-ICN" -> "首爾/仁川" if needed
@@ -4446,9 +4444,11 @@
       const hasDepTime = (raw.includes('啟航') || /\bdep\b/i.test(raw)) && Boolean(timeMatch);
       if (hasDepTime) {
         const depTime = timeMatch[1].padStart(5, '0');
+        const dateSuffixMatch = raw.match(/(\(\d{1,2}\/\d{1,2}\/\d{4}\))/);
+        const dateSuffix = dateSuffixMatch ? ` ${dateSuffixMatch[1]}` : '';
         return {
           hasDeparted: true,
-          statusLabel: `啟航 ${depTime}`,
+          statusLabel: `啟航 ${depTime}${dateSuffix}`,
           displayTime: depTime,
           schedTime: sched || depTime
         };
@@ -4630,22 +4630,23 @@
 
           let statusText = '-';
           if (isArrival) {
-            const mGate = rowAfter.match(/到閘口\s*(\d{1,2}:\d{2})/);
-            const mLand = rowAfter.match(/著陸於\s*(\d{1,2}:\d{2})/);
+            const mGate = rowAfter.match(/到閘口\s*(\d{1,2}:\d{2}(?:\s*\(\d{1,2}\/\d{1,2}\/\d{4}\))?)/);
+            const mLand = rowAfter.match(/著陸於\s*(\d{1,2}:\d{2}(?:\s*\(\d{1,2}\/\d{1,2}\/\d{4}\))?)/);
             const mEst = rowAfter.match(/預計(?:時間)?\s*(\d{1,2}:\d{2}(?:\s*\(\d{1,2}\/\d{1,2}\/\d{4}\))?)/);
             if (mGate) statusText = `到閘口 ${mGate[1]}`;
             else if (mLand) statusText = `著陸於 ${mLand[1]}`;
             else if (mEst) statusText = `預計 ${mEst[1]}`;
           } else {
-            const mDep = rowAfter.match(/啟航\s*(\d{1,2}:\d{2})/);
+            const mDep = rowAfter.match(/啟航\s*(\d{1,2}:\d{2}(?:\s*\(\d{1,2}\/\d{1,2}\/\d{4}\))?)/);
             const mEst = rowAfter.match(/預計(?:時間)?\s*(\d{1,2}:\d{2}(?:\s*\(\d{1,2}\/\d{1,2}\/\d{4}\))?)/);
             if (mDep) statusText = `啟航 ${mDep[1]}`;
             else if (mEst) statusText = `預計 ${mEst[1]}`;
             else statusText = '-';
           }
+          const fullKey = String(parseInt(numKey, 10)) + (suffix === 'D' ? 'D' : '');
           results.push({
             fltNo: `5X ${numKey.padStart(3, '0')}${suffix}`,
-            numKey,
+            numKey: fullKey,
             schedTime,
             statusText
           });
@@ -4654,16 +4655,15 @@
       return results;
     }
 
-    // Parse JSON from HKIA flightinfo-rest endpoint STRICTLY for today's date (targetIsoDate)
+    // Parse JSON from HKIA flightinfo-rest endpoint:
+    // - Scans today's date block (targetIsoDate) for all regular & D-suffixed 5X flights
+    // - Also scans other date blocks in the response for D-suffixed delayed flights (e.g. 5X 003D, 5X 061D, 5X 062D, 5X 142D) so overnight delayed flights on HKIA's page are always captured!
     function parseHKIACargoJSON(jsonData, targetIsoDate) {
       const results = [];
       if (!Array.isArray(jsonData)) return results;
 
-      // Filter strictly to today's date block so yesterday's flights never pollute today's statuses!
-      const matchingBlocks = jsonData.filter(b => !b.date || b.date === targetIsoDate);
-      const blocksToScan = matchingBlocks.length > 0 ? matchingBlocks : [jsonData[jsonData.length - 1]];
-
-      blocksToScan.forEach(dayBlock => {
+      jsonData.forEach(dayBlock => {
+        const isTargetDateBlock = !dayBlock.date || dayBlock.date === targetIsoDate;
         const list = dayBlock?.list || [];
         list.forEach(item => {
           const flightsArr = item?.flight || [];
@@ -4675,6 +4675,9 @@
           if (!upsFlight) return;
           const noStr = String(upsFlight.no || '').trim();
           const numKey = extract5XFlightNumKey(noStr);
+          // From non-today date blocks, only include 'D'-suffixed delayed flights (since their key ends with 'D', they never overwrite today's regular flights)
+          if (!isTargetDateBlock && !numKey.endsWith('D')) return;
+
           const schedTime = String(item?.time || '').trim();
           const rawStatus = String(item?.status || '-').trim();
           const rawPlaces = item?.origin || item?.destination || [];
@@ -4939,7 +4942,6 @@
       state.selectedIslandId = isl.id;
 
       const card = document.getElementById('island-detail-card');
-      card.classList.remove('hidden');
 
       const badge = document.getElementById('detail-badge');
       if (isl.shape === 'rectangle') {
