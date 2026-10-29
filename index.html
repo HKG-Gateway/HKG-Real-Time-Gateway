@@ -25,6 +25,14 @@
       font-family: 'Fredoka', 'Nunito', 'M PLUS Rounded 1c', 'Noto Sans TC', sans-serif;
       letter-spacing: 0.01em;
       background: #7cc5d0;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+    }
+    .island-tag, .uld-bubble-card, .speech-bubble, .staff-badge {
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      will-change: transform, left, top;
     }
     #canvas-container {
       position: absolute;
@@ -1186,17 +1194,30 @@
     // =========================================================================
     const container = document.getElementById('canvas-container');
     const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x8fd2dc, 0.0024);
+    scene.fog = new THREE.FogExp2(0x8fd2dc, 0.00085);
 
     const camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 1, 900);
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2.5));
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     container.appendChild(renderer.domElement);
 
-    // Custom Smooth Orbit & Pan Camera Controller (pulled back further for wider Dynamic Island overview)
+    const MAX_ANISOTROPY = (renderer.capabilities && typeof renderer.capabilities.getMaxAnisotropy === 'function')
+      ? Math.min(16, renderer.capabilities.getMaxAnisotropy() || 8)
+      : 8;
+    function enhanceTextureClarity(tex) {
+      if (!tex) return tex;
+      tex.anisotropy = MAX_ANISOTROPY;
+      tex.minFilter = THREE.LinearMipmapLinearFilter;
+      tex.magFilter = THREE.LinearFilter;
+      tex.generateMipmaps = true;
+      tex.needsUpdate = true;
+      return tex;
+    }
+
+    // Custom Smooth Orbit & Pan Camera Controller (frame-rate independent damping for 60Hz/120Hz fluidity)
     const camCtrl = {
       target: new THREE.Vector3(0, 0, 2),
       desiredTarget: new THREE.Vector3(0, 0, 2),
@@ -1207,11 +1228,12 @@
       prevMouse: { x: 0, y: 0 }
     };
 
-    function updateCameraFromSpherical() {
-      camCtrl.spherical.radius += (camCtrl.desiredSpherical.radius - camCtrl.spherical.radius) * 0.09;
-      camCtrl.spherical.phi += (camCtrl.desiredSpherical.phi - camCtrl.spherical.phi) * 0.09;
-      camCtrl.spherical.theta += (camCtrl.desiredSpherical.theta - camCtrl.spherical.theta) * 0.09;
-      camCtrl.target.lerp(camCtrl.desiredTarget, 0.09);
+    function updateCameraFromSpherical(dt = 0.016) {
+      const smoothFactor = 1.0 - Math.exp(-10.5 * Math.min(0.05, Math.max(0.004, dt)));
+      camCtrl.spherical.radius += (camCtrl.desiredSpherical.radius - camCtrl.spherical.radius) * smoothFactor;
+      camCtrl.spherical.phi += (camCtrl.desiredSpherical.phi - camCtrl.spherical.phi) * smoothFactor;
+      camCtrl.spherical.theta += (camCtrl.desiredSpherical.theta - camCtrl.spherical.theta) * smoothFactor;
+      camCtrl.target.lerp(camCtrl.desiredTarget, smoothFactor);
 
       const r = camCtrl.spherical.radius;
       const phi = Math.max(0.18, Math.min(1.42, camCtrl.spherical.phi));
@@ -1224,17 +1246,18 @@
     }
 
     // Lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.85);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.88);
     scene.add(ambientLight);
 
-    const dirLight = new THREE.DirectionalLight(0xfff6e5, 1.15);
+    const dirLight = new THREE.DirectionalLight(0xfff6e5, 1.18);
     dirLight.position.set(45, 48, 20);
     dirLight.castShadow = true;
     dirLight.shadow.mapSize.width = 2048;
     dirLight.shadow.mapSize.height = 2048;
+    dirLight.shadow.bias = -0.0003;
     dirLight.shadow.camera.near = 5;
-    dirLight.shadow.camera.far = 180;
-    const d = 62;
+    dirLight.shadow.camera.far = 230;
+    const d = 105;
     dirLight.shadow.camera.left = -d;
     dirLight.shadow.camera.right = d;
     dirLight.shadow.camera.top = d;
@@ -1267,7 +1290,7 @@
     scene.add(starField);
 
     // Ocean Surface
-    const oceanGeo = new THREE.PlaneGeometry(460, 460, 64, 64);
+    const oceanGeo = new THREE.PlaneGeometry(460, 460, 36, 36);
     oceanGeo.rotateX(-Math.PI / 2);
     const oceanMat = new THREE.MeshStandardMaterial({
       color: 0x7ac7d2,
@@ -1790,8 +1813,7 @@
       }
       drawFallbackUPSShield(lCtx);
 
-      const logoTex = new THREE.CanvasTexture(logoCvs);
-      logoTex.needsUpdate = true;
+      const logoTex = enhanceTextureClarity(new THREE.CanvasTexture(logoCvs));
 
       const logoImg = new Image();
       logoImg.crossOrigin = 'anonymous';
@@ -1969,10 +1991,10 @@
       boardHolder.add(boardBacking);
 
       const cvs = document.createElement('canvas');
-      cvs.width = 320;
-      cvs.height = 112;
+      cvs.width = 640;
+      cvs.height = 224;
       const ctx = cvs.getContext('2d');
-      const tex = new THREE.CanvasTexture(cvs);
+      const tex = enhanceTextureClarity(new THREE.CanvasTexture(cvs));
 
       const frontPlane = new THREE.Mesh(
         new THREE.PlaneGeometry(5.3, 1.78),
@@ -2020,7 +2042,9 @@
       const { cvs, ctx, tex } = signGroup.userData;
       ctx.clearRect(0, 0, cvs.width, cvs.height);
 
-      // Pure Rectangular Green Sign Plate with White Border (長方形綠底白框，無方向箭頭)
+      // 2x Retina Rectangular Green Sign Plate with White Border
+      ctx.save();
+      ctx.scale(2, 2);
       ctx.fillStyle = '#047857';
       ctx.strokeStyle = '#ffffff';
       ctx.lineWidth = 9;
@@ -2028,103 +2052,540 @@
       ctx.fill();
       ctx.stroke();
 
-      // Rounded, friendly font matching the 3D Dynamic Island
       ctx.fillStyle = '#ffffff';
       const fontSize = clean.length > 7 ? 38 : (clean.length > 4 ? 48 : 56);
       ctx.font = `700 ${fontSize}px "Fredoka", "Nunito", "M PLUS Rounded 1c", sans-serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText(clean, 160, 58);
+      ctx.restore();
       tex.needsUpdate = true;
     }
 
-    // Factory: Build a 3D Chibi Egg-Plane (Q版蛋機 3D 模型)
+    // Shared Geometry & Texture Cache for UPS Boeing 747-8F Chibi Egg-Plane (1:1 match to reference image)
+    let _ups747ChibiCache = null;
+    function getUPS747ChibiAssets() {
+      if (_ups747ChibiCache) return _ups747ChibiCache;
+
+      // 1. High-Res Fuselage Livery Texture (White 747 Egg Body + 3 Upper-Deck Windows + Diagonal Gold Ribbon + Dark Brown Tail)
+      // In UV space: u=0 is Nose (z=-1.45), u=1 is Tail (z=+1.48);
+      // Because Three.js CanvasTexture has flipY=true: canvas y=0 is Top Crown (v=1), canvas y=512 is Belly (v=0).
+      const bodyCvs = document.createElement('canvas');
+      bodyCvs.width = 1024;
+      bodyCvs.height = 512;
+      const bCtx = bodyCvs.getContext('2d');
+
+      // Pure glossy white fuselage base
+      bCtx.fillStyle = '#ffffff';
+      bCtx.fillRect(0, 0, 1024, 512);
+
+      // Diagonal UPS Gold Ribbon & Dark Brown Rear Section
+      bCtx.beginPath();
+      bCtx.moveTo(492, 0);
+      bCtx.quadraticCurveTo(655, 228, 790, 512);
+      bCtx.lineTo(1024, 512);
+      bCtx.lineTo(1024, 0);
+      bCtx.closePath();
+      bCtx.fillStyle = '#f59e0b'; // UPS Gold
+      bCtx.fill();
+
+      bCtx.beginPath();
+      bCtx.moveTo(542, 0);
+      bCtx.quadraticCurveTo(710, 228, 850, 512);
+      bCtx.lineTo(1024, 512);
+      bCtx.lineTo(1024, 0);
+      bCtx.closePath();
+      bCtx.fillStyle = '#3a1d12'; // UPS Dark Brown
+      bCtx.fill();
+
+      // Smooth dark outline along the brown/gold seam
+      bCtx.strokeStyle = '#1e110a';
+      bCtx.lineWidth = 4.5;
+      bCtx.beginPath();
+      bCtx.moveTo(542, 0);
+      bCtx.quadraticCurveTo(710, 228, 850, 512);
+      bCtx.stroke();
+
+      // 3 Small Rounded-Rectangular Upper-Deck Windows (| | |) behind the cockpit on the upper-deck hump
+      bCtx.fillStyle = '#1e293b';
+      bCtx.strokeStyle = '#0f172a';
+      bCtx.lineWidth = 3;
+      for (let w = 0; w < 3; w++) {
+        const wx = 342 + w * 26;
+        const wy = 148 + w * 4;
+        drawRoundedRectPath(bCtx, wx, wy, 14, 34, 5);
+        bCtx.fill();
+        bCtx.stroke();
+      }
+
+      const bodyTex = enhanceTextureClarity(new THREE.CanvasTexture(bodyCvs));
+
+      // Helper to evaluate our Plump, Ultra-Round 3D Boeing 747-8F Chibi Egg Fuselage surface at any unit-sphere (vx, vy, vz)
+      // Uses true circular/elliptical cross-sections (nx^2 + ny^2 = 1) and a plump egg envelope so the entire body is 100% smooth & round!
+      const zMin = -1.45, zMax = 1.48;
+      const yMin = 0.14, yMax = 1.32;
+      function eval747FuselagePoint(vx, vy, vz) {
+        const tZ = (vz + 1) * 0.5; // 0 at front nose (-Z), 1 at rear tail (+Z)
+        const z = zMin + tZ * (zMax - zMin);
+
+        // True unit-circle cross-section direction (nx, ny) around the longitudinal Z axis
+        const rSphereCross = Math.sqrt(Math.max(1e-8, vx * vx + vy * vy));
+        const nx = rSphereCross > 1e-5 ? (vx / rSphereCross) : 0;
+        const ny = rSphereCross > 1e-5 ? (vy / rSphereCross) : (vy >= 0 ? 1 : -1);
+
+        // Super-plump Chibi egg longitudinal envelope (power 0.44 makes the nose & tail domes fuller and rounder than a standard sphere)
+        const eggEnv = Math.pow(Math.max(0, 1 - vz * vz), 0.44);
+
+        // Smooth centerline height (gentle upward sweep at rear tailcone)
+        const rearTailLift = Math.pow(Math.max(0, (tZ - 0.52) / 0.48), 1.8) * 0.16;
+        const centerY = 0.62 + rearTailLift;
+
+        // Iconic 747 Upper-Deck Hump (smooth Gaussian boost on the upper half around tZ = 0.27)
+        const humpBoost = Math.exp(-Math.pow((tZ - 0.27) / 0.21, 2)) * 0.28;
+        const topRadiusY = (0.48 + humpBoost - 0.08 * tZ) * eggEnv;
+        const botRadiusY = (0.46 - 0.10 * Math.pow(tZ, 1.4)) * eggEnv;
+
+        const y = ny >= 0
+          ? (centerY + ny * topRadiusY)
+          : (centerY + ny * botRadiusY);
+
+        // Chubby, smooth horizontal width (plump round cheeks, smooth C^2 blending into the upper-deck crown)
+        const baseWidth = (1.02 - 0.18 * Math.pow(tZ, 1.5)) * eggEnv;
+        const smoothUpperTaper = ny > 0 ? (1.0 - 0.12 * ny * ny * Math.exp(-Math.pow((tZ - 0.26) / 0.25, 2))) : 1.0;
+        const x = nx * baseWidth * smoothUpperTaper;
+
+        const u = Math.max(0.002, Math.min(0.998, (z - zMin) / (zMax - zMin)));
+        const v = Math.max(0.002, Math.min(0.998, (y - yMin) / (yMax - yMin)));
+        return { x, y, z, u, v };
+      }
+
+      // 2. High-Resolution Plump & Round 3D Boeing 747-8F Chibi Fuselage Geometry
+      const fuseGeo = new THREE.SphereGeometry(1.0, 64, 48);
+      const posAttr = fuseGeo.attributes.position;
+      const uvAttr = fuseGeo.attributes.uv;
+      for (let i = 0; i < posAttr.count; i++) {
+        const pt = eval747FuselagePoint(posAttr.getX(i), posAttr.getY(i), posAttr.getZ(i));
+        posAttr.setXYZ(i, pt.x, pt.y, pt.z);
+        uvAttr.setXY(i, pt.u, pt.v);
+      }
+      fuseGeo.computeVertexNormals();
+
+      // 3. Conformal Curved Side Decal Geometry & Texture for "Worldwide Services / Synchronizing the world of commerce"
+      function buildConformalSideDecalGeo(isRightSide) {
+        const cols = 20, rows = 12;
+        const geo = new THREE.PlaneGeometry(1, 1, cols, rows);
+        const pAttr = geo.attributes.position;
+        const uAttr = geo.attributes.uv;
+        const signX = isRightSide ? 1 : -1;
+
+        for (let i = 0; i < pAttr.count; i++) {
+          const uOrig = uAttr.getX(i);
+          const vOrig = uAttr.getY(i);
+          const tZ = isRightSide ? (0.65 - uOrig * 0.34) : (0.31 + uOrig * 0.34);
+          const vz = tZ * 2 - 1;
+          const vy = -0.12 + vOrig * 0.42;
+          const vx = signX * Math.sqrt(Math.max(0.01, 1 - vy * vy - vz * vz));
+          const pt = eval747FuselagePoint(vx, vy, vz);
+          pAttr.setXYZ(i, pt.x + signX * 0.012, pt.y, pt.z);
+        }
+        geo.computeVertexNormals();
+        return geo;
+      }
+
+      const decalCvs = document.createElement('canvas');
+      decalCvs.width = 512;
+      decalCvs.height = 160;
+      const dCtx = decalCvs.getContext('2d');
+      dCtx.clearRect(0, 0, 512, 160);
+      dCtx.fillStyle = '#23120b';
+      dCtx.font = 'italic 800 40px "Arial Narrow", Arial, sans-serif';
+      dCtx.textAlign = 'left';
+      dCtx.fillText('Worldwide Services', 18, 72);
+      dCtx.fillStyle = '#334155';
+      dCtx.font = '700 22px Arial, sans-serif';
+      dCtx.fillText('Synchronizing the world of commerce', 54, 108);
+      const sideDecalTex = enhanceTextureClarity(new THREE.CanvasTexture(decalCvs));
+
+      const leftDecalGeo = buildConformalSideDecalGeo(false);
+      const rightDecalGeo = buildConformalSideDecalGeo(true);
+
+      // 4. Conformal 4-Pane Dark Cockpit Windshield Visor on the Round 747 Upper-Deck Brow ([ ][ ][ ][ ])
+      const cockpitPanesGeos = [];
+      const paneAngles = [
+        { a0: -0.76, a1: -0.41 },
+        { a0: -0.35, a1: -0.04 },
+        { a0:  0.04, a1:  0.35 },
+        { a0:  0.41, a1:  0.76 }
+      ];
+      paneAngles.forEach(({ a0, a1 }) => {
+        const pGeo = new THREE.PlaneGeometry(1, 1, 8, 6);
+        const pA = pGeo.attributes.position;
+        const uA = pGeo.attributes.uv;
+        for (let i = 0; i < pA.count; i++) {
+          const u = uA.getX(i);
+          const v = uA.getY(i);
+          const angle = a0 + u * (a1 - a0);
+          const vy = 0.24 + v * 0.22;
+          const tZ = 0.14 + Math.abs(angle) * 0.075 + v * 0.04;
+          const vz = tZ * 2 - 1;
+          const horizR = Math.sqrt(Math.max(0.01, 1 - vy * vy - vz * vz));
+          const vx = Math.sin(angle) * horizR;
+          const pt = eval747FuselagePoint(vx, vy, vz);
+          pA.setXYZ(i, pt.x * 1.016, pt.y + 0.010, pt.z - 0.016);
+        }
+        pGeo.computeVertexNormals();
+        cockpitPanesGeos.push(pGeo);
+      });
+
+      // 5. Tail Fin Official 2014 UPS Shield Logo Texture from https://upload.wikimedia.org/wikipedia/commons/6/6b/United_Parcel_Service_logo_2014.svg
+      const shieldCvs = document.createElement('canvas');
+      shieldCvs.width = 512;
+      shieldCvs.height = 600;
+      const sCtx = shieldCvs.getContext('2d');
+      function drawFallbackTailUPSShield(ctx) {
+        ctx.clearRect(0, 0, 512, 600);
+        const goldGrad = ctx.createLinearGradient(0, 0, 512, 600);
+        goldGrad.addColorStop(0, '#fde68a');
+        goldGrad.addColorStop(0.45, '#ffb500');
+        goldGrad.addColorStop(1, '#b45309');
+        ctx.fillStyle = goldGrad;
+        ctx.beginPath();
+        ctx.moveTo(44, 36);
+        ctx.lineTo(468, 36);
+        ctx.lineTo(468, 364);
+        ctx.bezierCurveTo(468, 488, 256, 572, 256, 572);
+        ctx.bezierCurveTo(256, 572, 44, 488, 44, 364);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = '#351c15';
+        ctx.beginPath();
+        ctx.moveTo(70, 62);
+        ctx.lineTo(442, 62);
+        ctx.lineTo(442, 358);
+        ctx.bezierCurveTo(442, 464, 256, 540, 256, 540);
+        ctx.bezierCurveTo(256, 540, 70, 464, 70, 358);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = '#ffb500';
+        ctx.lineWidth = 18;
+        ctx.beginPath();
+        ctx.moveTo(70, 184);
+        ctx.quadraticCurveTo(256, 104, 442, 184);
+        ctx.stroke();
+        ctx.fillStyle = '#ffb500';
+        ctx.font = '900 180px Arial, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('ups', 256, 332);
+      }
+      drawFallbackTailUPSShield(sCtx);
+      const tailShieldTex = enhanceTextureClarity(new THREE.CanvasTexture(shieldCvs));
+
+      const tailLogoImg = new Image();
+      tailLogoImg.crossOrigin = 'anonymous';
+      tailLogoImg.onload = () => {
+        sCtx.clearRect(0, 0, 512, 600);
+        sCtx.drawImage(tailLogoImg, 16, 16, 480, 568);
+        tailShieldTex.needsUpdate = true;
+      };
+      tailLogoImg.src = 'https://upload.wikimedia.org/wikipedia/commons/6/6b/United_Parcel_Service_logo_2014.svg';
+
+      // 6. Barrel-Rounded Engine Cowling Geometry & Texture with 747-8 GEnx Scalloped Chevron Teeth
+      const nacCvs = document.createElement('canvas');
+      nacCvs.width = 512;
+      nacCvs.height = 256;
+      const nCtx = nacCvs.getContext('2d');
+      nCtx.fillStyle = '#ffffff';
+      nCtx.fillRect(0, 0, 512, 256);
+      nCtx.fillStyle = '#94a3b8';
+      nCtx.fillRect(0, 180, 512, 76);
+      const numTeeth = 9;
+      const toothW = 512 / numTeeth;
+      nCtx.fillStyle = '#ffffff';
+      nCtx.strokeStyle = '#1e293b';
+      nCtx.lineWidth = 6;
+      nCtx.beginPath();
+      nCtx.moveTo(0, 175);
+      for (let t = 0; t < numTeeth; t++) {
+        const x0 = t * toothW;
+        const xMid = x0 + toothW * 0.5;
+        const x1 = x0 + toothW;
+        nCtx.lineTo(xMid, 242);
+        nCtx.lineTo(x1, 175);
+      }
+      nCtx.lineTo(512, 0);
+      nCtx.lineTo(0, 0);
+      nCtx.closePath();
+      nCtx.fill();
+      nCtx.beginPath();
+      nCtx.moveTo(0, 175);
+      for (let t = 0; t < numTeeth; t++) {
+        const x0 = t * toothW;
+        const xMid = x0 + toothW * 0.5;
+        const x1 = x0 + toothW;
+        nCtx.lineTo(xMid, 242);
+        nCtx.lineTo(x1, 175);
+      }
+      nCtx.stroke();
+      const nacTex = enhanceTextureClarity(new THREE.CanvasTexture(nacCvs));
+
+      // Sculpt a plump barrel-curved cylinder for the Chibi engine cowling so it looks round & chubby instead of straight-walled
+      const barrelCowlGeo = new THREE.CylinderGeometry(0.32, 0.29, 0.78, 32, 12, false);
+      const cPos = barrelCowlGeo.attributes.position;
+      for (let i = 0; i < cPos.count; i++) {
+        const cx = cPos.getX(i);
+        const cy = cPos.getY(i); // ranges from -0.39 (rear) to +0.39 (front)
+        const cz = cPos.getZ(i);
+        const r = Math.hypot(cx, cz);
+        if (r > 0.01) {
+          const normH = (cy + 0.39) / 0.78; // 0 at rear, 1 at front
+          const barrelBulge = 1.0 + Math.sin(normH * Math.PI) * 0.14;
+          cPos.setX(i, cx * barrelBulge);
+          cPos.setZ(i, cz * barrelBulge);
+        }
+      }
+      barrelCowlGeo.computeVertexNormals();
+
+      // 7. Rounded 747-8F Swept Vertical Tail Fin Geometry (with curved corners and generous 6-segment round bevel)
+      const finShape = new THREE.Shape();
+      finShape.moveTo(0.24, 0.72);
+      finShape.quadraticCurveTo(0.52, 0.88, 0.68, 1.12);
+      finShape.lineTo(1.12, 1.98);
+      finShape.quadraticCurveTo(1.17, 2.08, 1.26, 2.06); // Rounded top-front tip
+      finShape.lineTo(1.40, 2.01);
+      finShape.quadraticCurveTo(1.48, 1.98, 1.48, 1.88); // Rounded top-rear tip
+      finShape.lineTo(1.46, 0.72);
+      finShape.closePath();
+      const finExtrude = new THREE.ExtrudeGeometry(finShape, {
+        depth: 0.13,
+        bevelEnabled: true,
+        bevelThickness: 0.055,
+        bevelSize: 0.048,
+        bevelSegments: 6
+      });
+      finExtrude.rotateY(-Math.PI / 2);
+      finExtrude.translate(0.065, 0, 0);
+
+      // 8. Smooth Rounded Swept Wing & Horizontal Stabilizer Builder (using beveled rounded shapes + plump wing-root fairing)
+      function createRoundedWingGeo(span, rootChord, tipChord, sweepZ, thickness) {
+        const s = new THREE.Shape();
+        s.moveTo(0, -rootChord * 0.45);
+        s.quadraticCurveTo(span * 0.5, -rootChord * 0.42 + sweepZ * 0.45, span * 0.94, -tipChord * 0.45 + sweepZ);
+        s.quadraticCurveTo(span * 1.03, sweepZ, span * 0.94, tipChord * 0.55 + sweepZ);
+        s.quadraticCurveTo(span * 0.5, rootChord * 0.52 + sweepZ * 0.45, 0, rootChord * 0.55);
+        s.closePath();
+        const geo = new THREE.ExtrudeGeometry(s, {
+          depth: thickness,
+          bevelEnabled: true,
+          bevelThickness: thickness * 0.75,
+          bevelSize: thickness * 0.85,
+          bevelSegments: 5
+        });
+        geo.rotateX(Math.PI / 2);
+        return geo;
+      }
+      const rightMainWingGeo = createRoundedWingGeo(2.28, 0.72, 0.42, 0.52, 0.075);
+      const leftMainWingGeo = rightMainWingGeo.clone();
+      leftMainWingGeo.scale(-1, 1, 1);
+      // Fix normals after negative X mirror
+      leftMainWingGeo.computeVertexNormals();
+
+      const rightHStabGeo = createRoundedWingGeo(0.95, 0.36, 0.22, 0.26, 0.045);
+      const leftHStabGeo = rightHStabGeo.clone();
+      leftHStabGeo.scale(-1, 1, 1);
+      leftHStabGeo.computeVertexNormals();
+
+      function buildSweptWingMesh(isRight, wingGreyMat, darkEdgeMat, lightDotMat) {
+        const wGroup = new THREE.Group();
+        const dir = isRight ? 1 : -1;
+
+        // Plump Wing-Root Fairing Blister where wing meets the chubby fuselage
+        const fairing = new THREE.Mesh(new THREE.SphereGeometry(0.32, 18, 14), wingGreyMat);
+        fairing.scale.set(0.9, 0.52, 2.2);
+        fairing.position.set(dir * 0.68, 0.42, -0.05);
+        wGroup.add(fairing);
+
+        // Main Smooth Rounded Swept Wing
+        const wingMesh = new THREE.Mesh(isRight ? rightMainWingGeo : leftMainWingGeo, wingGreyMat);
+        wingMesh.position.set(dir * 0.52, 0.48, -0.18);
+        wingMesh.rotation.z = dir * 0.05;
+        wingMesh.castShadow = true;
+        wGroup.add(wingMesh);
+
+        // Smooth Rounded Dark Leading-Edge Capsule Strip
+        const leadCapsule = new THREE.Mesh(new THREE.CylinderGeometry(0.058, 0.048, 2.15, 14), darkEdgeMat);
+        leadCapsule.rotation.z = Math.PI / 2 - dir * 0.05;
+        leadCapsule.rotation.y = -dir * 0.22;
+        leadCapsule.position.set(dir * 1.48, 0.46, -0.26);
+        wGroup.add(leadCapsule);
+
+        // Two oval white landing lights ("oo") on the inner wing leading edge (exact match to image!)
+        [0.92, 1.08].forEach(lx => {
+          const dot = new THREE.Mesh(new THREE.SphereGeometry(0.058, 12, 10), lightDotMat);
+          dot.scale.set(1.35, 0.78, 0.65);
+          dot.position.set(dir * lx, 0.46, -0.40 + (lx - 0.88) * 0.22);
+          wGroup.add(dot);
+        });
+
+        // Smooth Rounded Upward-Curved 747-8 Raked Wingtip
+        const tipCap = new THREE.Mesh(new THREE.SphereGeometry(0.24, 16, 12), wingGreyMat);
+        tipCap.scale.set(1.25, 0.28, 0.92);
+        tipCap.position.set(dir * 2.76, 0.62, 0.34);
+        tipCap.rotation.y = -dir * 0.35;
+        tipCap.rotation.z = dir * 0.48;
+        tipCap.castShadow = true;
+        wGroup.add(tipCap);
+
+        return wGroup;
+      }
+
+      _ups747ChibiCache = {
+        fuseGeo,
+        barrelCowlGeo,
+        finExtrude,
+        leftDecalGeo,
+        rightDecalGeo,
+        rightHStabGeo,
+        leftHStabGeo,
+        cockpitPanesGeos,
+        bodyMat: new THREE.MeshStandardMaterial({ map: bodyTex, roughness: 0.24, metalness: 0.06 }),
+        upsBrownMat: new THREE.MeshStandardMaterial({ color: 0x3a1d12, roughness: 0.34 }),
+        wingGreyMat: new THREE.MeshStandardMaterial({ color: 0xaeb6bf, roughness: 0.35, metalness: 0.18 }),
+        darkEdgeMat: new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.42 }),
+        intakeLipMat: new THREE.MeshStandardMaterial({ color: 0x94a3b8, roughness: 0.28, metalness: 0.45 }),
+        fanDarkMat: new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.55 }),
+        spinnerMat: new THREE.MeshStandardMaterial({ color: 0xcbd5e1, roughness: 0.22, metalness: 0.35 }),
+        nacMat: new THREE.MeshStandardMaterial({ map: nacTex, roughness: 0.25, metalness: 0.08 }),
+        cockpitPaneMat: new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.12, metalness: 0.65, side: THREE.DoubleSide }),
+        lightDotMat: new THREE.MeshBasicMaterial({ color: 0xffffff }),
+        sideDecalMat: new THREE.MeshBasicMaterial({ map: sideDecalTex, transparent: true, depthWrite: false, side: THREE.DoubleSide }),
+        tailShieldMat: new THREE.MeshBasicMaterial({ map: tailShieldTex, transparent: true, side: THREE.DoubleSide }),
+        buildSweptWingMesh
+      };
+      return _ups747ChibiCache;
+    }
+
+    // Factory: Build a Plump, Round 3D UPS Boeing 747-8F Chibi Egg-Plane (1:1 match to user's reference image!)
     function createChibiEggPlane(accentColorHex, islandId) {
       const chibiGroup = new THREE.Group();
+      const assets = getUPS747ChibiAssets();
 
-      const whiteMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.3, metalness: 0.12 });
-      const upsBrownMat = new THREE.MeshStandardMaterial({ color: 0x351c15, roughness: 0.4 });
-      const upsGoldMat = new THREE.MeshStandardMaterial({ color: 0xffb500, emissive: 0xd97706, emissiveIntensity: 0.2, roughness: 0.3 });
-      const tailMat = new THREE.MeshStandardMaterial({ color: accentColorHex || 0x351c15, roughness: 0.35 });
-      const cockpitMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.12, metalness: 0.8 });
-      const engineMat = new THREE.MeshStandardMaterial({ color: 0xcbd5e1, metalness: 0.45, roughness: 0.3 });
-
-      const eggBody = new THREE.Mesh(new THREE.SphereGeometry(0.95, 24, 20), whiteMat);
-      eggBody.scale.set(1.08, 0.96, 1.52);
-      eggBody.position.y = 0.52;
+      // 1. Main Plump & Round 747-8F Chibi Fuselage (White forward + 3 Upper-Deck Windows + Gold diagonal stripe + Dark Brown rear)
+      const eggBody = new THREE.Mesh(assets.fuseGeo, assets.bodyMat);
       eggBody.castShadow = true;
+      eggBody.receiveShadow = true;
       if (islandId) {
         eggBody.userData = { islandId };
         clickableMeshes.push(eggBody);
       }
       chibiGroup.add(eggBody);
 
-      const goldBand = new THREE.Mesh(new THREE.SphereGeometry(0.96, 24, 16), upsGoldMat);
-      goldBand.scale.set(1.09, 0.18, 1.53);
-      goldBand.position.y = 0.38;
-      chibiGroup.add(goldBand);
+      // 2. Conformal 4-Segment Curved Dark Cockpit Windshield Panes across the 747 Upper-Deck Brow ([ ][ ][ ][ ])
+      assets.cockpitPanesGeos.forEach(pGeo => {
+        const pane = new THREE.Mesh(pGeo, assets.cockpitPaneMat);
+        chibiGroup.add(pane);
+      });
 
-      const noseTip = new THREE.Mesh(new THREE.SphereGeometry(0.28, 14, 14), upsBrownMat);
-      noseTip.scale.set(1.0, 0.85, 0.7);
-      noseTip.position.set(0, 0.46, -1.36);
-      chibiGroup.add(noseTip);
+      // 3. Conformal Left & Right Side Decals: "Worldwide Services / Synchronizing the world of commerce"
+      const decalLeft = new THREE.Mesh(assets.leftDecalGeo, assets.sideDecalMat);
+      const decalRight = new THREE.Mesh(assets.rightDecalGeo, assets.sideDecalMat);
+      chibiGroup.add(decalLeft, decalRight);
 
-      const cockpit = new THREE.Mesh(new THREE.SphereGeometry(0.56, 18, 14), cockpitMat);
-      cockpit.scale.set(1.15, 0.62, 0.75);
-      cockpit.position.set(0, 0.78, -0.92);
-      chibiGroup.add(cockpit);
+      // 4. Smooth Rounded Grey 747-8 Wings with Leading-Edge Capsule, Dual Oval Landing Lights ("oo") & Raked Wingtips
+      chibiGroup.add(assets.buildSweptWingMesh(false, assets.wingGreyMat, assets.darkEdgeMat, assets.lightDotMat));
+      chibiGroup.add(assets.buildSweptWingMesh(true, assets.wingGreyMat, assets.darkEdgeMat, assets.lightDotMat));
 
-      const wingGeo = new THREE.BoxGeometry(3.5, 0.12, 0.92);
-      const wings = new THREE.Mesh(wingGeo, whiteMat);
-      wings.position.set(0, 0.42, -0.05);
-      wings.castShadow = true;
-      chibiGroup.add(wings);
+      // 5. FOUR Plump Barrel-Rounded Chibi Turbofan Engines Under the Wings (2 Port, 2 Starboard)
+      const engineMountCoords = [
+        { x: -0.94, y: 0.24, z: -0.26, scale: 1.06 }, // Inner Left Engine
+        { x: -1.68, y: 0.26, z:  0.00, scale: 1.00 }, // Outer Left Engine
+        { x:  0.94, y: 0.24, z: -0.26, scale: 1.06 }, // Inner Right Engine
+        { x:  1.68, y: 0.26, z:  0.00, scale: 1.00 }  // Outer Right Engine
+      ];
 
-      const wingletGeo = new THREE.BoxGeometry(0.12, 0.42, 0.55);
-      const wingletL = new THREE.Mesh(wingletGeo, upsGoldMat);
-      wingletL.position.set(-1.72, 0.6, -0.05);
-      wingletL.rotation.z = 0.22;
-      const wingletR = wingletL.clone();
-      wingletR.position.x = 1.72;
-      wingletR.rotation.z = -0.22;
-      chibiGroup.add(wingletL, wingletR);
-
-      [-1.02, 1.02].forEach(ex => {
+      engineMountCoords.forEach(ec => {
         const nacGroup = new THREE.Group();
-        const cowl = new THREE.Mesh(new THREE.SphereGeometry(0.28, 14, 12), engineMat);
-        cowl.scale.set(0.95, 0.95, 1.35);
-        const intake = new THREE.Mesh(new THREE.CylinderGeometry(0.21, 0.21, 0.12, 12), cockpitMat);
-        intake.rotation.x = Math.PI / 2;
-        intake.position.z = -0.33;
-        nacGroup.add(cowl, intake);
-        nacGroup.position.set(ex, 0.18, -0.15);
+
+        // Rounded Pylon Strut connecting engine to wing underside
+        const pylon = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.10, 0.34, 12), assets.intakeLipMat);
+        pylon.scale.set(0.85, 1.0, 2.2);
+        pylon.position.set(0, 0.24, -0.02);
+        pylon.rotation.x = 0.18;
+        nacGroup.add(pylon);
+
+        // Plump Barrel-Rounded White Engine Cowling with 747-8 Scalloped Chevron Rear Teeth
+        const cowl = new THREE.Mesh(assets.barrelCowlGeo, assets.nacMat);
+        cowl.rotation.x = -Math.PI / 2;
+        cowl.castShadow = true;
+        nacGroup.add(cowl);
+
+        // Thick Rounded Silver-Grey Front Intake Lip Ring
+        const lipRing = new THREE.Mesh(new THREE.TorusGeometry(0.295, 0.064, 16, 28), assets.intakeLipMat);
+        lipRing.position.set(0, 0, -0.37);
+        nacGroup.add(lipRing);
+
+        // Dark Outer Rim Accent Ring around intake
+        const darkRim = new THREE.Mesh(new THREE.TorusGeometry(0.342, 0.018, 12, 28), assets.darkEdgeMat);
+        darkRim.position.set(0, 0, -0.35);
+        nacGroup.add(darkRim);
+
+        // Deep Charcoal Fan Disc inside intake
+        const fanDisc = new THREE.Mesh(new THREE.CircleGeometry(0.275, 24), assets.fanDarkMat);
+        fanDisc.rotation.y = Math.PI;
+        fanDisc.position.set(0, 0, -0.38);
+        nacGroup.add(fanDisc);
+
+        // Central Rounded Spinner Cone (▲) in the middle of the dark fan face
+        const spinner = new THREE.Mesh(new THREE.ConeGeometry(0.105, 0.22, 18), assets.spinnerMat);
+        spinner.rotation.x = -Math.PI / 2;
+        spinner.position.set(0, 0, -0.40);
+        nacGroup.add(spinner);
+
+        // Rear Metallic Grey Exhaust Nozzle Dome/Cone protruding behind the white chevron teeth
+        const exhaustCone = new THREE.Mesh(new THREE.ConeGeometry(0.22, 0.38, 18), assets.intakeLipMat);
+        exhaustCone.rotation.x = Math.PI / 2;
+        exhaustCone.position.set(0, 0, 0.45);
+        nacGroup.add(exhaustCone);
+
+        nacGroup.position.set(ec.x, ec.y, ec.z);
+        nacGroup.scale.set(ec.scale, ec.scale, ec.scale);
         chibiGroup.add(nacGroup);
       });
 
-      const tailFin = new THREE.Mesh(new THREE.ConeGeometry(0.58, 1.25, 4), tailMat);
-      tailFin.rotation.y = Math.PI / 4;
-      tailFin.scale.set(0.28, 1.0, 1.15);
-      tailFin.position.set(0, 1.22, 1.08);
+      // 6. Rounded Swept UPS Brown Vertical Tail Fin + Official Wikimedia UPS Shield Logo Sized to Fit Fin
+      const tailFin = new THREE.Mesh(assets.finExtrude, assets.upsBrownMat);
       tailFin.castShadow = true;
       chibiGroup.add(tailFin);
 
-      const tailShield = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.42, 0.42), upsGoldMat);
-      tailShield.position.set(0, 1.22, 1.08);
-      chibiGroup.add(tailShield);
+      // Sized to 0.38 x 0.45 (matching 256:300 SVG ratio) and centered inside the brown vertical fin (z=1.12, y=1.45)
+      const shieldPlaneGeo = new THREE.PlaneGeometry(0.38, 0.45);
+      const shieldLeft = new THREE.Mesh(shieldPlaneGeo, assets.tailShieldMat);
+      shieldLeft.position.set(-0.122, 1.45, 1.12);
+      shieldLeft.rotation.y = -Math.PI / 2;
+      chibiGroup.add(shieldLeft);
 
-      const hStab = new THREE.Mesh(new THREE.BoxGeometry(1.55, 0.1, 0.55), tailMat);
-      hStab.position.set(0, 0.68, 1.18);
-      chibiGroup.add(hStab);
+      const shieldRight = new THREE.Mesh(shieldPlaneGeo, assets.tailShieldMat);
+      shieldRight.position.set(0.122, 1.45, 1.12);
+      shieldRight.rotation.y = Math.PI / 2;
+      chibiGroup.add(shieldRight);
 
-      const wheelMat = new THREE.MeshStandardMaterial({ color: 0x1e293b });
-      [[-0.5, 0.08, 0.1], [0.5, 0.08, 0.1], [0, 0.08, -0.95]].forEach(([wx, wy, wz]) => {
-        const w = new THREE.Mesh(new THREE.SphereGeometry(0.14, 8, 8), wheelMat);
-        w.position.set(wx, wy, wz);
-        chibiGroup.add(w);
+      // 7. Rounded Swept Horizontal Stabilizers (水平尾翼) & Rounded Rear APU Exhaust Cone
+      [-1, 1].forEach(dir => {
+        const isRight = dir > 0;
+        const hStab = new THREE.Mesh(isRight ? assets.rightHStabGeo : assets.leftHStabGeo, assets.wingGreyMat);
+        hStab.position.set(dir * 0.22, 0.72, 1.15);
+        hStab.rotation.z = dir * 0.06;
+        hStab.castShadow = true;
+        chibiGroup.add(hStab);
       });
 
-      // Scale up Chibi Plane slightly so it looks substantial on the spacious 16-bay mega apron (matching photo!)
-      chibiGroup.scale.set(1.55, 1.55, 1.55);
+      const apuCone = new THREE.Mesh(new THREE.SphereGeometry(0.14, 16, 14), assets.darkEdgeMat);
+      apuCone.scale.set(0.85, 0.85, 1.45);
+      apuCone.position.set(0, 0.75, 1.46);
+      chibiGroup.add(apuCone);
+
+      // Scale Chibi 747-8F Plane so it sits proudly on the 22 parking bays and central runway
+      chibiGroup.scale.set(1.48, 1.48, 1.48);
       return chibiGroup;
     }
 
@@ -2656,56 +3117,58 @@
     }
     createProjectedLabels();
 
+    const _projVecA = new THREE.Vector3();
+    const _projVecB = new THREE.Vector3();
+    let _cachedUldNatW = 0;
+    let _cachedUldNatH = 0;
+
     function updateProjectedLabels() {
       const w = window.innerWidth;
       const h = window.innerHeight;
-      ISLANDS_DATA.forEach((isl) => {
-        const group = islandMeshesMap.get(isl.id);
-        if (!group) return;
+      const visibleItems = [];
 
-        // Tag position near front base of island/bay
-        const tagWorld = isl.shape === 'rectangle'
-          ? new THREE.Vector3(isl.x, group.position.y + 7.5, isl.z)
-          : new THREE.Vector3(isl.x, group.position.y + 0.5, isl.z + (isl.orientation ? 5.2 : 6.2));
-        tagWorld.project(camera);
-        const tagEl = labelDomMap.get(isl.id);
-        if (tagEl) {
-          if (!state.showLabels || tagWorld.z > 1 || tagEl.dataset.hideDeparted === '1' || !tagEl.innerHTML.trim()) {
-            tagEl.style.display = 'none';
+      // Only UPS Island Tag is active (bay tags 01..22 are hidden)
+      const upsTagEl = labelDomMap.get('UPS');
+      const upsGroup = islandMeshesMap.get('UPS');
+      if (upsTagEl && upsGroup) {
+        if (!state.showLabels || upsTagEl.dataset.hideDeparted === '1') {
+          if (upsTagEl.style.display !== 'none') upsTagEl.style.display = 'none';
+        } else {
+          _projVecA.set(12.0, upsGroup.position.y + 7.5, -40.0).project(camera);
+          if (_projVecA.z > 1) {
+            if (upsTagEl.style.display !== 'none') upsTagEl.style.display = 'none';
           } else {
-            tagEl.style.display = 'inline-flex';
-            const sx = (tagWorld.x * 0.5 + 0.5) * w;
-            const sy = (-tagWorld.y * 0.5 + 0.5) * h;
-            tagEl.style.left = `${sx}px`;
-            tagEl.style.top = `${sy}px`;
+            if (upsTagEl.style.display !== 'inline-flex') upsTagEl.style.display = 'inline-flex';
+            const sx = (_projVecA.x * 0.5 + 0.5) * w;
+            const sy = (-_projVecA.y * 0.5 + 0.5) * h;
+            visibleItems.push({ el: upsTagEl, x: sx, y: sy, w: 135, h: 28, weight: 0.25 });
           }
         }
-      });
+      }
 
-      // Project the UPS HKG Gateway Bulletin Board (大樓後面上方 3D 壁報板) at the top of the 3D support gantry behind the UPS HKG Gateway building!
-      const upsGroupForBub = islandMeshesMap.get('UPS');
-      if (upsGatewayUldBubbleEl && upsGroupForBub) {
+      // Project the UPS HKG Gateway Bulletin Board (大樓後面上方 3D 壁報板)
+      if (upsGatewayUldBubbleEl && upsGroup) {
         if (!state.showBubbles) {
-          upsGatewayUldBubbleEl.style.display = 'none';
+          if (upsGatewayUldBubbleEl.style.display !== 'none') upsGatewayUldBubbleEl.style.display = 'none';
         } else {
-          // 3D Gantry top behind & above UPS HKG Gateway building (x = 16, y = 14.2, z = -50.5)
-          const gantryTopWorld = new THREE.Vector3(16.0, upsGroupForBub.position.y + 14.2, -50.5);
-          const roofFrontWorld = new THREE.Vector3(12.0, upsGroupForBub.position.y + 9.2, -40.0);
-          gantryTopWorld.project(camera);
-          roofFrontWorld.project(camera);
+          _projVecA.set(16.0, upsGroup.position.y + 14.2, -50.5).project(camera);
+          _projVecB.set(12.0, upsGroup.position.y + 9.2, -40.0).project(camera);
 
-          if (gantryTopWorld.z > 1) {
-            upsGatewayUldBubbleEl.style.display = 'none';
+          if (_projVecA.z > 1) {
+            if (upsGatewayUldBubbleEl.style.display !== 'none') upsGatewayUldBubbleEl.style.display = 'none';
           } else {
-            upsGatewayUldBubbleEl.style.display = 'block';
-            const rawBx = (gantryTopWorld.x * 0.5 + 0.5) * w;
-            const rawBy = (-gantryTopWorld.y * 0.5 + 0.5) * h;
-            const roofSy = (-roofFrontWorld.y * 0.5 + 0.5) * h;
+            if (upsGatewayUldBubbleEl.style.display !== 'block') {
+              upsGatewayUldBubbleEl.style.display = 'block';
+              _cachedUldNatW = 0;
+            }
+            if (!_cachedUldNatW || !_cachedUldNatH) {
+              _cachedUldNatW = upsGatewayUldBubbleEl.offsetWidth || 640;
+              _cachedUldNatH = upsGatewayUldBubbleEl.offsetHeight || 168;
+            }
+            const rawBx = (_projVecA.x * 0.5 + 0.5) * w;
+            const rawBy = (-_projVecA.y * 0.5 + 0.5) * h;
+            const roofSy = (-_projVecB.y * 0.5 + 0.5) * h;
 
-            const natW = upsGatewayUldBubbleEl.offsetWidth || 640;
-            const natH = upsGatewayUldBubbleEl.offsetHeight || 168;
-
-            // Keep the bottom of the Bulletin Board strictly above the UPS HKG Gateway roof & tag so it never covers the building or foreground bubbles
             let targetBy = Math.min(rawBy, roofSy - 16);
             targetBy = Math.max(92, Math.min(h - 120, targetBy));
 
@@ -2713,179 +3176,109 @@
             const availW = Math.max(280, w - leftHudClear - 12);
             const availH = Math.max(84, targetBy - 6);
 
-            const scaleW = Math.min(1.0, availW / natW);
-            const scaleH = Math.min(1.0, availH / natH);
+            const scaleW = Math.min(1.0, availW / _cachedUldNatW);
+            const scaleH = Math.min(1.0, availH / _cachedUldNatH);
             const fitScale = Math.max(0.52, Math.min(scaleW, scaleH));
 
-            const scaledHalfW = (natW * fitScale) * 0.5;
+            const scaledHalfW = (_cachedUldNatW * fitScale) * 0.5;
             const minBx = leftHudClear + scaledHalfW + 4;
             const maxBx = Math.max(minBx, w - scaledHalfW - 6);
-            const bx = Math.max(minBx, Math.min(maxBx, rawBx));
+            const bx = Math.round(Math.max(minBx, Math.min(maxBx, rawBx)));
+            const by = Math.round(targetBy);
 
             upsGatewayUldBubbleEl.style.transform = `translate(-50%, -100%) scale(${fitScale.toFixed(3)})`;
-            upsGatewayUldBubbleEl.style.left = `${bx.toFixed(1)}px`;
-            upsGatewayUldBubbleEl.style.top = `${targetBy.toFixed(1)}px`;
+            upsGatewayUldBubbleEl.style.left = `${bx}px`;
+            upsGatewayUldBubbleEl.style.top = `${by}px`;
           }
         }
       }
 
-      // 1. Project 1-to-1 Individual Permanent Staff Badges on UPS HKG Gateway (1 badge per 1 3D worker!)
-      const upsGroup = islandMeshesMap.get('UPS');
-      if (upsGroup) {
-        gatewayPermanentWorkers.forEach((gw) => {
-          const badgeEl = gw.badgeEl;
-          if (!badgeEl) return;
-          if (!state.showBubbles) {
-            badgeEl.style.display = 'none';
-            return;
-          }
-          const worldPos = new THREE.Vector3(
-            upsGatewayWorkersGroup.position.x + gw.mesh.position.x,
-            upsGroup.position.y + gw.worldOffset.y + 0.96,
-            upsGatewayWorkersGroup.position.z + gw.mesh.position.z
-          );
-          worldPos.project(camera);
-          if (worldPos.z > 1) {
-            badgeEl.style.display = 'none';
-          } else {
-            badgeEl.style.display = 'inline-flex';
-            const gx = (worldPos.x * 0.5 + 0.5) * w;
-            const gy = (-worldPos.y * 0.5 + 0.5) * h;
-            badgeEl.style.left = `${gx}px`;
-            badgeEl.style.top = `${gy}px`;
-          }
-        });
-      }
-
-      // 2. Project 1-to-1 Individual Aircraft Loading Crew Badges AND the Loading Crew Full Roster Speech Bubble!
+      // 2. Project Aircraft Loading Crew Speech Bubbles (only during 裝機時間)
       islandLoadingCrewMap.forEach((crewObj, islandId) => {
+        if (!crewObj.bubbleEl) return;
         const islGroup = islandMeshesMap.get(islandId);
         const islData = ISLANDS_DATA.find(i => i.id === islandId);
-        if (!islGroup || !islData) return;
-
-        // (a) Full Roster Speech Bubble above the aircraft position during 裝機時間 (包括所有職位人名)
-        if (crewObj.bubbleEl) {
-          if (!state.showBubbles || !crewObj.group.visible) {
-            crewObj.bubbleEl.style.display = 'none';
-          } else {
-            const bubWorld = new THREE.Vector3(islData.x, islGroup.position.y + 5.6, islData.z - 1.8);
-            bubWorld.project(camera);
-            if (bubWorld.z > 1) {
-              crewObj.bubbleEl.style.display = 'none';
-            } else {
-              crewObj.bubbleEl.style.display = 'block';
-              const bx = (bubWorld.x * 0.5 + 0.5) * w;
-              const by = (-bubWorld.y * 0.5 + 0.5) * h;
-              crewObj.bubbleEl.style.left = `${bx}px`;
-              crewObj.bubbleEl.style.top = `${by}px`;
-            }
-          }
+        if (!islGroup || !islData || !state.showBubbles || !crewObj.group.visible) {
+          if (crewObj.bubbleEl.style.display !== 'none') crewObj.bubbleEl.style.display = 'none';
+          return;
         }
-
-        // (b) Individual 1-to-1 Worker Badges following each moving worker
-        crewObj.workers.forEach((wItem) => {
-          const badgeEl = wItem.badgeEl;
-          if (!badgeEl) return;
-          if (!state.showBubbles || !crewObj.group.visible) {
-            badgeEl.style.display = 'none';
-            return;
-          }
-          const worldPos = new THREE.Vector3(
-            islData.x + wItem.mesh.position.x,
-            islGroup.position.y + 2.25,
-            islData.z + 0.1 + wItem.mesh.position.z
-          );
-          worldPos.project(camera);
-          if (worldPos.z > 1) {
-            badgeEl.style.display = 'none';
-          } else {
-            badgeEl.style.display = 'inline-flex';
-            const wx = (worldPos.x * 0.5 + 0.5) * w;
-            const wy = (-worldPos.y * 0.5 + 0.5) * h;
-            badgeEl.style.left = `${wx}px`;
-            badgeEl.style.top = `${wy}px`;
-          }
-        });
+        _projVecA.set(islData.x, islGroup.position.y + 5.6, islData.z - 1.8).project(camera);
+        if (_projVecA.z > 1) {
+          if (crewObj.bubbleEl.style.display !== 'none') crewObj.bubbleEl.style.display = 'none';
+        } else {
+          if (crewObj.bubbleEl.style.display !== 'block') crewObj.bubbleEl.style.display = 'block';
+          const bx = (_projVecA.x * 0.5 + 0.5) * w;
+          const by = (-_projVecA.y * 0.5 + 0.5) * h;
+          visibleItems.push({ el: crewObj.bubbleEl, x: bx, y: by, w: 225, h: 88, weight: 0.15 });
+        }
       });
 
-      // 2C. Project Runway Landing (降落) & Takeoff (起飛) Aircraft Badges on Bottom Runway (07R / 25L)
+      // 2C. Project Runway Landing (降落) & Takeoff (起飛) Aircraft Badges
       runwayChibiPlanes.forEach((rwObj) => {
         const badgeEl = rwObj.badgeEl;
         if (!badgeEl) return;
         if (!state.showLabels || !rwObj.mesh.visible) {
-          badgeEl.style.display = 'none';
+          if (badgeEl.style.display !== 'none') badgeEl.style.display = 'none';
           return;
         }
-        badgeEl.innerHTML = rwObj.labelHtml;
-        const worldPos = new THREE.Vector3(
+        if (badgeEl._lastHtml !== rwObj.labelHtml) {
+          badgeEl.innerHTML = rwObj.labelHtml;
+          badgeEl._lastHtml = rwObj.labelHtml;
+        }
+        _projVecA.set(
           runwayGroup.position.x + rwObj.mesh.position.x,
           runwayGroup.position.y + rwObj.mesh.position.y + 2.3,
           runwayGroup.position.z + rwObj.mesh.position.z
-        );
-        worldPos.project(camera);
-        if (worldPos.z > 1) {
-          badgeEl.style.display = 'none';
+        ).project(camera);
+        if (_projVecA.z > 1) {
+          if (badgeEl.style.display !== 'none') badgeEl.style.display = 'none';
         } else {
-          badgeEl.style.display = 'inline-flex';
-          const rx = (worldPos.x * 0.5 + 0.5) * w;
-          const ry = (-worldPos.y * 0.5 + 0.5) * h;
-          badgeEl.style.left = `${rx}px`;
-          badgeEl.style.top = `${ry}px`;
+          if (badgeEl.style.display !== 'inline-flex') badgeEl.style.display = 'inline-flex';
+          const rx = (_projVecA.x * 0.5 + 0.5) * w;
+          const ry = (-_projVecA.y * 0.5 + 0.5) * h;
+          visibleItems.push({ el: badgeEl, x: rx, y: ry, w: 108, h: 22, weight: 1.0 });
         }
       });
 
-      // 3. 2D Screen-Space Anti-Overlap Solver: ensure no visible staff badges, island tags, or speech bubbles overlap each other!
-      const visibleItems = [];
-      labelsLayer.querySelectorAll('.speech-bubble, .island-tag, .staff-badge').forEach((el) => {
-        if (el.style.display === 'none') return;
-        const x = parseFloat(el.style.left) || 0;
-        const y = parseFloat(el.style.top) || 0;
-        const isBubble = el.classList.contains('speech-bubble');
-        const isIslandTag = el.classList.contains('island-tag');
-        const boxW = isBubble ? 225 : (isIslandTag ? 135 : 108);
-        const boxH = isBubble ? 88 : (isIslandTag ? 28 : 22);
-        // Priority: speech bubbles & island tags anchor strongly; staff badges yield smoothly
-        const weight = isBubble ? 0.15 : (isIslandTag ? 0.25 : 1.0);
-        visibleItems.push({ el, x, y, w: boxW, h: boxH, weight });
-      });
+      // 3. Fast 2D Screen-Space Anti-Overlap Solver (only when >1 item is visible)
+      if (visibleItems.length > 1) {
+        for (let iter = 0; iter < 3; iter++) {
+          for (let i = 0; i < visibleItems.length; i++) {
+            for (let j = i + 1; j < visibleItems.length; j++) {
+              const a = visibleItems[i];
+              const b = visibleItems[j];
+              const dx = b.x - a.x;
+              const dy = b.y - a.y;
+              const minDistX = (a.w + b.w) * 0.5 + 6;
+              const minDistY = (a.h + b.h) * 0.5 + 5;
 
-      // Iterative 2D bounding-box separation pass
-      for (let iter = 0; iter < 5; iter++) {
-        for (let i = 0; i < visibleItems.length; i++) {
-          for (let j = i + 1; j < visibleItems.length; j++) {
-            const a = visibleItems[i];
-            const b = visibleItems[j];
-            const dx = b.x - a.x;
-            const dy = b.y - a.y;
-            const minDistX = (a.w + b.w) * 0.5 + 6;
-            const minDistY = (a.h + b.h) * 0.5 + 5;
+              if (Math.abs(dx) < minDistX && Math.abs(dy) < minDistY) {
+                const overlapX = minDistX - Math.abs(dx);
+                const overlapY = minDistY - Math.abs(dy);
+                const totalW = a.weight + b.weight || 1;
+                const ratioA = a.weight / totalW;
+                const ratioB = b.weight / totalW;
 
-            if (Math.abs(dx) < minDistX && Math.abs(dy) < minDistY) {
-              const overlapX = minDistX - Math.abs(dx);
-              const overlapY = minDistY - Math.abs(dy);
-              const totalW = a.weight + b.weight || 1;
-              const ratioA = a.weight / totalW;
-              const ratioB = b.weight / totalW;
-
-              // Separate primarily along vertical axis (or horizontal if side-by-side)
-              if (overlapY < overlapX * 1.4) {
-                const dirY = dy >= 0 ? 1 : -1;
-                a.y -= dirY * overlapY * ratioA;
-                b.y += dirY * overlapY * ratioB;
-              } else {
-                const dirX = dx >= 0 ? 1 : -1;
-                a.x -= dirX * overlapX * ratioA;
-                b.x += dirX * overlapX * ratioB;
+                if (overlapY < overlapX * 1.4) {
+                  const dirY = dy >= 0 ? 1 : -1;
+                  a.y -= dirY * overlapY * ratioA;
+                  b.y += dirY * overlapY * ratioB;
+                } else {
+                  const dirX = dx >= 0 ? 1 : -1;
+                  a.x -= dirX * overlapX * ratioA;
+                  b.x += dirX * overlapX * ratioB;
+                }
               }
             }
           }
         }
       }
 
-      visibleItems.forEach((item) => {
-        item.el.style.left = `${item.x.toFixed(1)}px`;
-        item.el.style.top = `${item.y.toFixed(1)}px`;
-      });
+      for (let i = 0; i < visibleItems.length; i++) {
+        const item = visibleItems[i];
+        item.el.style.left = `${Math.round(item.x)}px`;
+        item.el.style.top = `${Math.round(item.y)}px`;
+      }
     }
 
     // =========================================================================
@@ -3279,9 +3672,15 @@
     // 9. HKO REAL-TIME API & REGIONAL PORTAL (LOC=HKA) 1-SECOND SYNC & ALL WEATHER WARNINGS
     // =========================================================================
     let isFetchingHKO = false;
+    let lastHKONetworkTickTs = 0;
     async function fetchHKOWeather(isBackgroundTick = false) {
+      if (isBackgroundTick && (Date.now() - lastHKONetworkTickTs < 10000)) {
+        renderWeatherMetrics();
+        return;
+      }
       if (isFetchingHKO) return;
       isFetchingHKO = true;
+      lastHKONetworkTickTs = Date.now();
       try {
         const nowMs = Date.now();
         const shouldFetchRegionalCsv = (nowMs - lastHKORegionalCsvFetchTs > 15000);
@@ -4081,7 +4480,7 @@
       // 1. Update On-Screen Top-Left HUD Mini List (Unified by FLT Number — no duplicates!)
       const hudListEl = document.getElementById('hud-fr24-mini-list');
       if (hudListEl) {
-        hudListEl.innerHTML = uniqueFlights
+        const nextHudHtml = uniqueFlights
           .filter(flt => {
             const depInfo = parseHKIADepartureStatus(flt.outStatus, flt.hkiaDepSched);
             return !depInfo.hasDeparted && (flt.inFlt || flt.outFlt);
@@ -4102,13 +4501,17 @@
               </div>
             `;
           }).join('');
+        if (hudListEl._lastHtml !== nextHudHtml) {
+          hudListEl.innerHTML = nextHudHtml;
+          hudListEl._lastHtml = nextHudHtml;
+        }
       }
 
       // 2. Update Modal Live Board (Unified by FLT Number — same FLT Number appears once!)
       const boardEl = document.getElementById('fr24-live-board');
       if (!boardEl) return;
 
-      boardEl.innerHTML = uniqueFlights.map((flt) => {
+      const nextBoardHtml = uniqueFlights.map((flt) => {
         const inKey = extract5XFlightNumKey(flt.inFlt);
         const outKey = extract5XFlightNumKey(flt.outFlt);
         const isOutboundOnlyInPort = !inKey && Boolean(outKey);
@@ -4185,6 +4588,10 @@
           </div>
         `;
       }).join('');
+      if (boardEl._lastHtml !== nextBoardHtml) {
+        boardEl.innerHTML = nextBoardHtml;
+        boardEl._lastHtml = nextBoardHtml;
+      }
 
       const tickEl = document.getElementById('fr24-last-tick');
       if (tickEl) {
@@ -5002,6 +5409,7 @@
         </tr>
       `;
 
+      _cachedUldNatW = 0;
       upsGatewayUldBubbleEl.innerHTML = `
         <div style="display:flex; flex-direction:column; gap:2.5px;">
           <table class="uld-mini-table">
@@ -7284,6 +7692,7 @@
     });
 
     window.addEventListener('resize', () => {
+      _cachedUldNatW = 0;
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
@@ -7296,7 +7705,8 @@
 
     function animate() {
       requestAnimationFrame(animate);
-      const elapsed = clock.getElapsedTime();
+      const dt = clock.getDelta();
+      const elapsed = clock.elapsedTime;
 
       if (!state.paused) {
         if (state.autoRotate && !camCtrl.isDragging && !state.viewLocked) {
@@ -7587,7 +7997,7 @@
         }
       }
 
-      updateCameraFromSpherical();
+      updateCameraFromSpherical(dt);
       renderer.render(scene, camera);
       updateProjectedLabels();
     }
