@@ -1469,11 +1469,26 @@
       head.castShadow = true;
       wGroup.add(head);
 
-      // Safety Hardhat Helmet
+      // Safety Hardhat Helmet + Cute Halloween Witch Hat (萬聖節尖頂巫師帽)
       const helmetMat = new THREE.MeshStandardMaterial({ color: vestColorHex, roughness: 0.25 });
       const helmet = new THREE.Mesh(new THREE.SphereGeometry(0.26, 12, 10, 0, Math.PI * 2, 0, Math.PI * 0.58), helmetMat);
       helmet.position.y = 1.02;
       wGroup.add(helmet);
+
+      // === HALLOWEEN THEME: Cute Purple Witch Hat with Gold Band on Chibi Worker ===
+      const witchHatGroup = new THREE.Group();
+      witchHatGroup.position.y = 1.18;
+      witchHatGroup.rotation.z = -0.08;
+      const witchPurpleMat = new THREE.MeshStandardMaterial({ color: 0x4c1d95, roughness: 0.4 });
+      const witchGoldMat = new THREE.MeshStandardMaterial({ color: 0xffb500, emissive: 0xd97706, emissiveIntensity: 0.35, roughness: 0.25 });
+      const hatBrim = new THREE.Mesh(new THREE.CylinderGeometry(0.44, 0.44, 0.04, 16), witchPurpleMat);
+      const hatBand = new THREE.Mesh(new THREE.CylinderGeometry(0.23, 0.25, 0.07, 14), witchGoldMat);
+      hatBand.position.y = 0.05;
+      const hatCone = new THREE.Mesh(new THREE.ConeGeometry(0.23, 0.52, 14), witchPurpleMat);
+      hatCone.position.y = 0.28;
+      hatCone.rotation.z = -0.12;
+      witchHatGroup.add(hatBrim, hatBand, hatCone);
+      wGroup.add(witchHatGroup);
 
       wGroup.userData.limbs = { legL, legR, armL, armR, head };
       return wGroup;
@@ -1567,14 +1582,51 @@
         towBar.position.set(0, 0.16, 0.82);
         dollyGroup.add(towBar);
 
-        // ULD Air Cargo Container Box (貨物箱)
+        // ULD Air Cargo Container Box (萬聖節發光南瓜圖案貨物箱)
         const uldBox = new THREE.Mesh(
           new THREE.BoxGeometry(0.92, 0.78, 1.12),
-          new THREE.MeshStandardMaterial({ color: containerColors[c], roughness: 0.35, metalness: 0.15 })
+          new THREE.MeshStandardMaterial({ color: 0xf97316, emissive: 0x9a3412, emissiveIntensity: 0.28, roughness: 0.32 })
         );
         uldBox.position.y = 0.63;
         uldBox.castShadow = true;
         dollyGroup.add(uldBox);
+
+        if (!window._halloweenCrateSideMat) {
+          const pCvs = document.createElement('canvas');
+          pCvs.width = 128;
+          pCvs.height = 128;
+          const pCtx = pCvs.getContext('2d');
+          pCtx.fillStyle = '#ea580c';
+          pCtx.fillRect(0, 0, 128, 128);
+          pCtx.strokeStyle = '#fbbf24';
+          pCtx.lineWidth = 8;
+          pCtx.strokeRect(6, 6, 116, 116);
+          // Glowing pumpkin circle & grin
+          pCtx.fillStyle = '#fde047';
+          pCtx.beginPath();
+          pCtx.arc(64, 68, 36, 0, Math.PI * 2);
+          pCtx.fill();
+          pCtx.fillStyle = '#431407';
+          // Triangle eyes
+          pCtx.beginPath();
+          pCtx.moveTo(48, 52); pCtx.lineTo(40, 66); pCtx.lineTo(56, 66); pCtx.closePath();
+          pCtx.moveTo(80, 52); pCtx.lineTo(72, 66); pCtx.lineTo(88, 66); pCtx.closePath();
+          pCtx.fill();
+          // Smile
+          pCtx.beginPath();
+          pCtx.arc(64, 72, 20, 0.15 * Math.PI, 0.85 * Math.PI);
+          pCtx.lineWidth = 6;
+          pCtx.strokeStyle = '#431407';
+          pCtx.stroke();
+          const pTex = enhanceTextureClarity(new THREE.CanvasTexture(pCvs));
+          window._halloweenCrateSideMat = new THREE.MeshBasicMaterial({ map: pTex });
+        }
+        [-0.47, 0.47].forEach(sx => {
+          const pSide = new THREE.Mesh(new THREE.PlaneGeometry(0.66, 0.56), window._halloweenCrateSideMat);
+          pSide.position.set(sx, 0.63, 0);
+          pSide.rotation.y = sx > 0 ? Math.PI / 2 : -Math.PI / 2;
+          dollyGroup.add(pSide);
+        });
 
         // UPS Brown & Gold Accent Band on each Cargo Container
         const band = new THREE.Mesh(
@@ -1634,6 +1686,10 @@
 
     // Build Unified Giant 3D Rectangular Dynamic Island (完全依照照片 8d1fe971.jpeg：單一巨型長方形動態島 + 北停機坪圍牆 + UPS Gateway 大樓 + 7 座分揀月台 + 右側辦公大樓 + 南停機坪車道)
     let megaIslandDeckSurface = null;
+    const halloweenAnimatedGhosts = [];
+    const halloweenAnimatedBats = [];
+    const halloweenStringBulbs = [];
+    const halloweenPumpkinGlows = [];
 
     function buildCenterUPSIsland(data) {
       const group = new THREE.Group();
@@ -1917,8 +1973,279 @@
       upsGatewayWorkersGroup.position.set(hubX, 0, hubZ + 6.5);
       deckSurface.add(upsGatewayWorkersGroup);
 
+      // === HALLOWEEN THEME START: 3D Jack-o'-Lanterns, Floating Ghosts, Bats & Festive String Lights ===
+      buildHalloweenIslandDecorations(deckSurface, hubX, hubW, hubH, hubD, hubZ);
+      // === HALLOWEEN THEME END ===
+
       scene.add(group);
       islandMeshesMap.set(data.id, group);
+    }
+
+    function createJackOLanternFaceTexture() {
+      const cvs = document.createElement('canvas');
+      cvs.width = 512;
+      cvs.height = 256;
+      const ctx = cvs.getContext('2d');
+      // Rich pumpkin orange base with subtle vertical rib shading
+      const grad = ctx.createLinearGradient(0, 0, 0, 256);
+      grad.addColorStop(0, '#c2410c');
+      grad.addColorStop(0.5, '#f97316');
+      grad.addColorStop(1, '#9a3412');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 512, 256);
+
+      ctx.strokeStyle = 'rgba(124, 45, 18, 0.45)';
+      ctx.lineWidth = 6;
+      for (let i = 0; i <= 16; i++) {
+        const rx = i * 32;
+        ctx.beginPath();
+        ctx.moveTo(rx, 0);
+        ctx.lineTo(rx, 256);
+        ctx.stroke();
+      }
+
+      // Glowing yellow-amber carved Jack-o'-Lantern face centered at x=256 (u=0.5)
+      ctx.fillStyle = '#fef08a';
+      ctx.shadowColor = '#f59e0b';
+      ctx.shadowBlur = 18;
+
+      // Left & Right Triangular Eyes
+      ctx.beginPath();
+      ctx.moveTo(215, 78); ctx.lineTo(192, 118); ctx.lineTo(236, 118); ctx.closePath();
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(297, 78); ctx.lineTo(276, 118); ctx.lineTo(320, 118); ctx.closePath();
+      ctx.fill();
+
+      // Cute Triangle Nose
+      ctx.beginPath();
+      ctx.moveTo(256, 118); ctx.lineTo(244, 140); ctx.lineTo(268, 140); ctx.closePath();
+      ctx.fill();
+
+      // Wide Toothy Jack-o'-Lantern Grin
+      ctx.beginPath();
+      ctx.moveTo(184, 152);
+      ctx.quadraticCurveTo(256, 212, 328, 152);
+      ctx.quadraticCurveTo(256, 182, 184, 152);
+      ctx.closePath();
+      ctx.fill();
+
+      // Two cute pumpkin teeth cutouts in the grin
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = '#ea580c';
+      ctx.fillRect(232, 156, 14, 14);
+      ctx.fillRect(268, 154, 14, 14);
+
+      return enhanceTextureClarity(new THREE.CanvasTexture(cvs));
+    }
+
+    function buildHalloweenIslandDecorations(deckSurface, hubX, hubW, hubH, hubD, hubZ) {
+      const pumpkinTex = createJackOLanternFaceTexture();
+      const pumpkinMat = new THREE.MeshStandardMaterial({
+        map: pumpkinTex,
+        emissive: 0xff6b00,
+        emissiveMap: pumpkinTex,
+        emissiveIntensity: 0.55,
+        roughness: 0.35
+      });
+      const stemMat = new THREE.MeshStandardMaterial({ color: 0x3f6212, roughness: 0.65 });
+
+      function spawnPumpkin(x, z, scale = 1.0, rotY = 0) {
+        const pGroup = new THREE.Group();
+        const body = new THREE.Mesh(new THREE.SphereGeometry(1.05, 24, 18), pumpkinMat);
+        body.scale.set(1.12, 0.86, 1.08);
+        body.position.y = 0.88;
+        body.castShadow = true;
+        pGroup.add(body);
+
+        const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.10, 0.18, 0.42, 8), stemMat);
+        stem.position.set(0, 1.72, 0);
+        stem.rotation.z = 0.22;
+        pGroup.add(stem);
+
+        pGroup.position.set(x, 0, z);
+        pGroup.scale.set(scale, scale, scale);
+        pGroup.rotation.y = rotY;
+        deckSurface.add(pGroup);
+        halloweenPumpkinGlows.push({ group: pGroup, baseScale: scale, phase: Math.random() * Math.PI * 2 });
+      }
+
+      // 1. Clusters of 3D Glowing Jack-o'-Lantern Pumpkins (matching preview image locations!)
+      const pumpkinPlacements = [
+        // Left of UPS HKG Gateway Building
+        [-14.5, -34.5, 1.65, 0.35],
+        [-18.2, -33.2, 1.15, 0.15],
+        [-11.2, -32.8, 1.05, 0.45],
+        [-24.5, -39.5, 1.35, 0.25],
+        [-8.8,  -31.8, 0.82, 0.10],
+        // Front-Right & Right of UPS HKG Gateway Building & Office Tower
+        [32.5,  -32.2, 0.92, -0.25],
+        [34.8,  -32.5, 0.85, -0.15],
+        [54.5,  -35.0, 1.75, -0.35],
+        [66.0,  -36.5, 1.45, -0.20],
+        [63.2,  -35.2, 0.95, 0.10],
+        [68.8,  -35.8, 0.88, -0.40],
+        // Bottom-Left & Bottom-Right Apron Corners
+        [-91.5,  51.5, 2.15, 0.45],
+        [-86.8,  53.2, 1.25, 0.20],
+        [-94.2,  47.5, 1.10, 0.65],
+        [86.5,   52.0, 2.05, -0.45],
+        [81.8,   53.5, 1.30, -0.25],
+        [90.5,   48.0, 1.15, -0.55],
+        [83.5,   49.2, 0.90, -0.10]
+      ];
+      pumpkinPlacements.forEach(([px, pz, sc, ry]) => spawnPumpkin(px, pz, sc, ry));
+
+      // Warm orange point lights near the main pumpkin clusters
+      [[-14.5, 2.8, -33.0], [56.0, 2.8, -34.0], [-90.0, 3.2, 50.0], [85.0, 3.2, 50.0]].forEach(([lx, ly, lz]) => {
+        const pLight = new THREE.PointLight(0xff7b00, 0.95, 28);
+        pLight.position.set(lx, ly, lz);
+        deckSurface.add(pLight);
+      });
+
+      // 2. UPS HKG Gateway Rooftop Festive Purple & Orange String Lights (大樓屋頂萬聖節紫橙燈串)
+      const numBulbs = 28;
+      for (let i = 0; i < numBulbs; i++) {
+        const t = i / (numBulbs - 1);
+        const bx = (hubX - hubW / 2 + 1.0) + t * (hubW - 2.0);
+        const sag = Math.sin((t * 6) * Math.PI) * 0.35;
+        const by = hubH - 0.35 - Math.abs(sag);
+        const bz = hubZ + hubD / 2 + 0.25;
+        const isOrange = i % 2 === 0;
+        const bMat = new THREE.MeshStandardMaterial({
+          color: isOrange ? 0xffedd5 : 0xf3e8ff,
+          emissive: isOrange ? 0xff7b00 : 0xa855f7,
+          emissiveIntensity: 1.4
+        });
+        const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.24, 10, 10), bMat);
+        bulb.position.set(bx, by, bz);
+        deckSurface.add(bulb);
+        halloweenStringBulbs.push({ mat: bMat, phase: i * 0.55 });
+      }
+
+      // 3. Cute 3D Translucent Floating Chibi Ghosts (Q版半透明漂浮小幽靈)
+      const ghostMat = new THREE.MeshStandardMaterial({
+        color: 0xffffff,
+        emissive: 0xe2e8f0,
+        emissiveIntensity: 0.35,
+        transparent: true,
+        opacity: 0.92,
+        roughness: 0.25
+      });
+      const ghostEyeMat = new THREE.MeshBasicMaterial({ color: 0x0f172a });
+      const blushMat = new THREE.MeshBasicMaterial({ color: 0xfda4af, transparent: true, opacity: 0.65 });
+
+      function createChibiGhost(scale = 1.0) {
+        const gGroup = new THREE.Group();
+        // Rounded dome head + wavy skirt cylinder
+        const headDome = new THREE.Mesh(new THREE.SphereGeometry(0.85, 20, 16, 0, Math.PI * 2, 0, Math.PI * 0.6), ghostMat);
+        headDome.position.y = 0.85;
+        const skirt = new THREE.Mesh(new THREE.CylinderGeometry(0.84, 1.02, 0.95, 20, 4, true), ghostMat);
+        skirt.position.y = 0.42;
+        gGroup.add(headDome, skirt);
+
+        // Cute stubby arms
+        [-0.82, 0.82].forEach(ax => {
+          const arm = new THREE.Mesh(new THREE.SphereGeometry(0.24, 12, 10), ghostMat);
+          arm.scale.set(1.2, 0.75, 0.75);
+          arm.position.set(ax, 0.68, 0.15);
+          arm.rotation.z = ax > 0 ? -0.35 : 0.35;
+          gGroup.add(arm);
+        });
+
+        // Cute eyes & 'o' mouth + pink cheek blush
+        [-0.26, 0.26].forEach(ex => {
+          const eye = new THREE.Mesh(new THREE.SphereGeometry(0.11, 10, 10), ghostEyeMat);
+          eye.scale.set(0.85, 1.15, 0.5);
+          eye.position.set(ex, 0.92, 0.80);
+          gGroup.add(eye);
+
+          const blush = new THREE.Mesh(new THREE.SphereGeometry(0.10, 8, 8), blushMat);
+          blush.scale.set(1.3, 0.7, 0.4);
+          blush.position.set(ex * 1.65, 0.78, 0.76);
+          gGroup.add(blush);
+        });
+        const mouth = new THREE.Mesh(new THREE.SphereGeometry(0.09, 10, 10), ghostEyeMat);
+        mouth.scale.set(0.9, 1.2, 0.5);
+        mouth.position.set(0, 0.74, 0.82);
+        gGroup.add(mouth);
+
+        gGroup.scale.set(scale, scale, scale);
+        return gGroup;
+      }
+
+      const ghostConfigs = [
+        { x: -12.0, y: 7.2, z: -34.0, scale: 1.45, phase: 0.0 },
+        { x: -5.5,  y: 6.4, z: -32.5, scale: 1.55, phase: 1.4 },
+        { x: 27.5,  y: 6.6, z: -32.5, scale: 1.55, phase: 2.8 },
+        { x: 38.0,  y: 6.0, z: -33.0, scale: 1.40, phase: 4.1 },
+        { x: 22.0,  y: 18.5, z: -44.0, scale: 1.85, phase: 5.2 }
+      ];
+      ghostConfigs.forEach(gc => {
+        const gMesh = createChibiGhost(gc.scale);
+        gMesh.position.set(gc.x, gc.y, gc.z);
+        deckSurface.add(gMesh);
+        halloweenAnimatedGhosts.push({
+          mesh: gMesh,
+          baseX: gc.x,
+          baseY: gc.y,
+          baseZ: gc.z,
+          phase: gc.phase
+        });
+      });
+
+      // 4. Cute 3D Flapping Halloween Bats (夜空拍翼盤旋小蝙蝠)
+      const batBodyMat = new THREE.MeshStandardMaterial({ color: 0x311042, roughness: 0.4 });
+      const batWingMat = new THREE.MeshStandardMaterial({ color: 0x4c1d95, roughness: 0.45, side: THREE.DoubleSide });
+      const batEyeMat = new THREE.MeshBasicMaterial({ color: 0xfacc15 });
+
+      function createChibiBat(scale = 1.0) {
+        const bGroup = new THREE.Group();
+        const body = new THREE.Mesh(new THREE.SphereGeometry(0.35, 14, 12), batBodyMat);
+        body.scale.set(1.0, 0.9, 1.2);
+        bGroup.add(body);
+
+        // Pointed bat ears
+        [-0.16, 0.16].forEach(ex => {
+          const ear = new THREE.Mesh(new THREE.ConeGeometry(0.10, 0.26, 8), batBodyMat);
+          ear.position.set(ex, 0.34, 0.05);
+          ear.rotation.z = ex > 0 ? -0.25 : 0.25;
+          bGroup.add(ear);
+
+          const eye = new THREE.Mesh(new THREE.SphereGeometry(0.055, 8, 8), batEyeMat);
+          eye.position.set(ex * 0.9, 0.08, 0.36);
+          bGroup.add(eye);
+        });
+
+        // Articulated Left & Right Bat Wings
+        const wingGeo = new THREE.BoxGeometry(0.85, 0.04, 0.42);
+        const wingL = new THREE.Mesh(wingGeo, batWingMat);
+        wingL.position.set(-0.55, 0.05, 0);
+        const wingR = new THREE.Mesh(wingGeo, batWingMat);
+        wingR.position.set(0.55, 0.05, 0);
+        bGroup.add(wingL, wingR);
+
+        bGroup.scale.set(scale, scale, scale);
+        bGroup.userData = { wingL, wingR };
+        return bGroup;
+      }
+
+      for (let b = 0; b < 8; b++) {
+        const batMesh = createChibiBat(1.1 + (b % 3) * 0.25);
+        const cx = -25 + (b % 4) * 22;
+        const cy = 15 + (b % 3) * 4.5;
+        const cz = -38 + (b % 2) * 18;
+        batMesh.position.set(cx, cy, cz);
+        deckSurface.add(batMesh);
+        halloweenAnimatedBats.push({
+          mesh: batMesh,
+          cx, cy, cz,
+          radiusX: 7.5 + (b % 3) * 3.5,
+          radiusZ: 4.5 + (b % 2) * 2.5,
+          speed: 0.9 + (b % 4) * 0.2,
+          phase: b * 0.95
+        });
+      }
     }
 
     // Store Chibi Egg-Planes keyed by islandId (hidden by default; only shown when flight is active in HK time!)
@@ -3246,9 +3573,9 @@
       const cfg = TIME_PHASES[phaseKey] || TIME_PHASES.morning;
       state.currentPhase = cfg.id;
 
-      // Sky background CSS gradient including distinct Amber / Red / Black Rainstorm Warning 3D sky palettes!
-      let skyTop = cfg.skyTop;
-      let skyHorizon = cfg.skyHorizon;
+      // Sky background CSS gradient (with Halloween Purple-Orange Twilight Atmosphere + Rainstorm palettes)
+      let skyTop = '#2a124c';
+      let skyHorizon = '#c2593f';
       if (state.weatherMode === 'amber_rain') {
         skyTop = '#5c481d';
         skyHorizon = '#a17c32';
@@ -7930,6 +8257,41 @@
             ? 1.4 + Math.sin(elapsed * 9) * 0.9
             : 1.0;
         }
+
+        // === HALLOWEEN THEME ANIMATIONS: Floating Ghosts, Flapping Bats, Twinkling Bulbs & Breathing Pumpkins ===
+        halloweenAnimatedGhosts.forEach((g) => {
+          const gt = elapsed * 1.6 + g.phase;
+          g.mesh.position.x = g.baseX + Math.sin(gt * 0.7) * 1.4;
+          g.mesh.position.y = g.baseY + Math.sin(gt * 1.5) * 0.65;
+          g.mesh.position.z = g.baseZ + Math.cos(gt * 0.9) * 0.8;
+          g.mesh.rotation.y = Math.sin(gt * 0.6) * 0.45;
+          g.mesh.rotation.z = Math.cos(gt * 1.2) * 0.08;
+        });
+
+        halloweenAnimatedBats.forEach((b) => {
+          const bt = elapsed * b.speed + b.phase;
+          const nx = b.cx + Math.cos(bt) * b.radiusX;
+          const nz = b.cz + Math.sin(bt * 1.3) * b.radiusZ;
+          const ny = b.cy + Math.sin(bt * 2.4) * 1.1;
+          const dx = nx - b.mesh.position.x;
+          const dz = nz - b.mesh.position.z;
+          b.mesh.position.set(nx, ny, nz);
+          if (Math.hypot(dx, dz) > 0.001) {
+            b.mesh.rotation.y = Math.atan2(dx, dz);
+          }
+          const flap = Math.sin(elapsed * 14.0 + b.phase) * 0.65;
+          if (b.mesh.userData.wingL) b.mesh.userData.wingL.rotation.z = flap;
+          if (b.mesh.userData.wingR) b.mesh.userData.wingR.rotation.z = -flap;
+        });
+
+        halloweenStringBulbs.forEach((b) => {
+          b.mat.emissiveIntensity = 0.85 + Math.sin(elapsed * 4.5 + b.phase) * 0.55;
+        });
+
+        halloweenPumpkinGlows.forEach((p) => {
+          const pulse = 1.0 + Math.sin(elapsed * 2.6 + p.phase) * 0.035;
+          p.group.scale.set(p.baseScale * pulse, p.baseScale * (2.0 - pulse), p.baseScale * pulse);
+        });
 
         // Collaboration & parcel data packets moving along arcs
         pulsePackets.forEach(pkt => {
