@@ -485,7 +485,7 @@
         <button id="btn-open-roster" class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-600 text-white shadow-sm hover:bg-emerald-500 transition flex items-center gap-0.5">
           📋 每日工作編排
         </button>
-        <button id="btn-hud-cloud-sync" class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-sky-600 text-white shadow-sm hover:bg-sky-500 transition flex items-center gap-1" title="跨設備雲端即時同步狀態（點擊立即從雲端拉取最新每日工作編排）">
+        <button id="btn-hud-cloud-sync" class="hidden" aria-hidden="true" title="跨設備雲端即時同步狀態（點擊立即從雲端拉取最新每日工作編排）">
           <span id="hud-cloud-dot" class="w-1.5 h-1.5 rounded-full bg-emerald-300 live-dot"></span>
           <span id="hud-cloud-text">☁️ 雲端同步</span>
         </button>
@@ -501,10 +501,45 @@
         <button id="toggle-pause" class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition" title="暫停/繼續動畫">
           ⏸️ 暫停
         </button>
+        <button id="btn-toggle-theme-menu" type="button" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-900 text-amber-300 border border-amber-400/60 shadow-sm hover:bg-slate-800 transition flex items-center gap-1" title="展開/隱藏節日主題選單">
+          <span id="theme-btn-icon">🎃</span>
+          <span>主題</span>
+        </button>
         <button id="btn-open-help" class="w-6 h-6 rounded-full text-[11px] font-bold bg-white/90 text-slate-700 shadow-sm hover:bg-white transition flex items-center justify-center border border-slate-200/80" title="操作說明">
           ?
         </button>
       </div>
+    </div>
+
+    <!-- HIDEABLE POP-UP FESTIVAL THEME SWITCHER (Hidden by default; pops up when clicking 🎨 主題 and auto-hides after selection) -->
+    <div id="festival-theme-popup" class="hidden absolute bottom-full right-0 mb-2 glass-card !bg-slate-900/95 border border-amber-400/60 rounded-full px-3 py-1.5 shadow-2xl items-center gap-1.5 flex-wrap z-40">
+      <button type="button" data-festival-theme="normal" class="festival-theme-btn px-2.5 py-1 rounded-full text-[11px] font-bold text-slate-200 hover:bg-slate-800 transition flex items-center gap-1">
+        <span>✨</span><span>原狀</span>
+      </button>
+      <span class="text-slate-600 text-xs">|</span>
+      <button type="button" data-festival-theme="halloween" class="festival-theme-btn px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-500 text-slate-950 transition flex items-center gap-1">
+        <span>🎃</span><span>萬聖節</span>
+      </button>
+      <span class="text-slate-600 text-xs">|</span>
+      <button type="button" data-festival-theme="christmas" class="festival-theme-btn px-2.5 py-1 rounded-full text-[11px] font-bold text-slate-200 hover:bg-slate-800 transition flex items-center gap-1">
+        <span>🎄</span><span>聖誕節</span>
+      </button>
+      <span class="text-slate-600 text-xs">|</span>
+      <button type="button" data-festival-theme="newyear" class="festival-theme-btn px-2.5 py-1 rounded-full text-[11px] font-bold text-slate-200 hover:bg-slate-800 transition flex items-center gap-1">
+        <span>🎆</span><span>元旦</span>
+      </button>
+      <span class="text-slate-600 text-xs">|</span>
+      <button type="button" data-festival-theme="cny" class="festival-theme-btn px-2.5 py-1 rounded-full text-[11px] font-bold text-slate-200 hover:bg-slate-800 transition flex items-center gap-1">
+        <span>🧧</span><span>農曆新年</span>
+      </button>
+      <span class="text-slate-600 text-xs">|</span>
+      <button type="button" data-festival-theme="easter" class="festival-theme-btn px-2.5 py-1 rounded-full text-[11px] font-bold text-slate-200 hover:bg-slate-800 transition flex items-center gap-1">
+        <span>🐰</span><span>復活節</span>
+      </button>
+      <span class="text-slate-600 text-xs">|</span>
+      <button type="button" id="btn-close-theme-menu" class="px-2 py-0.5 rounded-full text-[11px] font-bold text-emerald-300 hover:bg-slate-800 transition">
+        ✕ 收起隱藏
+      </button>
     </div>
   </div>
 
@@ -1110,6 +1145,7 @@
     // =========================================================================
     const state = {
       selectedIslandId: 'UPS',
+      festivalTheme: localStorage.getItem('ups_hka_festival_theme_v1') || 'halloween',
       autoTimeSync: true,
       autoWeatherSync: true,
       autoRefreshCountdown: 1,
@@ -1475,10 +1511,13 @@
       helmet.position.y = 1.02;
       wGroup.add(helmet);
 
-      // === HALLOWEEN THEME: Cute Purple Witch Hat with Gold Band on Chibi Worker ===
-      const witchHatGroup = new THREE.Group();
-      witchHatGroup.position.y = 1.18;
-      witchHatGroup.rotation.z = -0.08;
+      // === MULTI-FESTIVAL HEADGEAR ON CHIBI WORKER (Halloween / Christmas / New Year / CNY / Easter) ===
+      const hatsByTheme = {};
+
+      // (a) Halloween Witch Hat
+      const witchHat = new THREE.Group();
+      witchHat.position.y = 1.18;
+      witchHat.rotation.z = -0.08;
       const witchPurpleMat = new THREE.MeshStandardMaterial({ color: 0x4c1d95, roughness: 0.4 });
       const witchGoldMat = new THREE.MeshStandardMaterial({ color: 0xffb500, emissive: 0xd97706, emissiveIntensity: 0.35, roughness: 0.25 });
       const hatBrim = new THREE.Mesh(new THREE.CylinderGeometry(0.44, 0.44, 0.04, 16), witchPurpleMat);
@@ -1487,8 +1526,73 @@
       const hatCone = new THREE.Mesh(new THREE.ConeGeometry(0.23, 0.52, 14), witchPurpleMat);
       hatCone.position.y = 0.28;
       hatCone.rotation.z = -0.12;
-      witchHatGroup.add(hatBrim, hatBand, hatCone);
-      wGroup.add(witchHatGroup);
+      witchHat.add(hatBrim, hatBand, hatCone);
+      wGroup.add(witchHat);
+      hatsByTheme.halloween = witchHat;
+
+      // (b) Christmas Santa Hat
+      const santaHat = new THREE.Group();
+      santaHat.position.y = 1.16;
+      const santaRedMat = new THREE.MeshStandardMaterial({ color: 0xdc2626, roughness: 0.4 });
+      const santaWhiteMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.6 });
+      const furTrim = new THREE.Mesh(new THREE.TorusGeometry(0.24, 0.065, 10, 18), santaWhiteMat);
+      furTrim.rotation.x = Math.PI / 2;
+      const sCone = new THREE.Mesh(new THREE.ConeGeometry(0.24, 0.46, 14), santaRedMat);
+      sCone.position.set(0.03, 0.22, 0);
+      sCone.rotation.z = -0.22;
+      const pomPom = new THREE.Mesh(new THREE.SphereGeometry(0.09, 10, 10), santaWhiteMat);
+      pomPom.position.set(0.12, 0.44, 0);
+      santaHat.add(furTrim, sCone, pomPom);
+      wGroup.add(santaHat);
+      hatsByTheme.christmas = santaHat;
+
+      // (c) New Year Golden Party Hat
+      const partyHat = new THREE.Group();
+      partyHat.position.y = 1.18;
+      const pCone = new THREE.Mesh(new THREE.ConeGeometry(0.20, 0.44, 14), witchGoldMat);
+      pCone.position.y = 0.22;
+      const pStar = new THREE.Mesh(new THREE.SphereGeometry(0.08, 10, 10), new THREE.MeshBasicMaterial({ color: 0x38bdf8 }));
+      pStar.position.y = 0.45;
+      partyHat.add(pCone, pStar);
+      wGroup.add(partyHat);
+      hatsByTheme.newyear = partyHat;
+
+      // (d) Lunar New Year Festive Tang Cap
+      const cnyHat = new THREE.Group();
+      cnyHat.position.y = 1.15;
+      const cnyDome = new THREE.Mesh(new THREE.SphereGeometry(0.26, 14, 10, 0, Math.PI * 2, 0, Math.PI * 0.55), santaRedMat);
+      const cnyBand = new THREE.Mesh(new THREE.CylinderGeometry(0.265, 0.265, 0.07, 14), witchGoldMat);
+      cnyBand.position.y = 0.03;
+      const cnyKnot = new THREE.Mesh(new THREE.SphereGeometry(0.07, 10, 10), witchGoldMat);
+      cnyKnot.position.y = 0.27;
+      cnyHat.add(cnyDome, cnyBand, cnyKnot);
+      wGroup.add(cnyHat);
+      hatsByTheme.cny = cnyHat;
+
+      // (e) Easter Bunny Ears Headband
+      const bunnyHat = new THREE.Group();
+      bunnyHat.position.y = 1.18;
+      const pinkMat = new THREE.MeshStandardMaterial({ color: 0xf472b6, roughness: 0.4 });
+      [-0.12, 0.12].forEach(ex => {
+        const earOuter = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.05, 0.42, 10), santaWhiteMat);
+        earOuter.scale.set(1.0, 1.0, 0.45);
+        earOuter.position.set(ex, 0.20, 0);
+        earOuter.rotation.z = ex > 0 ? -0.15 : 0.15;
+        const earInner = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.03, 0.32, 8), pinkMat);
+        earInner.scale.set(1.0, 1.0, 0.45);
+        earInner.position.set(ex, 0.20, 0.02);
+        earInner.rotation.z = ex > 0 ? -0.15 : 0.15;
+        bunnyHat.add(earOuter, earInner);
+      });
+      wGroup.add(bunnyHat);
+      hatsByTheme.easter = bunnyHat;
+
+      const curTheme = (typeof state !== 'undefined' && state.festivalTheme) ? state.festivalTheme : 'halloween';
+      Object.keys(hatsByTheme).forEach(k => {
+        hatsByTheme[k].visible = (k === curTheme);
+      });
+      if (!window._allWorkerHatMaps) window._allWorkerHatMaps = [];
+      window._allWorkerHatMaps.push(hatsByTheme);
 
       wGroup.userData.limbs = { legL, legR, armL, armR, head };
       return wGroup;
@@ -1582,51 +1686,54 @@
         towBar.position.set(0, 0.16, 0.82);
         dollyGroup.add(towBar);
 
-        // ULD Air Cargo Container Box (萬聖節發光南瓜圖案貨物箱)
-        const uldBox = new THREE.Mesh(
-          new THREE.BoxGeometry(0.92, 0.78, 1.12),
-          new THREE.MeshStandardMaterial({ color: 0xf97316, emissive: 0x9a3412, emissiveIntensity: 0.28, roughness: 0.32 })
-        );
+        // ULD Air Cargo Container Box (支援 6 種主題塗裝切換)
+        const uldMat = new THREE.MeshStandardMaterial({ color: containerColors[c], roughness: 0.32, metalness: 0.12 });
+        const uldBox = new THREE.Mesh(new THREE.BoxGeometry(0.92, 0.78, 1.12), uldMat);
         uldBox.position.y = 0.63;
         uldBox.castShadow = true;
         dollyGroup.add(uldBox);
 
-        if (!window._halloweenCrateSideMat) {
-          const pCvs = document.createElement('canvas');
-          pCvs.width = 128;
-          pCvs.height = 128;
-          const pCtx = pCvs.getContext('2d');
-          pCtx.fillStyle = '#ea580c';
-          pCtx.fillRect(0, 0, 128, 128);
-          pCtx.strokeStyle = '#fbbf24';
-          pCtx.lineWidth = 8;
-          pCtx.strokeRect(6, 6, 116, 116);
-          // Glowing pumpkin circle & grin
-          pCtx.fillStyle = '#fde047';
-          pCtx.beginPath();
-          pCtx.arc(64, 68, 36, 0, Math.PI * 2);
-          pCtx.fill();
-          pCtx.fillStyle = '#431407';
-          // Triangle eyes
-          pCtx.beginPath();
-          pCtx.moveTo(48, 52); pCtx.lineTo(40, 66); pCtx.lineTo(56, 66); pCtx.closePath();
-          pCtx.moveTo(80, 52); pCtx.lineTo(72, 66); pCtx.lineTo(88, 66); pCtx.closePath();
-          pCtx.fill();
-          // Smile
-          pCtx.beginPath();
-          pCtx.arc(64, 72, 20, 0.15 * Math.PI, 0.85 * Math.PI);
-          pCtx.lineWidth = 6;
-          pCtx.strokeStyle = '#431407';
-          pCtx.stroke();
-          const pTex = enhanceTextureClarity(new THREE.CanvasTexture(pCvs));
-          window._halloweenCrateSideMat = new THREE.MeshBasicMaterial({ map: pTex });
+        if (!window._festivalCrateTextures) {
+          function makeCrateTex(bgCol, borderCol, iconText, subCol) {
+            const cCvs = document.createElement('canvas');
+            cCvs.width = 128;
+            cCvs.height = 128;
+            const cCtx = cCvs.getContext('2d');
+            cCtx.fillStyle = bgCol;
+            cCtx.fillRect(0, 0, 128, 128);
+            cCtx.strokeStyle = borderCol;
+            cCtx.lineWidth = 10;
+            cCtx.strokeRect(5, 5, 118, 118);
+            if (subCol) {
+              cCtx.fillStyle = subCol;
+              cCtx.fillRect(56, 0, 16, 128);
+              cCtx.fillRect(0, 56, 128, 16);
+            }
+            cCtx.fillStyle = borderCol;
+            cCtx.font = '900 54px "Noto Sans TC", Arial, sans-serif';
+            cCtx.textAlign = 'center';
+            cCtx.textBaseline = 'middle';
+            cCtx.fillText(iconText, 64, 68);
+            return new THREE.MeshBasicMaterial({ map: enhanceTextureClarity(new THREE.CanvasTexture(cCvs)) });
+          }
+          window._festivalCrateTextures = {
+            halloween: makeCrateTex('#ea580c', '#fde047', '🎃', null),
+            christmas: makeCrateTex(c % 2 === 0 ? '#dc2626' : '#15803d', '#fbbf24', '🎁', '#fbbf24'),
+            newyear:   makeCrateTex('#b45309', '#fef08a', '2027', null),
+            cny:       makeCrateTex('#b91c1c', '#fde047', '福', null),
+            easter:    makeCrateTex('#f472b6', '#fef08a', '🥚', '#a7f3d0')
+          };
         }
+        const sidePlanes = [];
         [-0.47, 0.47].forEach(sx => {
-          const pSide = new THREE.Mesh(new THREE.PlaneGeometry(0.66, 0.56), window._halloweenCrateSideMat);
+          const pSide = new THREE.Mesh(new THREE.PlaneGeometry(0.66, 0.56), window._festivalCrateTextures.halloween);
           pSide.position.set(sx, 0.63, 0);
           pSide.rotation.y = sx > 0 ? Math.PI / 2 : -Math.PI / 2;
           dollyGroup.add(pSide);
+          sidePlanes.push(pSide);
         });
+        if (!window._allTractorCargoBoxes) window._allTractorCargoBoxes = [];
+        window._allTractorCargoBoxes.push({ uldMat, sidePlanes, defaultColor: containerColors[c], index: c });
 
         // UPS Brown & Gold Accent Band on each Cargo Container
         const band = new THREE.Mesh(
@@ -1981,12 +2088,26 @@
       islandMeshesMap.set(data.id, group);
     }
 
+    const festivalThemeGroups = {
+      halloween: null,
+      christmas: null,
+      newyear: null,
+      cny: null,
+      easter: null
+    };
+    let christmasSnowPoints = null;
+    let christmasSantaSleigh = null;
+    const newYearFireworks = [];
+    const cnySkyLanterns = [];
+    const cnyLionDancers = [];
+    const easterHoppingBunnies = [];
+    const easterButterflies = [];
+
     function createJackOLanternFaceTexture() {
       const cvs = document.createElement('canvas');
       cvs.width = 512;
       cvs.height = 256;
       const ctx = cvs.getContext('2d');
-      // Rich pumpkin orange base with subtle vertical rib shading
       const grad = ctx.createLinearGradient(0, 0, 0, 256);
       grad.addColorStop(0, '#c2410c');
       grad.addColorStop(0.5, '#f97316');
@@ -2004,25 +2125,18 @@
         ctx.stroke();
       }
 
-      // Glowing yellow-amber carved Jack-o'-Lantern face centered at x=256 (u=0.5)
       ctx.fillStyle = '#fef08a';
       ctx.shadowColor = '#f59e0b';
       ctx.shadowBlur = 18;
-
-      // Left & Right Triangular Eyes
       ctx.beginPath();
       ctx.moveTo(215, 78); ctx.lineTo(192, 118); ctx.lineTo(236, 118); ctx.closePath();
       ctx.fill();
       ctx.beginPath();
       ctx.moveTo(297, 78); ctx.lineTo(276, 118); ctx.lineTo(320, 118); ctx.closePath();
       ctx.fill();
-
-      // Cute Triangle Nose
       ctx.beginPath();
       ctx.moveTo(256, 118); ctx.lineTo(244, 140); ctx.lineTo(268, 140); ctx.closePath();
       ctx.fill();
-
-      // Wide Toothy Jack-o'-Lantern Grin
       ctx.beginPath();
       ctx.moveTo(184, 152);
       ctx.quadraticCurveTo(256, 212, 328, 152);
@@ -2030,7 +2144,6 @@
       ctx.closePath();
       ctx.fill();
 
-      // Two cute pumpkin teeth cutouts in the grin
       ctx.shadowBlur = 0;
       ctx.fillStyle = '#ea580c';
       ctx.fillRect(232, 156, 14, 14);
@@ -2039,7 +2152,35 @@
       return enhanceTextureClarity(new THREE.CanvasTexture(cvs));
     }
 
+    function addRoofStringLights(parentGroup, hubX, hubW, hubH, hubD, hubZ, colorsHexArr) {
+      const numBulbs = 28;
+      for (let i = 0; i < numBulbs; i++) {
+        const t = i / (numBulbs - 1);
+        const bx = (hubX - hubW / 2 + 1.0) + t * (hubW - 2.0);
+        const sag = Math.sin((t * 6) * Math.PI) * 0.35;
+        const by = hubH - 0.35 - Math.abs(sag);
+        const bz = hubZ + hubD / 2 + 0.25;
+        const colHex = colorsHexArr[i % colorsHexArr.length];
+        const bMat = new THREE.MeshStandardMaterial({
+          color: 0xffffff,
+          emissive: colHex,
+          emissiveIntensity: 1.35
+        });
+        const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.24, 10, 10), bMat);
+        bulb.position.set(bx, by, bz);
+        parentGroup.add(bulb);
+        halloweenStringBulbs.push({ mat: bMat, phase: i * 0.55 });
+      }
+    }
+
     function buildHalloweenIslandDecorations(deckSurface, hubX, hubW, hubH, hubD, hubZ) {
+      // =======================================================================
+      // THEME 1: HALLOWEEN (🎃 萬聖節)
+      // =======================================================================
+      const hwGroup = new THREE.Group();
+      deckSurface.add(hwGroup);
+      festivalThemeGroups.halloween = hwGroup;
+
       const pumpkinTex = createJackOLanternFaceTexture();
       const pumpkinMat = new THREE.MeshStandardMaterial({
         map: pumpkinTex,
@@ -2066,85 +2207,41 @@
         pGroup.position.set(x, 0, z);
         pGroup.scale.set(scale, scale, scale);
         pGroup.rotation.y = rotY;
-        deckSurface.add(pGroup);
+        hwGroup.add(pGroup);
         halloweenPumpkinGlows.push({ group: pGroup, baseScale: scale, phase: Math.random() * Math.PI * 2 });
       }
 
-      // 1. Clusters of 3D Glowing Jack-o'-Lantern Pumpkins (matching preview image locations!)
       const pumpkinPlacements = [
-        // Left of UPS HKG Gateway Building
-        [-14.5, -34.5, 1.65, 0.35],
-        [-18.2, -33.2, 1.15, 0.15],
-        [-11.2, -32.8, 1.05, 0.45],
-        [-24.5, -39.5, 1.35, 0.25],
-        [-8.8,  -31.8, 0.82, 0.10],
-        // Front-Right & Right of UPS HKG Gateway Building & Office Tower
-        [32.5,  -32.2, 0.92, -0.25],
-        [34.8,  -32.5, 0.85, -0.15],
-        [54.5,  -35.0, 1.75, -0.35],
-        [66.0,  -36.5, 1.45, -0.20],
-        [63.2,  -35.2, 0.95, 0.10],
-        [68.8,  -35.8, 0.88, -0.40],
-        // Bottom-Left & Bottom-Right Apron Corners
-        [-91.5,  51.5, 2.15, 0.45],
-        [-86.8,  53.2, 1.25, 0.20],
-        [-94.2,  47.5, 1.10, 0.65],
-        [86.5,   52.0, 2.05, -0.45],
-        [81.8,   53.5, 1.30, -0.25],
-        [90.5,   48.0, 1.15, -0.55],
-        [83.5,   49.2, 0.90, -0.10]
+        [-14.5, -34.5, 1.65, 0.35], [-18.2, -33.2, 1.15, 0.15], [-11.2, -32.8, 1.05, 0.45],
+        [-24.5, -39.5, 1.35, 0.25], [-8.8,  -31.8, 0.82, 0.10], [32.5,  -32.2, 0.92, -0.25],
+        [34.8,  -32.5, 0.85, -0.15], [54.5,  -35.0, 1.75, -0.35], [66.0,  -36.5, 1.45, -0.20],
+        [63.2,  -35.2, 0.95, 0.10], [68.8,  -35.8, 0.88, -0.40], [-91.5,  51.5, 2.15, 0.45],
+        [-86.8,  53.2, 1.25, 0.20], [-94.2,  47.5, 1.10, 0.65], [86.5,   52.0, 2.05, -0.45],
+        [81.8,   53.5, 1.30, -0.25], [90.5,   48.0, 1.15, -0.55], [83.5,   49.2, 0.90, -0.10]
       ];
       pumpkinPlacements.forEach(([px, pz, sc, ry]) => spawnPumpkin(px, pz, sc, ry));
 
-      // Warm orange point lights near the main pumpkin clusters
       [[-14.5, 2.8, -33.0], [56.0, 2.8, -34.0], [-90.0, 3.2, 50.0], [85.0, 3.2, 50.0]].forEach(([lx, ly, lz]) => {
         const pLight = new THREE.PointLight(0xff7b00, 0.95, 28);
         pLight.position.set(lx, ly, lz);
-        deckSurface.add(pLight);
+        hwGroup.add(pLight);
       });
 
-      // 2. UPS HKG Gateway Rooftop Festive Purple & Orange String Lights (大樓屋頂萬聖節紫橙燈串)
-      const numBulbs = 28;
-      for (let i = 0; i < numBulbs; i++) {
-        const t = i / (numBulbs - 1);
-        const bx = (hubX - hubW / 2 + 1.0) + t * (hubW - 2.0);
-        const sag = Math.sin((t * 6) * Math.PI) * 0.35;
-        const by = hubH - 0.35 - Math.abs(sag);
-        const bz = hubZ + hubD / 2 + 0.25;
-        const isOrange = i % 2 === 0;
-        const bMat = new THREE.MeshStandardMaterial({
-          color: isOrange ? 0xffedd5 : 0xf3e8ff,
-          emissive: isOrange ? 0xff7b00 : 0xa855f7,
-          emissiveIntensity: 1.4
-        });
-        const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.24, 10, 10), bMat);
-        bulb.position.set(bx, by, bz);
-        deckSurface.add(bulb);
-        halloweenStringBulbs.push({ mat: bMat, phase: i * 0.55 });
-      }
+      addRoofStringLights(hwGroup, hubX, hubW, hubH, hubD, hubZ, [0xff7b00, 0xa855f7]);
 
-      // 3. Cute 3D Translucent Floating Chibi Ghosts (Q版半透明漂浮小幽靈)
       const ghostMat = new THREE.MeshStandardMaterial({
-        color: 0xffffff,
-        emissive: 0xe2e8f0,
-        emissiveIntensity: 0.35,
-        transparent: true,
-        opacity: 0.92,
-        roughness: 0.25
+        color: 0xffffff, emissive: 0xe2e8f0, emissiveIntensity: 0.35, transparent: true, opacity: 0.92, roughness: 0.25
       });
       const ghostEyeMat = new THREE.MeshBasicMaterial({ color: 0x0f172a });
       const blushMat = new THREE.MeshBasicMaterial({ color: 0xfda4af, transparent: true, opacity: 0.65 });
 
       function createChibiGhost(scale = 1.0) {
         const gGroup = new THREE.Group();
-        // Rounded dome head + wavy skirt cylinder
         const headDome = new THREE.Mesh(new THREE.SphereGeometry(0.85, 20, 16, 0, Math.PI * 2, 0, Math.PI * 0.6), ghostMat);
         headDome.position.y = 0.85;
         const skirt = new THREE.Mesh(new THREE.CylinderGeometry(0.84, 1.02, 0.95, 20, 4, true), ghostMat);
         skirt.position.y = 0.42;
         gGroup.add(headDome, skirt);
-
-        // Cute stubby arms
         [-0.82, 0.82].forEach(ax => {
           const arm = new THREE.Mesh(new THREE.SphereGeometry(0.24, 12, 10), ghostMat);
           arm.scale.set(1.2, 0.75, 0.75);
@@ -2152,14 +2249,11 @@
           arm.rotation.z = ax > 0 ? -0.35 : 0.35;
           gGroup.add(arm);
         });
-
-        // Cute eyes & 'o' mouth + pink cheek blush
         [-0.26, 0.26].forEach(ex => {
           const eye = new THREE.Mesh(new THREE.SphereGeometry(0.11, 10, 10), ghostEyeMat);
           eye.scale.set(0.85, 1.15, 0.5);
           eye.position.set(ex, 0.92, 0.80);
           gGroup.add(eye);
-
           const blush = new THREE.Mesh(new THREE.SphereGeometry(0.10, 8, 8), blushMat);
           blush.scale.set(1.3, 0.7, 0.4);
           blush.position.set(ex * 1.65, 0.78, 0.76);
@@ -2169,32 +2263,23 @@
         mouth.scale.set(0.9, 1.2, 0.5);
         mouth.position.set(0, 0.74, 0.82);
         gGroup.add(mouth);
-
         gGroup.scale.set(scale, scale, scale);
         return gGroup;
       }
 
-      const ghostConfigs = [
+      [
         { x: -12.0, y: 7.2, z: -34.0, scale: 1.45, phase: 0.0 },
         { x: -5.5,  y: 6.4, z: -32.5, scale: 1.55, phase: 1.4 },
         { x: 27.5,  y: 6.6, z: -32.5, scale: 1.55, phase: 2.8 },
         { x: 38.0,  y: 6.0, z: -33.0, scale: 1.40, phase: 4.1 },
         { x: 22.0,  y: 18.5, z: -44.0, scale: 1.85, phase: 5.2 }
-      ];
-      ghostConfigs.forEach(gc => {
+      ].forEach(gc => {
         const gMesh = createChibiGhost(gc.scale);
         gMesh.position.set(gc.x, gc.y, gc.z);
-        deckSurface.add(gMesh);
-        halloweenAnimatedGhosts.push({
-          mesh: gMesh,
-          baseX: gc.x,
-          baseY: gc.y,
-          baseZ: gc.z,
-          phase: gc.phase
-        });
+        hwGroup.add(gMesh);
+        halloweenAnimatedGhosts.push({ mesh: gMesh, baseX: gc.x, baseY: gc.y, baseZ: gc.z, phase: gc.phase });
       });
 
-      // 4. Cute 3D Flapping Halloween Bats (夜空拍翼盤旋小蝙蝠)
       const batBodyMat = new THREE.MeshStandardMaterial({ color: 0x311042, roughness: 0.4 });
       const batWingMat = new THREE.MeshStandardMaterial({ color: 0x4c1d95, roughness: 0.45, side: THREE.DoubleSide });
       const batEyeMat = new THREE.MeshBasicMaterial({ color: 0xfacc15 });
@@ -2204,27 +2289,21 @@
         const body = new THREE.Mesh(new THREE.SphereGeometry(0.35, 14, 12), batBodyMat);
         body.scale.set(1.0, 0.9, 1.2);
         bGroup.add(body);
-
-        // Pointed bat ears
         [-0.16, 0.16].forEach(ex => {
           const ear = new THREE.Mesh(new THREE.ConeGeometry(0.10, 0.26, 8), batBodyMat);
           ear.position.set(ex, 0.34, 0.05);
           ear.rotation.z = ex > 0 ? -0.25 : 0.25;
           bGroup.add(ear);
-
           const eye = new THREE.Mesh(new THREE.SphereGeometry(0.055, 8, 8), batEyeMat);
           eye.position.set(ex * 0.9, 0.08, 0.36);
           bGroup.add(eye);
         });
-
-        // Articulated Left & Right Bat Wings
         const wingGeo = new THREE.BoxGeometry(0.85, 0.04, 0.42);
         const wingL = new THREE.Mesh(wingGeo, batWingMat);
         wingL.position.set(-0.55, 0.05, 0);
         const wingR = new THREE.Mesh(wingGeo, batWingMat);
         wingR.position.set(0.55, 0.05, 0);
         bGroup.add(wingL, wingR);
-
         bGroup.scale.set(scale, scale, scale);
         bGroup.userData = { wingL, wingR };
         return bGroup;
@@ -2236,15 +2315,487 @@
         const cy = 15 + (b % 3) * 4.5;
         const cz = -38 + (b % 2) * 18;
         batMesh.position.set(cx, cy, cz);
-        deckSurface.add(batMesh);
+        hwGroup.add(batMesh);
         halloweenAnimatedBats.push({
-          mesh: batMesh,
-          cx, cy, cz,
-          radiusX: 7.5 + (b % 3) * 3.5,
-          radiusZ: 4.5 + (b % 2) * 2.5,
-          speed: 0.9 + (b % 4) * 0.2,
-          phase: b * 0.95
+          mesh: batMesh, cx, cy, cz,
+          radiusX: 7.5 + (b % 3) * 3.5, radiusZ: 4.5 + (b % 2) * 2.5,
+          speed: 0.9 + (b % 4) * 0.2, phase: b * 0.95
         });
+      }
+
+      // =======================================================================
+      // THEME 2: CHRISTMAS (🎄 聖誕節)
+      // =======================================================================
+      const xmasGroup = new THREE.Group();
+      xmasGroup.visible = false;
+      deckSurface.add(xmasGroup);
+      festivalThemeGroups.christmas = xmasGroup;
+
+      addRoofStringLights(xmasGroup, hubX, hubW, hubH, hubD, hubZ, [0xdc2626, 0x16a34a, 0xfacc15]);
+
+      // Snow-dusted white roof cap on UPS HKG Gateway building
+      const snowMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, emissive: 0xe2e8f0, emissiveIntensity: 0.2, roughness: 0.65 });
+      const roofSnow = new THREE.Mesh(new THREE.BoxGeometry(hubW + 0.8, 0.45, hubD + 0.8), snowMat);
+      roofSnow.position.set(hubX, hubH + 0.28, hubZ);
+      xmasGroup.add(roofSnow);
+
+      // Decorated 3D Christmas Trees with Golden Star Toppers & Ornaments
+      const pineMat = new THREE.MeshStandardMaterial({ color: 0x14532d, roughness: 0.55 });
+      const starGoldMat = new THREE.MeshStandardMaterial({ color: 0xfde047, emissive: 0xf59e0b, emissiveIntensity: 0.95 });
+      const baubleColors = [0xef4444, 0xfacc15, 0x38bdf8, 0xf472b6];
+
+      function spawnChristmasTree(x, z, scale = 1.0) {
+        const tGrp = new THREE.Group();
+        const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.6, 1.8, 8), trunkMat);
+        trunk.position.y = 0.9;
+        tGrp.add(trunk);
+
+        [[2.4, 3.4, 2.5], [1.9, 3.0, 4.3], [1.3, 2.5, 5.9]].forEach(([r, h, py]) => {
+          const cone = new THREE.Mesh(new THREE.ConeGeometry(r, h, 12), pineMat);
+          cone.position.y = py;
+          cone.castShadow = true;
+          tGrp.add(cone);
+        });
+
+        // Glowing Star Topper
+        const star = new THREE.Mesh(new THREE.OctahedronGeometry(0.65, 0), starGoldMat);
+        star.position.y = 7.4;
+        tGrp.add(star);
+
+        // Colorful Glowing Bauble Ornaments
+        for (let b = 0; b < 14; b++) {
+          const ang = (b / 14) * Math.PI * 4;
+          const tierT = b / 14;
+          const rad = 2.1 * (1 - tierT * 0.55);
+          const by = 2.0 + tierT * 4.4;
+          const bCol = baubleColors[b % baubleColors.length];
+          const bMesh = new THREE.Mesh(
+            new THREE.SphereGeometry(0.22, 8, 8),
+            new THREE.MeshStandardMaterial({ color: bCol, emissive: bCol, emissiveIntensity: 0.7 })
+          );
+          bMesh.position.set(Math.cos(ang) * rad, by, Math.sin(ang) * rad);
+          tGrp.add(bMesh);
+        }
+
+        tGrp.position.set(x, 0, z);
+        tGrp.scale.set(scale, scale, scale);
+        xmasGroup.add(tGrp);
+      }
+
+      [
+        [-14.5, -34.5, 1.35], [38.5, -33.5, 1.35], [64.0, -35.5, 1.25],
+        [-90.0, 50.5, 1.65],  [86.5, 50.5, 1.65],  [-88.0, -52.0, 1.4], [86.0, -50.0, 1.4]
+      ].forEach(([tx, tz, sc]) => spawnChristmasTree(tx, tz, sc));
+
+      // Cute 3D Snowmen wearing Red Scarves & Top Hats
+      const carrotMat = new THREE.MeshStandardMaterial({ color: 0xf97316 });
+      const redScarfMat = new THREE.MeshStandardMaterial({ color: 0xdc2626 });
+      function spawnSnowman(x, z, scale = 1.0, rotY = 0) {
+        const sGrp = new THREE.Group();
+        const bot = new THREE.Mesh(new THREE.SphereGeometry(1.15, 16, 14), snowMat);
+        bot.position.y = 1.05;
+        const mid = new THREE.Mesh(new THREE.SphereGeometry(0.85, 16, 14), snowMat);
+        mid.position.y = 2.45;
+        const head = new THREE.Mesh(new THREE.SphereGeometry(0.62, 16, 14), snowMat);
+        head.position.y = 3.65;
+        const scarf = new THREE.Mesh(new THREE.TorusGeometry(0.58, 0.14, 10, 18), redScarfMat);
+        scarf.rotation.x = Math.PI / 2;
+        scarf.position.y = 3.12;
+        const nose = new THREE.Mesh(new THREE.ConeGeometry(0.12, 0.55, 8), carrotMat);
+        nose.rotation.x = Math.PI / 2;
+        nose.position.set(0, 3.65, 0.72);
+        const hatB = new THREE.Mesh(new THREE.CylinderGeometry(0.68, 0.68, 0.08, 14), ghostEyeMat);
+        hatB.position.y = 4.18;
+        const hatT = new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.45, 0.65, 14), ghostEyeMat);
+        hatT.position.y = 4.52;
+        sGrp.add(bot, mid, head, scarf, nose, hatB, hatT);
+        sGrp.position.set(x, 0, z);
+        sGrp.scale.set(scale, scale, scale);
+        sGrp.rotation.y = rotY;
+        xmasGroup.add(sGrp);
+      }
+      [
+        [-21.5, -33.0, 1.05, 0.25], [56.5, -34.0, 1.05, -0.25],
+        [-84.0, 52.0, 1.15, 0.35],  [80.0, 52.0, 1.15, -0.35]
+      ].forEach(([sx, sz, sc, ry]) => spawnSnowman(sx, sz, sc, ry));
+
+      // Flying Santa's Sleigh & Reindeer in the Sky
+      christmasSantaSleigh = new THREE.Group();
+      const sleighBody = new THREE.Mesh(new THREE.BoxGeometry(3.2, 1.2, 1.6), redScarfMat);
+      const sleighTrim = new THREE.Mesh(new THREE.BoxGeometry(3.4, 0.25, 1.7), starGoldMat);
+      sleighTrim.position.y = 0.55;
+      christmasSantaSleigh.add(sleighBody, sleighTrim);
+      for (let r = 1; r <= 3; r++) {
+        const deer = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.9, 0.55), new THREE.MeshStandardMaterial({ color: 0x78350f }));
+        deer.position.set(r * 2.4 + 1.0, 0.2 + (r % 2) * 0.25, 0);
+        if (r === 3) {
+          const rudolphNose = new THREE.Mesh(new THREE.SphereGeometry(0.18, 8, 8), new THREE.MeshBasicMaterial({ color: 0xff0000 }));
+          rudolphNose.position.set(0.75, 0.2, 0);
+          deer.add(rudolphNose);
+        }
+        christmasSantaSleigh.add(deer);
+      }
+      christmasSantaSleigh.position.set(45, 22, -35);
+      xmasGroup.add(christmasSantaSleigh);
+
+      // 350 Falling 3D Snowflakes
+      const snowCount = 350;
+      const snowGeo = new THREE.BufferGeometry();
+      const snowPos = new Float32Array(snowCount * 3);
+      for (let i = 0; i < snowCount; i++) {
+        snowPos[i * 3] = (Math.random() - 0.5) * 180;
+        snowPos[i * 3 + 1] = Math.random() * 48;
+        snowPos[i * 3 + 2] = (Math.random() - 0.5) * 120;
+      }
+      snowGeo.setAttribute('position', new THREE.BufferAttribute(snowPos, 3));
+      christmasSnowPoints = new THREE.Points(
+        snowGeo,
+        new THREE.PointsMaterial({ color: 0xffffff, size: 1.15, transparent: true, opacity: 0.9 })
+      );
+      xmasGroup.add(christmasSnowPoints);
+
+      // =======================================================================
+      // THEME 3: NEW YEAR'S DAY (🎆 元旦)
+      // =======================================================================
+      const nyGroup = new THREE.Group();
+      nyGroup.visible = false;
+      deckSurface.add(nyGroup);
+      festivalThemeGroups.newyear = nyGroup;
+
+      addRoofStringLights(nyGroup, hubX, hubW, hubH, hubD, hubZ, [0xfde047, 0x38bdf8, 0xf43f5e]);
+
+      // Giant Glowing "HAPPY NEW YEAR" 3D Rooftop Neon Sign + Giant Golden Stars
+      const nyCvs = document.createElement('canvas');
+      nyCvs.width = 512;
+      nyCvs.height = 192;
+      const nyCtx = nyCvs.getContext('2d');
+      nyCtx.fillStyle = 'rgba(15, 23, 42, 0.92)';
+      drawRoundedRectPath(nyCtx, 8, 8, 496, 176, 26);
+      nyCtx.fill();
+      nyCtx.strokeStyle = '#fbbf24';
+      nyCtx.lineWidth = 10;
+      nyCtx.stroke();
+      nyCtx.fillStyle = '#fde047';
+      nyCtx.shadowColor = '#f59e0b';
+      nyCtx.shadowBlur = 16;
+      nyCtx.font = '900 58px "Fredoka", Arial, sans-serif';
+      nyCtx.textAlign = 'center';
+      nyCtx.fillText('HAPPY', 256, 78);
+      nyCtx.fillText('NEW YEAR', 256, 146);
+      const nySignTex = enhanceTextureClarity(new THREE.CanvasTexture(nyCvs));
+      const nySignPlane = new THREE.Mesh(
+        new THREE.PlaneGeometry(16.5, 6.2),
+        new THREE.MeshBasicMaterial({ map: nySignTex, transparent: true, side: THREE.DoubleSide })
+      );
+      nySignPlane.position.set(hubX, hubH + 4.8, hubZ + 1.5);
+      nyGroup.add(nySignPlane);
+
+      [-12.5, 12.5].forEach(sx => {
+        const bigStar = new THREE.Mesh(new THREE.OctahedronGeometry(2.6, 0), starGoldMat);
+        bigStar.position.set(hubX + sx, hubH + 3.2, hubZ + 1.5);
+        nyGroup.add(bigStar);
+      });
+
+      // 6 Animated 3D Multi-Color Fireworks Bursts in the Sky
+      const fwColors = [0xfde047, 0x22d3ee, 0xf43f5e, 0xa855f7, 0x34d399, 0xfb923c];
+      const fwCoords = [
+        [-45, 26, -42], [-18, 28, -46], [8, 30, -44],
+        [34, 27, -45],  [58, 26, -42],  [-65, 24, -38]
+      ];
+      fwCoords.forEach(([fx, fy, fz], idx) => {
+        const pCount = 64;
+        const fGeo = new THREE.BufferGeometry();
+        const dirs = [];
+        const posArr = new Float32Array(pCount * 3);
+        for (let i = 0; i < pCount; i++) {
+          const theta = Math.random() * Math.PI * 2;
+          const phi = Math.acos(2 * Math.random() - 1);
+          const spd = 6.5 + Math.random() * 5.5;
+          dirs.push({
+            vx: Math.sin(phi) * Math.cos(theta) * spd,
+            vy: Math.cos(phi) * spd,
+            vz: Math.sin(phi) * Math.sin(theta) * spd
+          });
+        }
+        fGeo.setAttribute('position', new THREE.BufferAttribute(posArr, 3));
+        const fMat = new THREE.PointsMaterial({
+          color: fwColors[idx % fwColors.length],
+          size: 1.45,
+          transparent: true,
+          opacity: 1.0
+        });
+        const fPts = new THREE.Points(fGeo, fMat);
+        fPts.position.set(fx, fy, fz);
+        nyGroup.add(fPts);
+        newYearFireworks.push({ points: fPts, geo: fGeo, mat: fMat, dirs, phase: idx * 0.42 });
+      });
+
+      // =======================================================================
+      // THEME 4: LUNAR NEW YEAR (🧧 農曆新年)
+      // =======================================================================
+      const cnyGroup = new THREE.Group();
+      cnyGroup.visible = false;
+      deckSurface.add(cnyGroup);
+      festivalThemeGroups.cny = cnyGroup;
+
+      const lanternRedMat = new THREE.MeshStandardMaterial({
+        color: 0xdc2626, emissive: 0xef4444, emissiveIntensity: 0.75, roughness: 0.3
+      });
+
+      // Traditional Glowing Red Chinese Lanterns strung along UPS HKG Gateway Roof
+      for (let i = 0; i < 9; i++) {
+        const lx = (hubX - hubW / 2 + 2.5) + (i / 8) * (hubW - 5.0);
+        const lGrp = new THREE.Group();
+        const body = new THREE.Mesh(new THREE.SphereGeometry(0.95, 16, 12), lanternRedMat);
+        body.scale.set(1.0, 0.82, 1.0);
+        const capT = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.42, 0.18, 12), starGoldMat);
+        capT.position.y = 0.78;
+        const capB = capT.clone();
+        capB.position.y = -0.78;
+        const tassel = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.16, 0.65, 8), starGoldMat);
+        tassel.position.y = -1.18;
+        lGrp.add(body, capT, capB, tassel);
+        lGrp.position.set(lx, hubH - 0.5, hubZ + hubD / 2 + 0.55);
+        cnyGroup.add(lGrp);
+      }
+
+      // Blooming Pink Peach Blossom Trees (桃花樹) & Golden Kumquat Trees (金桔樹)
+      const peachPinkMat = new THREE.MeshStandardMaterial({ color: 0xf472b6, emissive: 0xdb2777, emissiveIntensity: 0.25, roughness: 0.5 });
+      function spawnPeachBlossomTree(x, z, scale = 1.0) {
+        const pGrp = new THREE.Group();
+        const trk = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.5, 2.4, 8), trunkMat);
+        trk.position.y = 1.2;
+        pGrp.add(trk);
+        [[0, 3.2, 0, 1.8], [-1.2, 2.8, 0.5, 1.3], [1.2, 2.9, -0.4, 1.35], [0.2, 4.1, 0.3, 1.25]].forEach(([cx, cy, cz, cr]) => {
+          const puff = new THREE.Mesh(new THREE.DodecahedronGeometry(cr, 1), peachPinkMat);
+          puff.position.set(cx, cy, cz);
+          pGrp.add(puff);
+        });
+        pGrp.position.set(x, 0, z);
+        pGrp.scale.set(scale, scale, scale);
+        cnyGroup.add(pGrp);
+      }
+      [[-15.5, -34.5, 1.35], [37.5, -33.5, 1.35], [-91.0, 50.0, 1.5], [86.0, 50.0, 1.5]].forEach(([px, pz, sc]) => spawnPeachBlossomTree(px, pz, sc));
+
+      // Shiny 3D Gold Ingots (金元寶) at Island Corners & Building Front
+      function spawnGoldIngot(x, z, scale = 1.0, rotY = 0) {
+        const iGrp = new THREE.Group();
+        const boat = new THREE.Mesh(new THREE.SphereGeometry(1.2, 16, 12), starGoldMat);
+        boat.scale.set(1.45, 0.55, 0.85);
+        boat.position.y = 0.55;
+        const bump = new THREE.Mesh(new THREE.SphereGeometry(0.65, 14, 12), starGoldMat);
+        bump.scale.set(1.1, 0.75, 0.85);
+        bump.position.y = 0.95;
+        iGrp.add(boat, bump);
+        iGrp.position.set(x, 0, z);
+        iGrp.scale.set(scale, scale, scale);
+        iGrp.rotation.y = rotY;
+        cnyGroup.add(iGrp);
+      }
+      [
+        [-88.0, 52.5, 1.55, 0.35], [-83.5, 53.5, 1.15, -0.2],
+        [84.5,  52.5, 1.55, -0.35], [79.5, 53.5, 1.15, 0.2],
+        [-11.5, -32.2, 1.10, 0.25], [34.5, -32.2, 1.10, -0.25]
+      ].forEach(([ix, iz, sc, ry]) => spawnGoldIngot(ix, iz, sc, ry));
+
+      // Cute 3D Chibi Lion Dancers (Q版醒獅)
+      [8.0, 16.0].forEach((lx, idx) => {
+        const lionGrp = new THREE.Group();
+        const lHead = new THREE.Mesh(new THREE.SphereGeometry(1.05, 16, 14), lanternRedMat);
+        lHead.position.y = 1.55;
+        const lMane = new THREE.Mesh(new THREE.TorusGeometry(0.95, 0.28, 10, 18), snowMat);
+        lMane.position.set(0, 1.55, 0.2);
+        const lBody = new THREE.Mesh(new THREE.BoxGeometry(1.4, 1.2, 2.2), starGoldMat);
+        lBody.position.set(0, 0.9, -1.2);
+        lionGrp.add(lHead, lMane, lBody);
+        lionGrp.position.set(lx, 0, -31.8);
+        cnyGroup.add(lionGrp);
+        cnyLionDancers.push({ group: lionGrp, baseX: lx, phase: idx * 1.6 });
+      });
+
+      // Rising Glowing Sky Lanterns (祈福天燈)
+      const skyLanternMat = new THREE.MeshStandardMaterial({
+        color: 0xfef08a, emissive: 0xf97316, emissiveIntensity: 0.95, transparent: true, opacity: 0.92
+      });
+      for (let s = 0; s < 10; s++) {
+        const sl = new THREE.Mesh(new THREE.CylinderGeometry(1.1, 0.75, 2.4, 14), skyLanternMat);
+        const sx = -55 + s * 13;
+        const sy = 14 + (s % 4) * 5.5;
+        const sz = -44 + (s % 3) * 8;
+        sl.position.set(sx, sy, sz);
+        cnyGroup.add(sl);
+        cnySkyLanterns.push({ mesh: sl, baseX: sx, baseY: sy, baseZ: sz, phase: s * 0.8 });
+      }
+
+      // =======================================================================
+      // THEME 5: EASTER (🐰 復活節)
+      // =======================================================================
+      const easterGroup = new THREE.Group();
+      easterGroup.visible = false;
+      deckSurface.add(easterGroup);
+      festivalThemeGroups.easter = easterGroup;
+
+      addRoofStringLights(easterGroup, hubX, hubW, hubH, hubD, hubZ, [0xf472b6, 0x34d399, 0xfacc15, 0xc084fc]);
+
+      // Giant 3D Pastel Rainbow Arch spanning behind UPS HKG Gateway Building
+      const rainbowColors = [0xf87171, 0xfb923c, 0xfacc15, 0x4ade80, 0x38bdf8, 0xc084fc];
+      rainbowColors.forEach((rCol, idx) => {
+        const arch = new THREE.Mesh(
+          new THREE.TorusGeometry(28.0 - idx * 0.95, 0.48, 12, 48, Math.PI),
+          new THREE.MeshBasicMaterial({ color: rCol, transparent: true, opacity: 0.78 })
+        );
+        arch.position.set(hubX, 0.5, hubZ - 8.5);
+        easterGroup.add(arch);
+      });
+
+      // Giant Colorful Patterned 3D Easter Eggs
+      const eggPastelCols = [0xf472b6, 0x60a5fa, 0x34d399, 0xfbbf24, 0xc084fc];
+      function spawnEasterEgg(x, z, scale = 1.0, colIdx = 0, tiltZ = 0) {
+        const eCol = eggPastelCols[colIdx % eggPastelCols.length];
+        const sCol = eggPastelCols[(colIdx + 2) % eggPastelCols.length];
+        const eGrp = new THREE.Group();
+        const eggMesh = new THREE.Mesh(
+          new THREE.SphereGeometry(0.95, 20, 16),
+          new THREE.MeshStandardMaterial({ color: eCol, roughness: 0.3 })
+        );
+        eggMesh.scale.set(0.92, 1.32, 0.92);
+        eggMesh.position.y = 1.15;
+        eggMesh.castShadow = true;
+        const band = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.88, 0.88, 0.28, 20),
+          new THREE.MeshStandardMaterial({ color: sCol, roughness: 0.3 })
+        );
+        band.position.y = 1.15;
+        eGrp.add(eggMesh, band);
+        eGrp.position.set(x, 0, z);
+        eGrp.scale.set(scale, scale, scale);
+        eGrp.rotation.z = tiltZ;
+        easterGroup.add(eGrp);
+      }
+      [
+        [-14.0, -33.5, 1.55, 0, 0.12], [-17.2, -32.8, 1.15, 1, -0.15],
+        [34.5,  -33.2, 1.50, 2, -0.10], [37.5, -32.5, 1.15, 3, 0.18],
+        [-91.0,  51.5, 1.75, 4, 0.15],  [-86.5, 53.0, 1.25, 0, -0.12],
+        [86.5,   51.5, 1.75, 1, -0.15], [82.0,  53.0, 1.25, 2, 0.12]
+      ].forEach(([ex, ez, sc, ci, tz]) => spawnEasterEgg(ex, ez, sc, ci, tz));
+
+      // Cute Hopping 3D White Chibi Easter Bunnies
+      const pinkEarMat = new THREE.MeshStandardMaterial({ color: 0xf472b6, roughness: 0.4 });
+      function spawnEasterBunny(x, z, scale = 1.0, phase = 0) {
+        const bGrp = new THREE.Group();
+        const body = new THREE.Mesh(new THREE.SphereGeometry(0.65, 16, 14), snowMat);
+        body.position.y = 0.65;
+        const head = new THREE.Mesh(new THREE.SphereGeometry(0.52, 16, 14), snowMat);
+        head.position.set(0, 1.35, 0.15);
+        [-0.20, 0.20].forEach(ex => {
+          const ear = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.09, 0.78, 10), snowMat);
+          ear.scale.set(1.0, 1.0, 0.45);
+          ear.position.set(ex, 1.98, 0.15);
+          ear.rotation.z = ex > 0 ? -0.15 : 0.15;
+          const inner = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.05, 0.58, 8), pinkEarMat);
+          inner.scale.set(1.0, 1.0, 0.45);
+          inner.position.set(ex, 1.98, 0.19);
+          inner.rotation.z = ex > 0 ? -0.15 : 0.15;
+          bGrp.add(ear, inner);
+        });
+        const tail = new THREE.Mesh(new THREE.SphereGeometry(0.22, 10, 10), snowMat);
+        tail.position.set(0, 0.55, -0.62);
+        bGrp.add(body, head, tail);
+        bGrp.position.set(x, 0, z);
+        bGrp.scale.set(scale, scale, scale);
+        easterGroup.add(bGrp);
+        easterHoppingBunnies.push({ group: bGrp, baseX: x, baseZ: z, phase });
+      }
+      [
+        [-21.0, -32.0, 1.15, 0.0], [28.0, -31.8, 1.15, 1.2],
+        [52.0,  -33.0, 1.15, 2.4], [-82.0, 49.0, 1.25, 3.6],
+        [78.0,   49.0, 1.25, 4.8], [-55.0, 22.0, 1.10, 5.5]
+      ].forEach(([bx, bz, sc, ph]) => spawnEasterBunny(bx, bz, sc, ph));
+    }
+
+    function applyFestivalTheme(themeKey, fromRemote = false) {
+      const validThemes = ['normal', 'halloween', 'christmas', 'newyear', 'cny', 'easter'];
+      const chosen = validThemes.includes(themeKey) ? themeKey : 'normal';
+      state.festivalTheme = chosen;
+      if (typeof operationPlan === 'object' && operationPlan) {
+        operationPlan.festivalTheme = chosen;
+      }
+      try {
+        localStorage.setItem('ups_hka_festival_theme_v1', chosen);
+      } catch (e) {}
+
+      // 1. Toggle 3D Festival Decoration Groups
+      Object.keys(festivalThemeGroups).forEach(k => {
+        if (festivalThemeGroups[k]) {
+          festivalThemeGroups[k].visible = (k === chosen);
+        }
+      });
+
+      // 2. Toggle Chibi Worker Headgear across all permanent & loading workers
+      if (Array.isArray(window._allWorkerHatMaps)) {
+        window._allWorkerHatMaps.forEach(hatsMap => {
+          Object.keys(hatsMap).forEach(k => {
+            if (hatsMap[k]) hatsMap[k].visible = (k === chosen);
+          });
+        });
+      }
+
+      // 3. Toggle Tractor Cargo Container Colors & Side Decals
+      if (Array.isArray(window._allTractorCargoBoxes)) {
+        window._allTractorCargoBoxes.forEach(item => {
+          if (chosen === 'normal') {
+            item.uldMat.color.setHex(item.defaultColor);
+            item.uldMat.emissive.setHex(0x000000);
+            item.uldMat.emissiveIntensity = 0;
+            item.sidePlanes.forEach(p => { p.visible = false; });
+          } else {
+            const boxColMap = {
+              halloween: 0xf97316,
+              christmas: item.index % 2 === 0 ? 0xdc2626 : 0x15803d,
+              newyear:   0xd97706,
+              cny:       0xb91c1c,
+              easter:    item.index % 2 === 0 ? 0xf472b6 : 0x60a5fa
+            };
+            item.uldMat.color.setHex(boxColMap[chosen] || 0xf97316);
+            item.uldMat.emissive.setHex(boxColMap[chosen] || 0x9a3412);
+            item.uldMat.emissiveIntensity = 0.22;
+            const sideMat = window._festivalCrateTextures && window._festivalCrateTextures[chosen];
+            item.sidePlanes.forEach(p => {
+              if (sideMat) p.material = sideMat;
+              p.visible = Boolean(sideMat);
+            });
+          }
+        });
+      }
+
+      // 4. Update Theme Trigger Button Icon & Popup Active Highlight
+      const themeIcons = {
+        normal: '✨',
+        halloween: '🎃',
+        christmas: '🎄',
+        newyear: '🎆',
+        cny: '🧧',
+        easter: '🐰'
+      };
+      const iconEl = document.getElementById('theme-btn-icon');
+      if (iconEl) iconEl.textContent = themeIcons[chosen] || '🎨';
+
+      document.querySelectorAll('.festival-theme-btn').forEach(btn => {
+        const bKey = btn.getAttribute('data-festival-theme');
+        if (bKey === chosen) {
+          btn.className = 'festival-theme-btn px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-500 text-slate-950 shadow transition flex items-center gap-1';
+        } else {
+          btn.className = 'festival-theme-btn px-2.5 py-1 rounded-full text-[11px] font-bold text-slate-200 hover:bg-slate-800 transition flex items-center gap-1';
+        }
+      });
+
+      // 5. Refresh Sky Atmosphere & Lighting
+      if (typeof applyTimePhase === 'function') {
+        applyTimePhase(state.currentPhase);
+      }
+      // 6. Broadcast theme change to all other devices via real-time Cloud Sync!
+      if (!fromRemote && typeof saveOperationPlan === 'function') {
+        saveOperationPlan(true);
       }
     }
 
@@ -3573,9 +4124,25 @@
       const cfg = TIME_PHASES[phaseKey] || TIME_PHASES.morning;
       state.currentPhase = cfg.id;
 
-      // Sky background CSS gradient (with Halloween Purple-Orange Twilight Atmosphere + Rainstorm palettes)
-      let skyTop = '#2a124c';
-      let skyHorizon = '#c2593f';
+      // Sky background CSS gradient (adapts to selected Festival Theme or Normal Hong Kong time-of-day sky)
+      let skyTop = cfg.skyTop;
+      let skyHorizon = cfg.skyHorizon;
+      if (state.festivalTheme === 'halloween') {
+        skyTop = '#2a124c';
+        skyHorizon = '#c2593f';
+      } else if (state.festivalTheme === 'christmas') {
+        skyTop = '#0c233c';
+        skyHorizon = '#266867';
+      } else if (state.festivalTheme === 'newyear') {
+        skyTop = '#090d2a';
+        skyHorizon = '#2b1e58';
+      } else if (state.festivalTheme === 'cny') {
+        skyTop = '#4c0d16';
+        skyHorizon = '#b45309';
+      } else if (state.festivalTheme === 'easter') {
+        skyTop = '#56b4d3';
+        skyHorizon = '#fbcfe8';
+      }
       if (state.weatherMode === 'amber_rain') {
         skyTop = '#5c481d';
         skyHorizon = '#a17c32';
@@ -5519,6 +6086,7 @@
     ];
 
     const DEFAULT_OPERATION_PLAN = {
+      festivalTheme: 'halloween',
       dateTitle: 'Wednesday, October 28, 2026',
       uldBreakdown: {
         AAD: '65', AAY: '39', AAZ: '2', ALP: '20', AMD: '39', AMJ: '79', AMP: '101',
@@ -5825,6 +6393,7 @@
         v: 2,
         c: CLOUD_CLIENT_ID,
         t: customTs || Date.now(),
+        th: String(plan.festivalTheme || state.festivalTheme || 'halloween'),
         d: String(plan.dateTitle || ''),
         tb: String(plan.tractorBanner || ''),
         u: uArr,
@@ -5843,6 +6412,7 @@
       if (packed.v !== 2 || !Array.isArray(packed.f)) return null;
 
       const base = JSON.parse(JSON.stringify(DEFAULT_OPERATION_PLAN));
+      base.festivalTheme = packed.th ? String(packed.th) : (base.festivalTheme || 'halloween');
       base.dateTitle = packed.d !== undefined ? String(packed.d) : base.dateTitle;
       base.tractorBanner = packed.tb !== undefined ? String(packed.tb) : base.tractorBanner;
       if (Array.isArray(packed.u)) {
@@ -5894,7 +6464,7 @@
 
     function computePlanFingerprint(plan) {
       const p = packOperationPlanCompact(plan);
-      return JSON.stringify({ d: p.d, tb: p.tb, u: p.u, b: p.b, be: p.be, f: p.f });
+      return JSON.stringify({ th: p.th, d: p.d, tb: p.tb, u: p.u, b: p.b, be: p.be, f: p.f });
     }
     const DEFAULT_PLAN_FINGERPRINT = computePlanFingerprint(DEFAULT_OPERATION_PLAN);
     lastSyncedPlanFingerprint = computePlanFingerprint(operationPlan);
@@ -5963,6 +6533,9 @@
           localStorage.setItem('ups_hka_op_updated_at_v8', String(lastAppliedPlanTimestamp));
         } catch (e) {}
 
+        if (operationPlan.festivalTheme && typeof applyFestivalTheme === 'function') {
+          applyFestivalTheme(operationPlan.festivalTheme, true);
+        }
         if (typeof applyHKIAMapsToOperationPlan === 'function') applyHKIAMapsToOperationPlan();
         renderUPSGatewayUldBubble();
         const activeTag = document.activeElement ? document.activeElement.tagName : '';
@@ -8258,8 +8831,13 @@
             : 1.0;
         }
 
-        // === HALLOWEEN THEME ANIMATIONS: Floating Ghosts, Flapping Bats, Twinkling Bulbs & Breathing Pumpkins ===
-        halloweenAnimatedGhosts.forEach((g) => {
+        // === MULTI-FESTIVAL THEME ANIMATIONS ===
+        halloweenStringBulbs.forEach((b) => {
+          b.mat.emissiveIntensity = 0.85 + Math.sin(elapsed * 4.5 + b.phase) * 0.55;
+        });
+
+        if (state.festivalTheme === 'halloween') {
+          halloweenAnimatedGhosts.forEach((g) => {
           const gt = elapsed * 1.6 + g.phase;
           g.mesh.position.x = g.baseX + Math.sin(gt * 0.7) * 1.4;
           g.mesh.position.y = g.baseY + Math.sin(gt * 1.5) * 0.65;
@@ -8288,10 +8866,65 @@
           b.mat.emissiveIntensity = 0.85 + Math.sin(elapsed * 4.5 + b.phase) * 0.55;
         });
 
-        halloweenPumpkinGlows.forEach((p) => {
-          const pulse = 1.0 + Math.sin(elapsed * 2.6 + p.phase) * 0.035;
-          p.group.scale.set(p.baseScale * pulse, p.baseScale * (2.0 - pulse), p.baseScale * pulse);
-        });
+          halloweenPumpkinGlows.forEach((p) => {
+            const pulse = 1.0 + Math.sin(elapsed * 2.6 + p.phase) * 0.035;
+            p.group.scale.set(p.baseScale * pulse, p.baseScale * (2.0 - pulse), p.baseScale * pulse);
+          });
+        } else if (state.festivalTheme === 'christmas') {
+          if (christmasSnowPoints) {
+            const sAttr = christmasSnowPoints.geometry.attributes.position;
+            for (let i = 0; i < sAttr.count; i++) {
+              let sy = sAttr.getY(i) - 0.14;
+              let sx = sAttr.getX(i) + Math.sin(elapsed * 1.5 + i) * 0.03;
+              if (sy < 0) sy = 46;
+              sAttr.setX(i, sx);
+              sAttr.setY(i, sy);
+            }
+            sAttr.needsUpdate = true;
+          }
+          if (christmasSantaSleigh) {
+            const st = elapsed * 0.45;
+            christmasSantaSleigh.position.x = Math.cos(st) * 48;
+            christmasSantaSleigh.position.z = -38 + Math.sin(st * 2) * 10;
+            christmasSantaSleigh.position.y = 21 + Math.sin(elapsed * 2.2) * 1.4;
+            christmasSantaSleigh.rotation.y = -Math.sin(st) >= 0 ? 0 : Math.PI;
+          }
+        } else if (state.festivalTheme === 'newyear') {
+          newYearFireworks.forEach((fw) => {
+            const cycle = (elapsed * 0.75 + fw.phase) % 1.0;
+            const posAttr = fw.geo.attributes.position;
+            for (let i = 0; i < fw.dirs.length; i++) {
+              const d = fw.dirs[i];
+              posAttr.setXYZ(
+                i,
+                d.vx * cycle,
+                d.vy * cycle - 3.2 * cycle * cycle,
+                d.vz * cycle
+              );
+            }
+            posAttr.needsUpdate = true;
+            fw.mat.opacity = Math.max(0, 1.0 - Math.pow(cycle, 1.6));
+          });
+        } else if (state.festivalTheme === 'cny') {
+          cnySkyLanterns.forEach((sl) => {
+            const lt = (elapsed * 0.6 + sl.phase) % 12.0;
+            sl.mesh.position.y = sl.baseY + lt * 1.2;
+            sl.mesh.position.x = sl.baseX + Math.sin(elapsed + sl.phase) * 1.5;
+            sl.mesh.rotation.y = elapsed * 0.4 + sl.phase;
+          });
+          cnyLionDancers.forEach((ld) => {
+            const t = elapsed * 4.5 + ld.phase;
+            ld.group.position.y = Math.abs(Math.sin(t)) * 0.55;
+            ld.group.rotation.y = Math.sin(t * 0.5) * 0.35;
+          });
+        } else if (state.festivalTheme === 'easter') {
+          easterHoppingBunnies.forEach((b) => {
+            const ht = elapsed * 4.2 + b.phase;
+            b.group.position.y = Math.abs(Math.sin(ht)) * 0.65;
+            b.group.position.x = b.baseX + Math.sin(ht * 0.4) * 1.2;
+            b.group.rotation.y = Math.cos(ht * 0.4) * 0.6;
+          });
+        }
 
         // Collaboration & parcel data packets moving along arcs
         pulsePackets.forEach(pkt => {
@@ -8355,8 +8988,47 @@
       updateProjectedLabels();
     }
 
+    // Bind Hideable Pop-up Festival Theme Switcher Menu
+    const btnToggleThemeMenu = document.getElementById('btn-toggle-theme-menu');
+    const btnCloseThemeMenu = document.getElementById('btn-close-theme-menu');
+    const festivalThemePopup = document.getElementById('festival-theme-popup');
+
+    if (btnToggleThemeMenu && festivalThemePopup) {
+      btnToggleThemeMenu.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isHidden = festivalThemePopup.classList.contains('hidden');
+        if (isHidden) {
+          festivalThemePopup.classList.remove('hidden');
+          festivalThemePopup.classList.add('flex');
+        } else {
+          festivalThemePopup.classList.add('hidden');
+          festivalThemePopup.classList.remove('flex');
+        }
+      });
+    }
+    if (btnCloseThemeMenu && festivalThemePopup) {
+      btnCloseThemeMenu.addEventListener('click', (e) => {
+        e.stopPropagation();
+        festivalThemePopup.classList.add('hidden');
+        festivalThemePopup.classList.remove('flex');
+      });
+    }
+    document.querySelectorAll('.festival-theme-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const chosenTheme = btn.getAttribute('data-festival-theme') || 'normal';
+        applyFestivalTheme(chosenTheme);
+        // Auto-hide popup menu immediately after selecting a theme so it never occupies screen space!
+        if (festivalThemePopup) {
+          festivalThemePopup.classList.add('hidden');
+          festivalThemePopup.classList.remove('flex');
+        }
+      });
+    });
+
     // Initialize everything on load
     window.onload = () => {
+      applyFestivalTheme(operationPlan.festivalTheme || state.festivalTheme || 'halloween', true);
       renderOperationPlanTable();
       renderSelectedIslandDetail('UPS');
       renderWarningsStrip();
