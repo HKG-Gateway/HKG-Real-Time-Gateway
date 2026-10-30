@@ -443,79 +443,65 @@
     <div id="detail-facilities"></div>
   </div>
 
-  <!-- BOTTOM FLOATING DOCK: HK LIVE TIME + WEATHER + SCENE CONTROLS + QUICK ACTION BUTTONS -->
-  <div class="fixed bottom-3 left-1/2 -translate-x-1/2 z-30 max-w-[98vw] flex flex-col items-center gap-1.5">
-    
-    <!-- Secondary Legend Pill ("中心長方形：" removed per user request) -->
-    <div class="glass-card rounded-full px-3.5 py-1 flex items-center gap-3 text-[10.5px] font-semibold text-slate-700 shadow-sm">
-      <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-sm bg-amber-500 inline-block"></span>UPS HKG Gateway</span>
-      <span id="active-weather-summary" class="text-sky-700 font-bold">☀️ 赤鱲角：晴朗 · 27.0°C</span>
-    </div>
-
-    <!-- Main Bottom Bar (now includes Quick Action Buttons inside) -->
-    <div class="glass-card rounded-2xl px-3.5 py-2 flex flex-col items-center justify-center gap-2 shadow-xl border border-white">
-      <div class="flex flex-wrap items-center justify-center gap-2">
-        <!-- Live HK Clock & Automatic Phase/Weather Readout -->
-        <div class="flex items-center gap-2.5 pr-2 border-r border-slate-300/80">
-          <div>
-            <div id="hk-clock-time" class="text-base sm:text-lg font-black font-mono tracking-tight text-slate-900 leading-none">08:42:00</div>
-            <div id="hk-clock-sub" class="text-[10px] font-bold text-emerald-700 mt-0.5">香港時間 · 自動演進中</div>
-          </div>
+  <!-- ULTRA-SLIM UNIFIED BOTTOM FLOATING DOCK (Matches Approved Preview Image: 50%+ Height Reduction) -->
+  <div class="fixed bottom-2 left-1/2 -translate-x-1/2 z-30 w-max max-w-[99vw]">
+    <div class="glass-card rounded-2xl px-3 py-1.5 flex flex-col items-center justify-center gap-1 shadow-xl border border-white/90">
+      <!-- Top Slim Row: Compact HK Time + Unified Dark Status Pill -->
+      <div class="w-full flex flex-wrap items-center justify-between gap-2 px-1">
+        <div class="flex items-center gap-1.5">
+          <div id="hk-clock-time" class="text-base sm:text-lg font-black font-mono tracking-tight text-slate-900 leading-none">08:42:00</div>
+          <span class="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[9px] font-extrabold leading-tight">香港<br/>時間</span>
+          <div id="hk-clock-sub" class="hidden">香港時間 · 自動演進中</div>
         </div>
 
-        <!-- Read-only Automatic Time-of-Day & Weather Status Badges -->
-        <div class="flex items-center gap-2 px-2 py-1 rounded-xl bg-slate-900/90 text-white text-xs font-bold shadow-sm">
-          <span id="dock-auto-phase-badge" class="inline-flex items-center gap-1 text-amber-300">🌤️ 時段：上午 (07:00–11:30)</span>
-          <span class="text-slate-500">|</span>
-          <span id="dock-auto-wx-badge" class="inline-flex items-center gap-1 text-sky-300">☀️ 天氣：晴朗微風</span>
-        </div>
-
-        <!-- Scene Toggle Controls -->
-        <div class="flex items-center gap-1 pl-1 border-l border-slate-300/80">
-          <button id="toggle-labels" class="px-2.5 py-1 rounded-xl text-[11px] font-bold bg-slate-900 text-white transition" title="顯示/隱藏島嶼名牌">
-            🏷️ 名牌
-          </button>
-          <button id="toggle-bubbles" class="px-2.5 py-1 rounded-xl text-[11px] font-bold bg-slate-900 text-white transition" title="顯示/隱藏實時對話氣泡">
-            💬 氣泡
-          </button>
-          <button id="toggle-rotate" class="px-2.5 py-1 rounded-xl text-[11px] font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition" title="自動環繞鏡頭">
-            🎥 環繞
-          </button>
-          <button id="toggle-pause" class="px-2.5 py-1 rounded-xl text-[11px] font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition" title="暫停/繼續動畫">
-            ⏸️ 暫停
-          </button>
+        <div class="flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-slate-900/95 text-amber-300 text-[10.5px] font-bold shadow-sm">
+          <span id="active-weather-summary" class="tracking-tight">☀️ 赤鱲角：晴朗 · 27.0°C</span>
+          <span id="dock-auto-phase-badge" class="hidden"></span>
+          <span id="dock-auto-wx-badge" class="hidden"></span>
         </div>
       </div>
 
-      <!-- Quick Action & Camera Buttons Row inside Bottom Info Bar -->
-      <div class="pt-1.5 border-t border-slate-200/80 flex items-center justify-center gap-1.5 flex-wrap">
-        <button id="btn-cam-panorama" class="px-3 py-1 rounded-xl text-xs font-bold bg-white/90 text-slate-800 shadow-sm hover:bg-white transition border border-slate-200/80">
+      <!-- Bottom Slim Row: All Quick Action & Scene Toggle Buttons in One Low-Profile Strip -->
+      <div class="flex items-center justify-center gap-1 flex-wrap">
+        <button id="btn-cam-panorama" class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-slate-900 text-white shadow-sm hover:bg-slate-800 transition">
           全景
         </button>
-        <button id="btn-cam-top" class="px-3 py-1 rounded-xl text-xs font-bold bg-slate-900 text-white shadow-sm hover:bg-slate-800 transition">
+        <button id="btn-cam-top" class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-slate-900 text-white shadow-sm hover:bg-slate-800 transition">
           俯瞰六角陣
         </button>
-        <button id="btn-cam-ups" class="px-3 py-1 rounded-xl text-xs font-bold bg-amber-500 text-slate-950 shadow-sm hover:bg-amber-400 transition">
+        <button id="btn-cam-ups" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500 text-slate-950 shadow-sm hover:bg-amber-400 transition">
           UPS HKG Gateway
         </button>
-        <button id="btn-cam-runway" class="px-3 py-1 rounded-xl text-xs font-bold bg-sky-600 text-white shadow-sm hover:bg-sky-500 transition flex items-center gap-1">
+        <button id="btn-cam-runway" class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-sky-600 text-white shadow-sm hover:bg-sky-500 transition flex items-center gap-0.5">
           🛫 跑道起降
         </button>
-        <button id="btn-lock-view" class="px-2.5 py-1 rounded-xl text-xs font-bold bg-white/90 text-slate-700 shadow-sm hover:bg-white transition flex items-center gap-1 border border-slate-200/80" title="鎖定/解鎖動態島 3D 視覺距離與角度" aria-pressed="false">
+        <button id="btn-lock-view" class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-white/90 text-slate-700 shadow-sm hover:bg-white transition flex items-center gap-0.5 border border-slate-200/80" title="鎖定/解鎖動態島 3D 視覺距離與角度" aria-pressed="false">
           <span id="lock-view-icon">🔓</span>
           <span id="lock-view-label">鎖定視角</span>
         </button>
-        <button id="btn-open-chart" class="px-3 py-1 rounded-xl text-xs font-bold bg-white/90 text-sky-700 shadow-sm hover:bg-white transition border border-sky-200">
+        <button id="btn-open-chart" class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-white/90 text-sky-700 shadow-sm hover:bg-white transition border border-sky-200">
           赤鱲角氣溫圖表
         </button>
-        <button id="btn-open-roster" class="px-3 py-1 rounded-xl text-xs font-bold bg-emerald-600 text-white shadow-sm hover:bg-emerald-500 transition flex items-center gap-1">
+        <button id="btn-open-roster" class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-600 text-white shadow-sm hover:bg-emerald-500 transition flex items-center gap-0.5">
           📋 每日工作編排
         </button>
-        <button id="btn-hud-cloud-sync" class="px-2.5 py-1 rounded-xl text-xs font-bold bg-sky-600 text-white shadow-sm hover:bg-sky-500 transition flex items-center gap-1" title="跨設備雲端即時同步狀態（點擊立即從雲端拉取最新每日工作編排）">
-          <span id="hud-cloud-dot" class="w-2 h-2 rounded-full bg-emerald-300 live-dot"></span>
+        <button id="btn-hud-cloud-sync" class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-sky-600 text-white shadow-sm hover:bg-sky-500 transition flex items-center gap-1" title="跨設備雲端即時同步狀態（點擊立即從雲端拉取最新每日工作編排）">
+          <span id="hud-cloud-dot" class="w-1.5 h-1.5 rounded-full bg-emerald-300 live-dot"></span>
           <span id="hud-cloud-text">☁️ 雲端同步</span>
         </button>
-        <button id="btn-open-help" class="w-7 h-7 rounded-xl text-xs font-bold bg-white/90 text-slate-700 shadow-sm hover:bg-white transition flex items-center justify-center border border-slate-200/80" title="操作說明">
+        <button id="toggle-labels" class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-slate-900 text-white transition" title="顯示/隱藏島嶼名牌">
+          🏷️ 名牌
+        </button>
+        <button id="toggle-bubbles" class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-slate-900 text-white transition" title="顯示/隱藏實時對話氣泡">
+          💬 氣泡
+        </button>
+        <button id="toggle-rotate" class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition" title="自動環繞鏡頭">
+          🎥 環繞
+        </button>
+        <button id="toggle-pause" class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition" title="暫停/繼續動畫">
+          ⏸️ 暫停
+        </button>
+        <button id="btn-open-help" class="w-6 h-6 rounded-full text-[11px] font-bold bg-white/90 text-slate-700 shadow-sm hover:bg-white transition flex items-center justify-center border border-slate-200/80" title="操作說明">
           ?
         </button>
       </div>
@@ -5356,19 +5342,22 @@
         return `<td style="background:${col.cellBg}; color:${col.cellText || '#0f172a'}; font-size:10.5px; font-weight:900; padding:1.5px 4px;">${val}</td>`;
       }).join('');
 
-      // Split OP_FIXED_ROWS into two balanced side-by-side 11-row / 10-row panels so ALL 21 rows + Bottom Roles display clearly without covering the 3D building below
+      // Split OP_FIXED_ROWS into two side-by-side panels (with Flt Nbr (離港) & FOD (After Load) moved to the top of the right panel above PARKING BAY per user request)
       const leftRows = [
         { key: 'inFlt', label: 'Flt Nbr (到港)' },
         { key: 'inCrewPick', label: 'In/Crew Pick' },
         { key: 'meetPlane', label: '接機' },
         { key: 'inboundUld', label: 'Inbound Uld' },
-        { key: 'outFlt', label: 'Flt Nbr (離港)' },
         { key: 'tailNbr', label: 'Tail Nbr' },
         { key: 'crewPickTime', label: 'Crew Pick Time' },
         { key: 'meetCrew', label: '接 CREW' },
         { key: 'parkingBay', label: 'PARKING BAY', isBay: true },
-        { key: 'loadTime', label: '裝機' },
-        { key: 'fod', label: 'FOD (After Load)', highlight: true }
+        { key: 'loadTime', label: '裝機' }
+      ];
+      const rightTopRows = [
+        { key: 'outFlt', label: 'Flt Nbr (離港)' },
+        { key: 'fod', label: 'FOD (After Load)', highlight: true },
+        { key: 'parkingBay', label: 'PARKING BAY', isBay: true }
       ];
       const rightRows = [
         { key: 'ric', label: 'RIC' },
@@ -5399,17 +5388,7 @@
         return `<tr class="${trCls}"><td class="op-b-lbl">${rDef.label}</td>${tds}</tr>`;
       }).join('');
 
-      const rightBayRepeatRow = `
-        <tr>
-          <td class="op-b-lbl">PARKING BAY</td>
-          ${flights.map(flt => {
-            const v = (flt.parkingBay || '-').trim() || '-';
-            return v !== '-'
-              ? `<td class="op-b-cell" style="background:#d1fae5; color:#065f46; font-weight:900;">${v}</td>`
-              : `<td class="op-b-cell">-</td>`;
-          }).join('')}
-        </tr>
-      `;
+      const rightBayRepeatRow = buildPanelRows(rightTopRows);
 
       _cachedUldNatW = 0;
       upsGatewayUldBubbleEl.innerHTML = `
@@ -6117,8 +6096,18 @@
         };
       }
 
+      const loadRawTrim = String(flt.loadTime || '').trim();
+      const isQuickTurn = /quick\s*turn|^qt$/i.test(loadRawTrim);
+      const isLoadDone = /^done$|已完成|完成/i.test(loadRawTrim);
+
       let isLoading = false;
-      if (loadMins !== null) {
+      if (isLoadDone) {
+        // Done: loading is completed, hide the loading crew & loading bubble
+        isLoading = false;
+      } else if (isQuickTurn) {
+        // Quick Turn: as soon as the aircraft has arrived at gate (到閘口) and finished its landing & parking animation (phase === 'parked'), immediately show loading info!
+        isLoading = true;
+      } else if (loadMins !== null) {
         const depMins = parseTimeStrToMinutes(depInfo.displayTime);
         const effEnd = (depMins !== null && depMins > nowMins) ? depMins : ((loadMins + 360) % 1440);
         isLoading = isTimeInParkedWindow(nowMins, loadMins, effEnd);
@@ -6838,12 +6827,12 @@
       const labelEl = document.getElementById('lock-view-label');
       btn.setAttribute('aria-pressed', String(state.viewLocked));
       if (state.viewLocked) {
-        btn.className = 'px-2.5 py-1.5 rounded-xl text-xs font-bold bg-rose-600 text-white shadow-md hover:bg-rose-500 transition flex items-center gap-1 border border-rose-400 ring-2 ring-rose-300/60';
+        btn.className = 'px-2 py-0.5 rounded-full text-[11px] font-bold bg-rose-600 text-white shadow-sm hover:bg-rose-500 transition flex items-center gap-0.5 border border-rose-400';
         iconEl.textContent = '🔒';
         labelEl.textContent = '已鎖定';
         container.style.cursor = 'default';
       } else {
-        btn.className = 'px-2.5 py-1.5 rounded-xl text-xs font-bold bg-white/90 text-slate-700 shadow hover:bg-white transition flex items-center gap-1 border border-slate-200/80';
+        btn.className = 'px-2 py-0.5 rounded-full text-[11px] font-bold bg-white/90 text-slate-700 shadow-sm hover:bg-white transition flex items-center gap-0.5 border border-slate-200/80';
         iconEl.textContent = '🔓';
         labelEl.textContent = '鎖定視角';
         container.style.cursor = 'grab';
@@ -7670,27 +7659,27 @@
     document.getElementById('toggle-labels').addEventListener('click', (e) => {
       state.showLabels = !state.showLabels;
       e.currentTarget.className = state.showLabels
-        ? 'px-2.5 py-1 rounded-xl text-[11px] font-bold bg-slate-900 text-white transition'
-        : 'px-2.5 py-1 rounded-xl text-[11px] font-bold bg-slate-100 text-slate-700 transition';
+        ? 'px-2 py-0.5 rounded-full text-[11px] font-bold bg-slate-900 text-white transition'
+        : 'px-2 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-700 transition';
     });
     document.getElementById('toggle-bubbles').addEventListener('click', (e) => {
       state.showBubbles = !state.showBubbles;
       e.currentTarget.className = state.showBubbles
-        ? 'px-2.5 py-1 rounded-xl text-[11px] font-bold bg-slate-900 text-white transition'
-        : 'px-2.5 py-1 rounded-xl text-[11px] font-bold bg-slate-100 text-slate-700 transition';
+        ? 'px-2 py-0.5 rounded-full text-[11px] font-bold bg-slate-900 text-white transition'
+        : 'px-2 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-700 transition';
     });
     document.getElementById('toggle-rotate').addEventListener('click', (e) => {
       state.autoRotate = !state.autoRotate;
       e.currentTarget.className = state.autoRotate
-        ? 'px-2.5 py-1 rounded-xl text-[11px] font-bold bg-amber-500 text-slate-950 transition'
-        : 'px-2.5 py-1 rounded-xl text-[11px] font-bold bg-slate-100 text-slate-700 transition';
+        ? 'px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-500 text-slate-950 transition'
+        : 'px-2 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-700 transition';
     });
     document.getElementById('toggle-pause').addEventListener('click', (e) => {
       state.paused = !state.paused;
       e.currentTarget.textContent = state.paused ? '▶️ 繼續' : '⏸️ 暫停';
       e.currentTarget.className = state.paused
-        ? 'px-2.5 py-1 rounded-xl text-[11px] font-bold bg-amber-500 text-slate-950 transition'
-        : 'px-2.5 py-1 rounded-xl text-[11px] font-bold bg-slate-100 text-slate-700 transition';
+        ? 'px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-500 text-slate-950 transition'
+        : 'px-2 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-700 transition';
     });
 
     window.addEventListener('resize', () => {
