@@ -5962,10 +5962,12 @@
         fr24TextEl.textContent = `HKIA 貨機抵港/離港 (5X · ${zhDate}) 1s 自動同步 (${nowStr})`;
       }
       // Also keep Operation Plan modal column header badges (#op-col-status-*) 100% synchronized every 1s
+      const _hkNow = getHongKongHMS();
+      const _hkNowMins = _hkNow.hh * 60 + _hkNow.mm;
       operationPlan.flights.forEach((flt, colIdx) => {
         const badgeContainer = document.getElementById(`op-col-status-${colIdx}`);
         if (!badgeContainer) return;
-        const st = evaluateFlightStatusAtHKTime(flt, 0, colIdx);
+        const st = evaluateFlightStatusAtHKTime(flt, _hkNowMins, colIdx);
         badgeContainer.innerHTML = st.active
           ? `<span class="inline-block px-1.5 py-0.2 rounded bg-emerald-500 text-slate-950 text-[9.5px] font-black ml-1">✈️ 在港</span>`
           : (st.hasDeparted
@@ -7271,9 +7273,18 @@
         // Quick Turn: as soon as the aircraft has arrived at gate (到閘口) and finished its landing & parking animation (phase === 'parked'), immediately show loading info!
         isLoading = true;
       } else if (loadMins !== null) {
-        const depMins = parseTimeStrToMinutes(depInfo.displayTime);
-        const effEnd = (depMins !== null && depMins > nowMins) ? depMins : ((loadMins + 360) % 1440);
-        isLoading = isTimeInParkedWindow(nowMins, loadMins, effEnd);
+        // Measure forward elapsed minutes since loadMins (0..1439):
+        // Guarantees loading NEVER triggers before loadMins (e.g., 22:00 will NEVER trigger at 18:00 even if fallback schedTime is 20:00!)
+        const elapsedSinceLoad = (nowMins - loadMins + 1440) % 1440;
+        let maxLoadWindowMins = 360; // default 6-hour loading window from loadTime until departure
+        const crewPickMins = parseTimeStrToMinutes(flt.crewPickTime);
+        if (crewPickMins !== null) {
+          const toCrewPick = (crewPickMins - loadMins + 1440) % 1440;
+          if (toCrewPick > 0 && toCrewPick <= 420) {
+            maxLoadWindowMins = Math.max(maxLoadWindowMins, toCrewPick + 90);
+          }
+        }
+        isLoading = elapsedSinceLoad >= 0 && elapsedSinceLoad < maxLoadWindowMins;
       }
 
       return { active: true, phase: 'parked', isLoading, hasArrived: true, hasDeparted: false, arrEventKey, depEventKey, arrInfo, depInfo };
@@ -7583,6 +7594,9 @@
       });
       islandLoadingCrewMap.forEach((crewObj) => {
         crewObj.group.visible = false;
+        if (crewObj.bubbleEl && crewObj.bubbleEl.style.display !== 'none') {
+          crewObj.bubbleEl.style.display = 'none';
+        }
       });
       islandRoadSignsMap.forEach((signGroup, islId) => {
         updateBayRoadSignText(islId, '');
