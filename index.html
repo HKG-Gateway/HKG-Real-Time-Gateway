@@ -178,8 +178,8 @@
       border-radius: 5px;
       overflow: hidden;
       border: 1px solid #475569;
-      width: max-content;
-      min-width: 100%;
+      width: 100%;
+      min-width: max-content;
       height: 100%;
     }
     .uld-op-grid-table th, .uld-op-grid-table td {
@@ -4031,6 +4031,7 @@
     const _projVecB = new THREE.Vector3();
     let _cachedUldNatW = 0;
     let _cachedUldNatH = 0;
+    let _minIntrinsicUldW = 0;
 
     function updateProjectedLabels() {
       const w = window.innerWidth;
@@ -4081,27 +4082,29 @@
               upsGatewayUldBubbleEl.style.display = 'block';
               _cachedUldNatW = 0;
             }
+            // 1) Measure intrinsic max-content width once so Left Table (#1-#11) & Right Table (#1-#11) never squeeze or overlap
+            if (!_minIntrinsicUldW || !_cachedUldNatH) {
+              upsGatewayUldBubbleEl.style.width = 'max-content';
+              _minIntrinsicUldW = upsGatewayUldBubbleEl.offsetWidth || 1280;
+              _cachedUldNatH = upsGatewayUldBubbleEl.offsetHeight || 340;
+              _cachedUldNatW = _minIntrinsicUldW;
+            }
+
             const hudTopAligned = (leftHudRectRaw && leftHudRectRaw.width > 0)
               ? Math.max(6, Math.round(leftHudRectRaw.top))
               : 10;
-            const boardLeft = (w >= 720 && leftHudRectRaw && leftHudRectRaw.width > 0)
+            const minLeftClear = (w >= 720 && leftHudRectRaw && leftHudRectRaw.width > 0)
               ? Math.ceil(leftHudRectRaw.right) + 8
               : (w >= 720 ? 372 : 8);
-            const boardTop = hudTopAligned;
 
-            // Keep width strictly at max-content so the Left Table (#1-#11) and Right Table (#1-#11) NEVER overlap each other!
-            if (upsGatewayUldBubbleEl.style.width !== 'max-content') {
-              upsGatewayUldBubbleEl.style.width = 'max-content';
-              _cachedUldNatW = 0;
-            }
-            if (!_cachedUldNatW || !_cachedUldNatH) {
-              _cachedUldNatW = upsGatewayUldBubbleEl.offsetWidth || 1280;
-              _cachedUldNatH = upsGatewayUldBubbleEl.offsetHeight || 340;
-            }
-
-            // Project all highest points of the UPS Building, Rooftop Sign, Office Tower, AND the 3D Dynamic Island perimeter
-            // so even when moving/rotating the Dynamic Island, the Bulletin Board never overlaps the island or building!
+            // 2) Project 3D anchor behind UPS HKG Gateway Building so the Bulletin Board moves naturally with the 3D view
             const baseY = upsGroup.position.y;
+            _projVecA.set(18.0, baseY + 13.5, -48.0).project(camera);
+            const rawBx = (_projVecA.x * 0.5 + 0.5) * w;
+            const rawBy = (-_projVecA.y * 0.5 + 0.5) * h;
+
+            // 3) Project ALL highest points of the UPS Building, Rooftop Sign, Office Tower, AND 3D Dynamic Island back corners
+            //    so moving or rotating the Dynamic Island never allows any corner or roof to overlap the bottom of the board!
             const signTopH = state.festivalTheme === 'newyear' ? 14.8 : 12.8;
             const checkPts3D = [
               [12.0, baseY + signTopH, -34.2],
@@ -4112,14 +4115,14 @@
               [-85.0, baseY + 4.8, -53.5],
               [85.0, baseY + 4.8, -53.5]
             ];
-            let highestIslandOrBuildingSy = h * 0.55;
+            let highestIslandOrBuildingSy = h * 0.62;
             for (let pIdx = 0; pIdx < checkPts3D.length; pIdx++) {
               const pt = checkPts3D[pIdx];
               _projVecB.set(pt[0], pt[1], pt[2]).project(camera);
               if (_projVecB.z <= 1) {
                 const px = (_projVecB.x * 0.5 + 0.5) * w;
                 const py = (-_projVecB.y * 0.5 + 0.5) * h;
-                if (px >= boardLeft - 40) {
+                if (px >= minLeftClear - 40) {
                   highestIslandOrBuildingSy = Math.min(highestIslandOrBuildingSy, py);
                 }
               }
@@ -4139,26 +4142,60 @@
               bottom: Math.ceil(syBldFrontBase + 6)
             };
 
-            // Bottom edge is strictly capped 8px above the highest point of the 3D Dynamic Island & UPS Building
-            const strictLimitBottom = Math.max(boardTop + 135, Math.min(h - 150, Math.floor(highestIslandOrBuildingSy - 8)));
+            // 4) Compute available space from minLeftClear (left panel + 8px) to right screen edge and down to highestIslandOrBuildingSy - 8
+            const strictLimitBottom = Math.max(hudTopAligned + 140, Math.min(h - 150, Math.floor(highestIslandOrBuildingSy - 8)));
+            let targetBy = Math.min(rawBy + 36, strictLimitBottom);
+            targetBy = Math.max(hudTopAligned + 140, Math.min(strictLimitBottom, targetBy));
 
-            const availW = Math.max(380, w - boardLeft - 8);
-            const availH = Math.max(135, strictLimitBottom - boardTop);
+            const availW = Math.max(380, w - minLeftClear - 8);
+            const availH = Math.max(135, targetBy - hudTopAligned);
 
-            const fitScale = Math.max(0.38, Math.min(availW / _cachedUldNatW, availH / _cachedUldNatH));
-            const scaledW = _cachedUldNatW * fitScale;
-            const scaledH = _cachedUldNatH * fitScale;
+            // Detect how much the camera is panned/rotated/zoomed away from the default front panorama view:
+            // - In default front view: fills 100% of availW x availH (from left panel + 8px all the way to right edge & building roof)
+            // - When rotating/panning/zooming: smoothly tracks 3D position (rawBx, targetBy) and camera distance!
+            const camDeviation = Math.min(1.0,
+              Math.abs(camCtrl.spherical.theta - (-0.22)) * 1.8 +
+              Math.abs(camCtrl.target.x - 2.0) * 0.03 +
+              Math.abs(camCtrl.spherical.radius - 222) * 0.004
+            );
+            const widthFillRatio = 1.0 - camDeviation * 0.07; // 100% fill in default view; 93% during rotation so it glides horizontally
+            const targetSpanW = availW * widthFillRatio;
 
-            upsGatewayUldBubbleEl.style.transformOrigin = 'top left';
-            upsGatewayUldBubbleEl.style.transform = `scale(${fitScale.toFixed(4)})`;
-            upsGatewayUldBubbleEl.style.left = `${Math.round(boardLeft)}px`;
-            upsGatewayUldBubbleEl.style.top = `${Math.round(boardTop)}px`;
+            // 5) Dynamically allocate table layout width to match targetSpanW / availH (never below _minIntrinsicUldW!)
+            //    so 1:1 uniform scale(fitScale) fills both width and height with large, un-stretched desktop fonts
+            const natH = _cachedUldNatH || 340;
+            const idealLayoutW = Math.max(_minIntrinsicUldW, Math.round(natH * (targetSpanW / availH)));
+            if (Math.abs((_cachedUldNatW || 0) - idealLayoutW) > 6) {
+              upsGatewayUldBubbleEl.style.width = `${idealLayoutW}px`;
+              _cachedUldNatW = upsGatewayUldBubbleEl.offsetWidth || idealLayoutW;
+              _cachedUldNatH = upsGatewayUldBubbleEl.offsetHeight || natH;
+            }
+            const curNatW = Math.max(_minIntrinsicUldW, _cachedUldNatW || idealLayoutW);
+            const curNatH = _cachedUldNatH || natH;
+
+            const camZoomScale = Math.max(0.76, Math.min(1.06, 222 / Math.max(85, camCtrl.spherical.radius)));
+            const rawFitScale = Math.min(targetSpanW / curNatW, availH / curNatH);
+            const fitScale = Math.max(0.38, rawFitScale * (1.0 - camDeviation * 0.25 + camDeviation * 0.25 * camZoomScale));
+
+            const scaledW = curNatW * fitScale;
+            const scaledH = curNatH * fitScale;
+            const scaledHalfW = scaledW * 0.5;
+
+            const minBx = minLeftClear + scaledHalfW;
+            const maxBx = Math.max(minBx, w - scaledHalfW - 8);
+            const bx = Math.round(Math.max(minBx, Math.min(maxBx, rawBx)));
+            const by = Math.round(Math.max(hudTopAligned + scaledH, Math.min(strictLimitBottom, targetBy)));
+
+            upsGatewayUldBubbleEl.style.transformOrigin = 'bottom center';
+            upsGatewayUldBubbleEl.style.transform = `translate(-50%, -100%) scale(${fitScale.toFixed(4)})`;
+            upsGatewayUldBubbleEl.style.left = `${bx}px`;
+            upsGatewayUldBubbleEl.style.top = `${by}px`;
 
             uldObstacle = {
-              left: boardLeft - 6,
-              top: 0,
-              right: boardLeft + scaledW + 8,
-              bottom: boardTop + scaledH + 10
+              left: bx - scaledHalfW - 6,
+              top: Math.max(0, by - scaledH - 6),
+              right: bx + scaledHalfW + 6,
+              bottom: by + 10
             };
           }
         }
@@ -6510,6 +6547,8 @@
       const rightBayRepeatRow = buildPanelRows(rightTopRows);
 
       _cachedUldNatW = 0;
+      _minIntrinsicUldW = 0;
+      if (upsGatewayUldBubbleEl) upsGatewayUldBubbleEl.style.width = 'max-content';
       upsGatewayUldBubbleEl.innerHTML = `
         <div style="display:flex; flex-direction:column; gap:2.5px;">
           <table class="uld-mini-table">
@@ -6530,7 +6569,7 @@
             <span style="color:#38bdf8;">🚜 ${operationPlan.tractorBanner || '1 x 24 Tractor (1200-0800)'}</span>
             <span style="color:#a7f3d0;">✏️ 點擊壁報板可修改</span>
           </div>
-          <div style="display:grid; grid-template-columns:max-content max-content; gap:6px; align-items:stretch; width:max-content;">
+          <div style="display:grid; grid-template-columns:minmax(max-content, 1fr) minmax(max-content, 1fr); gap:6px; align-items:stretch; width:100%;">
             <table class="uld-op-grid-table">
               <thead>
                 <tr>
@@ -8813,6 +8852,7 @@
 
     window.addEventListener('resize', () => {
       _cachedUldNatW = 0;
+      _minIntrinsicUldW = 0;
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       bgRenderer.setSize(window.innerWidth, window.innerHeight);
