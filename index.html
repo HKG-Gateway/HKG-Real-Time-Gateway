@@ -123,16 +123,16 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      padding: 2px 9px;
-      background: linear-gradient(180deg, #047857 0%, #065f46 100%);
-      color: #ffffff;
-      border: 2px solid #ffffff;
+      padding: 2px 10px;
+      background: #090d16;
+      color: #fde047;
+      border: 2px solid #facc15;
       border-radius: 7px;
-      box-shadow: 0 0 0 1.5px #064e3b, 0 3px 8px rgba(0, 0, 0, 0.32);
+      box-shadow: 0 0 0 1.5px #000000, 0 4px 10px rgba(0, 0, 0, 0.45);
       font-family: 'Fredoka', 'Nunito', 'M PLUS Rounded 1c', sans-serif;
-      font-size: 11px;
-      font-weight: 800;
-      letter-spacing: 0.03em;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.04em;
       line-height: 1.15;
     }
     .uld-bubble-card {
@@ -1268,11 +1268,34 @@
     }
 
     // Custom Smooth Orbit & Pan Camera Controller (frame-rate independent damping for 60Hz/120Hz fluidity)
+    function getResponsive3DScaleFactor() {
+      const w = window.innerWidth || 1920;
+      const h = window.innerHeight || 960;
+      const aspect = w / Math.max(1, h);
+      return Math.max(0.94, Math.min(1.18, (w / 1680) * 0.52 + (aspect / 1.78) * 0.52));
+    }
+
+    function getResponsivePanoramaCameraSpec() {
+      const aspect = window.innerWidth / Math.max(1, window.innerHeight);
+      // Pull camera closer (base radius 156) and scale automatically with screen aspect ratio
+      const aspectScale = Math.max(0.82, Math.min(1.62, 1.95 / Math.max(0.65, aspect)));
+      const radius = Math.round(156 * aspectScale);
+      const targetY = +(22.0 * Math.min(1.16, Math.max(0.86, aspect / 1.85))).toFixed(2);
+      return {
+        targetX: 1.0,
+        targetY,
+        targetZ: 3.5,
+        radius,
+        phi: 1.03,
+        theta: -0.06
+      };
+    }
+    const _initCamSpec = getResponsivePanoramaCameraSpec();
     const camCtrl = {
-      target: new THREE.Vector3(2, 29.5, -16),
-      desiredTarget: new THREE.Vector3(2, 29.5, -16),
-      spherical: { radius: 222, phi: 0.98, theta: -0.22 },
-      desiredSpherical: { radius: 222, phi: 0.98, theta: -0.22 },
+      target: new THREE.Vector3(_initCamSpec.targetX, _initCamSpec.targetY, _initCamSpec.targetZ),
+      desiredTarget: new THREE.Vector3(_initCamSpec.targetX, _initCamSpec.targetY, _initCamSpec.targetZ),
+      spherical: { radius: _initCamSpec.radius, phi: _initCamSpec.phi, theta: _initCamSpec.theta },
+      desiredSpherical: { radius: _initCamSpec.radius, phi: _initCamSpec.phi, theta: _initCamSpec.theta },
       isDragging: false,
       isPanning: false,
       prevMouse: { x: 0, y: 0 }
@@ -1929,10 +1952,10 @@
         roughness: 0.3
       });
 
-      const hubW = 46.0;
-      const hubH = 5.2;
-      const hubD = 12.5;
-      const hubX = 12.0;
+      const hubW = 54.0;
+      const hubH = 6.6;
+      const hubD = 15.2;
+      const hubX = 10.5;
       const hubZ = -40.0;
 
       const mainHubBox = new THREE.Mesh(new THREE.BoxGeometry(hubW, hubH, hubD), upsDarkBrownMat);
@@ -1944,21 +1967,21 @@
       deckSurface.add(mainHubBox);
 
       // Golden-Amber Roof Trim Frame around the top of the brown sorting hub
-      const roofTrim = new THREE.Mesh(new THREE.BoxGeometry(hubW + 0.5, 0.32, hubD + 0.5), upsGoldTrimMat);
-      roofTrim.position.set(hubX, hubH + 0.08, hubZ);
+      const roofTrim = new THREE.Mesh(new THREE.BoxGeometry(hubW + 0.6, 0.42, hubD + 0.6), upsGoldTrimMat);
+      roofTrim.position.set(hubX, hubH + 0.10, hubZ);
       deckSurface.add(roofTrim);
 
-      // 5 Glowing Cyan/Mint Rectangular Skylight Panels on the Roof (exact match to photo!)
+      // 5 Glowing Cyan/Mint Rectangular Skylight Panels on the Roof (enlarged proportionally)
       const skylightMat = new THREE.MeshStandardMaterial({
         color: 0x99f6e4,
         emissive: 0x2dd4bf,
-        emissiveIntensity: 0.8,
+        emissiveIntensity: 0.85,
         roughness: 0.2
       });
       for (let sIdx = 0; sIdx < 5; sIdx++) {
-        const sx = hubX - 16.4 + sIdx * 8.2;
-        const skylight = new THREE.Mesh(new THREE.BoxGeometry(5.8, 0.14, 7.2), skylightMat);
-        skylight.position.set(sx, hubH + 0.22, hubZ);
+        const sx = hubX - 19.2 + sIdx * 9.6;
+        const skylight = new THREE.Mesh(new THREE.BoxGeometry(6.8, 0.18, 8.8), skylightMat);
+        skylight.position.set(sx, hubH + 0.26, hubZ);
         deckSurface.add(skylight);
       }
 
@@ -2020,54 +2043,54 @@
         side: THREE.DoubleSide
       });
 
-      // (a) Standing Rooftop 3D UPS Logo Billboard Sign at the center-front of the UPS HKG Gateway Roof
+      // (a) Enlarged Standing Rooftop 3D UPS Logo Billboard Sign at the center-front of the UPS HKG Gateway Roof
       const roofSignBacking = new THREE.Mesh(
-        new THREE.BoxGeometry(5.6, 6.4, 0.45),
+        new THREE.BoxGeometry(7.2, 8.0, 0.55),
         new THREE.MeshStandardMaterial({ color: 0x22130c, roughness: 0.4 })
       );
-      roofSignBacking.position.set(hubX, hubH + 3.2, hubZ + hubD / 2 - 0.5);
+      roofSignBacking.position.set(hubX, hubH + 4.0, hubZ + hubD / 2 - 0.5);
       deckSurface.add(roofSignBacking);
 
-      const roofLogoPlane = new THREE.Mesh(new THREE.PlaneGeometry(5.0, 5.8), logoSignMat);
-      roofLogoPlane.position.set(hubX, hubH + 3.2, hubZ + hubD / 2 - 0.22);
+      const roofLogoPlane = new THREE.Mesh(new THREE.PlaneGeometry(6.5, 7.3), logoSignMat);
+      roofLogoPlane.position.set(hubX, hubH + 4.0, hubZ + hubD / 2 - 0.20);
       deckSurface.add(roofLogoPlane);
 
-      // (b) Left & Right Facade 3D UPS Logo Shields on the front wall of the UPS HKG Gateway Building
-      [-20.5, 20.5].forEach(lxOffset => {
-        const wallLogoPlane = new THREE.Mesh(new THREE.PlaneGeometry(3.2, 3.8), logoSignMat);
-        wallLogoPlane.position.set(hubX + lxOffset, 3.1, hubZ + hubD / 2 + 0.15);
+      // (b) Enlarged Left & Right Facade 3D UPS Logo Shields on the front wall of the UPS HKG Gateway Building
+      [-23.8, 23.8].forEach(lxOffset => {
+        const wallLogoPlane = new THREE.Mesh(new THREE.PlaneGeometry(4.2, 4.9), logoSignMat);
+        wallLogoPlane.position.set(hubX + lxOffset, 3.8, hubZ + hubD / 2 + 0.16);
         deckSurface.add(wallLogoPlane);
       });
 
-      // 7 Warm Glowing Yellow Upper Windows + 7 Colorful Protruding Sorting Dock Bays (7 座分揀月台)
+      // 7 Enlarged Warm Glowing Yellow Upper Windows + 7 Colorful Protruding Sorting Dock Bays (7 座分揀月台)
       const yellowWinMat = new THREE.MeshStandardMaterial({
         color: 0xfef08a,
         emissive: 0xfacc15,
-        emissiveIntensity: 0.92,
+        emissiveIntensity: 0.95,
         roughness: 0.2
       });
       const dockBayColors = [0x60a5fa, 0xd6bc8b, 0x818cf8, 0x4fd1c5, 0xa3e635, 0xc084fc, 0x38bdf8];
       for (let bIdx = 0; bIdx < 7; bIdx++) {
-        const bx = hubX - 18.6 + bIdx * 6.2;
+        const bx = hubX - 21.6 + bIdx * 7.2;
 
-        const uWin = new THREE.Mesh(new THREE.BoxGeometry(4.2, 1.1, 0.2), yellowWinMat);
-        uWin.position.set(bx, 3.4, hubZ + hubD / 2 + 0.06);
+        const uWin = new THREE.Mesh(new THREE.BoxGeometry(5.0, 1.4, 0.24), yellowWinMat);
+        uWin.position.set(bx, 4.3, hubZ + hubD / 2 + 0.08);
         deckSurface.add(uWin);
 
-        const bayMat = new THREE.MeshStandardMaterial({ color: dockBayColors[bIdx], roughness: 0.45 });
-        const bayBox = new THREE.Mesh(new THREE.BoxGeometry(4.2, 1.25, 2.8), bayMat);
-        bayBox.position.set(bx, 0.65, hubZ + hubD / 2 + 1.4);
+        const bayMat = new THREE.MeshStandardMaterial({ color: dockBayColors[bIdx], roughness: 0.42 });
+        const bayBox = new THREE.Mesh(new THREE.BoxGeometry(5.0, 1.6, 3.4), bayMat);
+        bayBox.position.set(bx, 0.82, hubZ + hubD / 2 + 1.7);
         bayBox.castShadow = true;
         deckSurface.add(bayBox);
       }
 
-      // 4. Right-hand 4-Story Grey-Blue Office Building with 4x4 Glowing Window Grid (exact match to photo!)
+      // 4. Enlarged Right-hand 4-Story Grey-Blue Office Building with 4x4 Glowing Window Grid
       const officeWallMat = new THREE.MeshStandardMaterial({ color: 0x3b5266, roughness: 0.5 });
       const officeRoofMat = new THREE.MeshStandardMaterial({ color: 0x64748b, roughness: 0.5 });
-      const officeW = 10.5;
-      const officeH = 8.2;
-      const officeD = 9.5;
-      const officeX = 46.0;
+      const officeW = 13.5;
+      const officeH = 10.4;
+      const officeD = 12.0;
+      const officeX = 48.5;
       const officeZ = -38.5;
 
       const officeTower = new THREE.Mesh(new THREE.BoxGeometry(officeW, officeH, officeD), officeWallMat);
@@ -2078,21 +2101,21 @@
       clickableMeshes.push(officeTower);
       deckSurface.add(officeTower);
 
-      const officeCap = new THREE.Mesh(new THREE.BoxGeometry(officeW + 0.4, 0.3, officeD + 0.4), officeRoofMat);
-      officeCap.position.set(officeX, officeH + 0.15, officeZ);
+      const officeCap = new THREE.Mesh(new THREE.BoxGeometry(officeW + 0.5, 0.38, officeD + 0.5), officeRoofMat);
+      officeCap.position.set(officeX, officeH + 0.19, officeZ);
       deckSurface.add(officeCap);
 
       const officeWinMat = new THREE.MeshStandardMaterial({
         color: 0xe0f2fe,
         emissive: 0x7dd3fc,
-        emissiveIntensity: 0.88
+        emissiveIntensity: 0.92
       });
       for (let r = 0; r < 4; r++) {
         for (let c = 0; c < 4; c++) {
-          const wx = officeX - 3.3 + c * 2.2;
-          const wy = 1.4 + r * 1.8;
-          const wFront = new THREE.Mesh(new THREE.BoxGeometry(1.3, 1.05, 0.14), officeWinMat);
-          wFront.position.set(wx, wy, officeZ + officeD / 2 + 0.05);
+          const wx = officeX - 4.2 + c * 2.8;
+          const wy = 1.75 + r * 2.3;
+          const wFront = new THREE.Mesh(new THREE.BoxGeometry(1.7, 1.35, 0.18), officeWinMat);
+          wFront.position.set(wx, wy, officeZ + officeD / 2 + 0.06);
           deckSurface.add(wFront);
         }
       }
@@ -2877,41 +2900,41 @@
     const islandRoadSignsMap = new Map();
     const runwayChibiPlanes = [];
 
-    // Draw a 3D Rectangular Green-Background White-Border Road Sign (長方形綠底白框路牌，無方向箭頭，圓潤字體)
+    // Draw an Enlarged 3D Rectangular Black-Background Yellow-Text Airport Stand Road Sign (黑底黃色字，大螢幕清晰可見)
     function createBayRoadSignMesh() {
       const signGroup = new THREE.Group();
-      const postMat = new THREE.MeshStandardMaterial({ color: 0xcbd5e1, metalness: 0.65, roughness: 0.3 });
-      const postL = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 2.5, 10), postMat);
-      postL.position.set(-1.7, 1.25, 0);
+      const postMat = new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.7, roughness: 0.28 });
+      const postL = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, 2.9, 10), postMat);
+      postL.position.set(-2.2, 1.45, 0);
       const postR = postL.clone();
-      postR.position.set(1.7, 1.25, 0);
+      postR.position.set(2.2, 1.45, 0);
       signGroup.add(postL, postR);
 
-      // Pure rectangular road sign board holder tilted slightly upward for clear 3D readability
+      // Enlarged rectangular road sign board holder tilted toward the camera for crystal-clear large-screen readability
       const boardHolder = new THREE.Group();
-      boardHolder.position.set(0, 2.65, 0);
-      boardHolder.rotation.x = -0.24;
+      boardHolder.position.set(0, 3.15, 0);
+      boardHolder.rotation.x = -0.34;
 
       const boardBacking = new THREE.Mesh(
-        new THREE.BoxGeometry(5.4, 1.85, 0.22),
-        new THREE.MeshStandardMaterial({ color: 0x047857, roughness: 0.38 })
+        new THREE.BoxGeometry(7.2, 2.48, 0.26),
+        new THREE.MeshStandardMaterial({ color: 0x090d16, emissive: 0x111827, emissiveIntensity: 0.35, roughness: 0.32 })
       );
       boardBacking.castShadow = true;
       boardHolder.add(boardBacking);
 
       const cvs = document.createElement('canvas');
-      cvs.width = 640;
-      cvs.height = 224;
+      cvs.width = 768;
+      cvs.height = 272;
       const ctx = cvs.getContext('2d');
       const tex = enhanceTextureClarity(new THREE.CanvasTexture(cvs));
 
       const frontPlane = new THREE.Mesh(
-        new THREE.PlaneGeometry(5.3, 1.78),
+        new THREE.PlaneGeometry(7.08, 2.40),
         new THREE.MeshBasicMaterial({ map: tex, transparent: true, side: THREE.DoubleSide })
       );
-      frontPlane.position.set(0, 0, 0.13);
+      frontPlane.position.set(0, 0, 0.15);
       const backPlane = frontPlane.clone();
-      backPlane.position.set(0, 0, -0.13);
+      backPlane.position.set(0, 0, -0.15);
       backPlane.rotation.y = Math.PI;
       boardHolder.add(frontPlane, backPlane);
 
@@ -2951,22 +2974,24 @@
       const { cvs, ctx, tex } = signGroup.userData;
       ctx.clearRect(0, 0, cvs.width, cvs.height);
 
-      // 2x Retina Rectangular Green Sign Plate with White Border
+      // 2x Retina High-Contrast Airport Stand Sign: Jet-Black Background (#090d16) + Bright Aviation Yellow Border & Text (#facc15 / #fde047)
       ctx.save();
       ctx.scale(2, 2);
-      ctx.fillStyle = '#047857';
-      ctx.strokeStyle = '#ffffff';
-      ctx.lineWidth = 9;
-      drawRoundedRectPath(ctx, 8, 8, 304, 96, 18);
+      ctx.fillStyle = '#090d16';
+      ctx.strokeStyle = '#facc15';
+      ctx.lineWidth = 11;
+      drawRoundedRectPath(ctx, 8, 8, 368, 120, 20);
       ctx.fill();
       ctx.stroke();
 
-      ctx.fillStyle = '#ffffff';
-      const fontSize = clean.length > 7 ? 38 : (clean.length > 4 ? 48 : 56);
-      ctx.font = `700 ${fontSize}px "Fredoka", "Nunito", "M PLUS Rounded 1c", sans-serif`;
+      ctx.fillStyle = '#fde047';
+      ctx.shadowColor = 'rgba(250, 204, 21, 0.35)';
+      ctx.shadowBlur = 6;
+      const fontSize = clean.length > 7 ? 52 : (clean.length > 4 ? 66 : 78);
+      ctx.font = `900 ${fontSize}px "Fredoka", "Nunito", "M PLUS Rounded 1c", sans-serif`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(clean, 160, 58);
+      ctx.fillText(clean, 192, 70);
       ctx.restore();
       tex.needsUpdate = true;
     }
@@ -3357,14 +3382,14 @@
         rightHStabGeo,
         leftHStabGeo,
         cockpitPanesGeos,
-        bodyMat: new THREE.MeshStandardMaterial({ map: bodyTex, roughness: 0.24, metalness: 0.06 }),
-        upsBrownMat: new THREE.MeshStandardMaterial({ color: 0x3a1d12, roughness: 0.34 }),
-        wingGreyMat: new THREE.MeshStandardMaterial({ color: 0xaeb6bf, roughness: 0.35, metalness: 0.18 }),
+        bodyMat: new THREE.MeshStandardMaterial({ map: bodyTex, emissiveMap: bodyTex, emissive: 0xfffbeb, emissiveIntensity: 0.08, roughness: 0.24, metalness: 0.06 }),
+        upsBrownMat: new THREE.MeshStandardMaterial({ color: 0x3a1d12, emissive: 0x452215, emissiveIntensity: 0.06, roughness: 0.34 }),
+        wingGreyMat: new THREE.MeshStandardMaterial({ color: 0xaeb6bf, emissive: 0xcbd5e1, emissiveIntensity: 0.05, roughness: 0.35, metalness: 0.18 }),
         darkEdgeMat: new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.42 }),
         intakeLipMat: new THREE.MeshStandardMaterial({ color: 0x94a3b8, roughness: 0.28, metalness: 0.45 }),
         fanDarkMat: new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.55 }),
         spinnerMat: new THREE.MeshStandardMaterial({ color: 0xcbd5e1, roughness: 0.22, metalness: 0.35 }),
-        nacMat: new THREE.MeshStandardMaterial({ map: nacTex, roughness: 0.25, metalness: 0.08 }),
+        nacMat: new THREE.MeshStandardMaterial({ map: nacTex, emissiveMap: nacTex, emissive: 0xfffbeb, emissiveIntensity: 0.06, roughness: 0.25, metalness: 0.08 }),
         cockpitPaneMat: new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.12, metalness: 0.65, side: THREE.DoubleSide }),
         lightDotMat: new THREE.MeshBasicMaterial({ color: 0xffffff }),
         sideDecalMat: new THREE.MeshBasicMaterial({ map: sideDecalTex, transparent: true, depthWrite: false, side: THREE.DoubleSide }),
@@ -3493,8 +3518,10 @@
       apuCone.position.set(0, 0.75, 1.46);
       chibiGroup.add(apuCone);
 
-      // Scale Chibi 747-8F Plane so it sits proudly on the 22 parking bays and central runway
-      chibiGroup.scale.set(1.48, 1.48, 1.48);
+      // Scale Chibi 747-8F Plane proportionally to screen size so every aircraft model is large and clear!
+      const _pScale = 2.02 * (typeof getResponsive3DScaleFactor === 'function' ? getResponsive3DScaleFactor() : 1.0);
+      chibiGroup.scale.set(_pScale, _pScale, _pScale);
+      chibiGroup.userData.basePlaneScale = 2.02;
       return chibiGroup;
     }
 
@@ -3505,12 +3532,13 @@
       group.userData = { islandId: data.id };
 
       const isHorizontal = data.orientation === 'horizontal-left' || data.orientation === 'horizontal-right';
-      const bayW = isHorizontal ? 14.2 : 14.5;
-      const bayD = isHorizontal ? 11.6 : 13.5;
+      const _bScale = typeof getResponsive3DScaleFactor === 'function' ? getResponsive3DScaleFactor() : 1.0;
+      const bayW = (isHorizontal ? 16.2 : 16.8) * Math.min(1.08, _bScale);
+      const bayD = (isHorizontal ? 13.0 : 15.6) * Math.min(1.08, _bScale);
 
-      // 1. Subtle Apron Stand Pad & Clickable Area on the Mega-Island Surface
-      const apronMat = new THREE.MeshStandardMaterial({ color: 0x647d94, roughness: 0.7 });
-      const apronPad = new THREE.Mesh(new THREE.BoxGeometry(bayW, 0.04, bayD), apronMat);
+      // 1. Enlarged Apron Stand Pad & Clickable Area on the Mega-Island Surface
+      const apronMat = new THREE.MeshStandardMaterial({ color: 0x5b768f, roughness: 0.65 });
+      const apronPad = new THREE.Mesh(new THREE.BoxGeometry(bayW, 0.05, bayD), apronMat);
       apronPad.position.set(0, 0.02, 0);
       apronPad.receiveShadow = true;
       apronPad.userData = { islandId: data.id };
@@ -3539,19 +3567,19 @@
         group.add(branchAsphalt);
 
         // Continuous yellow horizontal lead-in centerline from the T-stop bar right into the vertical taxiway centerline
-        const leadLine = new THREE.Mesh(new THREE.BoxGeometry(lineLenX, 0.065, 0.26), yellowLineMat);
+        const leadLine = new THREE.Mesh(new THREE.BoxGeometry(lineLenX, 0.075, 0.42), yellowLineMat);
         leadLine.position.set(lineCenterX, 0.055, 0);
         group.add(leadLine);
 
         // Vertical T-stop bar at the head of the horizontal bay
-        const stopBar = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.065, 3.2), yellowLineMat);
+        const stopBar = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.075, 4.4), yellowLineMat);
         stopBar.position.set(stopX, 0.055, 0);
         group.add(stopBar);
 
         // Horizontal Red Wingtip Clearance Lines on Top (-Z) & Bottom (+Z) of the horizontal stand
-        const topBound = new THREE.Mesh(new THREE.BoxGeometry(bayW * 0.84, 0.05, 0.16), redLineMat);
+        const topBound = new THREE.Mesh(new THREE.BoxGeometry(bayW * 0.88, 0.065, 0.28), redLineMat);
         topBound.position.set(0, 0.04, -bayD * 0.45);
-        const botBound = new THREE.Mesh(new THREE.BoxGeometry(bayW * 0.84, 0.05, 0.16), redLineMat);
+        const botBound = new THREE.Mesh(new THREE.BoxGeometry(bayW * 0.88, 0.065, 0.28), redLineMat);
         botBound.position.set(0, 0.04, bayD * 0.45);
         group.add(topBound, botBound);
       } else {
@@ -3573,18 +3601,18 @@
         group.add(spurAsphalt);
 
         // Continuous yellow lead-in centerline from the bay T-stop bar right into the parallel horizontal taxiway centerline
-        const leadLine = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.065, lineLenZ), yellowLineMat);
+        const leadLine = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.075, lineLenZ), yellowLineMat);
         leadLine.position.set(0, 0.055, lineCenterZ);
         group.add(leadLine);
 
-        const stopBar = new THREE.Mesh(new THREE.BoxGeometry(3.2, 0.065, 0.26), yellowLineMat);
+        const stopBar = new THREE.Mesh(new THREE.BoxGeometry(4.4, 0.075, 0.42), yellowLineMat);
         stopBar.position.set(0, 0.055, stopZ);
         group.add(stopBar);
 
         // Red Wingtip Clearance Lines on Left & Right of each Stand
-        const leftBound = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.05, bayD * 0.82), redLineMat);
+        const leftBound = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.065, bayD * 0.86), redLineMat);
         leftBound.position.set(-bayW * 0.46, 0.04, 0);
-        const rightBound = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.05, bayD * 0.82), redLineMat);
+        const rightBound = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.065, bayD * 0.86), redLineMat);
         rightBound.position.set(bayW * 0.46, 0.04, 0);
         group.add(leftBound, rightBound);
       }
@@ -3628,7 +3656,7 @@
       group.add(crewGroup);
       islandLoadingCrewMap.set(data.id, { group: crewGroup, workersContainer, workers: [], signature: '', bubbleEl: null });
 
-      // 5. 3D Road-Sign Shape Signpost (路牌形狀顯示輸入的 Bay 位文字，如 x18)
+      // 5. 3D Road-Sign Shape Signpost (黑底黃色字路牌，顯示輸入的 Bay 位文字，如 X22)
       const roadSign = createBayRoadSignMesh();
       if (isHorizontal) {
         const dirToTaxi = data.orientation === 'horizontal-left' ? 1 : -1;
@@ -3638,6 +3666,92 @@
       }
       group.add(roadSign);
       islandRoadSignsMap.set(data.id, roadSign);
+
+      // 6. Dual High-Mast Apron Floodlight Poles per Parking Bay (每一個停泊位增加會亮燈的燈柱，跟隨香港夜晚時間亮燈照亮飛機模型)
+      if (!window._bayNightFloodElements) {
+        window._bayNightFloodElements = { bulbs: [], beams: [], pools: [] };
+      }
+      const mastPoleMat = new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.7, roughness: 0.32 });
+      const mastFixtureMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, metalness: 0.5, roughness: 0.4 });
+      const floodBulbMat = new THREE.MeshStandardMaterial({
+        color: 0xfffbeb,
+        emissive: 0xfef08a,
+        emissiveIntensity: 0.1,
+        roughness: 0.15
+      });
+      lampBulbs.push(floodBulbMat);
+      window._bayNightFloodElements.bulbs.push(floodBulbMat);
+
+      const beamMat = new THREE.MeshBasicMaterial({
+        color: 0xfef08a,
+        transparent: true,
+        opacity: 0.0,
+        depthWrite: false,
+        side: THREE.DoubleSide
+      });
+      window._bayNightFloodElements.beams.push(beamMat);
+
+      const poolMat = new THREE.MeshBasicMaterial({
+        color: 0xfef3c7,
+        transparent: true,
+        opacity: 0.0,
+        depthWrite: false
+      });
+      window._bayNightFloodElements.pools.push(poolMat);
+
+      // Warm illuminated apron floor light pool right under the parked aircraft at night
+      const lightPoolMesh = new THREE.Mesh(new THREE.CircleGeometry(4.8, 24), poolMat);
+      lightPoolMesh.rotation.x = -Math.PI / 2;
+      lightPoolMesh.position.set(0, 0.065, 0);
+      group.add(lightPoolMesh);
+
+      const mastPositions = isHorizontal
+        ? [
+            { x: (data.orientation === 'horizontal-left' ? -5.8 : 5.8), z: -4.6 },
+            { x: (data.orientation === 'horizontal-left' ? -5.8 : 5.8), z:  4.6 }
+          ]
+        : [
+            { x: -5.8, z: (data.apron === 'north' ? -5.4 : 5.4) },
+            { x:  5.8, z: (data.apron === 'north' ? -5.4 : 5.4) }
+          ];
+
+      mastPositions.forEach((mp) => {
+        const mastGrp = new THREE.Group();
+        mastGrp.position.set(mp.x, 0, mp.z);
+
+        // Concrete base & tall metallic floodlight pole
+        const basePedestal = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.34, 0.45, 10), mastFixtureMat);
+        basePedestal.position.y = 0.22;
+        const poleShaft = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.16, 4.4, 10), mastPoleMat);
+        poleShaft.position.y = 2.2;
+        poleShaft.castShadow = true;
+        mastGrp.add(basePedestal, poleShaft);
+
+        // Angled twin-floodlight cross-arm head aimed directly at the center of the parking bay (0, 0.8, 0)
+        const headGroup = new THREE.Group();
+        headGroup.position.set(0, 4.42, 0);
+        headGroup.lookAt(new THREE.Vector3(0, 0.8, 0));
+
+        const crossBar = new THREE.Mesh(new THREE.BoxGeometry(1.15, 0.22, 0.32), mastFixtureMat);
+        headGroup.add(crossBar);
+
+        [-0.36, 0.36].forEach(lx => {
+          const bulb = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.26, 0.14), floodBulbMat);
+          bulb.position.set(lx, -0.04, 0.14);
+          headGroup.add(bulb);
+        });
+        mastGrp.add(headGroup);
+
+        // Downward volumetric light cone shining from the floodlight head toward the aircraft
+        const coneGeo = new THREE.ConeGeometry(2.8, 4.8, 16, 1, true);
+        const coneMesh = new THREE.Mesh(coneGeo, beamMat);
+        coneMesh.position.set(-mp.x * 0.38, 2.25, -mp.z * 0.38);
+        coneMesh.rotation.z = mp.x > 0 ? 0.42 : -0.42;
+        coneMesh.rotation.x = mp.z > 0 ? -0.36 : 0.36;
+        mastGrp.add(coneMesh);
+
+        group.add(mastGrp);
+      });
 
       scene.add(group);
       islandMeshesMap.set(data.id, group);
@@ -3861,28 +3975,60 @@
     // =========================================================================
     // 6. 3D WEATHER PARTICLE SYSTEMS (RAIN, LIGHTNING BOLTS, CLOUDS, STORM)
     // =========================================================================
-    // Fluffy 3D Clouds (in foreground weatherScene so drifting clouds cover the rear Bulletin Board)
+    // Fluffy 3D Clouds (placed in bgScene behind #rear-bulletin-layer along the visible Sky Corridor & Island Left/Right Flanks!)
     const cloudsGroup = new THREE.Group();
-    weatherScene.add(cloudsGroup);
+    bgScene.add(cloudsGroup);
     const cloudClusters = [];
     const cloudMat = new THREE.MeshStandardMaterial({
       color: 0xffffff,
-      roughness: 0.9,
+      emissive: 0xcbd5e1,
+      emissiveIntensity: 0.28,
+      roughness: 0.75,
       transparent: true,
-      opacity: 0.88
+      opacity: 0.90
     });
 
-    for (let c = 0; c < 14; c++) {
+    // 16 Curated 3D Cloud Clusters across:
+    //  - Band A: Rear Sky Corridor between Bulletin Board bottom & 3D UPS Building / Dynamic Island (z = -56..-64, y = 3.5..6.2)
+    //  - Band B: Left Sky Flank below Left HUD Panel & beside West Apron (x = -112..-76, z = -42..+22, y = 4.2..7.5)
+    //  - Band C: Right Sky Flank beside East Apron & below Bulletin Board Right Corner (x = +78..+118, z = -45..+18, y = 4.5..8.2)
+    const cloudBandPresets = [
+      { x: -68, y: 4.2, z: -58, sc: 1.05, minX: -115, maxX: 115 },
+      { x: -42, y: 4.8, z: -60, sc: 1.12, minX: -115, maxX: 115 },
+      { x: -16, y: 5.0, z: -61, sc: 1.08, minX: -115, maxX: 115 },
+      { x:  10, y: 5.2, z: -62, sc: 1.15, minX: -115, maxX: 115 },
+      { x:  36, y: 4.8, z: -60, sc: 1.10, minX: -115, maxX: 115 },
+      { x:  62, y: 4.5, z: -58, sc: 1.06, minX: -115, maxX: 115 },
+      { x:  88, y: 5.0, z: -56, sc: 1.12, minX: -115, maxX: 115 },
+      { x: -108, y: 5.5, z: -12, sc: 1.35, minX: -118, maxX: -72 },
+      { x: -96,  y: 4.8, z: -34, sc: 1.22, minX: -118, maxX: -72 },
+      { x: -86,  y: 4.5, z: -46, sc: 1.15, minX: -118, maxX: -72 },
+      { x: -102, y: 5.0, z:  14, sc: 1.28, minX: -118, maxX: -72 },
+      { x:  86,  y: 5.2, z: -42, sc: 1.18, minX:  74,  maxX: 122 },
+      { x:  98,  y: 5.8, z: -26, sc: 1.25, minX:  74,  maxX: 122 },
+      { x: 110,  y: 5.4, z:  -6, sc: 1.32, minX:  74,  maxX: 122 },
+      { x:  92,  y: 4.8, z:  12, sc: 1.18, minX:  74,  maxX: 122 },
+      { x: -56,  y: 4.4, z: -55, sc: 1.02, minX: -115, maxX: 115 }
+    ];
+
+    cloudBandPresets.forEach((cp, c) => {
       const cg = new THREE.Group();
-      for (let p = 0; p < 4; p++) {
-        const puff = new THREE.Mesh(new THREE.DodecahedronGeometry(2.2 + Math.random() * 1.4, 1), cloudMat);
-        puff.position.set((p - 1.5) * 2.1, Math.random() * 0.8, (Math.random() - 0.5) * 1.8);
+      for (let p = 0; p < 5; p++) {
+        const puffRad = (p === 1 || p === 2) ? (2.6 + (c % 3) * 0.4) : (1.9 + (p % 2) * 0.5);
+        const puff = new THREE.Mesh(new THREE.DodecahedronGeometry(puffRad, 1), cloudMat);
+        puff.position.set((p - 2.0) * 1.95, ((p % 2) * 0.65), ((p % 3) - 1) * 0.85);
         cg.add(puff);
       }
-      cg.position.set((Math.random() - 0.5) * 110, 22 + Math.random() * 8, (Math.random() - 0.5) * 110);
+      cg.position.set(cp.x, cp.y, cp.z);
       cloudsGroup.add(cg);
-      cloudClusters.push({ group: cg, speed: 0.03 + Math.random() * 0.04 });
-    }
+      cloudClusters.push({
+        group: cg,
+        speed: 0.022 + (c % 4) * 0.008,
+        baseScale: cp.sc,
+        minX: cp.minX,
+        maxX: cp.maxX
+      });
+    });
 
     // Generate a Teardrop / Water-Droplet Canvas Texture (水滴形狀貼圖，非正方形)
     function createWaterDropletTexture() {
@@ -4105,12 +4251,12 @@
 
             // 3) Project ALL highest points of the UPS Building, Rooftop Sign, Office Tower, AND 3D Dynamic Island back corners
             //    so moving or rotating the Dynamic Island never allows any corner or roof to overlap the bottom of the board!
-            const signTopH = state.festivalTheme === 'newyear' ? 14.8 : 12.8;
+            const signTopH = state.festivalTheme === 'newyear' ? 16.5 : 15.2;
             const checkPts3D = [
-              [12.0, baseY + signTopH, -34.2],
-              [12.0, baseY + 7.2, -46.5],
-              [46.0, baseY + 10.2, -38.5],
-              [12.0, baseY + 4.8, -52.8],
+              [10.5, baseY + signTopH, -32.8],
+              [10.5, baseY + 8.6, -47.6],
+              [48.5, baseY + 12.2, -38.5],
+              [10.5, baseY + 4.8, -52.8],
               [-45.0, baseY + 4.8, -53.5],
               [-85.0, baseY + 4.8, -53.5],
               [85.0, baseY + 4.8, -53.5]
@@ -4153,10 +4299,11 @@
             // Detect how much the camera is panned/rotated/zoomed away from the default front panorama view:
             // - In default front view: fills 100% of availW x availH (from left panel + 8px all the way to right edge & building roof)
             // - When rotating/panning/zooming: smoothly tracks 3D position (rawBx, targetBy) and camera distance!
+            const _refSpec = getResponsivePanoramaCameraSpec();
             const camDeviation = Math.min(1.0,
-              Math.abs(camCtrl.spherical.theta - (-0.22)) * 1.8 +
-              Math.abs(camCtrl.target.x - 2.0) * 0.03 +
-              Math.abs(camCtrl.spherical.radius - 222) * 0.004
+              Math.abs(camCtrl.spherical.theta - _refSpec.theta) * 1.8 +
+              Math.abs(camCtrl.target.x - _refSpec.targetX) * 0.03 +
+              Math.abs(camCtrl.spherical.radius - _refSpec.radius) * 0.004
             );
             const widthFillRatio = 1.0 - camDeviation * 0.07; // 100% fill in default view; 93% during rotation so it glides horizontally
             const targetSpanW = availW * widthFillRatio;
@@ -4173,7 +4320,7 @@
             const curNatW = Math.max(_minIntrinsicUldW, _cachedUldNatW || idealLayoutW);
             const curNatH = _cachedUldNatH || natH;
 
-            const camZoomScale = Math.max(0.76, Math.min(1.06, 222 / Math.max(85, camCtrl.spherical.radius)));
+            const camZoomScale = Math.max(0.76, Math.min(1.08, _refSpec.radius / Math.max(75, camCtrl.spherical.radius)));
             const rawFitScale = Math.min(targetSpanW / curNatW, availH / curNatH);
             const fitScale = Math.max(0.38, rawFitScale * (1.0 - camDeviation * 0.25 + camDeviation * 0.25 * camZoomScale));
 
@@ -4468,38 +4615,78 @@
       windowMaterials.forEach(m => {
         m.emissiveIntensity = winIntensity;
       });
+      const isNightFloodActive = Boolean(
+        cfg.lampsOn ||
+        phaseKey === 'dusk' ||
+        phaseKey === 'sunset' ||
+        phaseKey === 'night' ||
+        phaseKey === 'latenight' ||
+        phaseKey === 'sunrise'
+      );
       lampBulbs.forEach(b => {
-        b.emissiveIntensity = (cfg.lampsOn || state.weatherMode !== 'clear') ? 1.35 : 0.1;
+        b.emissiveIntensity = (isNightFloodActive || state.weatherMode !== 'clear') ? 1.65 : 0.08;
       });
+      if (window._bayNightFloodElements) {
+        window._bayNightFloodElements.bulbs.forEach(b => {
+          b.emissiveIntensity = isNightFloodActive ? 2.4 : 0.08;
+        });
+        window._bayNightFloodElements.beams.forEach(bm => {
+          bm.opacity = isNightFloodActive ? 0.16 : 0.0;
+        });
+        window._bayNightFloodElements.pools.forEach(pm => {
+          pm.opacity = isNightFloodActive ? 0.28 : 0.0;
+        });
+      }
+      if (_ups747ChibiCache) {
+        _ups747ChibiCache.bodyMat.emissiveIntensity = isNightFloodActive ? 0.68 : 0.08;
+        _ups747ChibiCache.nacMat.emissiveIntensity = isNightFloodActive ? 0.64 : 0.06;
+        _ups747ChibiCache.wingGreyMat.emissiveIntensity = isNightFloodActive ? 0.45 : 0.05;
+        _ups747ChibiCache.upsBrownMat.emissiveIntensity = isNightFloodActive ? 0.55 : 0.06;
+      }
 
       if (lighthouseBeam) {
         lighthouseBeam.material.opacity = (cfg.lampsOn || state.weatherMode !== 'clear') ? 0.32 : 0.0;
       }
 
-      // Cloud density & color for Amber / Red / Black Rainstorm Warnings
+      // Cloud scale & soft luminous silver-white/warm colors (never pitch-black blobs at night!)
       const isHeavyStorm = state.weatherMode === 'red_rain' || state.weatherMode === 'black_rain' || state.weatherMode === 'storm';
-      const cloudScale = isHeavyStorm ? 1.55 : (state.weatherMode === 'amber_rain' || state.weatherMode === 'cloudy' ? 1.35 : 1.0);
+      const wxCloudMult = isHeavyStorm ? 1.25 : (state.weatherMode === 'amber_rain' || state.weatherMode === 'cloudy' ? 1.12 : 1.0);
       cloudClusters.forEach(c => {
-        c.group.scale.set(cloudScale, cloudScale, cloudScale);
+        const sc = (c.baseScale || 1.0) * wxCloudMult;
+        c.group.scale.set(sc, sc, sc);
       });
       if (state.weatherMode === 'amber_rain') {
-        cloudMat.color.setHex(0x9a7b3e);
-        cloudMat.opacity = 0.94;
+        cloudMat.color.setHex(0xfde68a);
+        cloudMat.emissive.setHex(0xd97706);
+        cloudMat.emissiveIntensity = 0.28;
+        cloudMat.opacity = 0.90;
       } else if (state.weatherMode === 'red_rain') {
-        cloudMat.color.setHex(0x6e2b35);
-        cloudMat.opacity = 0.97;
+        cloudMat.color.setHex(0xfca5a5);
+        cloudMat.emissive.setHex(0x991b1b);
+        cloudMat.emissiveIntensity = 0.28;
+        cloudMat.opacity = 0.92;
       } else if (state.weatherMode === 'black_rain') {
-        cloudMat.color.setHex(0x1e2030);
-        cloudMat.opacity = 0.99;
+        cloudMat.color.setHex(0x94a3b8);
+        cloudMat.emissive.setHex(0x475569);
+        cloudMat.emissiveIntensity = 0.32;
+        cloudMat.opacity = 0.92;
       } else if (state.weatherMode === 'clear') {
-        cloudMat.color.setHex(phaseKey === 'night' || phaseKey === 'latenight' ? 0x64748b : (phaseKey === 'sunset' ? 0xfdba74 : (phaseKey === 'dusk' || phaseKey === 'sunrise' ? 0xfed7aa : 0xffffff)));
-        cloudMat.opacity = 0.86;
+        const isNightPhase = phaseKey === 'night' || phaseKey === 'latenight';
+        cloudMat.color.setHex(isNightPhase ? 0xe2e8f0 : (phaseKey === 'sunset' ? 0xfed7aa : (phaseKey === 'dusk' || phaseKey === 'sunrise' ? 0xfef3c7 : 0xffffff)));
+        cloudMat.emissive.setHex(isNightPhase ? 0x94a3b8 : 0xe2e8f0);
+        cloudMat.emissiveIntensity = isNightPhase ? 0.38 : 0.22;
+        cloudMat.opacity = 0.90;
       } else if (state.weatherMode === 'cloudy') {
-        cloudMat.color.setHex(phaseKey === 'night' || phaseKey === 'latenight' ? 0x475569 : 0x94a3b8);
-        cloudMat.opacity = 0.95;
+        const isNightPhase = phaseKey === 'night' || phaseKey === 'latenight';
+        cloudMat.color.setHex(isNightPhase ? 0xcbd5e1 : 0xf1f5f9);
+        cloudMat.emissive.setHex(isNightPhase ? 0x94a3b8 : 0xcbd5e1);
+        cloudMat.emissiveIntensity = isNightPhase ? 0.36 : 0.25;
+        cloudMat.opacity = 0.92;
       } else {
-        cloudMat.color.setHex(0x334155);
-        cloudMat.opacity = 0.98;
+        cloudMat.color.setHex(0xcbd5e1);
+        cloudMat.emissive.setHex(0x64748b);
+        cloudMat.emissiveIntensity = 0.32;
+        cloudMat.opacity = 0.92;
       }
 
       document.getElementById('header-phase-badge').textContent = `赤鱲角 · ${cfg.name}`;
@@ -7977,8 +8164,9 @@
     // Camera view preset buttons & View Lock toggle
     document.getElementById('btn-cam-panorama').addEventListener('click', () => {
       if (state.viewLocked) return;
-      camCtrl.desiredTarget.set(2, 29.5, -16);
-      camCtrl.desiredSpherical = { radius: 222, phi: 0.98, theta: -0.22 };
+      const spec = getResponsivePanoramaCameraSpec();
+      camCtrl.desiredTarget.set(spec.targetX, spec.targetY, spec.targetZ);
+      camCtrl.desiredSpherical = { radius: spec.radius, phi: spec.phi, theta: spec.theta };
     });
     document.getElementById('btn-cam-top').addEventListener('click', () => {
       if (state.viewLocked) return;
@@ -8869,6 +9057,27 @@
       _minIntrinsicUldW = 0;
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
+      const _dynScale = getResponsive3DScaleFactor();
+      islandChibiPlanesMap.forEach((planeMesh) => {
+        const s = (planeMesh.userData.basePlaneScale || 2.02) * _dynScale;
+        planeMesh.scale.set(s, s, s);
+      });
+      runwayChibiPlanes.forEach((rwObj) => {
+        if (rwObj.mesh) {
+          const s = (rwObj.mesh.userData.basePlaneScale || 2.02) * _dynScale;
+          rwObj.mesh.scale.set(s, s, s);
+        }
+      });
+      islandRoadSignsMap.forEach((signGrp) => {
+        signGrp.scale.set(_dynScale, _dynScale, _dynScale);
+      });
+      if (!state.viewLocked) {
+        const spec = getResponsivePanoramaCameraSpec();
+        camCtrl.desiredTarget.set(spec.targetX, spec.targetY, spec.targetZ);
+        camCtrl.desiredSpherical.radius = spec.radius;
+        camCtrl.desiredSpherical.phi = spec.phi;
+        camCtrl.desiredSpherical.theta = spec.theta;
+      }
       bgRenderer.setSize(window.innerWidth, window.innerHeight);
       renderer.setSize(window.innerWidth, window.innerHeight);
       weatherRenderer.setSize(window.innerWidth, window.innerHeight);
@@ -9224,7 +9433,9 @@
           : (state.weatherMode === 'red_rain' ? 3.5 : (state.weatherMode !== 'clear' ? 2.2 : 1.0));
         cloudClusters.forEach(c => {
           c.group.position.x += c.speed * cloudSpeedMult;
-          if (c.group.position.x > 65) c.group.position.x = -65;
+          const maxLim = c.maxX !== undefined ? c.maxX : 115;
+          const minLim = c.minX !== undefined ? c.minX : -115;
+          if (c.group.position.x > maxLim) c.group.position.x = minLim;
         });
 
         // Falling Rain & Wind Slant (Distinct intensity for Amber / Red / Black Rainstorm Warnings!)
