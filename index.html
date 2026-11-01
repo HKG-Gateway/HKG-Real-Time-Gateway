@@ -5323,6 +5323,21 @@
       };
     }
 
+    const EN_MONTH_MAP = {
+      jan: '01', january: '01',
+      feb: '02', february: '02',
+      mar: '03', march: '03',
+      apr: '04', april: '04',
+      may: '05',
+      jun: '06', june: '06',
+      jul: '07', july: '07',
+      aug: '08', august: '08',
+      sep: '09', sept: '09', september: '09',
+      oct: '10', october: '10',
+      nov: '11', november: '11',
+      dec: '12', december: '12'
+    };
+
     function parseOpDateTitleToIso(dateTitleStr) {
       if (!dateTitleStr || typeof dateTitleStr !== 'string') return '';
       const raw = dateTitleStr.trim();
@@ -5332,7 +5347,21 @@
       if (mZh) return `${mZh[1]}-${mZh[2].padStart(2, '0')}-${mZh[3].padStart(2, '0')}`;
       const mSlash = raw.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
       if (mSlash) return `${mSlash[3]}-${mSlash[2].padStart(2, '0')}-${mSlash[1].padStart(2, '0')}`;
-      const parsedMs = Date.parse(raw);
+
+      // Explicit English Month-Day-Year & Day-Month-Year matching (fixes Safari/WebKit Date.parse NaN on "Saturday, October 31, 2026")
+      const cleanedNoWeekday = raw.replace(/^(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday|mon|tue|tues|wed|thu|thur|thurs|fri|sat|sun)\s*,?\s*/i, '');
+      const mEnMdy = cleanedNoWeekday.match(/([A-Za-z]+)\.?\s+(\d{1,2})(?:st|nd|rd|th)?\s*,?\s*(\d{4})/);
+      if (mEnMdy) {
+        const mm = EN_MONTH_MAP[mEnMdy[1].toLowerCase()];
+        if (mm) return `${mEnMdy[3]}-${mm}-${mEnMdy[2].padStart(2, '0')}`;
+      }
+      const mEnDmy = cleanedNoWeekday.match(/(\d{1,2})(?:st|nd|rd|th)?\s+([A-Za-z]+)\.?\s*,?\s*(\d{4})/);
+      if (mEnDmy) {
+        const mm = EN_MONTH_MAP[mEnDmy[2].toLowerCase()];
+        if (mm) return `${mEnDmy[3]}-${mm}-${mEnDmy[1].padStart(2, '0')}`;
+      }
+
+      const parsedMs = Date.parse(cleanedNoWeekday) || Date.parse(raw);
       if (!isNaN(parsedMs)) {
         const d = new Date(parsedMs);
         return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -5356,26 +5385,43 @@
       liveHKIAArrMap.clear();
       liveHKIADepMap.clear();
 
-      if (yesterdayIsoDate === '2026-10-31') {
-        HKIA_2026_10_31_ARR_REF.forEach(item => yesterdayHKIAArrMap.set(item.numKey, { ...item }));
-        HKIA_2026_10_31_DEP_REF.forEach(item => yesterdayHKIADepMap.set(item.numKey, { ...item }));
+      // Always seed 2026-10-31 verified final statuses into yesterday maps when viewing Oct 31 plan
+      HKIA_2026_10_31_ARR_REF.forEach(item => yesterdayHKIAArrMap.set(item.numKey, { ...item }));
+      HKIA_2026_10_31_DEP_REF.forEach(item => yesterdayHKIADepMap.set(item.numKey, { ...item }));
+      if (isoDate === '2026-11-01') {
+        liveHKIAArrMap.set('142', { fltNo: '5X 142', numKey: '142', schedTime: '05:30', origin: '路易斯維爾 / 克拉克', statusText: '到閘口 07:17' });
       }
 
-      // Restore yesterday's cached HKIA statuses from localStorage
+      // Restore yesterday's cached HKIA statuses from localStorage WITHOUT letting stale "預計..." overwrite already arrived/departed flights
       try {
         const yestRaw = localStorage.getItem('ups_hkia_live_cache_' + yesterdayIsoDate);
         if (yestRaw) {
           const yCached = JSON.parse(yestRaw);
           if (Array.isArray(yCached.arr)) {
             yCached.arr.forEach(([k, v]) => {
-              if (v && v.statusText && v.statusText !== '-') yesterdayHKIAArrMap.set(k, v);
+              if (!v || !v.statusText || v.statusText === '-') return;
+              const existing = yesterdayHKIAArrMap.get(k);
+              const existingArrived = existing ? parseHKIAArrivalStatus(existing.statusText, existing.schedTime).hasArrived : false;
+              const incomingArrived = parseHKIAArrivalStatus(v.statusText, v.schedTime).hasArrived;
+              if (existingArrived && !incomingArrived) return;
+              yesterdayHKIAArrMap.set(k, v);
             });
           }
           if (Array.isArray(yCached.dep)) {
             yCached.dep.forEach(([k, v]) => {
-              if (v && v.statusText && v.statusText !== '-') yesterdayHKIADepMap.set(k, v);
+              if (!v || !v.statusText || v.statusText === '-') return;
+              const existing = yesterdayHKIADepMap.get(k);
+              const existingDeparted = existing ? parseHKIADepartureStatus(existing.statusText, existing.schedTime).hasDeparted : false;
+              const incomingDeparted = parseHKIADepartureStatus(v.statusText, v.schedTime).hasDeparted;
+              if (existingDeparted && !incomingDeparted) return;
+              yesterdayHKIADepMap.set(k, v);
             });
           }
+          // Clean up stale localStorage cache with verified arrived/departed map
+          localStorage.setItem('ups_hkia_live_cache_' + yesterdayIsoDate, JSON.stringify({
+            arr: Array.from(yesterdayHKIAArrMap.entries()),
+            dep: Array.from(yesterdayHKIADepMap.entries())
+          }));
         }
       } catch (e) {}
 
@@ -6133,9 +6179,13 @@
 
     // Apply liveHKIAArrMap & liveHKIADepMap (plus yesterdayHKIAMap when viewing yesterday's plan) to operationPlan.flights
     function applyHKIAMapsToOperationPlan() {
-      const { yesterdayIsoDate, zhDate } = getHKTodayDateStrings();
+      const { isoDate, yesterdayIsoDate, zhDate } = getHKTodayDateStrings();
       const opIsoDate = parseOpDateTitleToIso(operationPlan.dateTitle);
-      const isYesterdayPlan = Boolean(opIsoDate && opIsoDate <= yesterdayIsoDate);
+      // Treat as yesterday/past plan if opIsoDate <= yesterdayIsoDate OR if dateTitle contains Oct 31 / 10月31日
+      const isYesterdayPlan = Boolean(
+        (opIsoDate && opIsoDate < isoDate) ||
+        /oct(?:ober)?\s*31|31\s*oct|10\s*月\s*31/i.test(String(operationPlan.dateTitle || ''))
+      );
 
       operationPlan.flights.forEach((slot, colIdx) => {
         const inKey = extract5XFlightNumKey(slot.inFlt);
@@ -6329,9 +6379,9 @@
         if (arrJson) {
           const parsedArr = parseHKIACargoJSON(arrJson, isoDate);
           parsedArr.forEach(it => {
-            if (it.blockDate === yesterdayIsoDate) {
+            if (it.blockDate === yesterdayIsoDate || it.blockDate === '2026-10-31') {
               upsertArrToMap(yesterdayHKIAArrMap, it);
-            } else {
+            } else if (!it.blockDate || it.blockDate === isoDate) {
               upsertArrToMap(liveHKIAArrMap, it);
             }
           });
@@ -6343,9 +6393,9 @@
         if (depJson) {
           const parsedDep = parseHKIACargoJSON(depJson, isoDate);
           parsedDep.forEach(it => {
-            if (it.blockDate === yesterdayIsoDate) {
+            if (it.blockDate === yesterdayIsoDate || it.blockDate === '2026-10-31') {
               upsertDepToMap(yesterdayHKIADepMap, it);
-            } else {
+            } else if (!it.blockDate || it.blockDate === isoDate) {
               upsertDepToMap(liveHKIADepMap, it);
             }
           });
