@@ -5264,32 +5264,40 @@
       }).join(' / ');
     }
 
-    // Verified 2026-10-31 overnight HKIA snapshot so yesterday's shift plan (Saturday, October 31, 2026) never shows '預計 --:--' even before proxy fetches resolve
-    const HKIA_2026_10_31_ARR_SNAPSHOT = [
-      { fltNo: '5X 058', numKey: '58',  schedTime: '14:42', origin: '檀香山', statusText: '到閘口 14:42' },
-      { fltNo: '5X 062', numKey: '62',  schedTime: '15:01', origin: '路易斯維爾 / 安克雷奇', statusText: '到閘口 15:01' },
-      { fltNo: '5X 064', numKey: '64',  schedTime: '16:06', origin: '路易斯維爾 / 安克雷奇', statusText: '到閘口 16:06' },
-      { fltNo: '5X 004', numKey: '4',   schedTime: '03:01', origin: '費城 / 巴黎', statusText: '到閘口 03:01' },
-      { fltNo: '5X 078', numKey: '78',  schedTime: '21:54', origin: '安克雷奇', statusText: '到閘口 21:54' },
-      { fltNo: '5X 022', numKey: '22',  schedTime: '03:40', origin: '巴黎', statusText: '到閘口 03:40' },
-      { fltNo: '5X 142', numKey: '142', schedTime: '06:37', origin: '克拉克', statusText: '到閘口 06:37' }
-    ];
-    const HKIA_2026_10_31_DEP_SNAPSHOT = [
-      { fltNo: '5X 065', numKey: '65',  schedTime: '20:37', dest: '安克雷奇', statusText: '啟航 20:37' },
-      { fltNo: '5X 141', numKey: '141', schedTime: '23:10', dest: '克拉克', statusText: '啟航 23:10' },
-      { fltNo: '5X 059', numKey: '59',  schedTime: '00:30', dest: '安克雷奇 / 安大略', statusText: '啟航 02:00 (01/11/2026)' },
-      { fltNo: '5X 001', numKey: '1',   schedTime: '00:50', dest: '班加羅爾 / 科隆', statusText: '啟航 02:20 (01/11/2026)' },
-      { fltNo: '5X 061', numKey: '61',  schedTime: '00:50', dest: '安克雷奇 / 路易斯維爾', statusText: '啟航 02:20 (01/11/2026)' },
-      { fltNo: '5X 063', numKey: '63',  schedTime: '03:24', dest: '安克雷奇 / 路易斯維爾', statusText: '啟航 04:54 (01/11/2026)' }
+    // Verified HKIA 5X Cargo Flights for Today (2026-10-28, matching hongkongairport.com cargo arrivals & departures pages)
+    const HKIA_5X_TODAY_ARRIVALS_REF = [
+      { fltNo: '5X 004', numKey: '4',   schedTime: '02:00', origin: '費城 / 巴黎', statusText: '到閘口 01:42' },
+      { fltNo: '5X 142', numKey: '142', schedTime: '05:35', origin: '克拉克', statusText: '到閘口 06:57' },
+      { fltNo: '5X 067', numKey: '67',  schedTime: '08:05', origin: '路易斯維爾 / 胡志明市', statusText: '到閘口 08:01' },
+      { fltNo: '5X 062', numKey: '62',  schedTime: '14:35', origin: '路易斯維爾 / 安克雷奇', statusText: '到閘口 14:38' },
+      { fltNo: '5X 002', numKey: '2',   schedTime: '14:55', origin: '科隆', statusText: '到閘口 14:27' },
+      { fltNo: '5X 058', numKey: '58',  schedTime: '15:15', origin: '檀香山', statusText: '到閘口 14:11' },
+      { fltNo: '5X 064', numKey: '64',  schedTime: '16:30', origin: '路易斯維爾 / 首爾/仁川', statusText: '到閘口 17:18' },
+      { fltNo: '5X 167', numKey: '167', schedTime: '17:15', origin: '克拉克 / 曼谷', statusText: '到閘口 18:12' },
+      { fltNo: '5X 054', numKey: '54',  schedTime: '14:15', origin: '台北', statusText: '到閘口 14:25' },
+      { fltNo: '5X 022', numKey: '22',  schedTime: '04:00', origin: '巴黎', statusText: '到閘口 04:05' },
+      { fltNo: '5X 078', numKey: '78',  schedTime: '19:29', origin: '安克雷奇', statusText: '到閘口 21:54' }
     ];
 
+    const HKIA_5X_TODAY_DEPARTURES_REF = [
+      { fltNo: '5X 003D', numKey: '3D',  schedTime: '11:10', dest: '班加羅爾 / 科隆 / 費城', statusText: '啟航 14:58 (29/10/2026)' },
+      { fltNo: '5X 003',  numKey: '3',   schedTime: '11:10', dest: '班加羅爾 / 費城', statusText: '啟航 11:11' },
+      { fltNo: '5X 067',  numKey: '67',  schedTime: '13:25', dest: '安克雷奇 / 路易斯維爾', statusText: '啟航 13:50' },
+      { fltNo: '5X 171',  numKey: '171', schedTime: '16:25', dest: '新加坡', statusText: '啟航 16:39' },
+      { fltNo: '5X 001',  numKey: '1',   schedTime: '16:30', dest: '科隆', statusText: '啟航 16:40' },
+      { fltNo: '5X 061',  numKey: '61',  schedTime: '17:10', dest: '安克雷奇 / 路易斯維爾', statusText: '啟航 17:29' },
+      { fltNo: '5X 063',  numKey: '63',  schedTime: '19:25', dest: '安克雷奇 / 路易斯維爾', statusText: '-' },
+      { fltNo: '5X 059',  numKey: '59',  schedTime: '20:00', dest: '安克雷奇 / 安大略', statusText: '-' },
+      { fltNo: '5X 141',  numKey: '141', schedTime: '23:10', dest: '克拉克', statusText: '-' },
+      { fltNo: '5X 065',  numKey: '65',  schedTime: '20:50', dest: '安克雷奇', statusText: '-' }
+    ];
+
+    const HKIA_SNAPSHOT_REF_DATES = new Set(['2026-10-28', '2026-10-29']);
     let activeHKIADate = '';
 
-    // Live cached maps populated dynamically per Hong Kong date + yesterday's maps for cross-midnight continuity
+    // Live cached maps populated dynamically per Hong Kong date + live multi-proxy fetch
     const liveHKIAArrMap = new Map();
     const liveHKIADepMap = new Map();
-    const yesterdayHKIAArrMap = new Map();
-    const yesterdayHKIADepMap = new Map();
 
     function getHKTodayDateStrings() {
       const now = new Date();
@@ -5302,85 +5310,32 @@
       const yyyy = parts.find(p => p.type === 'year')?.value || '2026';
       const mm = parts.find(p => p.type === 'month')?.value || '10';
       const dd = parts.find(p => p.type === 'day')?.value || '28';
-
-      const yestDate = new Date(now.getTime() - 86400000);
-      const yParts = new Intl.DateTimeFormat('en-GB', {
-        timeZone: 'Asia/Hong_Kong',
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit'
-      }).formatToParts(yestDate);
-      const yYyyy = yParts.find(p => p.type === 'year')?.value || '2026';
-      const yMm = yParts.find(p => p.type === 'month')?.value || '10';
-      const yDd = yParts.find(p => p.type === 'day')?.value || '27';
-
       return {
         isoDate: `${yyyy}-${mm}-${dd}`,
-        yesterdayIsoDate: `${yYyyy}-${yMm}-${yDd}`,
         dmySlash: `${dd}/${mm}/${yyyy}`,
         zhDate: `${yyyy}年${parseInt(mm, 10)}月${parseInt(dd, 10)}日`
       };
     }
 
-    function parseOpDateTitleToIso(dateTitleStr) {
-      if (!dateTitleStr || typeof dateTitleStr !== 'string') return '';
-      const raw = dateTitleStr.trim();
-      const mIso = raw.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
-      if (mIso) return `${mIso[1]}-${mIso[2].padStart(2, '0')}-${mIso[3].padStart(2, '0')}`;
-      const mZh = raw.match(/(\d{4})\s*年\s*(\d{1,2})\s*月\s*(\d{1,2})/);
-      if (mZh) return `${mZh[1]}-${mZh[2].padStart(2, '0')}-${mZh[3].padStart(2, '0')}`;
-      const mSlash = raw.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
-      if (mSlash) return `${mSlash[3]}-${mSlash[2].padStart(2, '0')}-${mSlash[1].padStart(2, '0')}`;
-      const parsedMs = Date.parse(raw);
-      if (!isNaN(parsedMs)) {
-        const d = new Date(parsedMs);
-        const yyyy = d.getFullYear();
-        const mm = String(d.getMonth() + 1).padStart(2, '0');
-        const dd = String(d.getDate()).padStart(2, '0');
-        return `${yyyy}-${mm}-${dd}`;
-      }
-      return '';
-    }
-
-    // Automatically reset & initialize HKIA maps whenever the Hong Kong date changes, while preserving yesterday's cache for cross-midnight flights
+    // Automatically reset & initialize HKIA maps whenever the Hong Kong date changes
     function ensureHKIAMapsForCurrentDate() {
-      const { isoDate, yesterdayIsoDate } = getHKTodayDateStrings();
+      const { isoDate } = getHKTodayDateStrings();
       if (activeHKIADate === isoDate) return;
-
-      // If transitioning across midnight from yesterday to today, carry over liveHKIAMaps into yesterdayHKIAMaps first
-      if (activeHKIADate === yesterdayIsoDate && (liveHKIAArrMap.size > 0 || liveHKIADepMap.size > 0)) {
-        yesterdayHKIAArrMap.clear();
-        yesterdayHKIADepMap.clear();
-        liveHKIAArrMap.forEach((v, k) => yesterdayHKIAArrMap.set(k, { ...v }));
-        liveHKIADepMap.forEach((v, k) => yesterdayHKIADepMap.set(k, { ...v }));
-      }
-
       activeHKIADate = isoDate;
       liveHKIAArrMap.clear();
       liveHKIADepMap.clear();
 
-      if (yesterdayIsoDate === '2026-10-31') {
-        HKIA_2026_10_31_ARR_SNAPSHOT.forEach(item => yesterdayHKIAArrMap.set(item.numKey, { ...item }));
-        HKIA_2026_10_31_DEP_SNAPSHOT.forEach(item => yesterdayHKIADepMap.set(item.numKey, { ...item }));
+      if (HKIA_SNAPSHOT_REF_DATES.has(isoDate)) {
+        HKIA_5X_TODAY_ARRIVALS_REF.forEach(item => liveHKIAArrMap.set(item.numKey, { ...item }));
+        HKIA_5X_TODAY_DEPARTURES_REF.forEach(item => liveHKIADepMap.set(item.numKey, { ...item }));
+      } else {
+        HKIA_5X_TODAY_ARRIVALS_REF.forEach(item => {
+          liveHKIAArrMap.set(item.numKey, { ...item, statusText: '-' });
+        });
+        HKIA_5X_TODAY_DEPARTURES_REF.forEach(item => {
+          liveHKIADepMap.set(item.numKey, { ...item, statusText: '-' });
+        });
       }
-
-      // Restore yesterday's cached HKIA statuses from localStorage for cross-midnight continuity
-      try {
-        const yestRaw = localStorage.getItem('ups_hkia_live_cache_' + yesterdayIsoDate);
-        if (yestRaw) {
-          const yCached = JSON.parse(yestRaw);
-          if (Array.isArray(yCached.arr)) {
-            yCached.arr.forEach(([k, v]) => {
-              if (v && v.statusText && v.statusText !== '-') yesterdayHKIAArrMap.set(k, v);
-            });
-          }
-          if (Array.isArray(yCached.dep)) {
-            yCached.dep.forEach(([k, v]) => {
-              if (v && v.statusText && v.statusText !== '-') yesterdayHKIADepMap.set(k, v);
-            });
-          }
-        }
-      } catch (e) {}
 
       // Restore any live HKIA statuses already cached in localStorage for today's isoDate
       try {
@@ -5388,15 +5343,10 @@
         if (cachedRaw) {
           const cached = JSON.parse(cachedRaw);
           if (Array.isArray(cached.arr)) {
-            cached.arr.forEach(([k, v]) => {
-              // Filter out any old Oct 28 template entries that had statusText === '-'
-              if (v && (v.statusText !== '-' || v.fromLiveHKIA)) liveHKIAArrMap.set(k, v);
-            });
+            cached.arr.forEach(([k, v]) => liveHKIAArrMap.set(k, v));
           }
           if (Array.isArray(cached.dep)) {
-            cached.dep.forEach(([k, v]) => {
-              if (v && (v.statusText !== '-' || v.fromLiveHKIA)) liveHKIADepMap.set(k, v);
-            });
+            cached.dep.forEach(([k, v]) => liveHKIADepMap.set(k, v));
           }
         }
       } catch (e) {}
@@ -5799,12 +5749,11 @@
         };
       }
       if (raw === '-' || !raw) {
-        const validSched = Boolean(sched && sched !== '--:--' && sched !== '-');
         return {
           hasArrived: false,
-          statusLabel: validSched ? `預計 ${sched}` : '-',
-          displayTime: validSched ? sched : '--:--',
-          schedTime: validSched ? sched : '--:--'
+          statusLabel: sched ? `預計 ${sched}` : '-',
+          displayTime: sched || '--:--',
+          schedTime: sched || '--:--'
         };
       }
       return {
@@ -6043,8 +5992,10 @@
       const results = [];
       if (!Array.isArray(jsonData)) return results;
 
-      jsonData.forEach(dayBlock => {
-        const isTargetDateBlock = !dayBlock.date || dayBlock.date === targetIsoDate;
+      const sortedBlocks = [...jsonData].sort((a, b) => String(a?.date || '').localeCompare(String(b?.date || '')));
+      sortedBlocks.forEach(dayBlock => {
+        const blockDate = String(dayBlock?.date || '');
+        const isPastOrTargetBlock = !blockDate || blockDate <= targetIsoDate;
         const list = dayBlock?.list || [];
         list.forEach(item => {
           const flightsArr = item?.flight || [];
@@ -6056,8 +6007,7 @@
           if (!upsFlight) return;
           const noStr = String(upsFlight.no || '').trim();
           const numKey = extract5XFlightNumKey(noStr);
-          // From non-today date blocks, only include 'D'-suffixed delayed flights (since their key ends with 'D', they never overwrite today's regular flights)
-          if (!isTargetDateBlock && !numKey.endsWith('D')) return;
+          if (!isPastOrTargetBlock && !numKey.endsWith('D')) return;
 
           const schedTime = String(item?.time || '').trim();
           const rawStatus = String(item?.status || '-').trim();
@@ -6068,18 +6018,18 @@
             numKey,
             schedTime,
             places,
-            statusText: rawStatus || '-'
+            statusText: rawStatus || '-',
+            blockDate
           });
         });
       });
       return results;
     }
 
-    // Fetch HKIA JSON via parallel multi-proxy race and immediately abort losing requests so browser connection slots are never blocked
-    async function fetchSingleCandidateJson(cand, ctrlsList) {
+    // Fetch HKIA JSON via parallel multi-proxy race so GitHub Pages browsers get live data quickly even if one proxy is slow or blocked
+    async function fetchSingleCandidateJson(cand) {
       const ctrl = new AbortController();
-      if (Array.isArray(ctrlsList)) ctrlsList.push(ctrl);
-      const tid = setTimeout(() => ctrl.abort(), 5000);
+      const tid = setTimeout(() => ctrl.abort(), 5500);
       try {
         const resp = await fetch(cand.url, { cache: 'no-store', signal: ctrl.signal });
         clearTimeout(tid);
@@ -6093,7 +6043,7 @@
           }
         } else if (cand.mode === 'jina_text') {
           const txt = await resp.text();
-          const firstBracket = txt.search(/\[\s*\{/);
+          const firstBracket = txt.indexOf('[');
           const lastBracket = txt.lastIndexOf(']');
           if (firstBracket !== -1 && lastBracket > firstBracket) {
             const data = JSON.parse(txt.slice(firstBracket, lastBracket + 1));
@@ -6114,74 +6064,35 @@
       const candidates = [];
       urlsToWrap.forEach(u => {
         candidates.push(
-          { url: `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`, mode: 'raw' },
-          { url: `https://corsproxy.io/?${encodeURIComponent(u)}`, mode: 'raw' },
-          { url: `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`, mode: 'raw' },
+          { url: u, mode: 'raw' },
           { url: `https://api.allorigins.win/get?url=${encodeURIComponent(u)}`, mode: 'allorigins_get' },
-          { url: `https://r.jina.ai/${u}`, mode: 'jina_text' }
+          { url: `https://corsproxy.io/?${encodeURIComponent(u)}`, mode: 'raw' },
+          { url: `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`, mode: 'raw' },
+          { url: `https://r.jina.ai/${u}`, mode: 'jina_text' },
+          { url: `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`, mode: 'raw' }
         );
       });
-      const ctrlsList = [];
       try {
-        return await Promise.any(candidates.map(c => fetchSingleCandidateJson(c, ctrlsList)));
+        return await Promise.any(candidates.map(c => fetchSingleCandidateJson(c)));
       } catch (e) {
         return null;
-      } finally {
-        ctrlsList.forEach(c => {
-          try { c.abort(); } catch (err) {}
-        });
       }
     }
 
-    // Apply liveHKIAArrMap & liveHKIADepMap (with cross-midnight yesterdayHKIAMap support) to operationPlan.flights
+    // Apply liveHKIAArrMap & liveHKIADepMap to operationPlan.flights and refresh the board every 1 second
     function applyHKIAMapsToOperationPlan() {
-      const { isoDate, yesterdayIsoDate, dmySlash, zhDate } = getHKTodayDateStrings();
-      const opIsoDate = parseOpDateTitleToIso(operationPlan.dateTitle);
-      const isYesterdayPlan = Boolean(opIsoDate && opIsoDate <= yesterdayIsoDate);
-      const hkNow = getHongKongHMS();
-      const hkNowMins = hkNow.hh * 60 + hkNow.mm;
-
-      // Track seen inbound keys so if the same flight number appears at the start of yesterday's plan AND at the end (next morning), each gets the right day's status
-      const seenInKeysInPlan = new Set();
+      const { zhDate } = getHKTodayDateStrings();
 
       operationPlan.flights.forEach((slot) => {
         const inKey = extract5XFlightNumKey(slot.inFlt);
         const outKey = extract5XFlightNumKey(slot.outFlt);
-        const isRepeatInKey = Boolean(inKey && seenInKeysInPlan.has(inKey));
-        if (inKey) seenInKeysInPlan.add(inKey);
 
-        const crewPickMins = parseTimeStrToMinutes(slot.crewPickTime);
-        const loadMins = parseTimeStrToMinutes(slot.loadTime);
-        // A column is a next-morning flight on a yesterday plan if its crewPickTime is 01:00..11:59 (like 022/003 at 05:20) or it's a repeat morning arrival at the end of the table
-        const isNextMorningSlotOnYesterdayPlan = isYesterdayPlan && (
-          isRepeatInKey ||
-          (crewPickMins !== null && crewPickMins >= 60 && crewPickMins < 720 && (loadMins === null || loadMins < 720)) ||
-          (!outKey && crewPickMins === null && loadMins === null && liveHKIAArrMap.has(inKey))
-        );
-
-        // Resolve Arrival (today vs yesterday cross-midnight)
-        let chosenArr = null;
-        const todayArr = inKey ? liveHKIAArrMap.get(inKey) : null;
-        const yestArr = inKey ? yesterdayHKIAArrMap.get(inKey) : null;
-        const todayArrParsed = todayArr ? parseHKIAArrivalStatus(todayArr.statusText, todayArr.schedTime) : null;
-        const yestArrParsed = yestArr ? parseHKIAArrivalStatus(yestArr.statusText, yestArr.schedTime) : null;
-
-        if (inKey) {
-          if (todayArrParsed && todayArrParsed.hasArrived) {
-            chosenArr = { item: todayArr, parsed: todayArrParsed };
-          } else if (isYesterdayPlan && !isNextMorningSlotOnYesterdayPlan && yestArrParsed && yestArrParsed.hasArrived) {
-            chosenArr = { item: yestArr, parsed: yestArrParsed };
-          } else if (todayArr && todayArrParsed) {
-            chosenArr = { item: todayArr, parsed: todayArrParsed };
-          } else if (yestArrParsed && yestArrParsed.hasArrived) {
-            chosenArr = { item: yestArr, parsed: yestArrParsed };
-          }
-        }
-
-        if (chosenArr) {
-          slot.hkiaArrSched = chosenArr.parsed.schedTime;
-          slot.hkiaOrigin = chosenArr.item.origin || extractRouteCityFromFltStr(slot.inFlt) || '';
-          slot.inStatus = chosenArr.parsed.statusLabel;
+        if (inKey && liveHKIAArrMap.has(inKey)) {
+          const hkiaArr = liveHKIAArrMap.get(inKey);
+          const parsed = parseHKIAArrivalStatus(hkiaArr.statusText, hkiaArr.schedTime);
+          slot.hkiaArrSched = parsed.schedTime;
+          slot.hkiaOrigin = hkiaArr.origin || extractRouteCityFromFltStr(slot.inFlt) || '';
+          slot.inStatus = parsed.statusLabel;
         } else if (inKey) {
           // If an inbound flight is not in liveHKIAArrMap but has In/Crew Pick time filled in, treat it as arrived at gate
           const pickMatch = String(slot.inCrewPick || '').trim().match(/^(\d{1,2}:\d{2})$/);
@@ -6206,45 +6117,15 @@
           slot.inStatus = '-';
         }
 
-        // Resolve Departure (today vs yesterday cross-midnight)
-        let chosenDep = null;
-        const todayDep = outKey ? liveHKIADepMap.get(outKey) : null;
-        const yestDep = outKey ? yesterdayHKIADepMap.get(outKey) : null;
-        const todayDepParsed = todayDep ? parseHKIADepartureStatus(todayDep.statusText, todayDep.schedTime) : null;
-        const yestDepParsed = yestDep ? parseHKIADepartureStatus(yestDep.statusText, yestDep.schedTime) : null;
-
-        if (outKey) {
-          if (todayDepParsed && todayDepParsed.hasDeparted) {
-            chosenDep = { item: todayDep, parsed: todayDepParsed };
-          } else if (isYesterdayPlan && yestDepParsed && yestDepParsed.hasDeparted) {
-            // Check if yestDep actually departed today in parentheses (e.g. (01/11/2026)) or in yesterday afternoon/evening
-            const hasTodayDateTag = String(yestDep.statusText || '').includes(dmySlash);
-            const yestDepMins = parseTimeStrToMinutes(yestDepParsed.displayTime);
-            const isYesterdayMorningPrevShift = !hasTodayDateTag && yestDepMins !== null && yestDepMins < 900 && isNextMorningSlotOnYesterdayPlan;
-            if (!isYesterdayMorningPrevShift) {
-              chosenDep = { item: yestDep, parsed: yestDepParsed };
-            }
-          }
-          if (!chosenDep && todayDep && todayDepParsed) {
-            chosenDep = { item: todayDep, parsed: todayDepParsed };
-          }
-          // Fallback when viewing yesterday's Operation Plan for flights scheduled yesterday afternoon/evening (crewPickMins >= 720)
-          if (!chosenDep && isYesterdayPlan && crewPickMins !== null && crewPickMins >= 720) {
-            const estStdMins = (crewPickMins + 90) % 1440;
-            const estStdStr = `${String(Math.floor(estStdMins / 60)).padStart(2, '0')}:${String(estStdMins % 60).padStart(2, '0')}`;
-            chosenDep = {
-              item: { dest: extractRouteCityFromFltStr(slot.outFlt) || '' },
-              parsed: { hasDeparted: true, statusLabel: `啟航 ${estStdStr}`, displayTime: estStdStr, schedTime: estStdStr }
-            };
-          }
-        }
-
-        if (chosenDep) {
-          slot.hkiaDepSched = chosenDep.parsed.schedTime;
-          slot.hkiaDest = chosenDep.item.dest || extractRouteCityFromFltStr(slot.outFlt) || '';
-          slot.outStatus = chosenDep.parsed.statusLabel;
-          slot.std = chosenDep.parsed.displayTime;
+        if (outKey && liveHKIADepMap.has(outKey)) {
+          const hkiaDep = liveHKIADepMap.get(outKey);
+          const parsed = parseHKIADepartureStatus(hkiaDep.statusText, hkiaDep.schedTime);
+          slot.hkiaDepSched = parsed.schedTime;
+          slot.hkiaDest = hkiaDep.dest || extractRouteCityFromFltStr(slot.outFlt) || '';
+          slot.outStatus = parsed.statusLabel;
+          slot.std = parsed.displayTime;
         } else if (outKey) {
+          // Flight entered in Operation Plan is not on today's HKIA Departure board
           slot.hkiaDepSched = '--:--';
           slot.hkiaDest = extractRouteCityFromFltStr(slot.outFlt) || '';
           slot.outStatus = '-';
@@ -6309,7 +6190,7 @@
       isFetchingFR24 = true;
       lastHKIANetworkFetchTs = nowMs;
 
-      const { isoDate, yesterdayIsoDate } = getHKTodayDateStrings();
+      const { isoDate } = getHKTodayDateStrings();
       try {
         const hkiaArrApi = `https://www.hongkongairport.com/flightinfo-rest/rest/flights/past?date=${isoDate}&lang=zh_HK&cargo=true&arrival=true`;
         const hkiaArrAlt = `https://www.hongkongairport.com/flightinfo-rest/rest/flights?span=1&date=${isoDate}&lang=zh_HK&cargo=true&arrival=true`;
@@ -6321,72 +6202,55 @@
           fetchHKIAJsonWithCORSFallback(hkiaDepApi, hkiaDepAlt)
         ]);
 
-        let yestArrJson = null;
-        let yestDepJson = null;
-        if (yesterdayHKIAArrMap.size === 0 || yesterdayHKIADepMap.size === 0) {
-          const yestArrApi = `https://www.hongkongairport.com/flightinfo-rest/rest/flights/past?date=${yesterdayIsoDate}&lang=zh_HK&cargo=true&arrival=true`;
-          const yestArrAlt = `https://www.hongkongairport.com/flightinfo-rest/rest/flights?span=1&date=${yesterdayIsoDate}&lang=zh_HK&cargo=true&arrival=true`;
-          const yestDepApi = `https://www.hongkongairport.com/flightinfo-rest/rest/flights/past?date=${yesterdayIsoDate}&lang=zh_HK&cargo=true&arrival=false`;
-          const yestDepAlt = `https://www.hongkongairport.com/flightinfo-rest/rest/flights?span=1&date=${yesterdayIsoDate}&lang=zh_HK&cargo=true&arrival=false`;
-          [yestArrJson, yestDepJson] = await Promise.all([
-            fetchHKIAJsonWithCORSFallback(yestArrApi, yestArrAlt),
-            fetchHKIAJsonWithCORSFallback(yestDepApi, yestDepAlt)
-          ]);
-        }
-
-        const upsertArrToMap = (targetMap, item) => {
+        const upsertArrItem = (item) => {
           if (!item || !item.numKey) return;
-          const prev = targetMap.get(item.numKey);
+          const prev = liveHKIAArrMap.get(item.numKey);
           const prevArrived = prev ? parseHKIAArrivalStatus(prev.statusText, prev.schedTime).hasArrived : false;
           const nextArrived = parseHKIAArrivalStatus(item.statusText, item.schedTime).hasArrived;
+          // Never downgrade an already-arrived flight ('到閘口' / '著陸於') back to '預計' or '-'
           const chosenStatus = (prevArrived && !nextArrived) ? prev.statusText : (item.statusText || (prev?.statusText) || '-');
-          targetMap.set(item.numKey, {
+          const chosenSched = (prevArrived && !nextArrived && prev?.schedTime && prev.schedTime !== '--:--')
+            ? prev.schedTime
+            : ((item.schedTime && item.schedTime !== '--:--') ? item.schedTime : ((prev?.schedTime) || '--:--'));
+          liveHKIAArrMap.set(item.numKey, {
             fltNo: item.fltNo || (prev?.fltNo) || `5X ${item.numKey.padStart(3, '0')}`,
             numKey: item.numKey,
-            schedTime: (item.schedTime && item.schedTime !== '--:--') ? item.schedTime : ((prev?.schedTime) || '--:--'),
+            schedTime: chosenSched,
             origin: item.places || item.origin || (prev?.origin) || '',
-            statusText: chosenStatus,
-            fromLiveHKIA: true
+            statusText: chosenStatus
           });
         };
 
-        const upsertDepToMap = (targetMap, item) => {
+        const upsertDepItem = (item) => {
           if (!item || !item.numKey) return;
-          const prev = targetMap.get(item.numKey);
+          const prev = liveHKIADepMap.get(item.numKey);
           const prevDeparted = prev ? parseHKIADepartureStatus(prev.statusText, prev.schedTime).hasDeparted : false;
           const nextDeparted = parseHKIADepartureStatus(item.statusText, item.schedTime).hasDeparted;
+          // Never downgrade an already-departed flight ('啟航 HH:MM') back to '預計' or '-'
           const chosenStatus = (prevDeparted && !nextDeparted) ? prev.statusText : (item.statusText || (prev?.statusText) || '-');
-          targetMap.set(item.numKey, {
+          liveHKIADepMap.set(item.numKey, {
             fltNo: item.fltNo || (prev?.fltNo) || `5X ${item.numKey.padStart(3, '0')}`,
             numKey: item.numKey,
             schedTime: (item.schedTime && item.schedTime !== '--:--') ? item.schedTime : ((prev?.schedTime) || '--:--'),
             dest: item.places || item.dest || (prev?.dest) || '',
-            statusText: chosenStatus,
-            fromLiveHKIA: true
+            statusText: chosenStatus
           });
         };
 
         if (arrJson) {
-          parseHKIACargoJSON(arrJson, yesterdayIsoDate).forEach(it => upsertArrToMap(yesterdayHKIAArrMap, it));
-          parseHKIACargoJSON(arrJson, isoDate).forEach(it => upsertArrToMap(liveHKIAArrMap, it));
+          const parsedArr = parseHKIACargoJSON(arrJson, isoDate);
+          parsedArr.forEach(upsertArrItem);
         } else {
           const jinaArr = await fetchHKIACargoPageViaJina('https://www.hongkongairport.com/tc/flights/arrivals/cargo.page', true);
-          jinaArr.forEach(it => upsertArrToMap(liveHKIAArrMap, it));
+          jinaArr.forEach(upsertArrItem);
         }
 
         if (depJson) {
-          parseHKIACargoJSON(depJson, yesterdayIsoDate).forEach(it => upsertDepToMap(yesterdayHKIADepMap, it));
-          parseHKIACargoJSON(depJson, isoDate).forEach(it => upsertDepToMap(liveHKIADepMap, it));
+          const parsedDep = parseHKIACargoJSON(depJson, isoDate);
+          parsedDep.forEach(upsertDepItem);
         } else {
           const jinaDep = await fetchHKIACargoPageViaJina('https://www.hongkongairport.com/tc/flights/departures/cargo.page', false);
-          jinaDep.forEach(it => upsertDepToMap(liveHKIADepMap, it));
-        }
-
-        if (yestArrJson) {
-          parseHKIACargoJSON(yestArrJson, yesterdayIsoDate).forEach(it => upsertArrToMap(yesterdayHKIAArrMap, it));
-        }
-        if (yestDepJson) {
-          parseHKIACargoJSON(yestDepJson, yesterdayIsoDate).forEach(it => upsertDepToMap(yesterdayHKIADepMap, it));
+          jinaDep.forEach(upsertDepItem);
         }
 
         try {
@@ -6394,12 +6258,6 @@
             arr: Array.from(liveHKIAArrMap.entries()),
             dep: Array.from(liveHKIADepMap.entries())
           }));
-          if (yesterdayHKIAArrMap.size > 0 || yesterdayHKIADepMap.size > 0) {
-            localStorage.setItem('ups_hkia_live_cache_' + yesterdayIsoDate, JSON.stringify({
-              arr: Array.from(yesterdayHKIAArrMap.entries()),
-              dep: Array.from(yesterdayHKIADepMap.entries())
-            }));
-          }
         } catch (e) {}
 
         applyHKIAMapsToOperationPlan();
@@ -6681,11 +6539,11 @@
 
     const DEFAULT_OPERATION_PLAN = {
       festivalTheme: 'halloween',
-      dateTitle: 'Saturday, October 31, 2026',
+      dateTitle: 'Wednesday, October 28, 2026',
       uldBreakdown: {
-        AAD: '43', AAY: '48', AAZ: '8', ALP: '6', AMD: '24', AMJ: '48', AMP: '89',
-        PAG: '17', PMC: '89', PM2: '3', Lease: '49', Total: '424',
-        FCC96: '38', FCC118: '19', Net: '539', Straps: '90'
+        AAD: '65', AAY: '39', AAZ: '2', ALP: '20', AMD: '39', AMJ: '79', AMP: '101',
+        PAG: '29', PMC: '177', PM2: '0', Lease: '0', Total: '551',
+        FCC96: '12', FCC118: '23', Net: '478', Straps: '520'
       },
       tractorBanner: '1 x 24 Tractor (1200-0800)',
       customRowLabels: {
@@ -6704,8 +6562,8 @@
         newWhBic: 'David',
         hubWic: 'Hei Wah',
         newWhWic: 'Kee Hong',
-        uc: 'Man/ Ping',
-        bkg: 'Yin/ Billy',
+        uc: '文仔 / Ping',
+        bkg: 'Yin / Billy',
         extra1: '',
         extra2: ''
       },
@@ -6717,67 +6575,75 @@
       ],
       flights: [
         {
-          islandId: '08',
-          inFlt: '058-HNL', inStatus: '到閘口 14:42', hkiaArrSched: '14:42', hkiaOrigin: '檀香山', sta: '', inCrewPick: '', meetPlane: '', inboundUld: '文仔',
-          outFlt: '065-ANC', outStatus: '啟航 20:37', hkiaDepSched: '20:37', hkiaDest: '安克雷奇', std: '20:37', tailNbr: 'N575UP', crewPickTime: '19:20', meetCrew: '',
-          parkingBay: 'X23', loadTime: '17:30', fod: 'Kei', ric: 'Kei', belt: '文仔',
-          ccdMdp: 'Yin', ccdP1P5: 'Yin', ccdP6P9: 'Kwok Fai', rc: 'Kwok Fai',
-          bulk: 'Kei', lh: 'Hoi', exp: 'Day Shift', outsource: '1x0800'
+          islandId: '01',
+          inFlt: '142-CRK', inStatus: '到閘口 06:57', hkiaArrSched: '05:35', hkiaOrigin: '克拉克', sta: '06:57', inCrewPick: '05:38', meetPlane: 'Keith', inboundUld: '大丹',
+          outFlt: '', outStatus: '-', hkiaDepSched: '--:--', hkiaDest: '', std: '', tailNbr: 'N352UP', crewPickTime: '', meetCrew: '',
+          parkingBay: 'X19', loadTime: '', fod: '', ric: '', belt: '',
+          ccdMdp: 'Night WH', ccdP1P5: 'Ling', ccdP6P9: 'Keith', rc: 'Shun',
+          bulk: '', lh: '', exp: '', outsource: ''
+        },
+        {
+          islandId: '02',
+          inFlt: '067-SGN', inStatus: '到閘口 08:01', hkiaArrSched: '08:05', hkiaOrigin: '路易斯維爾 / 胡志明市', sta: '08:01', inCrewPick: '08:08', meetPlane: 'Mark', inboundUld: 'Mark',
+          outFlt: '067-ICN', outStatus: '啟航 13:50', hkiaDepSched: '13:25', hkiaDest: '安克雷奇 / 路易斯維爾', std: '13:50', tailNbr: 'N575UP', crewPickTime: '', meetCrew: 'Sam',
+          parkingBay: 'X17', loadTime: '08:15', fod: 'Keith', ric: 'Keith', belt: 'Fung',
+          ccdMdp: 'Shun', ccdP1P5: 'Shun', ccdP6P9: 'Lee Fai', rc: 'Lee Fai',
+          bulk: 'Keith', lh: '明', exp: 'Kin chi', outsource: ''
+        },
+        {
+          islandId: '09',
+          inFlt: '', inStatus: '已到港 (同欄出口)', hkiaArrSched: '已在港', hkiaOrigin: '同欄有出口航班 (已在港)', sta: '', inCrewPick: '', meetPlane: '', inboundUld: '',
+          outFlt: '003-BLR', outStatus: '預計 04:35 (29/10/2026)', hkiaDepSched: '11:10', hkiaDest: '班加羅爾 / 科隆 / 費城', std: '04:35', tailNbr: 'N280UP', crewPickTime: '10:35', meetCrew: '明',
+          parkingBay: 'X34', loadTime: '08:15', fod: 'Chiu', ric: 'Chiu', belt: 'Ling',
+          ccdMdp: 'Shun', ccdP1P5: 'Shun', ccdP6P9: 'Lee Fai', rc: 'Lee Fai',
+          bulk: 'Chiu', lh: 'Sam', exp: 'Kin chi', outsource: ''
+        },
+        {
+          islandId: '01',
+          inFlt: '062-ANC', inStatus: '到閘口 14:38', hkiaArrSched: '14:35', hkiaOrigin: '路易斯維爾 / 安克雷奇', sta: '14:38', inCrewPick: '14:43', meetPlane: 'Keith', inboundUld: '大丹',
+          outFlt: '061-ANC', outStatus: '啟航 17:29', hkiaDepSched: '17:10', hkiaDest: '安克雷奇 / 路易斯維爾', std: '17:29', tailNbr: 'N613UP', crewPickTime: '16:15', meetCrew: 'Sam',
+          parkingBay: 'X16', loadTime: '14:35', fod: 'Keith', ric: 'Keith', belt: 'Lee Fai',
+          ccdMdp: 'Ling', ccdP1P5: 'Ling', ccdP6P9: 'Fung', rc: 'Fung',
+          bulk: 'Keith', lh: '明', exp: 'Kin chi', outsource: ''
+        },
+        {
+          islandId: '04',
+          inFlt: '002-CGN', inStatus: '到閘口 14:27', hkiaArrSched: '14:55', hkiaOrigin: '科隆', sta: '14:27', inCrewPick: '14:32', meetPlane: 'Chiu', inboundUld: 'Mark',
+          outFlt: '001-CGN', outStatus: '啟航 16:40', hkiaDepSched: '16:30', hkiaDest: '科隆', std: '16:40', tailNbr: 'N284UP', crewPickTime: '15:35', meetCrew: '明',
+          parkingBay: 'X18', loadTime: '14:35', fod: 'Shun', ric: 'Shun', belt: 'Fung',
+          ccdMdp: 'Ling', ccdP1P5: 'Ling', ccdP6P9: 'Lee Fai', rc: 'Lee Fai',
+          bulk: 'Shun', lh: 'Sam', exp: 'Kin chi', outsource: ''
         },
         {
           islandId: '17',
+          inFlt: '058-HNL', inStatus: '到閘口 14:11', hkiaArrSched: '15:15', hkiaOrigin: '檀香山', sta: '14:11', inCrewPick: '14:15', meetPlane: 'Sam', inboundUld: '文仔',
+          outFlt: '059-ANC', outStatus: '-', hkiaDepSched: '20:00', hkiaDest: '安克雷奇 / 安大略', std: '20:00', tailNbr: 'N353UP', crewPickTime: '19:05', meetCrew: 'Peter',
+          parkingBay: 'X458>X25', loadTime: '16:45', fod: 'Peter', ric: 'Peter', belt: 'Fung',
+          ccdMdp: 'Ting Fung', ccdP1P5: 'Ting Fung', ccdP6P9: 'Lee Fai/Chiu', rc: 'Lee Fai/Chiu',
+          bulk: 'Peter', lh: 'Sam', exp: 'Kin chi', outsource: ''
+        },
+        {
+          islandId: '10',
           inFlt: '', inStatus: '已到港 (同欄出口)', hkiaArrSched: '已在港', hkiaOrigin: '同欄有出口航班 (已在港)', sta: '', inCrewPick: '', meetPlane: '', inboundUld: '',
-          outFlt: '141-CRK', outStatus: '啟航 23:10', hkiaDepSched: '23:10', hkiaDest: '克拉克', std: '23:10', tailNbr: 'N314UP', crewPickTime: '21:40', meetCrew: '',
-          parkingBay: 'X452', loadTime: '21:30', fod: 'Martin', ric: 'Martin', belt: 'Martin',
-          ccdMdp: 'Ian', ccdP1P5: 'Ian', ccdP6P9: 'Daniel', rc: 'Daniel',
-          bulk: 'Martin', lh: 'Kui', exp: 'Alan', outsource: '1x0900'
+          outFlt: '171-SIN', outStatus: '啟航 16:39', hkiaDepSched: '16:25', hkiaDest: '新加坡', std: '16:39', tailNbr: 'N352UP', crewPickTime: '17:50', meetCrew: '明',
+          parkingBay: 'X25', loadTime: '15:00', fod: 'Chiu', ric: 'Chiu', belt: 'Fung',
+          ccdMdp: 'Ling', ccdP1P5: 'Ling', ccdP6P9: 'Shun', rc: 'Shun',
+          bulk: 'Chiu', lh: '明', exp: 'Kin chi', outsource: ''
+        },
+        {
+          islandId: '05',
+          inFlt: '064-ICN', inStatus: '到閘口 17:18', hkiaArrSched: '16:30', hkiaOrigin: '路易斯維爾 / 首爾/仁川', sta: '17:18', inCrewPick: '', meetPlane: '', inboundUld: '文仔',
+          outFlt: '063-ANC', outStatus: '-', hkiaDepSched: '19:25', hkiaDest: '安克雷奇 / 路易斯維爾', std: '19:25', tailNbr: 'N616UP', crewPickTime: '18:30', meetCrew: '',
+          parkingBay: 'X20', loadTime: '16:45', fod: 'Peter', ric: 'Peter', belt: 'Lee Fai',
+          ccdMdp: 'Ting Fung', ccdP1P5: 'Ting Fung', ccdP6P9: 'Fung/Chiu', rc: 'Fung/Chiu',
+          bulk: 'Peter', lh: 'Shun', exp: 'Kin chi', outsource: ''
         },
         {
           islandId: '07',
-          inFlt: '062-ANC', inStatus: '到閘口 15:01', hkiaArrSched: '15:01', hkiaOrigin: '路易斯維爾 / 安克雷奇', sta: '', inCrewPick: '', meetPlane: '', inboundUld: '文仔',
-          outFlt: '059-ANC', outStatus: '啟航 02:00', hkiaDepSched: '02:00', hkiaDest: '安克雷奇 / 安大略', std: '02:00', tailNbr: 'N625UP', crewPickTime: '00:30', meetCrew: '',
-          parkingBay: 'X22', loadTime: '22:00', fod: 'Hang', ric: 'Hang', belt: 'Chiu',
-          ccdMdp: 'Billy', ccdP1P5: 'Billy', ccdP6P9: 'Fung', rc: 'Fung',
-          bulk: 'Hang', lh: 'Hoi', exp: 'Night', outsource: '4x1230'
-        },
-        {
-          islandId: '13',
-          inFlt: '064-ANC', inStatus: '到閘口 16:06', hkiaArrSched: '16:06', hkiaOrigin: '路易斯維爾 / 安克雷奇', sta: '', inCrewPick: '', meetPlane: '', inboundUld: '文仔',
-          outFlt: '001-BLR', outStatus: '啟航 02:20', hkiaDepSched: '02:20', hkiaDest: '班加羅爾 / 科隆', std: '02:20', tailNbr: 'N615UP', crewPickTime: '00:50', meetCrew: '',
-          parkingBay: 'X28', loadTime: '23:30', fod: 'Peter', ric: 'Peter', belt: '大丹',
-          ccdMdp: 'Ian', ccdP1P5: 'Ian', ccdP6P9: 'Ting Fung', rc: 'Ting Fung',
-          bulk: 'Peter', lh: 'Shun', exp: 'Alvin', outsource: '4x2230'
-        },
-        {
-          islandId: '18',
-          inFlt: '004-CDG', inStatus: '到閘口 03:01', hkiaArrSched: '03:01', hkiaOrigin: '費城 / 巴黎', sta: '', inCrewPick: '', meetPlane: '', inboundUld: '',
-          outFlt: '061-ANC', outStatus: '啟航 02:20', hkiaDepSched: '02:20', hkiaDest: '安克雷奇 / 路易斯維爾', std: '02:20', tailNbr: 'N613UP', crewPickTime: '00:50', meetCrew: 'After 21:00',
-          parkingBay: 'X456>X9', loadTime: '24:00', fod: 'Martin', ric: 'Martin', belt: 'Lee Fai',
-          ccdMdp: 'Billy', ccdP1P5: 'Billy', ccdP6P9: 'Daniel', rc: 'Daniel',
-          bulk: 'Martin', lh: 'Kui', exp: 'Kin Chi', outsource: ''
-        },
-        {
-          islandId: '08',
-          inFlt: '078-ANC', inStatus: '到閘口 21:54', hkiaArrSched: '21:54', hkiaOrigin: '安克雷奇', sta: '', inCrewPick: '', meetPlane: '', inboundUld: '大丹',
-          outFlt: '063-ANC', outStatus: '啟航 04:54', hkiaDepSched: '04:54', hkiaDest: '安克雷奇 / 路易斯維爾', std: '04:54', tailNbr: 'N627UP', crewPickTime: '03:24', meetCrew: '',
-          parkingBay: 'X23', loadTime: '02:00', fod: 'Hang', ric: 'Hang', belt: 'Chiu',
-          ccdMdp: 'Ian', ccdP1P5: 'Ian', ccdP6P9: 'Fung', rc: 'Fung',
-          bulk: 'Hang', lh: 'Kui', exp: '', outsource: ''
-        },
-        {
-          islandId: '07',
-          inFlt: '022-CDG', inStatus: '到閘口 03:40', hkiaArrSched: '03:40', hkiaOrigin: '巴黎', sta: '', inCrewPick: '', meetPlane: '', inboundUld: '大丹',
-          outFlt: '003-BLR', outStatus: '-', hkiaDepSched: '06:50', hkiaDest: '班加羅爾 / 費城', std: '', tailNbr: 'N618UP', crewPickTime: '05:20', meetCrew: '',
-          parkingBay: '', loadTime: 'Quick Turn', fod: 'Peter', ric: 'Peter', belt: 'Lee Fai',
-          ccdMdp: 'Ian', ccdP1P5: 'Ian', ccdP6P9: 'Ting Fung', rc: 'Ting Fung',
-          bulk: 'Peter', lh: 'Daki', exp: '', outsource: ''
-        },
-        {
-          islandId: '08',
-          inFlt: '142-CRK', inStatus: '到閘口 06:37', hkiaArrSched: '06:37', hkiaOrigin: '克拉克', sta: '', inCrewPick: '', meetPlane: '', inboundUld: '大丹',
-          outFlt: '', outStatus: '-', hkiaDepSched: '--:--', hkiaDest: '', std: '', tailNbr: 'N343UP', crewPickTime: '', meetCrew: '',
-          parkingBay: '', loadTime: '', fod: '', ric: '', belt: 'Night WH',
-          ccdMdp: 'Ian', ccdP1P5: 'Ho', ccdP6P9: 'Ling Fung', rc: '',
+          inFlt: '167-BKK', inStatus: '到閘口 18:12', hkiaArrSched: '17:15', hkiaOrigin: '克拉克 / 曼谷', sta: '18:12', inCrewPick: '', meetPlane: '', inboundUld: '大丹',
+          outFlt: '', outStatus: '-', hkiaDepSched: '--:--', hkiaDest: '', std: '', tailNbr: 'N575UP', crewPickTime: '', meetCrew: '',
+          parkingBay: 'X22', loadTime: '', fod: '', ric: '', belt: '',
+          ccdMdp: 'Night WH', ccdP1P5: 'Ting Fung', ccdP6P9: 'Ho', rc: 'Ling Fung',
           bulk: '', lh: '', exp: '', outsource: ''
         }
       ]
