@@ -3740,7 +3740,7 @@
           let liftY = span * 0.085;
           if (span > 3.7) liftY += Math.pow(span - 3.7, 1.85) * 0.42;
           const taper = 1 - Math.min(0.45, (span / 5.0) * 0.45);
-          posAttr.setXYZ(i, sx, liftY + thick * taper, span * sideSign);
+          posAttr.setXYZ(i, sx, liftY - thick * sideSign * taper, span * sideSign);
         }
         wGeo.computeVertexNormals();
         return wGeo;
@@ -3767,7 +3767,7 @@
           const sx = posAttr.getX(i);
           const span = posAttr.getY(i);
           const thick = posAttr.getZ(i) - 0.05;
-          posAttr.setXYZ(i, sx, span * 0.09 + thick, span * sideSign);
+          posAttr.setXYZ(i, sx, span * 0.09 - thick * sideSign, span * sideSign);
         }
         sGeo.computeVertexNormals();
         return sGeo;
