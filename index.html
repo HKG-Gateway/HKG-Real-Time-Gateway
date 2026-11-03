@@ -145,44 +145,73 @@
       display: flex;
       flex-direction: column;
       box-sizing: border-box;
-      background: linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%);
-      border-radius: 12px;
+      background:
+        radial-gradient(120% 90% at 50% 0%, rgba(251, 191, 36, 0.14) 0%, transparent 60%),
+        linear-gradient(165deg, rgba(10, 15, 29, 0.97) 0%, rgba(17, 25, 43, 0.96) 55%, rgba(28, 19, 17, 0.97) 100%);
+      border-radius: 13px;
       padding: 5px 7px;
-      border: 2.5px solid #ffb500;
-      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.35), inset 0 0 0 1px rgba(254, 243, 199, 0.22);
+      border: 2px solid #ffb500;
+      box-shadow:
+        0 14px 34px -6px rgba(2, 6, 23, 0.65),
+        0 0 0 1.5px rgba(53, 28, 21, 0.92),
+        inset 0 1px 0 rgba(254, 240, 138, 0.55),
+        inset 0 0 22px rgba(245, 158, 11, 0.08);
       z-index: 8;
-      backdrop-filter: blur(10px);
-      transition: box-shadow 0.2s ease;
+      backdrop-filter: blur(12px);
+      transition: box-shadow 0.22s ease, border-color 0.22s ease;
       font-family: 'Fredoka', 'Nunito', 'M PLUS Rounded 1c', 'Noto Sans TC', sans-serif;
+      font-variant-numeric: tabular-nums;
       width: max-content;
     }
+    .uld-bubble-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 8%;
+      right: 8%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent 0%, #fde047 25%, #ffffff 50%, #fde047 75%, transparent 100%);
+      opacity: 0.85;
+      pointer-events: none;
+    }
     .uld-bubble-card:hover {
-      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.45), 0 0 0 2px #fbbf24;
+      border-color: #fde047;
+      box-shadow:
+        0 18px 40px -6px rgba(2, 6, 23, 0.78),
+        0 0 0 2px #fbbf24,
+        0 0 20px rgba(251, 191, 36, 0.32),
+        inset 0 1px 0 rgba(255, 255, 255, 0.65);
       z-index: 26;
     }
     .uld-mini-table {
       border-collapse: separate;
       border-spacing: 0;
-      border-radius: 6px;
+      border-radius: 7px;
       overflow: hidden;
-      border: 1px solid #475569;
+      border: 1.5px solid rgba(251, 191, 36, 0.52);
+      box-shadow: 0 3px 10px rgba(2, 6, 23, 0.35);
       width: 100%;
       flex-shrink: 0;
     }
     .uld-mini-table th, .uld-mini-table td {
-      border: 1px solid #cbd5e1;
+      border: 1px solid rgba(148, 163, 184, 0.42);
       padding: 1.8px 6px;
       text-align: center;
       white-space: nowrap;
       line-height: 1.12;
       font-family: 'Fredoka', 'Nunito', 'M PLUS Rounded 1c', 'Noto Sans TC', sans-serif;
     }
+    .uld-mini-table th {
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22);
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+    }
     .uld-op-grid-table {
       border-collapse: separate;
       border-spacing: 0;
-      border-radius: 5px;
+      border-radius: 6px;
       overflow: hidden;
-      border: 1px solid #475569;
+      border: 1.5px solid rgba(100, 116, 139, 0.65);
+      box-shadow: 0 3px 12px rgba(2, 6, 23, 0.32);
       width: 100%;
       height: 100%;
       table-layout: auto;
@@ -196,13 +225,27 @@
       white-space: nowrap;
       font-family: 'Fredoka', 'Nunito', 'M PLUS Rounded 1c', 'Noto Sans TC', sans-serif;
     }
+    .uld-op-grid-table thead th {
+      background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%) !important;
+      border-bottom: 1.5px solid #f59e0b !important;
+      border-color: #334155;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+      letter-spacing: 0.02em;
+    }
+    .uld-op-grid-table tbody tr:nth-child(odd) .op-b-cell {
+      background: #ffffff;
+    }
+    .uld-op-grid-table tbody tr:nth-child(even) .op-b-cell {
+      background: #f1f5f9;
+    }
     .uld-op-grid-table .op-b-lbl {
-      background: #efe8d8;
-      color: #1e293b;
+      background: linear-gradient(90deg, #f5efe2 0%, #e7decb 100%);
+      color: #0f172a;
       font-weight: 800;
       text-align: left;
       padding-left: 4px;
       padding-right: 4px;
+      border-right: 1.5px solid #94a3b8 !important;
     }
     .uld-op-grid-table .op-b-cell {
       background: #faf8f5;
@@ -210,8 +253,27 @@
       font-weight: 700;
     }
     .uld-op-grid-table .op-b-fod td {
-      background: #f59e0b !important;
-      color: #0f172a !important;
+      background: linear-gradient(180deg, #fbbf24 0%, #f59e0b 100%) !important;
+      color: #1c1917 !important;
+      font-weight: 900;
+      border-color: #d97706 !important;
+    }
+    .uld-op-grid-table .op-b-inflt .op-b-lbl {
+      background: linear-gradient(90deg, #dbeafe 0%, #bfdbfe 100%);
+      color: #0c4a6e;
+    }
+    .uld-op-grid-table .op-b-inflt .op-b-cell {
+      background: #eff6ff !important;
+      color: #0369a1 !important;
+      font-weight: 900;
+    }
+    .uld-op-grid-table .op-b-outflt .op-b-lbl {
+      background: linear-gradient(90deg, #fef3c7 0%, #fde68a 100%);
+      color: #78350f;
+    }
+    .uld-op-grid-table .op-b-outflt .op-b-cell {
+      background: #fffbeb !important;
+      color: #b45309 !important;
       font-weight: 900;
     }
     .island-tag .ups-badge {
@@ -668,8 +730,8 @@
             <span id="cloud-sync-dot" class="w-2 h-2 rounded-full bg-emerald-400 live-dot flex-shrink-0"></span>
             <span class="font-bold text-sky-300 whitespace-nowrap">☁️ 同步頻道:</span>
             <input id="cloud-sync-channel-input" type="text" value="UPS-HKG-GATEWAY" class="w-28 bg-slate-900 text-amber-300 font-mono font-bold text-[11px] px-1.5 py-0.5 rounded border border-slate-600 focus:outline-none focus:border-amber-400" title="所有設備輸入相同頻道碼即可即時同步每日工作編排" />
-            <button id="btn-cloud-push-now" type="button" class="px-2 py-0.5 rounded bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-[10px] transition whitespace-nowrap" title="立即將此設備目前的編排發送到雲端，讓其他設備即時看到">⬆️ 發送到其他設備</button>
-            <button id="btn-cloud-pull-now" type="button" class="px-2 py-0.5 rounded bg-sky-600 hover:bg-sky-500 text-white font-bold text-[10px] transition whitespace-nowrap" title="立即從雲端拉取其他設備最新儲存的編排">🔄 立即同步</button>
+            <button id="btn-cloud-push-now" type="button" class="hidden" style="display:none !important;" aria-hidden="true">⬆️ 發送到其他設備</button>
+            <button id="btn-cloud-pull-now" type="button" class="hidden" style="display:none !important;" aria-hidden="true">🔄 立即同步</button>
             <span id="cloud-sync-status-text" class="text-[10px] font-bold text-emerald-300 whitespace-nowrap">雲端即時連線中</span>
           </div>
           <div class="flex items-center gap-1.5">
@@ -698,19 +760,11 @@
             📤 上傳 Excel 更新
           </button>
           <select id="excel-sheet-select" class="hidden px-2 py-1 rounded-lg bg-emerald-50 text-emerald-900 border border-emerald-400 font-bold text-[11px] focus:outline-none" title="選擇 Excel 工作表分頁"></select>
-          <button id="btn-paste-excel" type="button" class="px-2.5 py-1 rounded-lg bg-teal-600 hover:bg-teal-500 text-white font-bold text-[11px] shadow-sm transition flex items-center gap-1" title="在 Excel 複製表格後，點擊此處或按 Ctrl+V 直接貼上到每日工作編排">
-            📋 貼上 Excel 內容
-          </button>
-          <button id="btn-export-excel" type="button" class="px-2.5 py-1 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-bold text-[11px] shadow-sm transition flex items-center gap-1" title="下載目前每日工作編排 Excel (.xlsx) 範本">
-            📥 匯出 Excel 範本
-          </button>
-          <button id="btn-download-synced-html" type="button" class="px-2.5 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-[11px] shadow-sm transition flex items-center gap-1" title="下載已內嵌最新編排資料的 HTML 檔案，傳送至任何設備打開即可直接看到最新編排">
-            💾 下載含最新編排 HTML
-          </button>
+          <button id="btn-paste-excel" type="button" class="hidden" style="display:none !important;" aria-hidden="true">📋 貼上 Excel 內容</button>
+          <button id="btn-export-excel" type="button" class="hidden" style="display:none !important;" aria-hidden="true">📥 匯出 Excel 範本</button>
+          <button id="btn-download-synced-html" type="button" class="hidden" style="display:none !important;" aria-hidden="true">💾 下載含最新編排 HTML</button>
           <span id="excel-upload-status" class="hidden px-2.5 py-0.5 rounded-lg text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300"></span>
-          <button id="btn-add-flight-col" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-300 font-bold text-[11px] shadow-sm transition">
-            ＋ 新增航班欄
-          </button>
+          <button id="btn-add-flight-col" class="hidden" style="display:none !important;" aria-hidden="true">＋ 新增航班欄</button>
           <a href="https://www.hongkongairport.com/tc/flights/arrivals/cargo.page" target="_blank" rel="noopener noreferrer" id="fr24-sync-badge" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/15 border border-amber-400/60 text-amber-900 font-bold text-[11px] hover:bg-amber-500/25 transition" title="香港國際機場貨機抵港航班 (5X)">
             <span class="w-2 h-2 rounded-full bg-emerald-500 live-dot"></span>
             <span id="fr24-sync-text">HKIA 貨機抵港/離港 (5X) 自動同步 · 1s</span>
@@ -1245,6 +1299,8 @@
     bgRenderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2.5));
     bgRenderer.shadowMap.enabled = true;
     bgRenderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    bgRenderer.toneMapping = THREE.ACESFilmicToneMapping;
+    bgRenderer.toneMappingExposure = 1.06;
     if (bgContainer) bgContainer.appendChild(bgRenderer.domElement);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
@@ -1252,6 +1308,8 @@
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2.5));
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.06;
     container.appendChild(renderer.domElement);
 
     const weatherRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
@@ -1323,9 +1381,15 @@
       camera.lookAt(camCtrl.target);
     }
 
-    // Lighting
+    // Lighting (with Hemisphere Sky-to-Apron GI bounce light)
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.88);
     scene.add(ambientLight);
+    const hemiLight = new THREE.HemisphereLight(0xe0f2fe, 0x334155, 0.34);
+    hemiLight.position.set(0, 80, 0);
+    scene.add(hemiLight);
+    const bgHemiLight = new THREE.HemisphereLight(0xe0f2fe, 0x1e3a5f, 0.32);
+    bgHemiLight.position.set(0, 80, 0);
+    bgScene.add(bgHemiLight);
 
     const dirLight = new THREE.DirectionalLight(0xfff6e5, 1.18);
     dirLight.position.set(45, 48, 20);
@@ -1514,6 +1578,8 @@
       shoreMesh.scale.set(1.8, 1, 0.45);
       shoreMesh.receiveShadow = true;
       shoreGroup.add(shoreMesh);
+
+
 
       // Autumn/Green stylized trees on shore (matching video background)
       const treeColors = [0xd97706, 0xb45309, 0x2d6a4f, 0xca8a04, 0x991b1b];
@@ -2473,6 +2539,8 @@
       });
       upsDrone.position.set(hubX + 14.0, hubH + 4.2, hubZ + 2.0);
       deckSurface.add(upsDrone);
+
+
 
       // Build 2 Free-Roaming 3D Airport Tractors each pulling 3 Cargo Containers (roaming across the ENTIRE giant Dynamic Island!)
       buildRoamingTractorTrains(deckSurface);
@@ -4105,6 +4173,28 @@
         modelInner.add(bogie);
       });
 
+      // 7. Aviation Wingtip Navigation Lights (Port Red / Starboard Green), Tail Strobe & Dorsal Anti-Collision Beacon
+      if (!window._allAircraftBeaconMats) window._allAircraftBeaconMats = [];
+      if (!window._allAircraftStrobeMats) window._allAircraftStrobeMats = [];
+
+      const navLightGeo = new THREE.SphereGeometry(0.12, 10, 10);
+      const portRedNav = new THREE.Mesh(navLightGeo, new THREE.MeshBasicMaterial({ color: 0xff2a2a }));
+      portRedNav.position.set(1.75, 0.72, 5.25);
+      const stbdGreenNav = new THREE.Mesh(navLightGeo, new THREE.MeshBasicMaterial({ color: 0x22c55e }));
+      stbdGreenNav.position.set(1.75, 0.72, -5.25);
+
+      const beaconMat = new THREE.MeshBasicMaterial({ color: 0xff1744, transparent: true, opacity: 1.0 });
+      const dorsalBeacon = new THREE.Mesh(new THREE.SphereGeometry(0.13, 10, 10), beaconMat);
+      dorsalBeacon.position.set(-0.35, 1.56, 0);
+      window._allAircraftBeaconMats.push(beaconMat);
+
+      const strobeMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 1.0 });
+      const tailStrobe = new THREE.Mesh(new THREE.SphereGeometry(0.11, 8, 8), strobeMat);
+      tailStrobe.position.set(3.48, 0.15, 0);
+      window._allAircraftStrobeMats.push(strobeMat);
+
+      modelInner.add(portRedNav, stbdGreenNav, dorsalBeacon, tailStrobe);
+
       // Calibrated Aircraft Scale (basePlaneScale = 0.86 -> 9.20 world wingspan & 6.17 length, matching original bay clearance!)
       const BASE_CHIBI_SCALE = 0.86;
       const _pScale = BASE_CHIBI_SCALE * (typeof getResponsive3DScaleFactor === 'function' ? getResponsive3DScaleFactor() : 1.0);
@@ -4260,13 +4350,25 @@
       crewGroup.position.set(0, 0.05, 0);
       crewGroup.visible = false;
 
-      const loaderMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.4 });
-      const uldBoxMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.3, roughness: 0.4 });
-      const loaderVehicle = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.35, 1.8), loaderMat);
+      const loaderMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.35, metalness: 0.2 });
+      const uldBoxMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.38, roughness: 0.32 });
+      const loaderVehicle = new THREE.Mesh(new THREE.BoxGeometry(1.15, 0.35, 1.85), loaderMat);
       loaderVehicle.position.set(-3.4, 0.2, -0.8);
       const uldContainer = new THREE.Mesh(new THREE.BoxGeometry(0.95, 0.62, 1.1), uldBoxMat);
       uldContainer.position.set(-3.4, 0.68, -0.7);
       crewGroup.add(loaderVehicle, uldContainer);
+
+      // Keyframe-Animated Scissor-Lift ULD Cargo Container elevating from High-Loader Deck into Aircraft Cargo Door during loading!
+      const uldLiftMixer = new THREE.AnimationMixer(uldContainer);
+      const uldLiftTrack = new THREE.VectorKeyframeTrack('.position', [0, 1.6, 2.8, 4.0], [
+        -3.4, 0.68, -0.7,
+        -3.4, 1.48, -0.7,
+        -2.5, 1.48, -0.7,
+        -3.4, 0.68, -0.7
+      ]);
+      uldLiftTrack.setInterpolation(THREE.InterpolateSmooth);
+      uldLiftMixer.clipAction(new THREE.AnimationClip('uldCargoLift_' + data.id, 4.0, [uldLiftTrack])).play();
+      globalAnimationMixers.push(uldLiftMixer);
 
       const workersContainer = new THREE.Group();
       crewGroup.add(workersContainer);
@@ -4528,13 +4630,66 @@
         runwayGroup.add(dash);
       }
 
-      // Threshold Piano Key Stripes at West (-88) & East (+88) ends
-      [-88, 88].forEach(endX => {
+      // Threshold Piano Key Stripes, Aiming Point Blocks, PAPI Glide-Slope Lights, Animated Windsocks & Approach Strobe Arrays at West (-88) & East (+88)
+      window._runwayAlsStrobes = [];
+      window._airportWindsocks = [];
+      [-88, 88].forEach((endX, endIdx) => {
+        const dirSign = endX < 0 ? 1 : -1;
         for (let z = -3.8; z <= 3.8; z += 1.1) {
           const keyStripe = new THREE.Mesh(new THREE.BoxGeometry(4.2, 0.05, 0.55), whiteLineMat);
           keyStripe.position.set(endX, 0.15, z);
           runwayGroup.add(keyStripe);
         }
+        // Touchdown Zone (TDZ) Aiming Point Twin White Blocks
+        [-2.2, 2.2].forEach(tz => {
+          const aimBlock = new THREE.Mesh(new THREE.BoxGeometry(5.5, 0.055, 1.15), whiteLineMat);
+          aimBlock.position.set(endX + dirSign * 14.0, 0.15, tz);
+          runwayGroup.add(aimBlock);
+        });
+        // 4-Box PAPI (Precision Approach Path Indicator: 2 White, 2 Red glowing lenses) beside touchdown zone
+        for (let p = 0; p < 4; p++) {
+          const isWhite = p < 2;
+          const papiBox = new THREE.Mesh(
+            new THREE.BoxGeometry(0.45, 0.28, 0.45),
+            new THREE.MeshBasicMaterial({ color: isWhite ? 0xffffff : 0xff2a2a })
+          );
+          papiBox.position.set(endX + dirSign * 11.5, 0.22, -6.2 - p * 0.72);
+          runwayGroup.add(papiBox);
+        }
+        // Sequenced Approach Lighting System (ALS "Rabbit" Strobe Bars leading onto Runway Threshold)
+        for (let step = 0; step < 5; step++) {
+          const alsMat = new THREE.MeshBasicMaterial({ color: 0xe0f2fe, transparent: true, opacity: 0.35 });
+          const alsBar = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.14, 2.4), alsMat);
+          alsBar.position.set(endX - dirSign * (3.2 + step * 2.2), 0.16, 0);
+          runwayGroup.add(alsBar);
+          window._runwayAlsStrobes.push({ mat: alsMat, step });
+        }
+        // 3D Orange/White Airport Windsock Mast beside Runway End
+        const wsGrp = new THREE.Group();
+        wsGrp.position.set(endX + dirSign * 6.5, 0, 6.4);
+        const wsPole = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.08, 0.11, 2.8, 8),
+          new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.6, roughness: 0.3 })
+        );
+        wsPole.position.y = 1.4;
+        const sockPivot = new THREE.Group();
+        sockPivot.position.y = 2.75;
+        const sockCone = new THREE.Mesh(
+          new THREE.ConeGeometry(0.32, 1.45, 10, 1, true),
+          new THREE.MeshStandardMaterial({ color: 0xf97316, roughness: 0.4, side: THREE.DoubleSide })
+        );
+        sockCone.rotation.z = Math.PI / 2;
+        sockCone.position.x = 0.72;
+        const sockStripe = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.22, 0.16, 0.38, 10),
+          new THREE.MeshBasicMaterial({ color: 0xffffff })
+        );
+        sockStripe.rotation.z = Math.PI / 2;
+        sockStripe.position.x = 0.72;
+        sockPivot.add(sockCone, sockStripe);
+        wsGrp.add(wsPole, sockPivot);
+        runwayGroup.add(wsGrp);
+        window._airportWindsocks.push({ pivot: sockPivot, phase: endIdx * 1.7 });
       });
 
       // Runway Edge Lights
@@ -7725,11 +7880,13 @@
       )).join('');
 
       const buildPanelRows = (rowDefs) => rowDefs.map(rDef => {
-        const trCls = rDef.highlight ? 'op-b-fod' : '';
+        const trCls = rDef.highlight
+          ? 'op-b-fod'
+          : (rDef.key === 'inFlt' ? 'op-b-inflt' : (rDef.key === 'outFlt' ? 'op-b-outflt' : ''));
         const tds = flights.map(flt => {
           const v = (flt[rDef.key] || '-').trim() || '-';
           if (rDef.isBay && v !== '-') {
-            return `<td class="op-b-cell" style="background:#d1fae5; color:#065f46; font-weight:900;">${v}</td>`;
+            return `<td class="op-b-cell" style="background:linear-gradient(180deg, #d1fae5 0%, #a7f3d0 100%); color:#064e3b; font-weight:900; box-shadow:inset 0 0 0 1px #34d399;">${v}</td>`;
           }
           return `<td class="op-b-cell">${v}</td>`;
         }).join('');
@@ -7751,7 +7908,7 @@
           <table class="uld-mini-table">
             <tbody>
               <tr>
-                <th rowspan="2" style="background:#2b1711; color:#fbbf24; font-size:calc(11px * var(--uld-font-scale, 1)); font-weight:800; line-height:1.16; padding:2px 8px; text-align:center; border-right:1.5px solid #f59e0b;">
+                <th rowspan="2" style="background:linear-gradient(135deg, #351c15 0%, #1c0d08 100%); color:#fde047; font-size:calc(11px * var(--uld-font-scale, 1)); font-weight:800; line-height:1.16; padding:2px 8px; text-align:center; border-right:2px solid #ffb500; text-shadow:0 1px 2px rgba(0,0,0,0.6);">
                   Serviceable (as of 6:00am)<br/>Breakdown
                 </th>
                 ${hdrRowCells}
@@ -7761,16 +7918,16 @@
               </tr>
             </tbody>
           </table>
-          <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; padding:2px 8px; background:#0f172a; border:1px solid #475569; border-radius:4px; font-size:calc(10.5px * var(--uld-font-scale, 1)); font-weight:800; color:#fde68a; line-height:1.16; flex-shrink:0;">
-            <span>📋 每日工作編排壁報板 (${operationPlan.dateTitle || 'Tuesday, October 27, 2026'})</span>
-            <span style="color:#38bdf8;">🚜 ${operationPlan.tractorBanner || '1 x 24 Tractor (1200-0800)'}</span>
-            <span style="color:#a7f3d0;">✏️ 點擊壁報板可修改</span>
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; padding:2px 8px; background:linear-gradient(90deg, #23140d 0%, #0f172a 38%, #1e293b 72%, #0f172a 100%); border:1px solid rgba(251, 191, 36, 0.45); border-left:3.5px solid #ffb500; border-radius:5px; box-shadow:inset 0 1px 0 rgba(255,255,255,0.10), 0 2px 6px rgba(0,0,0,0.25); font-size:calc(10.5px * var(--uld-font-scale, 1)); font-weight:800; color:#fde68a; line-height:1.16; flex-shrink:0;">
+            <span style="text-shadow:0 1px 2px rgba(0,0,0,0.6);">📋 每日工作編排壁報板 (${operationPlan.dateTitle || 'Tuesday, October 27, 2026'})</span>
+            <span style="color:#7dd3fc; background:rgba(14, 116, 144, 0.28); border:1px solid rgba(56, 189, 248, 0.35); border-radius:4px; padding:0px 6px;">🚜 ${operationPlan.tractorBanner || '1 x 24 Tractor (1200-0800)'}</span>
+            <span style="color:#a7f3d0; background:rgba(6, 95, 70, 0.35); border:1px solid rgba(52, 211, 153, 0.4); border-radius:4px; padding:0px 6px;">✏️ 點擊壁報板可修改</span>
           </div>
           <div style="display:grid; grid-template-columns:minmax(max-content, 1fr) minmax(max-content, 1fr); gap:6px; align-items:stretch; width:100%; flex:1; min-height:0;">
             <table class="uld-op-grid-table">
               <thead>
                 <tr>
-                  <th style="background:#0f172a; color:#fbbf24; text-align:left; padding:2px 5px;">航班項目 \ 欄</th>
+                  <th style="color:#fde047; text-align:left; padding:2px 5px; border-right:1.5px solid #475569;">✈️ 航班項目 \ 欄</th>
                   ${fltHeadCells}
                 </tr>
               </thead>
@@ -7781,7 +7938,7 @@
             <table class="uld-op-grid-table">
               <thead>
                 <tr>
-                  <th style="background:#0f172a; color:#fbbf24; text-align:left; padding:2px 5px;">裝機與人員 \ 欄</th>
+                  <th style="color:#fde047; text-align:left; padding:2px 5px; border-right:1.5px solid #475569;">👷 裝機與人員 \ 欄</th>
                   ${fltHeadCells}
                 </tr>
               </thead>
@@ -7791,8 +7948,8 @@
               </tbody>
             </table>
           </div>
-          <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; background:#efe8d8; color:#0f172a; border:1px solid #475569; border-radius:4px; padding:2px 8px; font-size:calc(10.5px * var(--uld-font-scale, 1)); font-weight:800; line-height:1.2; white-space:nowrap; flex-shrink:0;">
-            <span style="background:#2b1711; color:#fbbf24; padding:0.5px 4px; border-radius:3px;">常駐崗位</span>
+          <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; background:linear-gradient(180deg, #faf6ee 0%, #eae0ce 100%); color:#0f172a; border:1.5px solid #b45309; border-radius:5px; box-shadow:inset 0 1px 0 rgba(255,255,255,0.8), 0 2px 6px rgba(0,0,0,0.22); padding:2px 8px; font-size:calc(10.5px * var(--uld-font-scale, 1)); font-weight:800; line-height:1.2; white-space:nowrap; flex-shrink:0;">
+            <span style="background:linear-gradient(135deg, #351c15 0%, #1c0d08 100%); color:#fde047; border:1px solid #f59e0b; padding:0.5px 6px; border-radius:4px; box-shadow:0 1px 3px rgba(0,0,0,0.25);">常駐崗位</span>
             <span><strong style="color:#b45309;">Hub BIC:</strong> ${[br.rowLabel, ...(operationPlan.bottomExtraRows || []).map(r => r.rowLabel)].map(v => String(v || '').trim()).filter(Boolean).join(' / ') || '-'}</span>
             <span><strong style="color:#0369a1;">New WH BIC:</strong> ${[br.newWhBic, ...(operationPlan.bottomExtraRows || []).map(r => r.newWhBic)].map(v => String(v || '').trim()).filter(Boolean).join(' / ') || '-'}</span>
             <span><strong style="color:#047857;">Hub WIC:</strong> ${[br.hubWic, ...(operationPlan.bottomExtraRows || []).map(r => r.hubWic)].map(v => String(v || '').trim()).filter(Boolean).join(' / ') || '-'}</span>
@@ -9089,7 +9246,10 @@
           inp.addEventListener('input', (e) => {
             const k = e.target.getAttribute('data-uld-key');
             operationPlan.uldBreakdown[k] = e.target.value;
-            saveOperationPlan();
+            saveOperationPlan(false);
+          });
+          inp.addEventListener('change', () => {
+            saveOperationPlan(true);
           });
         });
       }
@@ -9102,7 +9262,10 @@
           dateInpEl.dataset.boundSync = '1';
           dateInpEl.addEventListener('input', (e) => {
             operationPlan.dateTitle = e.target.value;
-            saveOperationPlan();
+            saveOperationPlan(false);
+          });
+          dateInpEl.addEventListener('change', () => {
+            saveOperationPlan(true);
           });
         }
       }
@@ -9112,7 +9275,10 @@
           tractorInpEl.dataset.boundSync = '1';
           tractorInpEl.addEventListener('input', (e) => {
             operationPlan.tractorBanner = e.target.value;
-            saveOperationPlan();
+            saveOperationPlan(false);
+          });
+          tractorInpEl.addEventListener('change', () => {
+            saveOperationPlan(true);
           });
         }
       }
@@ -9216,7 +9382,7 @@
       renderUPSGatewayUldBubble();
       renderFR24LiveBoard();
 
-      // Bind input listeners for live updates
+      // Bind input & change listeners for instant automatic multi-device Cloud Sync as soon as user types or finishes editing
       document.querySelectorAll('.op-cell-input').forEach(inp => {
         inp.addEventListener('input', (e) => {
           const c = parseInt(e.target.getAttribute('data-col'), 10);
@@ -9227,10 +9393,13 @@
             const selEl = document.querySelector(`.op-island-select[data-col="${c}"]`);
             if (selEl) selEl.value = operationPlan.flights[c].islandId;
           }
-          saveOperationPlan();
+          saveOperationPlan(false);
           renderUPSGatewayUldBubble();
           fetchFlightradar24UPSHKG();
           updateHongKongClock();
+        });
+        inp.addEventListener('change', () => {
+          saveOperationPlan(true);
         });
       });
 
@@ -9260,8 +9429,11 @@
         inp.addEventListener('input', (e) => {
           const bk = e.target.getAttribute('data-bkey');
           operationPlan.bottomRoles[bk] = e.target.value;
-          saveOperationPlan();
+          saveOperationPlan(false);
           syncGatewayPermanentStaffBadges();
+        });
+        inp.addEventListener('change', () => {
+          saveOperationPlan(true);
         });
       });
 
@@ -9271,9 +9443,12 @@
           const ek = e.target.getAttribute('data-ekey');
           if (operationPlan.bottomExtraRows && operationPlan.bottomExtraRows[rIdx]) {
             operationPlan.bottomExtraRows[rIdx][ek] = e.target.value;
-            saveOperationPlan();
+            saveOperationPlan(false);
             syncGatewayPermanentStaffBadges();
           }
+        });
+        inp.addEventListener('change', () => {
+          saveOperationPlan(true);
         });
       });
     }
@@ -10507,6 +10682,42 @@
             rl.mat.opacity = dist < 0.85 ? 1.0 : 0.28;
           }
         }
+
+        // Sequenced Approach Lighting System (ALS "Rabbit" Strobe Bars) at Runway 07R / 25L Thresholds
+        if (Array.isArray(window._runwayAlsStrobes)) {
+          const alsHead = 4.0 - ((elapsed * 6.5) % 5.0);
+          for (let i = 0; i < window._runwayAlsStrobes.length; i++) {
+            const st = window._runwayAlsStrobes[i];
+            st.mat.opacity = Math.abs(st.step - alsHead) < 0.75 ? 1.0 : 0.22;
+          }
+        }
+
+        // Airport Windsocks swaying dynamically with Chek Lap Kok wind speed
+        if (Array.isArray(window._airportWindsocks)) {
+          const wSpd = (state.hkaWeather && state.hkaWeather.windSpeed) ? state.hkaWeather.windSpeed : 18;
+          for (let i = 0; i < window._airportWindsocks.length; i++) {
+            const ws = window._airportWindsocks[i];
+            ws.pivot.rotation.y = Math.sin(elapsed * 2.2 + ws.phase) * 0.28;
+            ws.pivot.rotation.z = Math.sin(elapsed * 5.5 + ws.phase) * Math.min(0.22, wSpd * 0.006);
+          }
+        }
+
+        // Authentic Aviation Anti-Collision Red Dorsal Beacons & White Wingtip/Tail Strobes on 747-8F Aircraft
+        if (Array.isArray(window._allAircraftBeaconMats)) {
+          const beaconOn = Math.sin(elapsed * 7.5) > 0.45 ? 1.0 : 0.15;
+          for (let i = 0; i < window._allAircraftBeaconMats.length; i++) {
+            window._allAircraftBeaconMats[i].opacity = beaconOn;
+          }
+        }
+        if (Array.isArray(window._allAircraftStrobeMats)) {
+          const cyc = (elapsed * 1.2) % 1.0;
+          const doubleFlash = (cyc < 0.06 || (cyc > 0.12 && cyc < 0.18)) ? 1.0 : 0.12;
+          for (let i = 0; i < window._allAircraftStrobeMats.length; i++) {
+            window._allAircraftStrobeMats[i].opacity = doubleFlash;
+          }
+        }
+
+
 
         // Spin the 16-blade turbofan rotors inside all 4 oversized engines on every Chibi 747-8F aircraft
         if (Array.isArray(window._allChibiEngineRotors)) {
