@@ -7408,9 +7408,7 @@
           if (!Array.isArray(operationPlan.bottomExtraRows) || operationPlan.bottomExtraRows.length < 4) {
             operationPlan.bottomExtraRows = JSON.parse(JSON.stringify(DEFAULT_OPERATION_PLAN.bottomExtraRows));
           }
-          operationPlan.flights.forEach(f => {
-            if (f && f.sta === '已在港') f.sta = '';
-          });
+          // Preserve all imported or manual f.sta text values (including 已在港, times, or notes)
           if (typeof repairShiftedFlightsIfNeeded === 'function') {
             repairShiftedFlightsIfNeeded(operationPlan.flights);
           }
@@ -8832,6 +8830,7 @@
             if (selEl) selEl.value = operationPlan.flights[c].islandId;
           }
           saveOperationPlan();
+          renderUPSGatewayUldBubble();
           fetchFlightradar24UPSHKG();
           updateHongKongClock();
         });
@@ -9182,7 +9181,18 @@
       if (clean.includes('scheduled departure') || clean.includes('預計起飛') || clean === 'std' || clean === 'etd' || clean.startsWith('std/')) return '__SKIP_TIME_ROW__';
       if (clean.includes('接 crew') || clean.includes('接crew') || clean.includes('meet crew')) return '__SKIP_TIME_ROW__';
 
-      if (clean === 'sta' || clean === 'eta' || clean === 'eta/sta' || clean === 'sta/eta' || clean.includes('eta/sta') || clean.includes('sta/eta') || clean.includes('到港時間')) return 'sta';
+      if (
+        clean === 'sta' || clean === 'eta' ||
+        compact === 'sta' || compact === 'eta' ||
+        compact === 'staeta' || compact === 'etasta' ||
+        compact === 'stasta' || compact === 'etaeta' ||
+        compact.includes('staeta') || compact.includes('etasta') ||
+        compact.includes('stasta') || compact.includes('etaeta') ||
+        /^(sta|eta)(\s*[/\\\-~·]\s*(sta|eta))*$/i.test(clean) ||
+        clean.startsWith('sta/') || clean.startsWith('eta/') ||
+        clean.startsWith('sta ') || clean.startsWith('eta ') ||
+        clean.includes('到港時間') || clean.includes('預計到港') || clean.includes('scheduled arrival')
+      ) return 'sta';
       if (clean.includes('到港航班') || clean.includes('in flt') || clean.includes('inbound flt') || compact === 'infltnbr' || compact === 'fltnbr到港') return 'inFlt';
       if (clean.includes('離港航班') || clean.includes('out flt') || clean.includes('outbound flt') || compact === 'outfltnbr' || compact === 'fltnbr離港') return 'outFlt';
       if (clean.startsWith('flt nbr') || clean.includes('flt nbr') || clean === 'flt' || clean === 'flight' || clean === 'flight nbr' || clean === 'flight no' || clean === '航班' || clean === '航班編號') {
@@ -9281,8 +9291,11 @@
         return;
       }
 
-      const timeKeys = new Set(['crewPickTime', 'loadTime']);
+      const timeKeys = new Set(['sta', 'inCrewPick', 'crewPickTime', 'loadTime']);
       let seenInFlt = false;
+      let inFltRowIdx = -1;
+      let inFltDataStartCol = 1;
+      const matchedRowIndices = new Set();
       const matchedRowMap = new Map(); // key -> { row, dataStartCol }
       let detectedDataStartCol = 1;
       let maxDataColIndex = 0;
@@ -9369,24 +9382,57 @@
         }
 
         if (matchedKey === '__SKIP_TIME_ROW__') {
+          matchedRowIndices.add(r);
           continue;
         }
 
         if (matchedKey) {
-          if (matchedKey === 'inFlt') seenInFlt = true;
-          // If parkingBay appears twice in the Excel sheet, keep the one with more non-empty values
+          matchedRowIndices.add(r);
+          const dataStartCol = labelCol + 1;
+          if (matchedKey === 'inFlt') {
+            seenInFlt = true;
+            inFltRowIdx = r;
+            inFltDataStartCol = dataStartCol;
+          }
+          // If a row key (such as sta or parkingBay) appears twice in the Excel sheet, merge non-empty cells per column
           if (matchedRowMap.has(matchedKey)) {
             const existing = matchedRowMap.get(matchedKey);
-            const existingCount = existing.row.slice(existing.dataStartCol).filter(x => String(x ?? '').trim() !== '').length;
-            const newCount = row.slice(labelCol + 1).filter(x => String(x ?? '').trim() !== '').length;
-            if (newCount < existingCount) continue;
+            const mergedRow = existing.row.slice();
+            const maxC = Math.max(mergedRow.length - existing.dataStartCol, row.length - dataStartCol);
+            for (let offset = 0; offset < maxC; offset++) {
+              const oldVal = String(mergedRow[existing.dataStartCol + offset] ?? '').trim();
+              const newVal = String(row[dataStartCol + offset] ?? '').trim();
+              if (!oldVal && newVal) {
+                mergedRow[existing.dataStartCol + offset] = row[dataStartCol + offset];
+              } else if (matchedKey === 'parkingBay' && newVal) {
+                const existingCount = existing.row.slice(existing.dataStartCol).filter(x => String(x ?? '').trim() !== '').length;
+                const newCount = row.slice(dataStartCol).filter(x => String(x ?? '').trim() !== '').length;
+                if (newCount >= existingCount) mergedRow[existing.dataStartCol + offset] = row[dataStartCol + offset];
+              }
+            }
+            matchedRowMap.set(matchedKey, { row: mergedRow, dataStartCol: existing.dataStartCol });
+          } else {
+            detectedDataStartCol = dataStartCol;
+            matchedRowMap.set(matchedKey, { row, dataStartCol });
           }
-          const dataStartCol = labelCol + 1;
-          detectedDataStartCol = dataStartCol;
-          matchedRowMap.set(matchedKey, { row, dataStartCol });
           for (let c = dataStartCol; c < row.length; c++) {
             if (String(row[c] ?? '').trim() !== '') {
               const relCol = c - dataStartCol + 1;
+              if (relCol > maxDataColIndex) maxDataColIndex = relCol;
+            }
+          }
+        }
+      }
+
+      // 2B. If STA/ETA row in Excel had a merged/blank Col A header directly below Flt Nbr (inFlt), capture row (inFltRowIdx + 1) as sta!
+      if (!matchedRowMap.has('sta') && inFltRowIdx !== -1 && (inFltRowIdx + 1) < rows.length && !matchedRowIndices.has(inFltRowIdx + 1)) {
+        const subRow = rows[inFltRowIdx + 1] || [];
+        const hasSubData = subRow.slice(inFltDataStartCol).some(x => String(x ?? '').trim() !== '');
+        if (hasSubData) {
+          matchedRowMap.set('sta', { row: subRow, dataStartCol: inFltDataStartCol });
+          for (let c = inFltDataStartCol; c < subRow.length; c++) {
+            if (String(subRow[c] ?? '').trim() !== '') {
+              const relCol = c - inFltDataStartCol + 1;
               if (relCol > maxDataColIndex) maxDataColIndex = relCol;
             }
           }
