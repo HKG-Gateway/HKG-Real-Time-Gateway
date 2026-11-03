@@ -136,14 +136,18 @@
       line-height: 1.15;
     }
     .uld-bubble-card {
+      --uld-font-scale: 1;
       position: absolute;
       transform-origin: bottom center;
       transform: translate(-50%, -100%);
       pointer-events: auto;
       cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      box-sizing: border-box;
       background: linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%);
       border-radius: 12px;
-      padding: 5px 7px 5px 7px;
+      padding: 5px 7px;
       border: 2.5px solid #ffb500;
       box-shadow: 0 8px 24px rgba(15, 23, 42, 0.35), inset 0 0 0 1px rgba(254, 243, 199, 0.22);
       z-index: 8;
@@ -163,13 +167,14 @@
       overflow: hidden;
       border: 1px solid #475569;
       width: 100%;
+      flex-shrink: 0;
     }
     .uld-mini-table th, .uld-mini-table td {
       border: 1px solid #cbd5e1;
-      padding: 1.8px 6.8px;
+      padding: 1.8px 6px;
       text-align: center;
       white-space: nowrap;
-      line-height: 1.10;
+      line-height: 1.12;
       font-family: 'Fredoka', 'Nunito', 'M PLUS Rounded 1c', 'Noto Sans TC', sans-serif;
     }
     .uld-op-grid-table {
@@ -179,14 +184,14 @@
       overflow: hidden;
       border: 1px solid #475569;
       width: 100%;
-      min-width: max-content;
       height: 100%;
+      table-layout: auto;
     }
     .uld-op-grid-table th, .uld-op-grid-table td {
       border: 1px solid #cbd5e1;
-      padding: 1.3px 6.2px;
-      font-size: 10.8px;
-      line-height: 1.08;
+      padding: 1.2px 5.5px;
+      font-size: calc(10.8px * var(--uld-font-scale, 1));
+      line-height: 1.10;
       text-align: center;
       white-space: nowrap;
       font-family: 'Fredoka', 'Nunito', 'M PLUS Rounded 1c', 'Noto Sans TC', sans-serif;
@@ -1354,42 +1359,113 @@
     const globalAnimationMixers = [];
     let islandFoamShaderMat = null;
 
-    // Sun / Moon Orb in Sky with Radiant Multi-Layer Corona Halo & Keyframe-Rotated Solar Ray Crown
+    // Dedicated 3D Sun (sunGroup) & 3D Crescent Moon (moonGroup) placed on the Far Right Sky (in bgScene behind Bulletin Board so it NEVER covers the board!)
     const celestialGroup = new THREE.Group();
-    weatherScene.add(celestialGroup);
-    const sunOrb = new THREE.Mesh(
-      new THREE.SphereGeometry(4.2, 28, 28),
-      new THREE.MeshBasicMaterial({ color: 0xffdd66 })
+    bgScene.add(celestialGroup);
+
+    const sunOrb = new THREE.Group();
+    celestialGroup.add(sunOrb);
+
+    // (A) Daytime 3D Sun Group with Radiant Corona & Keyframe-Rotated 8-Point Solar Ray Crown
+    const sunGroup = new THREE.Group();
+    const sunCoreMesh = new THREE.Mesh(
+      new THREE.SphereGeometry(3.8, 28, 28),
+      new THREE.MeshBasicMaterial({ color: 0xffdd44 })
     );
     const sunHaloInner = new THREE.Mesh(
-      new THREE.SphereGeometry(5.8, 24, 24),
-      new THREE.MeshBasicMaterial({ color: 0xfde047, transparent: true, opacity: 0.28, depthWrite: false })
+      new THREE.SphereGeometry(5.2, 24, 24),
+      new THREE.MeshBasicMaterial({ color: 0xfde047, transparent: true, opacity: 0.30, depthWrite: false })
     );
     const sunHaloOuter = new THREE.Mesh(
-      new THREE.SphereGeometry(8.4, 24, 24),
-      new THREE.MeshBasicMaterial({ color: 0xfef08a, transparent: true, opacity: 0.13, depthWrite: false })
+      new THREE.SphereGeometry(7.4, 24, 24),
+      new THREE.MeshBasicMaterial({ color: 0xfef08a, transparent: true, opacity: 0.14, depthWrite: false })
     );
     const sunRayCrown = new THREE.Group();
-    const rayMat = new THREE.MeshBasicMaterial({ color: 0xfef08a, transparent: true, opacity: 0.22, side: THREE.DoubleSide, depthWrite: false });
+    const rayMat = new THREE.MeshBasicMaterial({ color: 0xfde047, transparent: true, opacity: 0.32, side: THREE.DoubleSide, depthWrite: false });
     for (let r = 0; r < 8; r++) {
-      const rayCone = new THREE.Mesh(new THREE.ConeGeometry(1.15, 6.2, 6), rayMat);
+      const rayCone = new THREE.Mesh(new THREE.ConeGeometry(1.05, 5.4, 6), rayMat);
       const ang = (r / 8) * Math.PI * 2;
-      rayCone.position.set(Math.cos(ang) * 6.8, Math.sin(ang) * 6.8, 0);
+      rayCone.position.set(Math.cos(ang) * 6.0, Math.sin(ang) * 6.0, 0);
       rayCone.rotation.z = ang - Math.PI / 2;
       sunRayCrown.add(rayCone);
     }
-    sunOrb.add(sunHaloInner, sunHaloOuter, sunRayCrown);
-    celestialGroup.add(sunOrb);
+    sunGroup.add(sunCoreMesh, sunHaloInner, sunHaloOuter, sunRayCrown);
+    sunOrb.add(sunGroup);
 
-    // Keyframe AnimationClip for continuous Solar Ray Crown rotation & Halo breathing
     const sunRayMixer = new THREE.AnimationMixer(sunRayCrown);
     const sunSpinTrack = new THREE.NumberKeyframeTrack('.rotation[z]', [0, 12], [0, Math.PI * 2]);
     const sunScaleTrack = new THREE.VectorKeyframeTrack('.scale', [0, 3, 6, 9, 12], [
-      1, 1, 1,  1.12, 1.12, 1,  1, 1, 1,  1.12, 1.12, 1,  1, 1, 1
+      1, 1, 1,  1.14, 1.14, 1,  1, 1, 1,  1.14, 1.14, 1,  1, 1, 1
     ]);
     sunScaleTrack.setInterpolation(THREE.InterpolateSmooth);
     sunRayMixer.clipAction(new THREE.AnimationClip('sunCrownSpin', 12, [sunSpinTrack, sunScaleTrack])).play();
     globalAnimationMixers.push(sunRayMixer);
+
+    // (B) Nighttime 3D Crescent Moon Group with Moonlight Aura & Keyframe-Animated Orbiting Starlight Sparkles
+    const moonGroup = new THREE.Group();
+    const crescentShape = new THREE.Shape();
+    const outerR = 4.0;
+    const startAng = -Math.PI * 0.68;
+    const endAng = Math.PI * 0.68;
+    crescentShape.absarc(0, 0, outerR, startAng, endAng, false);
+    const tipX = Math.cos(endAng) * outerR;
+    const tipY = Math.sin(endAng) * outerR;
+    const botX = Math.cos(startAng) * outerR;
+    const botY = Math.sin(startAng) * outerR;
+    crescentShape.quadraticCurveTo(1.35, 0, botX, botY);
+
+    const crescentGeo = new THREE.ExtrudeGeometry(crescentShape, {
+      depth: 1.1,
+      bevelEnabled: true,
+      bevelSegments: 5,
+      steps: 1,
+      bevelSize: 0.42,
+      bevelThickness: 0.42
+    });
+    crescentGeo.center();
+    const moonCrescentMesh = new THREE.Mesh(
+      crescentGeo,
+      new THREE.MeshBasicMaterial({ color: 0xfef08a })
+    );
+    moonCrescentMesh.rotation.z = 0.35;
+
+    const moonHaloInner = new THREE.Mesh(
+      new THREE.SphereGeometry(5.4, 24, 24),
+      new THREE.MeshBasicMaterial({ color: 0xbae6fd, transparent: true, opacity: 0.22, depthWrite: false })
+    );
+    const moonHaloOuter = new THREE.Mesh(
+      new THREE.SphereGeometry(7.8, 24, 24),
+      new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.11, depthWrite: false })
+    );
+
+    const moonStarRing = new THREE.Group();
+    const moonStarMat = new THREE.MeshBasicMaterial({ color: 0xfef9c3 });
+    for (let s = 0; s < 6; s++) {
+      const sAng = (s / 6) * Math.PI * 2;
+      const sDist = 6.2 + (s % 2) * 1.1;
+      const starSparkle = new THREE.Mesh(new THREE.OctahedronGeometry(0.55 + (s % 2) * 0.18, 0), moonStarMat);
+      starSparkle.position.set(Math.cos(sAng) * sDist, Math.sin(sAng) * sDist, (s % 2 === 0 ? 0.6 : -0.6));
+      moonStarRing.add(starSparkle);
+    }
+    moonGroup.add(moonCrescentMesh, moonHaloInner, moonHaloOuter, moonStarRing);
+    sunOrb.add(moonGroup);
+
+    // Keyframe AnimationClips for 3D Moon gentle rocking & Starlight Ring rotation/twinkling
+    const moonRockMixer = new THREE.AnimationMixer(moonCrescentMesh);
+    const moonRockTrack = new THREE.NumberKeyframeTrack('.rotation[z]', [0, 2.5, 5.0], [0.22, 0.48, 0.22]);
+    moonRockTrack.setInterpolation(THREE.InterpolateSmooth);
+    moonRockMixer.clipAction(new THREE.AnimationClip('moonRock', 5.0, [moonRockTrack])).play();
+    globalAnimationMixers.push(moonRockMixer);
+
+    const moonStarMixer = new THREE.AnimationMixer(moonStarRing);
+    const starOrbitTrack = new THREE.NumberKeyframeTrack('.rotation[z]', [0, 16], [0, -Math.PI * 2]);
+    const starPulseTrack = new THREE.VectorKeyframeTrack('.scale', [0, 2, 4, 6, 8, 10, 12, 14, 16], [
+      1, 1, 1,  1.15, 1.15, 1.15,  0.92, 0.92, 0.92,  1.15, 1.15, 1.15,
+      1, 1, 1,  1.15, 1.15, 1.15,  0.92, 0.92, 0.92,  1.15, 1.15, 1.15,  1, 1, 1
+    ]);
+    starPulseTrack.setInterpolation(THREE.InterpolateSmooth);
+    moonStarMixer.clipAction(new THREE.AnimationClip('moonStarOrbit', 16, [starOrbitTrack, starPulseTrack])).play();
+    globalAnimationMixers.push(moonStarMixer);
 
     // Starfield for Night / Late Night
     const starsGeo = new THREE.BufferGeometry();
@@ -4476,12 +4552,14 @@
         });
       }
 
-      // Create 4 Animated Chibi Egg-Planes for Runway <-> Taxiway <-> Parking Bay Arrival & Departure Animations
-      for (let i = 0; i < 4; i++) {
-        const isArrSlot = i % 2 === 0;
-        const rwPlane = createChibiEggPlane(isArrSlot ? 0x10b981 : 0xffb500, null);
+      // Create 6 Animated Chibi Egg-Planes for Runway <-> Taxiway <-> Parking Bay Arrival, Departure & Bay-to-Bay Repositioning Animations
+      const slotModes = ['arriving', 'departing', 'arriving', 'departing', 'repositioning', 'repositioning'];
+      for (let i = 0; i < slotModes.length; i++) {
+        const slotMode = slotModes[i];
+        const isArrSlot = slotMode === 'arriving';
+        const rwPlane = createChibiEggPlane(slotMode === 'repositioning' ? 0x38bdf8 : (isArrSlot ? 0x10b981 : 0xffb500), null);
         rwPlane.rotation.y = -Math.PI / 2;
-        rwPlane.position.set(-45 + i * 25, 0.22, isArrSlot ? -1.5 : 1.5);
+        rwPlane.position.set(-45 + (i % 4) * 25, 0.22, isArrSlot ? -1.5 : 1.5);
         rwPlane.visible = false;
         runwayGroup.add(rwPlane);
 
@@ -4502,8 +4580,9 @@
           active: false,
           progress: 0,
           eventKey: '',
+          fromIslandId: '',
           targetIslandId: '',
-          mode: isArrSlot ? 'arriving' : 'departing',
+          mode: slotMode,
           laneZ: isArrSlot ? -1.5 : 1.5,
           waypoints: [],
           segLengths: [],
@@ -4814,47 +4893,47 @@
               upsGatewayUldBubbleEl.style.display = 'block';
               _cachedUldNatW = 0;
             }
-            // 1) Measure intrinsic max-content width once so Left Table (#1-#11) & Right Table (#1-#11) never squeeze or overlap
+            // 1) Measure intrinsic natural content width & height at 1:1 font scale
             if (!_minIntrinsicUldW || !_cachedUldNatH) {
               upsGatewayUldBubbleEl.style.width = 'max-content';
-              _minIntrinsicUldW = upsGatewayUldBubbleEl.offsetWidth || 1280;
-              _cachedUldNatH = upsGatewayUldBubbleEl.offsetHeight || 340;
+              upsGatewayUldBubbleEl.style.height = 'max-content';
+              upsGatewayUldBubbleEl.style.setProperty('--uld-font-scale', '1');
+              _minIntrinsicUldW = upsGatewayUldBubbleEl.offsetWidth || 1180;
+              _cachedUldNatH = upsGatewayUldBubbleEl.offsetHeight || 330;
               _cachedUldNatW = _minIntrinsicUldW;
             }
 
-            const hudTopAligned = (leftHudRectRaw && leftHudRectRaw.width > 0)
-              ? Math.max(6, Math.round(leftHudRectRaw.top))
-              : 10;
+            const hudTopAligned = 4;
             const minLeftClear = (w >= 720 && leftHudRectRaw && leftHudRectRaw.width > 0)
-              ? Math.ceil(leftHudRectRaw.right) + 8
-              : (w >= 720 ? 372 : 8);
+              ? Math.ceil(leftHudRectRaw.right) + 6
+              : (w >= 720 ? 368 : 6);
+            const maxRightClear = w - 6;
 
             // 2) Project 3D anchor behind UPS HKG Gateway Building so the Bulletin Board moves naturally with the 3D view
             const baseY = upsGroup.position.y;
-            _projVecA.set(18.0, baseY + 13.5, -48.0).project(camera);
+            _projVecA.set(16.0, baseY + 13.5, -42.0).project(camera);
             const rawBx = (_projVecA.x * 0.5 + 0.5) * w;
             const rawBy = (-_projVecA.y * 0.5 + 0.5) * h;
 
-            // 3) Project ALL highest points of the UPS Building, Rooftop Sign, Office Tower, AND 3D Dynamic Island back corners
-            //    so moving or rotating the Dynamic Island never allows any corner or roof to overlap the bottom of the board!
-            const signTopH = state.festivalTheme === 'newyear' ? 16.5 : 15.2;
+            // 3) Project the exact top silhouette of the UPS Building, Rooftop Logo Sign, NY Marquee, and Office Tower/ATC Cab
+            //    so the Bulletin Board uses 100% of the rear sky space down to the building roof without ever covering the building!
+            const nyTopH = state.festivalTheme === 'newyear' ? 14.5 : 8.2;
             const checkPts3D = [
-              [10.5, baseY + signTopH, -32.8],
-              [10.5, baseY + 8.6, -47.6],
-              [48.5, baseY + 12.2, -38.5],
-              [10.5, baseY + 4.8, -52.8],
-              [-45.0, baseY + 4.8, -53.5],
-              [-85.0, baseY + 4.8, -53.5],
-              [85.0, baseY + 4.8, -53.5]
+              [-16.5, baseY + 7.8, -32.4],  // UPS Sorting Hub front-left roof
+              [-4.5,  baseY + nyTopH, -32.9], // Left roof wing / NY marquee top
+              [10.5,  baseY + 15.5, -32.9], // Central Rooftop UPS Logo top
+              [37.5,  baseY + 7.8, -32.4],  // UPS Sorting Hub front-right roof
+              [48.5,  baseY + 14.2, -37.3], // Office Tower & ATC Cab top
+              [10.5,  baseY + 8.0, -47.6]   // UPS Sorting Hub back roof
             ];
-            let highestIslandOrBuildingSy = h * 0.62;
+            let highestIslandOrBuildingSy = h * 0.68;
             for (let pIdx = 0; pIdx < checkPts3D.length; pIdx++) {
               const pt = checkPts3D[pIdx];
               _projVecB.set(pt[0], pt[1], pt[2]).project(camera);
               if (_projVecB.z <= 1) {
                 const px = (_projVecB.x * 0.5 + 0.5) * w;
                 const py = (-_projVecB.y * 0.5 + 0.5) * h;
-                if (px >= minLeftClear - 40) {
+                if (px >= minLeftClear - 30 && px <= maxRightClear + 30) {
                   highestIslandOrBuildingSy = Math.min(highestIslandOrBuildingSy, py);
                 }
               }
@@ -4874,56 +4953,76 @@
               bottom: Math.ceil(syBldFrontBase + 6)
             };
 
-            // 4) Compute available space from minLeftClear (left panel + 8px) to right screen edge and down to highestIslandOrBuildingSy - 8
-            const strictLimitBottom = Math.max(hudTopAligned + 140, Math.min(h - 150, Math.floor(highestIslandOrBuildingSy - 8)));
-            let targetBy = Math.min(rawBy + 36, strictLimitBottom);
-            targetBy = Math.max(hudTopAligned + 140, Math.min(strictLimitBottom, targetBy));
+            // 4) Compute full available rear screen space (to the right of left info cards and above the UPS Building)
+            const strictLimitBottom = Math.max(hudTopAligned + 145, Math.min(h - 120, Math.floor(highestIslandOrBuildingSy - 4)));
+            const availW = Math.max(400, maxRightClear - minLeftClear);
+            const availH = Math.max(140, strictLimitBottom - hudTopAligned);
 
-            const availW = Math.max(380, w - minLeftClear - 8);
-            const availH = Math.max(135, targetBy - hudTopAligned);
-
-            // Detect how much the camera is panned/rotated/zoomed away from the default front panorama view:
-            // - In default front view: fills 100% of availW x availH (from left panel + 8px all the way to right edge & building roof)
-            // - When rotating/panning/zooming: smoothly tracks 3D position (rawBx, targetBy) and camera distance!
+            // Track 3D camera rotation, panning & zoom so the Bulletin Board follows the Dynamic Island smoothly while maximizing rear space
             const _refSpec = getResponsivePanoramaCameraSpec();
             const camDeviation = Math.min(1.0,
-              Math.abs(camCtrl.spherical.theta - _refSpec.theta) * 1.8 +
-              Math.abs(camCtrl.target.x - _refSpec.targetX) * 0.03 +
+              Math.abs(camCtrl.spherical.theta - _refSpec.theta) * 1.6 +
+              Math.abs(camCtrl.target.x - _refSpec.targetX) * 0.025 +
+              Math.abs(camCtrl.spherical.phi - _refSpec.phi) * 1.4 +
               Math.abs(camCtrl.spherical.radius - _refSpec.radius) * 0.004
             );
-            const widthFillRatio = 1.0 - camDeviation * 0.07; // 100% fill in default view; 93% during rotation so it glides horizontally
-            const targetSpanW = availW * widthFillRatio;
+            const camZoomScale = Math.max(0.78, Math.min(1.06, _refSpec.radius / Math.max(75, camCtrl.spherical.radius)));
+            const zoomBlend = 1.0 - camDeviation * 0.35 + camDeviation * 0.35 * camZoomScale;
 
-            // 5) Dynamically allocate table layout width to match targetSpanW / availH (never below _minIntrinsicUldW!)
-            //    so 1:1 uniform scale(fitScale) fills both width and height with large, un-stretched desktop fonts
-            const natH = _cachedUldNatH || 340;
-            const idealLayoutW = Math.max(_minIntrinsicUldW, Math.round(natH * (targetSpanW / availH)));
-            if (Math.abs((_cachedUldNatW || 0) - idealLayoutW) > 6) {
-              upsGatewayUldBubbleEl.style.width = `${idealLayoutW}px`;
-              _cachedUldNatW = upsGatewayUldBubbleEl.offsetWidth || idealLayoutW;
-              _cachedUldNatH = upsGatewayUldBubbleEl.offsetHeight || natH;
+            // Fill ~97.5% of rear width & height in default view, and leave dynamic glide room as the user pans/rotates the island
+            const targetSpanW = availW * (0.978 - camDeviation * 0.075) * zoomBlend;
+            const targetSpanH = availH * (0.972 - camDeviation * 0.065) * zoomBlend;
+
+            // 5) Keep the Bulletin Board at its exact full rear-screen size (targetSpanW x targetSpanH),
+            //    while using a 1:1 UNIFORM scale(uScale) and setting CSS width = layoutW, height = layoutH
+            //    so that all text and table cells adapt proportionally to the board size WITHOUT stretching any characters!
+            const minW = _minIntrinsicUldW || 1180;
+            const minH = _cachedUldNatH || 330;
+            const uScale = Math.max(0.36, Math.min(targetSpanW / minW, targetSpanH / minH));
+
+            const layoutW = Math.max(minW, Math.round(targetSpanW / uScale));
+            const layoutH = Math.max(minH, Math.round(targetSpanH / uScale));
+
+            // Proportionally scale internal font size when the board has extra vertical & horizontal room
+            const fontScaleMult = Math.min(1.35, Math.max(1.0, Math.min(layoutW / minW, layoutH / minH)));
+
+            if (
+              Math.abs((_cachedUldNatW || 0) - layoutW) > 3 ||
+              Math.abs((upsGatewayUldBubbleEl._lastLayoutH || 0) - layoutH) > 3
+            ) {
+              upsGatewayUldBubbleEl.style.setProperty('--uld-font-scale', fontScaleMult.toFixed(3));
+              upsGatewayUldBubbleEl.style.width = `${layoutW}px`;
+              upsGatewayUldBubbleEl.style.height = `${layoutH}px`;
+              _cachedUldNatW = layoutW;
+              upsGatewayUldBubbleEl._lastLayoutH = layoutH;
             }
-            const curNatW = Math.max(_minIntrinsicUldW, _cachedUldNatW || idealLayoutW);
-            const curNatH = _cachedUldNatH || natH;
 
-            const camZoomScale = Math.max(0.76, Math.min(1.08, _refSpec.radius / Math.max(75, camCtrl.spherical.radius)));
-            const rawFitScale = Math.min(targetSpanW / curNatW, availH / curNatH);
-            const fitScale = Math.max(0.38, rawFitScale * (1.0 - camDeviation * 0.25 + camDeviation * 0.25 * camZoomScale));
-
-            const scaledW = curNatW * fitScale;
-            const scaledH = curNatH * fitScale;
+            // On-screen dimensions are layoutW * uScale = targetSpanW and layoutH * uScale = targetSpanH
+            const scaledW = layoutW * uScale;
+            const scaledH = layoutH * uScale;
             const scaledHalfW = scaledW * 0.5;
 
+            // Follow 3D horizontal & vertical projection (rawBx, rawBy & strictLimitBottom) while clamping strictly outside Left HUD and Building!
+            const availCenterX = minLeftClear + availW * 0.5;
+            const panShiftX = (rawBx - availCenterX) * 0.85;
+            const desiredBx = availCenterX + panShiftX;
+
             const minBx = minLeftClear + scaledHalfW;
-            const maxBx = Math.max(minBx, w - scaledHalfW - 8);
-            const bx = Math.round(Math.max(minBx, Math.min(maxBx, rawBx)));
-            const by = Math.round(Math.max(hudTopAligned + scaledH, Math.min(strictLimitBottom, targetBy)));
+            const maxBx = Math.max(minBx, maxRightClear - scaledHalfW);
+            const bx = Math.round(Math.max(minBx, Math.min(maxBx, desiredBx)));
+
+            const desiredBy = Math.min(strictLimitBottom, Math.max(rawBy + 48, strictLimitBottom - (availH - scaledH) * 0.15));
+            const by = Math.round(Math.max(hudTopAligned + scaledH, Math.min(strictLimitBottom, desiredBy)));
 
             upsGatewayUldBubbleEl.style.transformOrigin = 'bottom center';
-            upsGatewayUldBubbleEl.style.transform = `translate(-50%, -100%) scale(${fitScale.toFixed(4)})`;
+            upsGatewayUldBubbleEl.style.transform = `translate(-50%, -100%) scale(${uScale.toFixed(4)})`;
             upsGatewayUldBubbleEl.style.left = `${bx}px`;
             upsGatewayUldBubbleEl.style.top = `${by}px`;
 
+            window._lastBulletinBottomY = by;
+            if (typeof positionCelestialOrbAtFarRight === 'function') {
+              positionCelestialOrbAtFarRight(state.celestial?.progress01 ?? 0.5);
+            }
             uldObstacle = {
               left: bx - scaledHalfW - 6,
               top: Math.max(0, by - scaledH - 6),
@@ -5172,7 +5271,10 @@
       weatherAmbientLight.intensity = ambientLight.intensity;
       weatherDirLight.color.copy(dirLight.color);
       weatherDirLight.intensity = dirLight.intensity;
-      sunOrb.material.color.setHex(phaseKey === 'night' || phaseKey === 'latenight' ? 0xe2e8f0 : (phaseKey === 'sunset' ? 0xff4e1b : (phaseKey === 'sunrise' || phaseKey === 'dusk' ? 0xff8844 : 0xffdd55)));
+      const isNightPhaseForOrb = (phaseKey === 'night' || phaseKey === 'latenight' || phaseKey === 'dusk');
+      sunGroup.visible = !isNightPhaseForOrb;
+      moonGroup.visible = isNightPhaseForOrb;
+      sunCoreMesh.material.color.setHex(phaseKey === 'sunset' ? 0xff5a1f : (phaseKey === 'sunrise' ? 0xff9944 : 0xffdd44));
       sunOrb.visible = state.weatherMode === 'clear' || state.weatherMode === 'cloudy';
       updateCelestialTrajectoryByNow();
 
@@ -5336,48 +5438,79 @@
       return { hh, mm, ss, ms: now.getMilliseconds() };
     }
 
+    const _celRightNdcVec = new THREE.Vector3();
+    const _celRightDirVec = new THREE.Vector3();
+
+    function positionCelestialOrbAtFarRight(progress01) {
+      if (!camera) return;
+      const w = window.innerWidth || 1280;
+      const h = window.innerHeight || 800;
+      // Place Sun / Moon on the FAR RIGHT side of the viewport, cleanly below the Bulletin Board bottom edge so it NEVER overlaps the board!
+      const bulletinBottom = window._lastBulletinBottomY || Math.round(h * 0.36);
+      const targetPxX = Math.max(w - 58, w * 0.94);
+      const minSafePxY = Math.min(h - 85, bulletinBottom + 54);
+      const arcOffsetY = (1.0 - Math.sin(progress01 * Math.PI)) * 18;
+      const targetPxY = Math.min(h - 75, minSafePxY + arcOffsetY);
+
+      const ndcX = (targetPxX / w) * 2 - 1;
+      const ndcY = -(targetPxY / h) * 2 + 1;
+      _celRightNdcVec.set(ndcX, ndcY, 0.5).unproject(camera);
+      _celRightDirVec.copy(_celRightNdcVec).sub(camera.position).normalize();
+      sunOrb.position.copy(camera.position).addScaledVector(_celRightDirVec, 145);
+      sunOrb.lookAt(camera.position);
+    }
+
     function updateCelestialTrajectoryAtHKTime(hh, mm, ss, ms = 0) {
       const decHours = hh + mm / 60 + (ss + ms / 1000) / 3600;
       const sunriseStart = 5.5;  // 05:30 HKT (Dawn / Sunrise)
-      const duskEnd = 19.25;     // 19:15 HKT (Dusk end)
+      const duskEnd = 18.20;     // 18:12 HKT (Sunset -> Night Moon transition)
 
-      if (decHours >= sunriseStart && decHours <= duskEnd) {
-        // Daytime & Twilight Solar Trajectory: East (+X) -> South Zenith (+Y, +Z) -> West (-X)
+      const isManualNight = !state.autoTimeSync && (state.currentPhase === 'night' || state.currentPhase === 'latenight' || state.currentPhase === 'dusk');
+      const isManualDay = !state.autoTimeSync && !isManualNight;
+      const isDaytimeNow = isManualDay || (state.autoTimeSync && decHours >= sunriseStart && decHours < duskEnd);
+
+      sunGroup.visible = isDaytimeNow;
+      moonGroup.visible = !isDaytimeNow;
+
+      if (isDaytimeNow) {
+        // Daytime Solar Lighting & Far-Right Sun Animation
         const solarProgress = Math.max(0, Math.min(1, (decHours - sunriseStart) / (duskEnd - sunriseStart)));
-        const solarAngle = solarProgress * Math.PI; // 0 rad (East) -> PI/2 (Noon Zenith) -> PI (West)
+        const solarAngle = solarProgress * Math.PI;
         const sx = Math.cos(solarAngle) * 68;
-        const sy = Math.max(3.2, Math.sin(solarAngle) * 72);
+        const sy = Math.max(12.0, Math.sin(solarAngle) * 72);
         const sz = 16 + Math.sin(solarAngle) * 10;
         dirLight.position.set(sx, sy, sz);
-        sunOrb.position.set(sx * 2.1, sy * 2.1, sz * 1.9);
+        positionCelestialOrbAtFarRight(solarProgress);
 
-        const elevDeg = Math.max(0, Math.sin(solarAngle) * 76.5);
+        const elevDeg = Math.max(2.0, Math.sin(solarAngle) * 76.5);
         const azimDeg = Math.round(90 + solarProgress * 180);
         const dirCard = azimDeg < 120 ? '東' : (azimDeg < 165 ? '東南' : (azimDeg <= 195 ? '正南' : (azimDeg < 240 ? '西南' : '西')));
         state.celestial = {
           isDaytime: true,
+          progress01: solarProgress,
           label: `☀️ 太陽軌跡 ${dirCard}${azimDeg}° · 仰角 ${elevDeg.toFixed(1)}°`,
           azimuthDeg: azimDeg,
           elevationDeg: elevDeg,
           progressPct: Math.round(solarProgress * 100)
         };
       } else {
-        // Nighttime Lunar Trajectory (19:15 -> 05:30 HKT): East (+X) -> Night Zenith (+Y) -> West (-X)
+        // Nighttime Lunar Lighting & Far-Right 3D Crescent Moon Animation (18:12 -> 05:30 HKT)
         const nightHours = decHours >= duskEnd ? decHours : decHours + 24;
-        const nightDuration = (24 - duskEnd) + sunriseStart; // 10.25 hours
+        const nightDuration = (24 - duskEnd) + sunriseStart;
         const lunarProgress = Math.max(0, Math.min(1, (nightHours - duskEnd) / nightDuration));
         const lunarAngle = lunarProgress * Math.PI;
         const mx = Math.cos(lunarAngle) * 64;
-        const my = Math.max(6.0, Math.sin(lunarAngle) * 62);
+        const my = Math.max(16.0, Math.sin(lunarAngle) * 62);
         const mz = -22;
         dirLight.position.set(mx, my, mz);
-        sunOrb.position.set(mx * 2.1, my * 2.1, mz * 1.8);
+        positionCelestialOrbAtFarRight(lunarProgress);
 
-        const elevDeg = Math.max(2.0, Math.sin(lunarAngle) * 64.0);
+        const elevDeg = Math.max(5.0, Math.sin(lunarAngle) * 64.0);
         const azimDeg = Math.round(90 + lunarProgress * 180);
         const dirCard = azimDeg < 120 ? '東' : (azimDeg < 165 ? '東南' : (azimDeg <= 195 ? '正南' : (azimDeg < 240 ? '西南' : '西')));
         state.celestial = {
           isDaytime: false,
+          progress01: lunarProgress,
           label: `🌙 月亮軌跡 ${dirCard}${azimDeg}° · 仰角 ${elevDeg.toFixed(1)}°`,
           azimuthDeg: azimDeg,
           elevationDeg: elevDeg,
@@ -5850,15 +5983,15 @@
       }).join(' / ');
     }
 
-    // Verified HKIA 2026-10-31 Cargo Flights (matching official hongkongairport.com 2026年10月31日 5X arrivals & departures)
+    // Initial fallback baseline before live HKIA network response arrives (5X 004 is 預計 02:06 per HKIA cargo.page)
     const HKIA_2026_10_31_ARR_REF = [
-      { fltNo: '5X 004', numKey: '4',   schedTime: '01:55', origin: '費城 / 科隆 / 巴黎', statusText: '到閘口 02:01' },
+      { fltNo: '5X 004', numKey: '4',   schedTime: '01:55', origin: '費城 / 科隆 / 巴黎', statusText: '預計 02:06' },
       { fltNo: '5X 142', numKey: '142', schedTime: '05:30', origin: '路易斯維爾 / 克拉克', statusText: '到閘口 06:37' },
       { fltNo: '5X 062', numKey: '62',  schedTime: '13:45', origin: '路易斯維爾 / 安克雷奇', statusText: '到閘口 15:01' },
       { fltNo: '5X 058', numKey: '58',  schedTime: '16:05', origin: '安大略 / 檀香山', statusText: '到閘口 14:42' },
       { fltNo: '5X 064', numKey: '64',  schedTime: '16:30', origin: '路易斯維爾 / 安克雷奇', statusText: '到閘口 16:06' },
       { fltNo: '5X 078', numKey: '78',  schedTime: '19:29', origin: '安克雷奇', statusText: '到閘口 21:54' },
-      { fltNo: '5X 022', numKey: '22',  schedTime: '03:10', origin: '費城 / 科隆 / 巴黎', statusText: '到閘口 03:40' }
+      { fltNo: '5X 022', numKey: '22',  schedTime: '03:10', origin: '費城 / 科隆 / 巴黎', statusText: '預計 03:10' }
     ];
     const HKIA_2026_10_31_DEP_REF = [
       { fltNo: '5X 065', numKey: '65',  schedTime: '21:30', dest: '安克雷奇 / 路易斯維爾', statusText: '啟航 20:37' },
@@ -5971,62 +6104,30 @@
       liveHKIAArrMap.clear();
       liveHKIADepMap.clear();
 
-      // Always seed 2026-10-31 verified final statuses into yesterday maps when viewing Oct 31 plan
-      HKIA_2026_10_31_ARR_REF.forEach(item => yesterdayHKIAArrMap.set(item.numKey, { ...item }));
-      HKIA_2026_10_31_DEP_REF.forEach(item => yesterdayHKIADepMap.set(item.numKey, { ...item }));
-      if (isoDate === '2026-11-01') {
-        liveHKIAArrMap.set('142', { fltNo: '5X 142', numKey: '142', schedTime: '05:30', origin: '路易斯維爾 / 克拉克', statusText: '到閘口 07:17' });
-      }
+      // Seed initial baseline into live maps before network response returns (5X 004 = 預計 02:06)
+      HKIA_2026_10_31_ARR_REF.forEach(item => {
+        liveHKIAArrMap.set(item.numKey, { ...item });
+        yesterdayHKIAArrMap.set(item.numKey, { ...item });
+      });
+      HKIA_2026_10_31_DEP_REF.forEach(item => {
+        yesterdayHKIADepMap.set(item.numKey, { ...item });
+      });
 
-      // Restore yesterday's cached HKIA statuses from localStorage WITHOUT letting stale "預計..." overwrite already arrived/departed flights
+      // Restore today's live HKIA statuses from v3 localStorage cache
       try {
-        const yestRaw = localStorage.getItem('ups_hkia_live_cache_' + yesterdayIsoDate);
-        if (yestRaw) {
-          const yCached = JSON.parse(yestRaw);
-          if (Array.isArray(yCached.arr)) {
-            yCached.arr.forEach(([k, v]) => {
-              if (!v || !v.statusText || v.statusText === '-') return;
-              const existing = yesterdayHKIAArrMap.get(k);
-              const existingArrived = existing ? parseHKIAArrivalStatus(existing.statusText, existing.schedTime).hasArrived : false;
-              const incomingArrived = parseHKIAArrivalStatus(v.statusText, v.schedTime).hasArrived;
-              if (existingArrived && !incomingArrived) return;
-              yesterdayHKIAArrMap.set(k, v);
-            });
-          }
-          if (Array.isArray(yCached.dep)) {
-            yCached.dep.forEach(([k, v]) => {
-              if (!v || !v.statusText || v.statusText === '-') return;
-              const existing = yesterdayHKIADepMap.get(k);
-              const existingDeparted = existing ? parseHKIADepartureStatus(existing.statusText, existing.schedTime).hasDeparted : false;
-              const incomingDeparted = parseHKIADepartureStatus(v.statusText, v.schedTime).hasDeparted;
-              if (existingDeparted && !incomingDeparted) return;
-              yesterdayHKIADepMap.set(k, v);
-            });
-          }
-          // Clean up stale localStorage cache with verified arrived/departed map
-          localStorage.setItem('ups_hkia_live_cache_' + yesterdayIsoDate, JSON.stringify({
-            arr: Array.from(yesterdayHKIAArrMap.entries()),
-            dep: Array.from(yesterdayHKIADepMap.entries())
-          }));
-        }
-      } catch (e) {}
-
-      // Restore today's live HKIA statuses from localStorage (skipping any stale Oct 28 fake template '-' entries)
-      const oldTemplateFakeScheds = { '4': '02:00', '142': '05:35', '67': '08:05', '62': '14:35', '2': '14:55', '58': '15:15', '64': '16:30', '167': '17:15', '54': '14:15', '22': '04:00', '78': '19:29', '65': '20:50', '141': '23:10' };
-      try {
-        const cachedRaw = localStorage.getItem('ups_hkia_live_cache_' + isoDate);
+        const cachedRaw = localStorage.getItem('ups_hkia_live_cache_v3_' + isoDate);
         if (cachedRaw) {
-          const cached = JSON.parse(cached.arr ? cachedRaw : '{}');
+          const cached = JSON.parse(cachedRaw);
           if (Array.isArray(cached.arr)) {
             cached.arr.forEach(([k, v]) => {
-              if (v && !(v.statusText === '-' && oldTemplateFakeScheds[k] === v.schedTime && !v.fromLiveHKIA)) {
+              if (v && v.statusText) {
                 liveHKIAArrMap.set(k, v);
               }
             });
           }
           if (Array.isArray(cached.dep)) {
             cached.dep.forEach(([k, v]) => {
-              if (v && !(v.statusText === '-' && oldTemplateFakeScheds[k] === v.schedTime && !v.fromLiveHKIA)) {
+              if (v && v.statusText) {
                 liveHKIADepMap.set(k, v);
               }
             });
@@ -6146,6 +6247,28 @@
       return null;
     }
 
+    // Parse multi-bay transfer expressions such as "X452>X20", "X452＞X20", "X452->X20", "X452→X20", or "V332/V31"
+    function parseBayTransferTokens(bayStr) {
+      if (!bayStr || typeof bayStr !== 'string') return null;
+      const clean = bayStr.trim();
+      if (!clean) return null;
+      const parts = clean.split(/\s*(?:->|→|[>＞/])\s*/).map(s => s.trim()).filter(Boolean);
+      if (parts.length >= 2) {
+        const fromInfo = classifyParkingBayZone(parts[0]);
+        const toInfo = classifyParkingBayZone(parts[parts.length - 1]);
+        if (fromInfo && toInfo) {
+          return {
+            isTransfer: true,
+            fromToken: parts[0],
+            toToken: parts[parts.length - 1],
+            fromInfo,
+            toInfo
+          };
+        }
+      }
+      return null;
+    }
+
     function autoAssignFlightBays(flightsList) {
       if (!Array.isArray(flightsList)) return;
       const northPool = ['01', '02', '03', '04', '05', '06', '07', '08'];
@@ -6155,50 +6278,82 @@
 
       const usedBays = new Set();
 
-      // First pass: assign flights with explicit 16..23 or 24..31 preferred left-to-right bay index
-      flightsList.forEach(flt => {
-        const info = classifyParkingBayZone(flt.parkingBay);
-        if (!info) return;
+      const pickExactBay = (info) => {
+        if (!info) return null;
         if (info.zone === 'north-2digit' && info.preferredSlotIdx >= 0 && info.preferredSlotIdx < northPool.length) {
           const candidate = northPool[info.preferredSlotIdx];
           if (!usedBays.has(candidate)) {
-            flt.islandId = candidate;
             usedBays.add(candidate);
-            flt._assignedByRule = true;
-          } else {
-            flt._assignedByRule = false;
+            return candidate;
           }
         } else if (info.zone === 'south-2digit' && info.preferredSlotIdx >= 0 && info.preferredSlotIdx < southPool.length) {
           const candidate = southPool[info.preferredSlotIdx];
           if (!usedBays.has(candidate)) {
-            flt.islandId = candidate;
             usedBays.add(candidate);
+            return candidate;
+          }
+        }
+        return null;
+      };
+
+      const pickPoolBay = (info) => {
+        if (!info) return null;
+        let pool = northPool;
+        if (info.zone === 'top-left-3digit') pool = topLeftPool;
+        else if (info.zone === 'bottom-left-1digit') pool = bottomLeftPool;
+        else if (info.zone === 'south-2digit') pool = southPool;
+        else if (info.zone === 'north-2digit') pool = northPool;
+        const freeInPool = pool.find(id => !usedBays.has(id)) || pool[0];
+        usedBays.add(freeInPool);
+        return freeInPool;
+      };
+
+      // First pass: reserve exact 2-digit bays (e.g. X16..X23 -> 01..08, X24..X31 -> 09..16), including destination/origin of transfers
+      flightsList.forEach(flt => {
+        const tr = parseBayTransferTokens(flt.parkingBay);
+        if (tr) {
+          flt._fromBayToken = tr.fromToken;
+          flt._toBayToken = tr.toToken;
+          flt._fromIslandId = pickExactBay(tr.fromInfo);
+          flt._toIslandId = pickExactBay(tr.toInfo);
+          flt._transferSpec = tr;
+        } else {
+          flt._fromBayToken = '';
+          flt._toBayToken = '';
+          flt._fromIslandId = null;
+          flt._toIslandId = null;
+          flt._hasBayTransfer = false;
+          flt._transferSpec = null;
+          const info = classifyParkingBayZone(flt.parkingBay);
+          const exact = pickExactBay(info);
+          if (exact) {
+            flt.islandId = exact;
             flt._assignedByRule = true;
           } else {
             flt._assignedByRule = false;
           }
-        } else {
-          flt._assignedByRule = false;
         }
       });
 
-      // Second pass: assign 3-digit (top-left 17–20), 1-digit (bottom-left 21–22), and any remaining 2-digit from left to right in their respective pools
+      // Second pass: assign remaining pool bays (3-digit -> 17..20, 1-digit -> 21..22, fallback 2-digit)
       flightsList.forEach(flt => {
+        if (flt._transferSpec) {
+          const tr = flt._transferSpec;
+          if (!flt._fromIslandId) flt._fromIslandId = pickPoolBay(tr.fromInfo);
+          if (!flt._toIslandId) flt._toIslandId = pickPoolBay(tr.toInfo);
+          flt._hasBayTransfer = Boolean(flt._fromIslandId && flt._toIslandId && flt._fromIslandId !== flt._toIslandId);
+          flt.islandId = flt._fromIslandId || flt._toIslandId || flt.islandId || '01';
+          delete flt._transferSpec;
+          return;
+        }
         if (flt._assignedByRule) {
           delete flt._assignedByRule;
           return;
         }
         const info = classifyParkingBayZone(flt.parkingBay);
         if (!info) return;
-        let pool = northPool;
-        if (info.zone === 'top-left-3digit') pool = topLeftPool;
-        else if (info.zone === 'bottom-left-1digit') pool = bottomLeftPool;
-        else if (info.zone === 'south-2digit') pool = southPool;
-        else if (info.zone === 'north-2digit') pool = northPool;
-
-        const freeInPool = pool.find(id => !usedBays.has(id)) || pool[0];
-        flt.islandId = freeInPool;
-        usedBays.add(freeInPool);
+        const assigned = pickPoolBay(info);
+        if (assigned) flt.islandId = assigned;
       });
     }
 
@@ -6313,13 +6468,82 @@
       }
     }
 
-    function launchRunwayBayAnimation(mode, islandId, flt, statusLabel, eventKey) {
+    // Build 3D multi-waypoint path for Bay-to-Bay Repositioning (e.g. X452 -> X20 at 裝機時間)
+    function buildBayToBayTaxiWaypoints(fromIslandId, toIslandId) {
+      const fromIsl = ISLANDS_DATA.find(i => i.id === fromIslandId) || ISLANDS_DATA[17];
+      const toIsl = ISLANDS_DATA.find(i => i.id === toIslandId) || ISLANDS_DATA[1];
+      const fX = fromIsl.x, fZ = fromIsl.z - 15.0;
+      const tX = toIsl.x,   tZ = toIsl.z - 15.0;
+
+      const getApronExitChain = (isl, bx, bz) => {
+        if (isl.apron === 'northwest') {
+          return [
+            { x: bx,    y: 0.14, z: bz },
+            { x: -57.0, y: 0.22, z: bz },
+            { x: -57.0, y: 0.22, z: -12.8 }
+          ];
+        }
+        if (isl.apron === 'southwest') {
+          return [
+            { x: bx,    y: 0.14, z: bz },
+            { x: -73.5, y: 0.22, z: bz },
+            { x: -73.5, y: 0.22, z: 12.2 }
+          ];
+        }
+        if (isl.apron === 'south') {
+          return [
+            { x: bx, y: 0.14, z: bz },
+            { x: bx, y: 0.22, z: 12.2 }
+          ];
+        }
+        return [
+          { x: bx, y: 0.14, z: bz },
+          { x: bx, y: 0.22, z: -12.8 }
+        ];
+      };
+
+      const startChain = getApronExitChain(fromIsl, fX, fZ);
+      const endChainRev = getApronExitChain(toIsl, tX, tZ).slice().reverse();
+      const startLast = startChain[startChain.length - 1];
+      const endFirst = endChainRev[0];
+
+      const midChain = [];
+      if (Math.abs(startLast.z - endFirst.z) > 1.0) {
+        // Cross between North Taxiway (z = -12.8) and South Taxiway (z = +12.2) via nearest cross-connector
+        const connectors = [-73.5, -57.0, -31.0, 7.0, 45.0, 73.5];
+        let bestConn = connectors[0];
+        let bestDist = Infinity;
+        connectors.forEach(c => {
+          const d = Math.abs(startLast.x - c) + Math.abs(endFirst.x - c);
+          if (d < bestDist) {
+            bestDist = d;
+            bestConn = c;
+          }
+        });
+        midChain.push({ x: bestConn, y: 0.22, z: startLast.z });
+        midChain.push({ x: bestConn, y: 0.22, z: endFirst.z });
+      }
+
+      const rawPts = [...startChain, ...midChain, ...endChainRev];
+      const deduped = [rawPts[0]];
+      for (let i = 1; i < rawPts.length; i++) {
+        const prev = deduped[deduped.length - 1];
+        if (Math.hypot(rawPts[i].x - prev.x, rawPts[i].z - prev.z) > 0.25) {
+          deduped.push(rawPts[i]);
+        }
+      }
+      return deduped.length >= 2 ? deduped : [{ x: fX, y: 0.14, z: fZ }, { x: tX, y: 0.14, z: tZ }];
+    }
+
+    function launchRunwayBayAnimation(mode, islandId, flt, statusLabel, eventKey, fromIslandId = null) {
       // Find a free animation slot matching mode (or reuse oldest slot of that mode)
       const candidates = runwayChibiPlanes.filter(p => p.mode === mode);
       let slot = candidates.find(p => !p.active) || candidates[0];
       if (!slot) return;
 
-      const pts = buildBayTaxiWaypoints(islandId, mode);
+      const pts = (mode === 'repositioning' && fromIslandId)
+        ? buildBayToBayTaxiWaypoints(fromIslandId, islandId)
+        : buildBayTaxiWaypoints(islandId, mode);
       const segLengths = [];
       let totalLength = 0;
       for (let i = 0; i < pts.length - 1; i++) {
@@ -6331,6 +6555,7 @@
       slot.active = true;
       slot.progress = 0;
       slot.eventKey = eventKey;
+      slot.fromIslandId = fromIslandId || '';
       slot.targetIslandId = islandId;
       slot.waypoints = pts;
       slot.segLengths = segLengths;
@@ -6343,7 +6568,11 @@
       slot.mesh.visible = true;
 
       const bayText = flt.parkingBay || (`停機位 ${islandId}`);
-      if (mode === 'arriving') {
+      if (mode === 'repositioning') {
+        const fromLbl = flt._fromBayToken || (`泊位 ${fromIslandId}`);
+        const toLbl = flt._toBayToken || (`泊位 ${islandId}`);
+        slot.labelHtml = `<span class="role-tag !bg-cyan-400 !text-slate-950">🚜 裝機時間轉Bay滑行中</span><span>${flt.inFlt || flt.outFlt || '5X'} · 由 ${fromLbl} 移動至 ${toLbl} (到達後開始裝機作業)</span>`;
+      } else if (mode === 'arriving') {
         slot.labelHtml = `<span class="role-tag !bg-emerald-400">🛬 到港滑行入位中</span><span>${flt.inFlt || '5X'} (${statusLabel}) → 滑行至 ${bayText} (泊位 ${islandId})</span>`;
       } else {
         slot.labelHtml = `<span class="role-tag !bg-amber-400">🛫 離港滑行起飛中</span><span>${flt.outFlt || '5X'} (${statusLabel}) · 由 ${bayText} (泊位 ${islandId}) 移至跑道起飛</span>`;
@@ -6672,6 +6901,15 @@
     // Parse JSON from HKIA flightinfo-rest endpoint:
     // - Scans today's date block (targetIsoDate) for all regular & D-suffixed 5X flights
     // - Also scans other date blocks in the response for D-suffixed delayed flights (e.g. 5X 003D, 5X 061D, 5X 062D, 5X 142D) so overnight delayed flights on HKIA's page are always captured!
+    function computeHKFlightEpochMs(blockDateStr, schedTimeStr) {
+      if (!blockDateStr || !schedTimeStr) return null;
+      const mT = String(schedTimeStr).trim().match(/^(\d{1,2}):(\d{2})$/);
+      if (!mT) return null;
+      const isoFull = `${blockDateStr}T${mT[1].padStart(2, '0')}:${mT[2]}:00+08:00`;
+      const ms = Date.parse(isoFull);
+      return isNaN(ms) ? null : ms;
+    }
+
     function parseHKIACargoJSON(jsonData, targetIsoDate) {
       const results = [];
       if (!Array.isArray(jsonData)) return results;
@@ -6679,7 +6917,6 @@
       const sortedBlocks = [...jsonData].sort((a, b) => String(a?.date || '').localeCompare(String(b?.date || '')));
       sortedBlocks.forEach(dayBlock => {
         const blockDate = String(dayBlock?.date || '');
-        const isPastOrTargetBlock = !blockDate || blockDate <= targetIsoDate;
         const list = dayBlock?.list || [];
         list.forEach(item => {
           const flightsArr = item?.flight || [];
@@ -6691,19 +6928,20 @@
           if (!upsFlight) return;
           const noStr = String(upsFlight.no || '').trim();
           const numKey = extract5XFlightNumKey(noStr);
-          if (!isPastOrTargetBlock && !numKey.endsWith('D')) return;
 
           const schedTime = String(item?.time || '').trim();
           const rawStatus = String(item?.status || '-').trim();
           const rawPlaces = item?.origin || item?.destination || [];
           const places = translateIATAListToZh(rawPlaces);
+          const schedEpochMs = computeHKFlightEpochMs(blockDate || targetIsoDate, schedTime);
           results.push({
             fltNo: noStr,
             numKey,
             schedTime,
             places,
             statusText: rawStatus || '-',
-            blockDate
+            blockDate,
+            schedEpochMs
           });
         });
       });
@@ -6787,14 +7025,7 @@
         // - Otherwise, flights from yesterday's plan (like 058-HNL 14:42, 062-ANC 15:01, 064-ANC 16:06, 004-CDG 02:01, 078-ANC 21:54) use yesterday's arrived record so they aren't overwritten by today's un-arrived/cancelled flight
         let chosenArr = null;
         if (inKey) {
-          const isEndMorningArrivalOnly = isYesterdayPlan && !outKey && colIdx >= operationPlan.flights.length - 2;
-          if (isEndMorningArrivalOnly && todayArr && todayArrParsed) {
-            chosenArr = { item: todayArr, parsed: todayArrParsed };
-          } else if (isYesterdayPlan && yestArrParsed && yestArrParsed.hasArrived) {
-            chosenArr = { item: yestArr, parsed: yestArrParsed };
-          } else if (todayArrParsed && todayArrParsed.hasArrived) {
-            chosenArr = { item: todayArr, parsed: todayArrParsed };
-          } else if (todayArr && todayArrParsed) {
+          if (todayArr && todayArrParsed) {
             chosenArr = { item: todayArr, parsed: todayArrParsed };
           } else if (yestArr && yestArrParsed) {
             chosenArr = { item: yestArr, parsed: yestArrParsed };
@@ -6806,17 +7037,9 @@
           slot.hkiaOrigin = chosenArr.item.origin || extractRouteCityFromFltStr(slot.inFlt) || '';
           slot.inStatus = chosenArr.parsed.statusLabel;
         } else if (inKey) {
-          const pickMatch = String(slot.inCrewPick || '').trim().match(/^(\d{1,2}:\d{2})$/);
-          if (pickMatch) {
-            const pickTime = pickMatch[1].padStart(5, '0');
-            slot.hkiaArrSched = pickTime;
-            slot.hkiaOrigin = extractRouteCityFromFltStr(slot.inFlt) || '';
-            slot.inStatus = `到閘口 ${pickTime}`;
-          } else {
-            slot.hkiaArrSched = '--:--';
-            slot.hkiaOrigin = extractRouteCityFromFltStr(slot.inFlt) || '';
-            slot.inStatus = '-';
-          }
+          slot.hkiaArrSched = '--:--';
+          slot.hkiaOrigin = extractRouteCityFromFltStr(slot.inFlt) || '';
+          slot.inStatus = '預計時間 -';
         } else if (outKey) {
           slot.hkiaArrSched = '已在港';
           slot.hkiaOrigin = '同欄有出口航班 (已在港)';
@@ -6917,73 +7140,104 @@
 
       const { isoDate, yesterdayIsoDate } = getHKTodayDateStrings();
       try {
-        const hkiaArrApi = `https://www.hongkongairport.com/flightinfo-rest/rest/flights/past?date=${isoDate}&lang=zh_HK&cargo=true&arrival=true`;
-        const hkiaArrAlt = `https://www.hongkongairport.com/flightinfo-rest/rest/flights?span=1&date=${isoDate}&lang=zh_HK&cargo=true&arrival=true`;
-        const hkiaDepApi = `https://www.hongkongairport.com/flightinfo-rest/rest/flights/past?date=${isoDate}&lang=zh_HK&cargo=true&arrival=false`;
-        const hkiaDepAlt = `https://www.hongkongairport.com/flightinfo-rest/rest/flights?span=1&date=${isoDate}&lang=zh_HK&cargo=true&arrival=false`;
+        const hkiaArrSpan = `https://www.hongkongairport.com/flightinfo-rest/rest/flights?span=2&date=${isoDate}&lang=zh_HK&cargo=true&arrival=true`;
+        const hkiaArrPast = `https://www.hongkongairport.com/flightinfo-rest/rest/flights/past?date=${isoDate}&lang=zh_HK&cargo=true&arrival=true`;
+        const hkiaDepSpan = `https://www.hongkongairport.com/flightinfo-rest/rest/flights?span=2&date=${isoDate}&lang=zh_HK&cargo=true&arrival=false`;
+        const hkiaDepPast = `https://www.hongkongairport.com/flightinfo-rest/rest/flights/past?date=${isoDate}&lang=zh_HK&cargo=true&arrival=false`;
 
-        const [arrJson, depJson] = await Promise.all([
-          fetchHKIAJsonWithCORSFallback(hkiaArrApi, hkiaArrAlt),
-          fetchHKIAJsonWithCORSFallback(hkiaDepApi, hkiaDepAlt)
+        const [arrJsonSpan, arrJsonPast, depJsonSpan, depJsonPast] = await Promise.all([
+          fetchHKIAJsonWithCORSFallback(hkiaArrSpan),
+          fetchHKIAJsonWithCORSFallback(hkiaArrPast),
+          fetchHKIAJsonWithCORSFallback(hkiaDepSpan),
+          fetchHKIAJsonWithCORSFallback(hkiaDepPast)
         ]);
+        const arrJson = [...(Array.isArray(arrJsonPast) ? arrJsonPast : []), ...(Array.isArray(arrJsonSpan) ? arrJsonSpan : [])];
+        const depJson = [...(Array.isArray(depJsonPast) ? depJsonPast : []), ...(Array.isArray(depJsonSpan) ? depJsonSpan : [])];
+
+        const nowEpochMs = Date.now();
+
+        const shouldReplaceFlightOccurrence = (prev, item) => {
+          if (!prev || !prev.fromLiveHKIA) return true;
+          if (item.schedEpochMs && prev.schedEpochMs) {
+            const prevDist = Math.abs(prev.schedEpochMs - nowEpochMs);
+            const nextDist = Math.abs(item.schedEpochMs - nowEpochMs);
+            // If the new occurrence is significantly closer to current HK time (e.g. tonight's 01:55 5X 004 at +4.5h vs this morning's 01:55 at -19.5h), always use the closer one!
+            if (nextDist + 1800000 < prevDist) return true;
+            if (prevDist + 1800000 < nextDist) return false;
+          }
+          return true;
+        };
 
         const upsertArrToMap = (targetMap, item) => {
           if (!item || !item.numKey) return;
+          // Ignore occurrences more than 14 hours in the past or more than 16 hours in the future when timestamp is known
+          if (item.schedEpochMs) {
+            const diffHours = (item.schedEpochMs - nowEpochMs) / 3600000;
+            if (diffHours < -14.0 || diffHours > 16.0) return;
+          }
           const prev = targetMap.get(item.numKey);
-          const prevArrived = prev ? parseHKIAArrivalStatus(prev.statusText, prev.schedTime).hasArrived : false;
+          if (!shouldReplaceFlightOccurrence(prev, item)) return;
+          const sameOccurrence = prev && prev.blockDate === item.blockDate && prev.schedTime === item.schedTime;
+          const prevArrived = sameOccurrence ? parseHKIAArrivalStatus(prev.statusText, prev.schedTime).hasArrived : false;
           const nextArrived = parseHKIAArrivalStatus(item.statusText, item.schedTime).hasArrived;
-          const chosenStatus = (prevArrived && !nextArrived) ? prev.statusText : (item.statusText || (prev?.statusText) || '-');
-          const chosenSched = (prevArrived && !nextArrived && prev?.schedTime && prev.schedTime !== '--:--')
-            ? prev.schedTime
-            : ((item.schedTime && item.schedTime !== '--:--') ? item.schedTime : ((prev?.schedTime) || '--:--'));
+          const chosenStatus = (sameOccurrence && prevArrived && !nextArrived)
+            ? prev.statusText
+            : (item.statusText || (prev?.statusText) || '-');
+          const chosenSched = (item.schedTime && item.schedTime !== '--:--')
+            ? item.schedTime
+            : ((prev?.schedTime) || '--:--');
           targetMap.set(item.numKey, {
             fltNo: item.fltNo || (prev?.fltNo) || `5X ${item.numKey.padStart(3, '0')}`,
             numKey: item.numKey,
             schedTime: chosenSched,
             origin: item.places || item.origin || (prev?.origin) || '',
             statusText: chosenStatus,
+            blockDate: item.blockDate || (prev?.blockDate) || isoDate,
+            schedEpochMs: item.schedEpochMs || (prev?.schedEpochMs) || null,
             fromLiveHKIA: true
           });
         };
 
         const upsertDepToMap = (targetMap, item) => {
           if (!item || !item.numKey) return;
+          if (item.schedEpochMs) {
+            const diffHours = (item.schedEpochMs - nowEpochMs) / 3600000;
+            if (diffHours < -14.0 || diffHours > 16.0) return;
+          }
           const prev = targetMap.get(item.numKey);
-          const prevDeparted = prev ? parseHKIADepartureStatus(prev.statusText, prev.schedTime).hasDeparted : false;
+          if (!shouldReplaceFlightOccurrence(prev, item)) return;
+          const sameOccurrence = prev && prev.blockDate === item.blockDate && prev.schedTime === item.schedTime;
+          const prevDeparted = sameOccurrence ? parseHKIADepartureStatus(prev.statusText, prev.schedTime).hasDeparted : false;
           const nextDeparted = parseHKIADepartureStatus(item.statusText, item.schedTime).hasDeparted;
-          const chosenStatus = (prevDeparted && !nextDeparted) ? prev.statusText : (item.statusText || (prev?.statusText) || '-');
+          const chosenStatus = (sameOccurrence && prevDeparted && !nextDeparted)
+            ? prev.statusText
+            : (item.statusText || (prev?.statusText) || '-');
           targetMap.set(item.numKey, {
             fltNo: item.fltNo || (prev?.fltNo) || `5X ${item.numKey.padStart(3, '0')}`,
             numKey: item.numKey,
             schedTime: (item.schedTime && item.schedTime !== '--:--') ? item.schedTime : ((prev?.schedTime) || '--:--'),
             dest: item.places || item.dest || (prev?.dest) || '',
             statusText: chosenStatus,
+            blockDate: item.blockDate || (prev?.blockDate) || isoDate,
+            schedEpochMs: item.schedEpochMs || (prev?.schedEpochMs) || null,
             fromLiveHKIA: true
           });
         };
 
-        if (arrJson) {
+        if (arrJson.length > 0) {
           const parsedArr = parseHKIACargoJSON(arrJson, isoDate);
           parsedArr.forEach(it => {
-            if (it.blockDate === yesterdayIsoDate || it.blockDate === '2026-10-31') {
-              upsertArrToMap(yesterdayHKIAArrMap, it);
-            } else if (!it.blockDate || it.blockDate === isoDate) {
-              upsertArrToMap(liveHKIAArrMap, it);
-            }
+            upsertArrToMap(liveHKIAArrMap, it);
           });
         } else {
           const jinaArr = await fetchHKIACargoPageViaJina('https://www.hongkongairport.com/tc/flights/arrivals/cargo.page', true);
           jinaArr.forEach(it => upsertArrToMap(liveHKIAArrMap, it));
         }
 
-        if (depJson) {
+        if (depJson.length > 0) {
           const parsedDep = parseHKIACargoJSON(depJson, isoDate);
           parsedDep.forEach(it => {
-            if (it.blockDate === yesterdayIsoDate || it.blockDate === '2026-10-31') {
-              upsertDepToMap(yesterdayHKIADepMap, it);
-            } else if (!it.blockDate || it.blockDate === isoDate) {
-              upsertDepToMap(liveHKIADepMap, it);
-            }
+            upsertDepToMap(liveHKIADepMap, it);
           });
         } else {
           const jinaDep = await fetchHKIACargoPageViaJina('https://www.hongkongairport.com/tc/flights/departures/cargo.page', false);
@@ -6991,7 +7245,7 @@
         }
 
         try {
-          localStorage.setItem('ups_hkia_live_cache_' + isoDate, JSON.stringify({
+          localStorage.setItem('ups_hkia_live_cache_v3_' + isoDate, JSON.stringify({
             arr: Array.from(liveHKIAArrMap.entries()),
             dep: Array.from(liveHKIADepMap.entries())
           }));
@@ -7428,12 +7682,12 @@
       const br = (operationPlan && operationPlan.bottomRoles) ? operationPlan.bottomRoles : DEFAULT_OPERATION_PLAN.bottomRoles;
 
       const hdrRowCells = ULD_BREAKDOWN_COLS.map(col => (
-        `<th style="background:${col.hdrBg}; color:${col.hdrText || '#fde68a'}; font-size:11.5px; font-weight:800; padding:2.5px 6.5px;">${col.label}</th>`
+        `<th style="background:${col.hdrBg}; color:${col.hdrText || '#fde68a'}; font-size:calc(11.5px * var(--uld-font-scale, 1)); font-weight:800; padding:2px 6px;">${col.label}</th>`
       )).join('');
 
       const valRowCells = ULD_BREAKDOWN_COLS.map(col => {
         const val = ub[col.key] !== undefined && ub[col.key] !== null ? ub[col.key] : col.defaultVal;
-        return `<td style="background:${col.cellBg}; color:${col.cellText || '#0f172a'}; font-size:13px; font-weight:900; padding:2.5px 6.5px;">${val}</td>`;
+        return `<td style="background:${col.cellBg}; color:${col.cellText || '#0f172a'}; font-size:calc(13px * var(--uld-font-scale, 1)); font-weight:900; padding:2px 6px;">${val}</td>`;
       }).join('');
 
       // Split OP_FIXED_ROWS into two side-by-side panels (with Flt Nbr (離港) & FOD (After Load) moved to the top of the right panel above PARKING BAY per user request)
@@ -7485,14 +7739,19 @@
       const rightBayRepeatRow = buildPanelRows(rightTopRows);
 
       _cachedUldNatW = 0;
+      _cachedUldNatH = 0;
       _minIntrinsicUldW = 0;
-      if (upsGatewayUldBubbleEl) upsGatewayUldBubbleEl.style.width = 'max-content';
+      if (upsGatewayUldBubbleEl) {
+        upsGatewayUldBubbleEl.style.width = 'max-content';
+        upsGatewayUldBubbleEl.style.height = 'max-content';
+        upsGatewayUldBubbleEl.style.setProperty('--uld-font-scale', '1');
+      }
       upsGatewayUldBubbleEl.innerHTML = `
-        <div style="display:flex; flex-direction:column; gap:2.5px;">
+        <div style="display:flex; flex-direction:column; justify-content:space-between; gap:3px; width:100%; height:100%; flex:1;">
           <table class="uld-mini-table">
             <tbody>
               <tr>
-                <th rowspan="2" style="background:#2b1711; color:#fbbf24; font-size:11px; font-weight:800; line-height:1.16; padding:2.5px 8px; text-align:center; border-right:1.5px solid #f59e0b;">
+                <th rowspan="2" style="background:#2b1711; color:#fbbf24; font-size:calc(11px * var(--uld-font-scale, 1)); font-weight:800; line-height:1.16; padding:2px 8px; text-align:center; border-right:1.5px solid #f59e0b;">
                   Serviceable (as of 6:00am)<br/>Breakdown
                 </th>
                 ${hdrRowCells}
@@ -7502,12 +7761,12 @@
               </tr>
             </tbody>
           </table>
-          <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; padding:2.5px 8px; background:#0f172a; border:1px solid #475569; border-radius:4px; font-size:10.5px; font-weight:800; color:#fde68a; line-height:1.16;">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; padding:2px 8px; background:#0f172a; border:1px solid #475569; border-radius:4px; font-size:calc(10.5px * var(--uld-font-scale, 1)); font-weight:800; color:#fde68a; line-height:1.16; flex-shrink:0;">
             <span>📋 每日工作編排壁報板 (${operationPlan.dateTitle || 'Tuesday, October 27, 2026'})</span>
             <span style="color:#38bdf8;">🚜 ${operationPlan.tractorBanner || '1 x 24 Tractor (1200-0800)'}</span>
             <span style="color:#a7f3d0;">✏️ 點擊壁報板可修改</span>
           </div>
-          <div style="display:grid; grid-template-columns:minmax(max-content, 1fr) minmax(max-content, 1fr); gap:6px; align-items:stretch; width:100%;">
+          <div style="display:grid; grid-template-columns:minmax(max-content, 1fr) minmax(max-content, 1fr); gap:6px; align-items:stretch; width:100%; flex:1; min-height:0;">
             <table class="uld-op-grid-table">
               <thead>
                 <tr>
@@ -7532,7 +7791,7 @@
               </tbody>
             </table>
           </div>
-          <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; background:#efe8d8; color:#0f172a; border:1px solid #475569; border-radius:4px; padding:2.5px 8px; font-size:10.5px; font-weight:800; line-height:1.2; white-space:nowrap;">
+          <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; background:#efe8d8; color:#0f172a; border:1px solid #475569; border-radius:4px; padding:2px 8px; font-size:calc(10.5px * var(--uld-font-scale, 1)); font-weight:800; line-height:1.2; white-space:nowrap; flex-shrink:0;">
             <span style="background:#2b1711; color:#fbbf24; padding:0.5px 4px; border-radius:3px;">常駐崗位</span>
             <span><strong style="color:#b45309;">Hub BIC:</strong> ${[br.rowLabel, ...(operationPlan.bottomExtraRows || []).map(r => r.rowLabel)].map(v => String(v || '').trim()).filter(Boolean).join(' / ') || '-'}</span>
             <span><strong style="color:#0369a1;">New WH BIC:</strong> ${[br.newWhBic, ...(operationPlan.bottomExtraRows || []).map(r => r.newWhBic)].map(v => String(v || '').trim()).filter(Boolean).join(' / ') || '-'}</span>
@@ -8176,6 +8435,34 @@
     // - 離港現況「啟航 HH:MM」(有時間) -> 代表已離港 (hasDeparted = true)
     // - 離港現況「預計時間」或「-」 -> 代表還沒離港 (hasDeparted = false)
     // (不再讀取每日工作編排裏面的 ETA/STA 和 SCHEDULED DEPARTURE)
+    function checkIsFlightLoadWindowActive(flt, nowMins) {
+      const loadRawTrim = String(flt.loadTime || '').trim();
+      const isQuickTurn = /quick\s*turn|^qt$/i.test(loadRawTrim);
+      const isLoadDone = /^done$|已完成|完成/i.test(loadRawTrim);
+      const loadMins = parseTimeStrToMinutes(loadRawTrim);
+
+      if (isLoadDone) {
+        return { isLoadTimeReached: true, rawIsLoading: false };
+      }
+      if (isQuickTurn) {
+        return { isLoadTimeReached: true, rawIsLoading: true };
+      }
+      if (loadMins !== null) {
+        const elapsedSinceLoad = (nowMins - loadMins + 1440) % 1440;
+        let maxLoadWindowMins = 360;
+        const crewPickMins = parseTimeStrToMinutes(flt.crewPickTime);
+        if (crewPickMins !== null) {
+          const toCrewPick = (crewPickMins - loadMins + 1440) % 1440;
+          if (toCrewPick > 0 && toCrewPick <= 420) {
+            maxLoadWindowMins = Math.max(maxLoadWindowMins, toCrewPick + 90);
+          }
+        }
+        const activeWin = elapsedSinceLoad >= 0 && elapsedSinceLoad < maxLoadWindowMins;
+        return { isLoadTimeReached: activeWin, rawIsLoading: activeWin };
+      }
+      return { isLoadTimeReached: false, rawIsLoading: false };
+    }
+
     function evaluateFlightStatusAtHKTime(flt, nowMins, colIdx = 0) {
       const inKey = extract5XFlightNumKey(flt.inFlt);
       const outKey = extract5XFlightNumKey(flt.outFlt);
@@ -8184,15 +8471,22 @@
         ? { hasArrived: true, statusLabel: '已到港 (同欄出口)', displayTime: '已在港', schedTime: '已在港' }
         : parseHKIAArrivalStatus(flt.inStatus, flt.hkiaArrSched);
       const depInfo = parseHKIADepartureStatus(flt.outStatus, flt.hkiaDepSched);
-      const loadMins = parseTimeStrToMinutes(flt.loadTime);
 
       const hasArrived = arrInfo.hasArrived || isOutboundOnlyInPort;
       const hasDeparted = depInfo.hasDeparted;
 
-      const arrEventKey = `ARR_${colIdx}_${flt.inFlt || ''}_${arrInfo.statusLabel}_${flt.islandId || ''}`;
-      const depEventKey = `DEP_${colIdx}_${flt.outFlt || ''}_${depInfo.statusLabel}_${flt.islandId || ''}`;
+      const loadCheck = checkIsFlightLoadWindowActive(flt, nowMins);
+      const hasTransfer = Boolean(flt._hasBayTransfer && flt._fromIslandId && flt._toIslandId);
+      const arrBayId = hasTransfer ? flt._fromIslandId : (flt.islandId || '01');
+      const depBayId = (hasTransfer && loadCheck.isLoadTimeReached) ? flt._toIslandId : (flt.islandId || '01');
 
-      const isTakingOffNow = runwayChibiPlanes.some(p => p.active && p.mode === 'departing' && (p.eventKey === depEventKey || p.targetIslandId === flt.islandId));
+      const arrEventKey = `ARR_${colIdx}_${flt.inFlt || ''}_${arrInfo.statusLabel}_${arrBayId}`;
+      const depEventKey = `DEP_${colIdx}_${flt.outFlt || ''}_${depInfo.statusLabel}_${depBayId}`;
+      const towEventKey = hasTransfer
+        ? `TOW_${colIdx}_${flt.inFlt || flt.outFlt || ''}_${flt._fromIslandId}_TO_${flt._toIslandId}_${String(flt.loadTime || '').trim()}`
+        : '';
+
+      const isTakingOffNow = runwayChibiPlanes.some(p => p.active && p.mode === 'departing' && (p.eventKey === depEventKey || p.targetIslandId === depBayId));
       if (isTakingOffNow) {
         return {
           active: false,
@@ -8200,22 +8494,24 @@
           isLoading: false,
           hasArrived,
           hasDeparted: false,
+          currentIslandId: depBayId,
           arrEventKey,
           depEventKey,
+          towEventKey,
           arrInfo,
           depInfo
         };
       }
 
       if (hasDeparted) {
-        return { active: false, phase: 'departed', isLoading: false, hasArrived, hasDeparted: true, arrEventKey, depEventKey, arrInfo, depInfo };
+        return { active: false, phase: 'departed', isLoading: false, hasArrived, hasDeparted: true, currentIslandId: depBayId, arrEventKey, depEventKey, towEventKey, arrInfo, depInfo };
       }
 
       if (!hasArrived) {
-        return { active: false, phase: 'enroute', isLoading: false, hasArrived: false, hasDeparted: false, arrEventKey, depEventKey, arrInfo, depInfo };
+        return { active: false, phase: 'enroute', isLoading: false, hasArrived: false, hasDeparted: false, currentIslandId: arrBayId, arrEventKey, depEventKey, towEventKey, arrInfo, depInfo };
       }
 
-      const isLandingNow = runwayChibiPlanes.some(p => p.active && p.mode === 'arriving' && (p.eventKey === arrEventKey || p.targetIslandId === flt.islandId));
+      const isLandingNow = runwayChibiPlanes.some(p => p.active && p.mode === 'arriving' && (p.eventKey === arrEventKey || p.targetIslandId === arrBayId));
       if (isLandingNow) {
         return {
           active: false,
@@ -8223,40 +8519,98 @@
           isLoading: false,
           hasArrived: true,
           hasDeparted: false,
+          currentIslandId: arrBayId,
           arrEventKey,
           depEventKey,
+          towEventKey,
           arrInfo,
           depInfo
         };
       }
 
-      const loadRawTrim = String(flt.loadTime || '').trim();
-      const isQuickTurn = /quick\s*turn|^qt$/i.test(loadRawTrim);
-      const isLoadDone = /^done$|已完成|完成/i.test(loadRawTrim);
-
-      let isLoading = false;
-      if (isLoadDone) {
-        // Done: loading is completed, hide the loading crew & loading bubble
-        isLoading = false;
-      } else if (isQuickTurn) {
-        // Quick Turn: as soon as the aircraft has arrived at gate (到閘口) and finished its landing & parking animation (phase === 'parked'), immediately show loading info!
-        isLoading = true;
-      } else if (loadMins !== null) {
-        // Measure forward elapsed minutes since loadMins (0..1439):
-        // Guarantees loading NEVER triggers before loadMins (e.g., 22:00 will NEVER trigger at 18:00 even if fallback schedTime is 20:00!)
-        const elapsedSinceLoad = (nowMins - loadMins + 1440) % 1440;
-        let maxLoadWindowMins = 360; // default 6-hour loading window from loadTime until departure
-        const crewPickMins = parseTimeStrToMinutes(flt.crewPickTime);
-        if (crewPickMins !== null) {
-          const toCrewPick = (crewPickMins - loadMins + 1440) % 1440;
-          if (toCrewPick > 0 && toCrewPick <= 420) {
-            maxLoadWindowMins = Math.max(maxLoadWindowMins, toCrewPick + 90);
-          }
+      // Handle Multi-Bay Transfer (e.g. X452＞X20):
+      // - Before 裝機時間 (loadTime): parked at _fromIslandId (X452), not loading yet
+      // - At 裝機時間: moves from _fromIslandId (X452) -> _toIslandId (X20); ONLY after arriving at _toIslandId (X20) does ground loading work begin!
+      if (hasTransfer) {
+        if (!loadCheck.isLoadTimeReached) {
+          return {
+            active: true,
+            phase: 'parked',
+            isLoading: false,
+            hasArrived: true,
+            hasDeparted: false,
+            currentIslandId: flt._fromIslandId,
+            arrEventKey,
+            depEventKey,
+            towEventKey,
+            arrInfo,
+            depInfo
+          };
         }
-        isLoading = elapsedSinceLoad >= 0 && elapsedSinceLoad < maxLoadWindowMins;
+
+        const isRepositioningNow = runwayChibiPlanes.some(p => p.active && p.mode === 'repositioning' && p.eventKey === towEventKey);
+        if (isRepositioningNow) {
+          return {
+            active: false,
+            phase: 'repositioning',
+            isLoading: false,
+            hasArrived: true,
+            hasDeparted: false,
+            currentIslandId: flt._toIslandId,
+            arrEventKey,
+            depEventKey,
+            towEventKey,
+            arrInfo,
+            depInfo
+          };
+        }
+
+        if (!window._finishedLandingEvents.has(towEventKey)) {
+          // Waiting for tow animation to launch (e.g. while roster modal is still open): keep plane at _fromIslandId and wait to start loading
+          return {
+            active: true,
+            phase: 'parked_waiting_tow',
+            isLoading: false,
+            hasArrived: true,
+            hasDeparted: false,
+            currentIslandId: flt._fromIslandId,
+            arrEventKey,
+            depEventKey,
+            towEventKey,
+            arrInfo,
+            depInfo
+          };
+        }
+
+        // Tow to _toIslandId (X20) is complete -> parked at _toIslandId and ground loading work begins!
+        return {
+          active: true,
+          phase: 'parked',
+          isLoading: loadCheck.rawIsLoading,
+          hasArrived: true,
+          hasDeparted: false,
+          currentIslandId: flt._toIslandId,
+          arrEventKey,
+          depEventKey,
+          towEventKey,
+          arrInfo,
+          depInfo
+        };
       }
 
-      return { active: true, phase: 'parked', isLoading, hasArrived: true, hasDeparted: false, arrEventKey, depEventKey, arrInfo, depInfo };
+      return {
+        active: true,
+        phase: 'parked',
+        isLoading: loadCheck.rawIsLoading,
+        hasArrived: true,
+        hasDeparted: false,
+        currentIslandId: flt.islandId || '01',
+        arrEventKey,
+        depEventKey,
+        towEventKey: '',
+        arrInfo,
+        depInfo
+      };
     }
 
     // Split a cell string (e.g. "文仔 / Ping" or "Fung/Chiu") into individual person names so EVERY name gets 1 dedicated 3D worker!
@@ -8522,38 +8876,67 @@
         triggerDemoRunwayTaxiSequence();
       }
 
-      // Step A: Trigger Runway->Taxiway->Bay Landing when arrival status transitions to "到閘口" (or bay changes), and Bay->Taxiway->Runway Takeoff when departure status transitions to "啟航 HH:MM"
+      const rosterModalEl = document.getElementById('roster-modal');
+      const isRosterModalOpen = Boolean(rosterModalEl && !rosterModalEl.classList.contains('hidden'));
+
+      // Step A: Trigger Runway->Taxiway->Bay Landing, Bay-to-Bay Transfer at 裝機時間 (e.g. X452＞X20), and Bay->Taxiway->Runway Takeoff
       uniqueFlights.forEach((flt) => {
         const colIdx = flt._origColIdx ?? 0;
-        const arrInfo = parseHKIAArrivalStatus(flt.inStatus, flt.hkiaArrSched);
+        const inKey = extract5XFlightNumKey(flt.inFlt);
+        const outKey = extract5XFlightNumKey(flt.outFlt);
+        const isOutboundOnlyInPort = !inKey && Boolean(outKey);
+        const arrInfo = isOutboundOnlyInPort
+          ? { hasArrived: true, statusLabel: '已到港 (同欄出口)', displayTime: '已在港', schedTime: '已在港' }
+          : parseHKIAArrivalStatus(flt.inStatus, flt.hkiaArrSched);
         const depInfo = parseHKIADepartureStatus(flt.outStatus, flt.hkiaDepSched);
+        const loadCheck = checkIsFlightLoadWindowActive(flt, nowMins);
+        const hasTransfer = Boolean(flt._hasBayTransfer && flt._fromIslandId && flt._toIslandId);
+
+        const arrBayId = hasTransfer ? flt._fromIslandId : (flt.islandId || '01');
+        const depBayId = (hasTransfer && loadCheck.isLoadTimeReached) ? flt._toIslandId : (flt.islandId || '01');
 
         const prevSnap = window._prevFlightStatusSnap.get(colIdx) || {
           hasArrived: arrInfo.hasArrived,
           hasDeparted: depInfo.hasDeparted,
-          islandId: flt.islandId
+          islandId: arrBayId
         };
 
-        const arrEventKey = `ARR_${colIdx}_${flt.inFlt || ''}_${arrInfo.statusLabel}_${flt.islandId || ''}`;
-        const depEventKey = `DEP_${colIdx}_${flt.outFlt || ''}_${depInfo.statusLabel}_${flt.islandId || ''}`;
+        const arrEventKey = `ARR_${colIdx}_${flt.inFlt || ''}_${arrInfo.statusLabel}_${arrBayId}`;
+        const depEventKey = `DEP_${colIdx}_${flt.outFlt || ''}_${depInfo.statusLabel}_${depBayId}`;
 
-        const justArrivedAtGate = (!prevSnap.hasArrived && arrInfo.hasArrived) || (arrInfo.hasArrived && !depInfo.hasDeparted && prevSnap.islandId !== flt.islandId);
+        const justArrivedAtGate = (!prevSnap.hasArrived && arrInfo.hasArrived) || (arrInfo.hasArrived && !depInfo.hasDeparted && prevSnap.islandId !== arrBayId);
         if (justArrivedAtGate && !window._completedRunwayEvents.has(arrEventKey)) {
           window._completedRunwayEvents.add(arrEventKey);
           window._finishedLandingEvents.delete(arrEventKey);
-          launchRunwayBayAnimation('arriving', flt.islandId || '01', flt, arrInfo.statusLabel, arrEventKey);
+          launchRunwayBayAnimation('arriving', arrBayId, flt, arrInfo.statusLabel, arrEventKey);
+        }
+
+        // Bay-to-Bay Transfer Animation at 裝機時間 (e.g. X452＞X20): move aircraft from _fromIslandId to _toIslandId before starting loading work!
+        if (hasTransfer) {
+          const towEventKey = `TOW_${colIdx}_${flt.inFlt || flt.outFlt || ''}_${flt._fromIslandId}_TO_${flt._toIslandId}_${String(flt.loadTime || '').trim()}`;
+          if (!loadCheck.isLoadTimeReached) {
+            window._completedRunwayEvents.delete(towEventKey);
+            window._finishedLandingEvents.delete(towEventKey);
+          } else if (arrInfo.hasArrived && !depInfo.hasDeparted && !isRosterModalOpen) {
+            const isLandingNow = runwayChibiPlanes.some(p => p.active && p.mode === 'arriving' && (p.eventKey === arrEventKey || p.targetIslandId === arrBayId));
+            if (!isLandingNow && !window._completedRunwayEvents.has(towEventKey)) {
+              window._completedRunwayEvents.add(towEventKey);
+              window._finishedLandingEvents.delete(towEventKey);
+              launchRunwayBayAnimation('repositioning', flt._toIslandId, flt, '裝機轉Bay', towEventKey, flt._fromIslandId);
+            }
+          }
         }
 
         const justDeparted = !prevSnap.hasDeparted && depInfo.hasDeparted;
         if (justDeparted && !window._completedRunwayEvents.has(depEventKey)) {
           window._completedRunwayEvents.add(depEventKey);
-          launchRunwayBayAnimation('departing', flt.islandId || '01', flt, depInfo.statusLabel, depEventKey);
+          launchRunwayBayAnimation('departing', depBayId, flt, depInfo.statusLabel, depEventKey);
         }
 
         window._prevFlightStatusSnap.set(colIdx, {
           hasArrived: arrInfo.hasArrived,
           hasDeparted: depInfo.hasDeparted,
-          islandId: flt.islandId
+          islandId: arrBayId
         });
       });
 
@@ -8598,23 +8981,38 @@
         if (inKey) renderedFlightKeys.add('IN_' + inKey);
         if (outKey) renderedFlightKeys.add('OUT_' + outKey);
 
-        let targetIslandId = flt.islandId || String((colIdx % 22) + 1).padStart(2, '0');
+        const status = evaluateFlightStatusAtHKTime(flt, nowMins, colIdx);
+        let targetIslandId = status.currentIslandId || flt.islandId || String((colIdx % 22) + 1).padStart(2, '0');
         if (occupiedIslands.has(targetIslandId)) {
           const freeIsl = ISLANDS_DATA.find(i => i.id !== 'UPS' && !occupiedIslands.has(i.id));
           if (freeIsl) targetIslandId = freeIsl.id;
         }
         occupiedIslands.add(targetIslandId);
+        flt.islandId = targetIslandId;
 
-        const status = evaluateFlightStatusAtHKTime(flt, nowMins, colIdx);
         const planeMesh = islandChibiPlanesMap.get(targetIslandId);
         const crewObj = islandLoadingCrewMap.get(targetIslandId);
         const tagEl = labelDomMap.get(targetIslandId);
         const islData = ISLANDS_DATA.find(i => i.id === targetIslandId);
 
-        // Show 3D Road Sign on the parking bay whenever parkingBay text is entered (even before arrival or while parked; hide after departed)
+        // Show 3D Road Sign on the parking bay whenever parkingBay text is entered (including both origin & destination bays for transfers like X452＞X20)
         const bayStrTrim = String(flt.parkingBay || '').trim();
         if (bayStrTrim && !status.hasDeparted) {
-          updateBayRoadSignText(targetIslandId, bayStrTrim);
+          if (flt._hasBayTransfer && flt._fromIslandId && flt._toIslandId) {
+            if (targetIslandId === flt._fromIslandId) {
+              updateBayRoadSignText(flt._fromIslandId, bayStrTrim);
+              if (!occupiedIslands.has(flt._toIslandId)) {
+                updateBayRoadSignText(flt._toIslandId, flt._toBayToken || bayStrTrim);
+              }
+            } else {
+              updateBayRoadSignText(flt._toIslandId, bayStrTrim);
+              if (!occupiedIslands.has(flt._fromIslandId)) {
+                updateBayRoadSignText(flt._fromIslandId, flt._fromBayToken || bayStrTrim);
+              }
+            }
+          } else {
+            updateBayRoadSignText(targetIslandId, bayStrTrim);
+          }
         }
 
         if (status.active) {
@@ -9041,11 +9439,11 @@
         saveOperationPlan(true);
         hasUnsavedModalEdits = false;
       }
+      rosterModal.classList.add('hidden');
+      rosterModal.classList.remove('flex');
       fetchFlightradar24UPSHKG();
       updateHongKongClock();
       renderSelectedIslandDetail(state.selectedIslandId);
-      rosterModal.classList.add('hidden');
-      rosterModal.classList.remove('flex');
     }
     document.getElementById('btn-close-roster').addEventListener('click', () => closeAndSaveRosterModal(false));
 
@@ -10121,12 +10519,12 @@
         // Runway <-> Taxiway <-> Parking Bay 3D Arrival (滑行跑道移至對應停泊位) & Departure (在停泊位移至滑行跑道) Animations!
         runwayChibiPlanes.forEach((rwObj) => {
           if (!rwObj.active || !rwObj.mesh.visible) return;
-          rwObj.progress += 0.0018;
+          rwObj.progress += (rwObj.mode === 'repositioning' ? 0.0024 : 0.0018);
           if (rwObj.progress >= 1.0) {
             rwObj.active = false;
             rwObj.mesh.visible = false;
             if (rwObj.badgeEl) rwObj.badgeEl.style.display = 'none';
-            if (rwObj.mode === 'arriving' && rwObj.eventKey && window._finishedLandingEvents) {
+            if ((rwObj.mode === 'arriving' || rwObj.mode === 'repositioning') && rwObj.eventKey && window._finishedLandingEvents) {
               window._finishedLandingEvents.add(rwObj.eventKey);
             }
             updateHongKongClock();
