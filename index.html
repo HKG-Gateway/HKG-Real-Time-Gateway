@@ -6160,8 +6160,9 @@
 
     let activeHKIADate = '';
 
-    // Live cached maps for Today (isoDate) and Yesterday (yesterdayIsoDate)
+    // Live cached maps for Today (isoDate), Yesterday (yesterdayIsoDate), and Date-Specific Arrivals (numKey@YYYY-MM-DD)
     const liveHKIAArrMap = new Map();
+    const liveHKIAArrByDateMap = new Map();
     const liveHKIADepMap = new Map();
     const yesterdayHKIAArrMap = new Map();
     const yesterdayHKIADepMap = new Map();
@@ -6257,6 +6258,7 @@
 
       activeHKIADate = isoDate;
       liveHKIAArrMap.clear();
+      liveHKIAArrByDateMap.clear();
       liveHKIADepMap.clear();
 
       // Seed initial baseline into live maps before network response returns (5X 004 = 預計 02:06)
@@ -6280,6 +6282,13 @@
               }
             });
           }
+          if (Array.isArray(cached.arrByDate)) {
+            cached.arrByDate.forEach(([k, v]) => {
+              if (v && v.statusText) {
+                liveHKIAArrByDateMap.set(k, v);
+              }
+            });
+          }
           if (Array.isArray(cached.dep)) {
             cached.dep.forEach(([k, v]) => {
               if (v && v.statusText) {
@@ -6292,13 +6301,138 @@
     }
     ensureHKIAMapsForCurrentDate();
 
+    // Strip any trailing date typed after the flight number / route in Flt Nbr (到港)
+    // Supports "004-CDG 04Nov", "004-CDG 4Nov", "004-CDG (04Nov)", "004-CDG 4/11", "004-CDG 11月4日", "004-CDG 2026-11-04", etc.
+    function stripTrailingDateFromFltStr(fltStr) {
+      if (!fltStr || typeof fltStr !== 'string') return '';
+      return fltStr
+        .replace(/[\(\[（【]\s*(?:\d{1,2}(?:st|nd|rd|th)?[\s\-/.]*(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)(?:[\s\-/.]*\d{2,4})?|(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)[\s\-/.]*\d{1,2}(?:st|nd|rd|th)?(?:[\s\-/,.*]*\d{2,4})?|\d{4}[-/.年]\d{1,2}[-/.月]\d{1,2}[日號]?|\d{1,2}\s*月\s*\d{1,2}\s*[日號]?|\d{1,2}[-/.]\d{1,2}(?:[-/.]\d{2,4})?)\s*[\)\]）】]/gi, ' ')
+        .replace(/(?:\s+|[-/]|(?=[\d]{1,2}(?:st|nd|rd|th)?(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)))(?:\d{1,2}(?:st|nd|rd|th)?[\s\-/.]*(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)(?:[\s\-/.]*\d{2,4})?|(?:jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|jun(?:e)?|jul(?:y)?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)[\s\-/.]*\d{1,2}(?:st|nd|rd|th)?(?:[\s\-/,.*]*\d{2,4})?)\s*$/gi, '')
+        .replace(/(?:\s+|(?=[\d]{4}年))(?:\d{4}[-/.年]\d{1,2}[-/.月]\d{1,2}[日號]?|\d{1,2}\s*月\s*\d{1,2}\s*[日號]?|\d{1,2}[/.]\d{1,2}(?:[/.]\d{2,4})?|\d{1,2}-\d{1,2}(?:-\d{2,4})?)\s*$/g, '')
+        .trim();
+    }
+
+    // Extract explicit arrival date (as YYYY-MM-DD) when the user appends a date after Flt Nbr (到港)
+    // Primary style: "xxNov" (e.g. "004-CDG 04Nov", "004-CDG 4Nov", "004-CDG 04NOV", "004 04Nov", "004-CDG (04Nov)")
+    // Also supports: "004-CDG 4/11", "004-CDG 04/11/2026", "004-CDG 11月4日", "004-CDG 2026-11-04"
+    function extractArrivalDateFromInFlt(fltStr) {
+      if (!fltStr || typeof fltStr !== 'string') return '';
+      const raw = fltStr.trim();
+      if (!raw) return '';
+
+      // Use stripTrailingDateFromFltStr first to cleanly isolate the trailing date suffix (even when typed without space like "004-CDG04Nov" or "004-CDG 04Nov")
+      const baseWithoutDate = stripTrailingDateFromFltStr(raw);
+      let remainder = (baseWithoutDate && raw.startsWith(baseWithoutDate) && raw.length > baseWithoutDate.length)
+        ? raw.slice(baseWithoutDate.length).trim()
+        : '';
+      if (!remainder) {
+        remainder = raw
+          .replace(/^(?:UPS|5X)?\s*[-]?\s*\d{1,4}[A-Z]?\s*(?:[-/]\s*[A-Z]{3}(?![A-Z]))?/i, '')
+          .trim();
+      }
+      if (!remainder) return '';
+
+      const { isoDate } = getHKTodayDateStrings();
+      const opIso = (typeof operationPlan !== 'undefined' && operationPlan?.dateTitle)
+        ? parseOpDateTitleToIso(operationPlan.dateTitle)
+        : '';
+      const refIso = opIso || isoDate;
+      const refYear = parseInt(refIso.slice(0, 4), 10) || new Date().getFullYear();
+      const refMs = Date.parse(refIso + 'T00:00:00+08:00') || Date.now();
+
+      const buildValidIso = (y, m, d) => {
+        const yy = y < 100 ? (2000 + y) : y;
+        if (m < 1 || m > 12 || d < 1 || d > 31) return '';
+        return `${String(yy).padStart(4, '0')}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+      };
+
+      // 0A. Aviation / English Day+Month format "xxNov" (e.g. "04Nov", "4Nov", "04NOV", "04 Nov", "04-Nov", "04Nov2026")
+      const mEnDayMon = remainder.match(/(\d{1,2})(?:st|nd|rd|th)?[\s\-/.]*([A-Za-z]{3,9})(?:[\s\-/.]*(\d{2,4}))?/);
+      if (mEnDayMon) {
+        const mmStr = EN_MONTH_MAP[mEnDayMon[2].toLowerCase()];
+        if (mmStr) {
+          const yVal = mEnDayMon[3] ? parseInt(mEnDayMon[3], 10) : refYear;
+          return buildValidIso(yVal, parseInt(mmStr, 10), parseInt(mEnDayMon[1], 10));
+        }
+      }
+
+      // 0B. English Month+Day format "Novxx" (e.g. "Nov04", "Nov 4", "NOV 04")
+      const mEnMonDay = remainder.match(/([A-Za-z]{3,9})[\s\-/.]*(\d{1,2})(?:st|nd|rd|th)?(?:[\s\-/,.*]*(\d{2,4}))?/);
+      if (mEnMonDay) {
+        const mmStr = EN_MONTH_MAP[mEnMonDay[1].toLowerCase()];
+        if (mmStr) {
+          const yVal = mEnMonDay[3] ? parseInt(mEnMonDay[3], 10) : refYear;
+          return buildValidIso(yVal, parseInt(mmStr, 10), parseInt(mEnMonDay[2], 10));
+        }
+      }
+
+      // 1. YYYY-MM-DD or YYYY/MM/DD or YYYY年M月D日
+      const mYmd = remainder.match(/(\d{4})\s*[-/.年]\s*(\d{1,2})\s*[-/.月]\s*(\d{1,2})\s*[日號]?/);
+      if (mYmd) {
+        return buildValidIso(parseInt(mYmd[1], 10), parseInt(mYmd[2], 10), parseInt(mYmd[3], 10));
+      }
+
+      // 2. Chinese M月D日 (e.g. "11月4日" or "11月4號")
+      const mZhMd = remainder.match(/(\d{1,2})\s*月\s*(\d{1,2})\s*[日號]?/);
+      if (mZhMd) {
+        return buildValidIso(refYear, parseInt(mZhMd[1], 10), parseInt(mZhMd[2], 10));
+      }
+
+      // 3. D/M/YYYY or D-M-YYYY (3-part numeric date)
+      const mDmy = remainder.match(/(\d{1,2})\s*[/.\-]\s*(\d{1,2})\s*[/.\-]\s*(\d{2,4})/);
+      if (mDmy) {
+        const a = parseInt(mDmy[1], 10);
+        const b = parseInt(mDmy[2], 10);
+        const y = parseInt(mDmy[3], 10);
+        if (a > 12 && b <= 12) return buildValidIso(y, b, a);
+        if (b > 12 && a <= 12) return buildValidIso(y, a, b);
+        // Default Hong Kong DD/MM/YYYY convention, or closest to reference date when both <= 12
+        const candDM = buildValidIso(y, b, a);
+        const candMD = buildValidIso(y, a, b);
+        if (candDM && candMD && a !== b) {
+          const distDM = Math.abs((Date.parse(candDM + 'T00:00:00+08:00') || 0) - refMs);
+          const distMD = Math.abs((Date.parse(candMD + 'T00:00:00+08:00') || 0) - refMs);
+          return distMD + 86400000 * 5 < distDM ? candMD : candDM;
+        }
+        return candDM || candMD;
+      }
+
+      // 4. Short 2-part date after flight number: e.g. "4/11", "(04/11)", "4-11", "4.11", "11/4"
+      const mShort = remainder.match(/(\d{1,2})\s*[/.\-]\s*(\d{1,2})/);
+      if (mShort) {
+        const a = parseInt(mShort[1], 10);
+        const b = parseInt(mShort[2], 10);
+        if (a > 12 && b <= 12) return buildValidIso(refYear, b, a);
+        if (b > 12 && a <= 12) return buildValidIso(refYear, a, b);
+        const candDM = buildValidIso(refYear, b, a); // HK D/M (e.g. 4/11 -> Nov 4)
+        const candMD = buildValidIso(refYear, a, b); // M/D (e.g. 11/4 -> Nov 4)
+        if (candDM && candMD && a !== b) {
+          const distDM = Math.abs((Date.parse(candDM + 'T00:00:00+08:00') || 0) - refMs);
+          const distMD = Math.abs((Date.parse(candMD + 'T00:00:00+08:00') || 0) - refMs);
+          return distMD + 86400000 * 5 < distDM ? candMD : candDM;
+        }
+        return candDM || candMD;
+      }
+
+      return '';
+    }
+
+    // Extract explicit (DD/MM/YYYY) date inside HKIA statusText if present (e.g. "到閘口 02:06 (04/11/2026)" -> "2026-11-04")
+    function extractHKIAStatusDateIso(statusText) {
+      if (!statusText || typeof statusText !== 'string') return '';
+      const m = statusText.match(/\((\d{1,2})\/(\d{1,2})\/(\d{4})\)/);
+      if (!m) return '';
+      return `${m[3]}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}`;
+    }
+
     // Extract normalized flight key with '6'-prefix -> 'D'-suffix mapping rule:
     // - Any '6'-prefixed flight code in Operation Plan (e.g. "6061" -> "61D", "6062" -> "62D", "6003-BLR" -> "3D", "6142" -> "142D") maps to HKIA's D-suffixed flight ("5X 061D", "5X 062D", "5X 003D", "5X 142D").
     // - Direct D-suffixed flight numbers (e.g. "5X 003D", "061D-ANC") also produce "3D", "61D".
     // - Standard flight numbers (e.g. "061-ANC", "5X 003", "142-CRK") produce "61", "3", "142".
     function extract5XFlightNumKey(fltStr) {
       if (!fltStr || typeof fltStr !== 'string') return '';
-      const cleaned = fltStr
+      const baseStr = stripTrailingDateFromFltStr(fltStr);
+      const cleaned = baseStr
         .replace(/[\s\u00A0\u200B-\u200D\uFEFF]+/g, '')
         .toUpperCase()
         .replace(/^UPS[-]?/, '')
@@ -6330,10 +6464,11 @@
       return mAny ? (mAny[1] + (mAny[2] === 'D' ? 'D' : '')) : '';
     }
 
-    // Extract route airport code suffix from e.g. "064-ICN" -> "首爾/仁川" if needed
+    // Extract route airport code suffix from e.g. "064-ICN" or "004-CDG 4/11" -> "巴黎/戴高樂"
     function extractRouteCityFromFltStr(fltStr) {
       if (!fltStr || typeof fltStr !== 'string') return '';
-      const m = fltStr.trim().toUpperCase().match(/-\s*([A-Z]{3})\b/);
+      const baseStr = stripTrailingDateFromFltStr(fltStr);
+      const m = baseStr.trim().toUpperCase().match(/-\s*([A-Z]{3})\b/);
       if (m && HKIA_IATA_TO_ZH[m[1]]) return HKIA_IATA_TO_ZH[m[1]];
       return '';
     }
@@ -7169,17 +7304,40 @@
       operationPlan.flights.forEach((slot, colIdx) => {
         const inKey = extract5XFlightNumKey(slot.inFlt);
         const outKey = extract5XFlightNumKey(slot.outFlt);
+        const targetArrIso = extractArrivalDateFromInFlt(slot.inFlt);
 
         const todayArr = inKey ? liveHKIAArrMap.get(inKey) : null;
         const yestArr = inKey ? yesterdayHKIAArrMap.get(inKey) : null;
         const todayArrParsed = todayArr ? parseHKIAArrivalStatus(todayArr.statusText, todayArr.schedTime) : null;
         const yestArrParsed = yestArr ? parseHKIAArrivalStatus(yestArr.statusText, yestArr.schedTime) : null;
 
-        // If viewing yesterday's plan (e.g. Saturday, October 31, 2026):
-        // - Arrival-only column at the end of the table (like Col #8 142-CRK) or early-morning arrival that landed today (like 022-CDG at 03:40) uses todayArr when todayArr has arrived
-        // - Otherwise, flights from yesterday's plan (like 058-HNL 14:42, 062-ANC 15:01, 064-ANC 16:06, 004-CDG 02:01, 078-ANC 21:54) use yesterday's arrived record so they aren't overwritten by today's un-arrived/cancelled flight
         let chosenArr = null;
-        if (inKey) {
+        if (inKey && targetArrIso) {
+          // Explicit date typed after Flt Nbr (到港) (e.g. "004-CDG 4/11"):
+          // Lock strictly onto that date's arrival record so cross-day flights never pick up the wrong day's status!
+          const datedItem = liveHKIAArrByDateMap.get(`${inKey}@${targetArrIso}`);
+          if (datedItem) {
+            chosenArr = {
+              item: datedItem,
+              parsed: parseHKIAArrivalStatus(datedItem.statusText, datedItem.schedTime)
+            };
+          } else {
+            // Check if todayArr or yestArr explicitly belongs to targetArrIso
+            const matchesTargetDate = (cand) => {
+              if (!cand) return false;
+              const statusIso = extractHKIAStatusDateIso(cand.statusText);
+              if (statusIso) return statusIso === targetArrIso;
+              if (cand.blockDate) return cand.blockDate === targetArrIso;
+              return false;
+            };
+            if (matchesTargetDate(todayArr) && todayArrParsed) {
+              chosenArr = { item: todayArr, parsed: todayArrParsed };
+            } else if (matchesTargetDate(yestArr) && yestArrParsed) {
+              chosenArr = { item: yestArr, parsed: yestArrParsed };
+            }
+          }
+        } else if (inKey) {
+          // Standard automatic matching when no date is typed after Flt Nbr (到港)
           if (todayArr && todayArrParsed) {
             chosenArr = { item: todayArr, parsed: todayArrParsed };
           } else if (yestArr && yestArrParsed) {
@@ -7379,14 +7537,51 @@
           });
         };
 
+        const upsertArrByDate = (item) => {
+          if (!item || !item.numKey) return;
+          const record = {
+            fltNo: item.fltNo || `5X ${item.numKey.padStart(3, '0')}`,
+            numKey: item.numKey,
+            schedTime: item.schedTime || '--:--',
+            origin: item.places || item.origin || '',
+            statusText: item.statusText || '-',
+            blockDate: item.blockDate || isoDate,
+            schedEpochMs: item.schedEpochMs || null,
+            fromLiveHKIA: true
+          };
+          const statusIso = extractHKIAStatusDateIso(record.statusText);
+          const dateKeys = new Set();
+          if (item.blockDate) dateKeys.add(`${item.numKey}@${item.blockDate}`);
+          if (statusIso) dateKeys.add(`${item.numKey}@${statusIso}`);
+          if (dateKeys.size === 0) dateKeys.add(`${item.numKey}@${isoDate}`);
+
+          dateKeys.forEach(dKey => {
+            const prev = liveHKIAArrByDateMap.get(dKey);
+            const prevArrived = prev ? parseHKIAArrivalStatus(prev.statusText, prev.schedTime).hasArrived : false;
+            const nextArrived = parseHKIAArrivalStatus(record.statusText, record.schedTime).hasArrived;
+            const chosenStatus = (prev && prevArrived && !nextArrived && prev.schedTime === record.schedTime)
+              ? prev.statusText
+              : record.statusText;
+            liveHKIAArrByDateMap.set(dKey, {
+              ...record,
+              origin: record.origin || (prev?.origin) || '',
+              statusText: chosenStatus
+            });
+          });
+        };
+
         if (arrJson.length > 0) {
           const parsedArr = parseHKIACargoJSON(arrJson, isoDate);
           parsedArr.forEach(it => {
+            upsertArrByDate(it);
             upsertArrToMap(liveHKIAArrMap, it);
           });
         } else {
           const jinaArr = await fetchHKIACargoPageViaJina('https://www.hongkongairport.com/tc/flights/arrivals/cargo.page', true);
-          jinaArr.forEach(it => upsertArrToMap(liveHKIAArrMap, it));
+          jinaArr.forEach(it => {
+            upsertArrByDate(it);
+            upsertArrToMap(liveHKIAArrMap, it);
+          });
         }
 
         if (depJson.length > 0) {
@@ -7402,6 +7597,7 @@
         try {
           localStorage.setItem('ups_hkia_live_cache_v3_' + isoDate, JSON.stringify({
             arr: Array.from(liveHKIAArrMap.entries()),
+            arrByDate: Array.from(liveHKIAArrByDateMap.entries()),
             dep: Array.from(liveHKIADepMap.entries())
           }));
           if (yesterdayHKIAArrMap.size > 0 || yesterdayHKIADepMap.size > 0) {
