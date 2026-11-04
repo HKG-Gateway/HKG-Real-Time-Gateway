@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>UPS HKG Gateway · 15座長方形飛機停泊位3D動態島與即時氣象工作編排系統</title>
+  <title>UPS HKG Gateway · 22座飛機停泊位3D動態島與即時氣象工作編排系統 (75吋4K大電視極速流暢版)</title>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -32,7 +32,7 @@
     .island-tag, .uld-bubble-card, .speech-bubble, .staff-badge {
       backface-visibility: hidden;
       -webkit-backface-visibility: hidden;
-      will-change: transform, left, top;
+      will-change: transform;
     }
     #bg-canvas-container {
       position: absolute;
@@ -47,7 +47,7 @@
       inset: 0;
       width: 100%;
       height: 100%;
-      z-index: 3;
+      z-index: 8;
       pointer-events: none;
       overflow: hidden;
     }
@@ -157,7 +157,7 @@
         inset 0 1px 0 rgba(254, 240, 138, 0.55),
         inset 0 0 22px rgba(245, 158, 11, 0.08);
       z-index: 8;
-      backdrop-filter: blur(12px);
+      contain: layout style;
       transition: box-shadow 0.22s ease, border-color 0.22s ease;
       font-family: 'Fredoka', 'Nunito', 'M PLUS Rounded 1c', 'Noto Sans TC', sans-serif;
       font-variant-numeric: tabular-nums;
@@ -295,9 +295,8 @@
       transform: translate(-50%, -100%) scale(var(--bubble-scale, 1));
       pointer-events: auto;
       cursor: pointer;
-      background: rgba(15, 23, 42, 0.12);
-      backdrop-filter: blur(2.5px);
-      -webkit-backdrop-filter: blur(2.5px);
+      background: rgba(15, 23, 42, 0.22);
+      contain: layout style;
       border-radius: 16px;
       padding: 10px 13px;
       box-shadow: 0 8px 26px rgba(15, 23, 42, 0.18), 0 0 0 2px rgba(251, 191, 36, 0.85);
@@ -327,9 +326,36 @@
       border-right: 2px solid rgba(251, 191, 36, 0.85);
       border-bottom: 2px solid rgba(251, 191, 36, 0.85);
     }
+    #top-aircraft-bubbles-bar {
+      position: absolute;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 10px 14px;
+      transform-origin: top left;
+      pointer-events: none;
+      z-index: 24;
+      box-sizing: border-box;
+    }
     .speech-bubble.top-row-aircraft-bubble {
-      transform-origin: top center;
-      transform: translate(-50%, 0) scale(var(--bubble-scale, 1));
+      position: relative !important;
+      left: auto !important;
+      top: auto !important;
+      transform: none !important;
+      flex: 0 0 auto;
+      pointer-events: auto;
+      transition: background 0.2s ease, box-shadow 0.2s ease !important;
+      width: max-content !important;
+      max-width: none !important;
+      min-width: 300px;
+      margin: 0 !important;
+    }
+    .speech-bubble.top-row-aircraft-bubble:hover {
+      transform: none !important;
+    }
+    .speech-bubble.top-row-aircraft-bubble::after {
+      display: none !important;
     }
     .speech-bubble.right-serviceable-bubble {
       position: relative;
@@ -339,25 +365,156 @@
       max-width: 100%;
       min-width: 0;
       padding: 10px 12px;
-      background: #faf8f5 !important;
+      background: #eef2f6 !important;
       backdrop-filter: none !important;
       -webkit-backdrop-filter: none !important;
-      border: 1.5px solid #ffffff !important;
-      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.16) !important;
+      border: 1.5px solid #f8fafc !important;
+      box-shadow: 0 10px 28px rgba(15, 23, 42, 0.16), inset 0 1px 0 #ffffff !important;
       border-radius: 16px !important;
       color: #0f172a !important;
       text-shadow: none !important;
       z-index: 28;
     }
+    .speech-bubble.left-bic-wic-solid-card {
+      position: relative;
+      transform-origin: top left;
+      transform: none;
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      padding: 10px 12px;
+      background: linear-gradient(165deg, #f5f0e6 0%, #ebe3d3 100%) !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      border: 1.5px solid #d9cbb3 !important;
+      box-shadow: 0 10px 28px rgba(15, 23, 42, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.85) !important;
+      border-radius: 16px !important;
+      color: #1e293b !important;
+      text-shadow: none !important;
+      z-index: 28;
+    }
+    .speech-bubble.left-bic-wic-solid-card::after {
+      display: none;
+    }
+    #top-left-flight-card {
+      background: rgba(15, 23, 42, 0.28) !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      contain: layout style;
+      border: 2px solid rgba(239, 68, 68, 0.92) !important;
+      box-shadow: 0 8px 24px rgba(239, 68, 68, 0.24), 0 0 0 1.5px rgba(248, 113, 113, 0.80) !important;
+    }
+    .fids-board-table {
+      display: grid;
+      grid-template-columns: max-content max-content;
+      row-gap: 4px;
+      width: max-content;
+      min-width: 100%;
+    }
+    .fids-board-row {
+      display: contents;
+    }
+    .fids-half-pane {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 4px 7px;
+      background: rgba(9, 13, 22, 0.94);
+      border-top: 1px solid rgba(52, 211, 153, 0.55);
+      border-bottom: 1px solid rgba(52, 211, 153, 0.55);
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      white-space: nowrap;
+      min-width: max-content;
+    }
+    .fids-half-pane.fids-arr-pane {
+      border-left: 1px solid rgba(52, 211, 153, 0.55);
+      border-top-left-radius: 9px;
+      border-bottom-left-radius: 9px;
+      padding-right: 9px;
+    }
+    .fids-half-pane.fids-dep-pane {
+      border-left: 2px solid rgba(251, 191, 36, 0.45);
+      border-right: 1px solid rgba(52, 211, 153, 0.55);
+      border-top-right-radius: 9px;
+      border-bottom-right-radius: 9px;
+      padding-left: 9px;
+    }
+    .fids-flap-group {
+      display: inline-flex;
+      align-items: center;
+      gap: 1.5px;
+      flex-wrap: nowrap;
+      flex-shrink: 0;
+    }
+    .fids-flap-cell {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 12px;
+      height: 19px;
+      padding: 0 2px;
+      border-radius: 3.5px;
+      background: #0f172a;
+      border: 1px solid rgba(148, 163, 184, 0.72);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 1px 2px rgba(0, 0, 0, 0.55);
+      font-family: 'Fredoka', 'Nunito', 'Noto Sans TC', monospace;
+      font-size: 11px;
+      font-weight: 900;
+      line-height: 1;
+      color: #fde047;
+      text-shadow: none;
+      backface-visibility: hidden;
+      transform-style: preserve-3d;
+    }
+    .fids-flap-cell.fids-cjk {
+      min-width: 14.5px;
+      font-size: 10.5px;
+    }
+    .fids-flap-cell.fids-emerald {
+      background: #10b981;
+      border-color: #6ee7b7;
+      color: #022c22;
+      text-shadow: none;
+    }
+    .fids-flap-cell.fids-amber-status {
+      background: #f59e0b;
+      border-color: #fde047;
+      color: #0f172a;
+      text-shadow: none;
+    }
+    .fids-flap-cell.fids-slate-status {
+      background: #1e293b;
+      border-color: rgba(148, 163, 184, 0.65);
+      color: #fde68a;
+      text-shadow: none;
+    }
+    .fids-flap-cell.fids-red-late {
+      background: #dc2626 !important;
+      border-color: #fca5a5 !important;
+      color: #ffffff !important;
+      text-shadow: none !important;
+      box-shadow: 0 0 6px rgba(239, 68, 68, 0.48) !important;
+    }
+    @keyframes fidsSplitFlapTurn {
+      0%   { transform: scaleY(1); opacity: 1; }
+      45%  { transform: scaleY(0.08); opacity: 0.55; }
+      55%  { transform: scaleY(0.08); opacity: 0.75; }
+      100% { transform: scaleY(1); opacity: 1; }
+    }
+    #hud-fr24-mini-list.fids-flip-active .fids-flap-cell {
+      animation: fidsSplitFlapTurn 0.92s cubic-bezier(0.42, 0.0, 0.22, 1) both;
+      animation-delay: var(--flap-delay, 0ms);
+    }
     .speech-bubble.right-serviceable-bubble::after {
       display: none;
     }
     .glass-card {
-      background: rgba(250, 248, 245, 0.93);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border: 1px solid rgba(255, 255, 255, 0.85);
-      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.14);
+      background: rgba(250, 248, 245, 0.97);
+      contain: layout style;
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.14);
     }
     .custom-scroll::-webkit-scrollbar {
       width: 5px;
@@ -433,8 +590,8 @@
       gap: 6px;
       padding: 4px 10px;
       border-radius: 9px;
-      background: rgba(15, 23, 42, 0.16);
-      backdrop-filter: blur(2.5px);
+      background: rgba(15, 23, 42, 0.28);
+      contain: layout style;
       color: #ffffff;
       text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
       border: 1.5px solid rgba(251, 191, 36, 0.85);
@@ -514,16 +671,19 @@
   <!-- Foreground 3D Weather Animation Layer (Clouds, Rain, Lightning, Sun/Moon, Stars cover the rear Bulletin Board) -->
   <div id="weather-canvas-container"></div>
 
-  <!-- TOP-LEFT STACK: (1) FLIGHT INFORMATION CARD AT TOP-LEFT + (2) SERVICEABLE BREAKDOWN BUBBLE DIRECTLY BELOW IT -->
-  <div id="top-left-hud-stack" class="fixed top-3 left-3 z-30 flex flex-col gap-2.5 w-[355px] sm:w-[405px]" style="transform-origin: top left;">
-    <!-- Card 1 (Top-Left): Standalone Flight Information Card -->
-    <div id="top-left-flight-card" class="glass-card rounded-2xl px-3.5 py-2.5">
+  <!-- TOP-LEFT STACK: (1) SPLIT-FLAP FLIGHT BOARD AT TOP-LEFT + (2) SERVICEABLE BREAKDOWN BUBBLE DIRECTLY BELOW IT -->
+  <div id="top-left-hud-stack" class="fixed top-3 left-3 z-30 flex flex-col gap-2.5 w-max min-w-[420px]" style="transform-origin: top left;">
+    <!-- Card 1 (Top-Left): Airport Split-Flap Flight Information Board (Left: Arrivals 到港 | Right: Departures 離港) -->
+    <div id="top-left-flight-card" class="glass-card rounded-2xl px-3 py-2.5 w-max min-w-full">
       <a href="https://www.hongkongairport.com/tc/flights/arrivals/cargo.page" id="hud-fr24-tick" class="hidden" aria-hidden="true"></a>
-      <div id="hud-fr24-mini-list" class="grid grid-cols-2 gap-1.5 text-[10px] max-h-[240px] overflow-y-auto custom-scroll"></div>
+      <div id="hud-fr24-mini-list" class="fids-board-table text-[10px] max-h-[265px] overflow-y-auto overflow-x-hidden custom-scroll"></div>
     </div>
 
     <!-- Card 2 (Directly Below Left Flight Info Card): Serviceable Breakdown Bubble Slot -->
     <div id="left-serviceable-bubble-slot" class="w-full"></div>
+
+    <!-- Card 3 (Directly Below Serviceable Breakdown Card): UPS Building BIC/WIC Solid Card Slot -->
+    <div id="left-bic-wic-bubble-slot" class="w-full"></div>
   </div>
 
   <!-- OLD DETAIL CARD REMOVED VISUALLY PER USER REQUEST (DOM IDs preserved inside hidden container so no function is affected) -->
@@ -740,10 +900,10 @@
         <button id="btn-close-help" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold flex items-center justify-center">✕</button>
       </div>
       <div class="mt-3 space-y-2.5 text-xs text-slate-600 leading-relaxed">
-        <p><strong>1. 15 座六角形動態島 + 中心 3D 長方形 UPS 大樓：</strong>依照參考影片《智能島》風格設計，外圍由編號 <code class="px-1 py-0.5 bg-slate-100 rounded font-bold">01</code> 至 <code class="px-1 py-0.5 bg-slate-100 rounded font-bold">15</code> 的 3D 六角形動態島組成蜂巢群島，正中心為 3D 長方形動態島「<strong>UPS 赤鱲角樞紐大樓</strong>」。</p>
-        <p><strong>2. 全自動香港時間與 8 大時段光影演進：</strong>系統每秒自動跟隨香港標準時間（HKT），無需點擊任何按鈕即可在「<strong>日出、上午、中午、下午、日落、黃昏、夜晚、深夜</strong>」8 大時段之間平滑演進天空色溫、太陽/月亮高度角、海面波光與大樓夜間燈火。</p>
-        <p><strong>3. 全自動赤鱲角 (loc=hka) 即時天氣與警告：</strong>每 60 秒自動從香港天文台開放數據 API 同步赤鱲角最新氣溫、濕度、風速、雨量與生效天氣警告，自動切換「<strong>晴朗、陰天（多雲/密雲）、下雨、雷電、風暴</strong>」3D 天空與粒子特效。</p>
-        <p><strong>4. 3D 鏡頭互動：</strong>按住滑鼠左鍵或單指拖曳可旋轉視角，滾輪或雙指縮放，右鍵拖曳平移；點擊任何一座島嶼或右側列表即可平滑飛往該島。</p>
+        <p><strong>1. 整體連貫 3D 動態島（上方 UPS 樞紐大樓 + 右側 ULD 區 + 下方 22 座飛機停泊位）：</strong>上方設有放大版「<strong>UPS HKG Gateway 分揀樞紐大樓</strong>」、4 層辦公大樓與右側 3D 航空貨櫃 (AAD/AMJ/AMP) 及網繩貨板 (PAG/PMC) 自動化處理區；下方設有 <strong>22 座飛機停泊位</strong>（北機坪 <code class="px-1 py-0.5 bg-slate-100 rounded font-bold">01–08</code> 對應 X16–X23、南機坪 <code class="px-1 py-0.5 bg-slate-100 rounded font-bold">09–16</code> 對應 X24–X31、左上橫向 <code class="px-1 py-0.5 bg-slate-100 rounded font-bold">17–20</code> 對應三位數泊位、左下橫向 <code class="px-1 py-0.5 bg-slate-100 rounded font-bold">21–22</code> 對應單位數泊位）與中央 07R/25L 飛行跑道。</p>
+        <p><strong>2. 香港國際機場 (HKIA) 5X 貨機即時同步與 FIDS 翻頁資訊板：</strong>自動讀取香港國際機場當日 5X 貨機抵港（到閘口=已到港、預計時間=未到港）及離港（啟航+時間=已離港），自動觸發 3D 貨機降落滑行入位、裝機轉 Bay 滑行、地面裝機人員作業與起飛動畫。</p>
+        <p><strong>3. 全自動香港時間、8 大時段光影、赤鱲角 (loc=hka) 即時氣象與 6 大節日主題：</strong>跟隨香港標準時間（HKT）在「<strong>日出、上午、中午、下午、日落、黃昏、夜晚、深夜</strong>」平滑演進太陽/月亮軌跡與機坪夜間泛光燈；自動同步天文台赤鱲角氣象與暴雨/颱風警告特效，並支援「<strong>原狀、萬聖節、聖誕節、元旦、農曆新年、復活節</strong>」主題切換及跨設備雲端即時同步。</p>
+        <p><strong>4. 75 吋 4K 大電視極速流暢模式與 3D 鏡頭互動：</strong>內建單一 WebGL 合併渲染管線與 4K 電視自適應幀率調度器；按住滑鼠左鍵或單指拖曳可旋轉視角，滾輪或雙指縮放，右鍵拖曳平移，點擊停泊位或「鎖定視角」可固定最佳觀賞角度。</p>
       </div>
     </div>
   </div>
@@ -787,7 +947,7 @@
       <div class="px-4 py-2 bg-white border-b border-slate-200 flex flex-wrap items-center justify-between gap-2">
         <div class="flex items-center gap-2">
           <span class="text-xs font-bold text-slate-500">編排日期：</span>
-          <input id="op-date-input" type="text" value="Sunday, October 25, 2026" class="text-sm sm:text-base font-serif font-bold underline text-slate-900 bg-amber-50/70 px-3 py-0.5 rounded-lg border border-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-500" />
+          <input id="op-date-input" type="text" value="Wednesday, November 4, 2026" class="text-sm sm:text-base font-serif font-bold underline text-slate-900 bg-amber-50/70 px-3 py-0.5 rounded-lg border border-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-500" />
         </div>
         <div class="flex flex-wrap items-center gap-2 text-[11px] text-slate-600 font-medium">
           <input id="input-upload-excel" type="file" accept=".xlsx,.xls,.csv" class="hidden" />
@@ -901,16 +1061,16 @@
         shape: 'rectangle',
         color: '#ffb500',
         rimColor: '#351c15',
-        x: -38,
-        z: -58,
-        role: '上方獨立動態島 · UPS 樞紐大樓 + 右側 3D 貨櫃/貨板自動化處理區 · 下方放大版 22 座停泊位與滑行跑道島',
-        desc: '重新佈局雙島架構：上方為獨立「UPS HKG Gateway 樞紐小島」（不連接下方停泊位，並已移除後方沙洲小島），左側設有整體放大的 UPS 分揀樞紐大樓與 4 層辦公大樓，大樓右側新增大型 3D 航空貨櫃 (AAD/AMJ/AMP) 與貨板 (PAG/PMC) 自動化轉運車、剷車升降與滾筒輸送帶 3D 動畫區；下方為整體放大的獨立「22 座飛機停泊位與 07R/25L 滑行跑道動態島」。',
-        quote: '「上方獨立小島設有放大版 UPS 樞紐大樓與右側 3D 貨櫃/貨板自動化動畫區；下方獨立大島設有整體放大的 22 座停泊位與 07R/25L 滑行跑道。」',
+        x: 0,
+        z: -58.5,
+        role: '動態島正中心主樓 · 巨型 UPS HKG Gateway 樞紐大樓 + 右側精巧 3D ULD 貨櫃/貨板區 · 下方 22 座停泊位與 07R/25L 跑道',
+        desc: '以正中心（x=0）巨型「UPS HKG Gateway 分揀樞紐主樓」（寬 92 米、高 12.6 米，連左翼 4 層辦公控制塔總寬 111.5 米）為全島視覺核心；主樓右方（x=52..105）設有比例精巧的 3D 航空貨櫃 (AAD/AMJ/AMP) 與貨板 (PAG/PMC) 自動化轉運區；前方經連貫主幹道路直通下方 22 座飛機停泊位（01–22）與 07R/25L 滑行跑道。',
+        quote: '「UPS HKG Gateway 樞紐主樓坐落動態島正中心，規模宏偉並大於右方 ULD 存放區，統籌全島 22 座飛機停泊位與跑道運作。」',
         facilities: [
-          { name: '上方獨立小島 · 放大版 UPS 樞紐大樓與右側 3D 貨櫃/貨板區', desc: '與下方停泊位完全分離，大樓右側設有 3D 航空貨櫃 (AAD/AMJ/AMP) 及網繩貨板 (PAG/PMC) 自動轉運車、剷車與滾筒輸送動畫' },
-          { name: '下方獨立大島 · 左上 4 座放大橫向泊位 (17–20)', desc: '兩左 (17, 18) 兩右 (19, 20) 橫向擺位，當 Bay 位出現三位數字 (如 D327、D324、X458) 時自動編排' },
-          { name: '下方獨立大島 · 北機坪 8 座放大泊位 (01–08) 與南機坪 8 座放大泊位 (09–16)', desc: '雙位數 X16–X23 自動編排至 01–08 號泊位；X24–X30 自動編排至跑道下方 09–16 號泊位' },
-          { name: '下方獨立大島 · 左下角 2 座放大橫向泊位 (21–22)', desc: '橫向擺位並連貫西側垂直滑行道與放大版 07R/25L 跑道，當輸入單位數字時自動編排' }
+          { name: '正中心主樓 · 巨型 UPS 樞紐大樓與右方 3D ULD 存放區', desc: '主樓居中坐落（比例顯著大於右方 ULD 存放區），配備 9 座分揀月台、巨型屋頂 UPS 盾牌標誌及右側 ULD 自動轉運車、剷車與滾筒輸送動畫' },
+          { name: '下方機坪 · 左上 4 座放大橫向泊位 (17–20)', desc: '兩左 (17, 18) 兩右 (19, 20) 橫向擺位，當 Bay 位出現三位數字 (如 D327、D324、X458) 時自動編排' },
+          { name: '下方機坪 · 北機坪 8 座放大泊位 (01–08) 與南機坪 8 座放大泊位 (09–16)', desc: '雙位數 X16–X23 自動編排至 01–08 號泊位；X24–X31 自動編排至跑道下方 09–16 號泊位' },
+          { name: '下方機坪 · 左下角 2 座放大橫向泊位 (21–22)', desc: '橫向擺位並連貫西側垂直滑行道與放大版 07R/25L 跑道，當輸入單位數字時自動編排' }
         ]
       },
       // Lower Island Upper Row (North Apron): 8 Enlarged Aircraft Parking Bays (01 to 08 — 自動對應 X16 至 X23 由左至右)
@@ -1022,10 +1182,10 @@
       },
       {
         id: '16', code: '16', name: '', shape: 'bay', apron: 'south', orientation: 'vertical', color: '#9333ea', x: 104.4, z: 56.5,
-        role: '跑道下方 · 南停機坪 16 號放大泊位',
-        desc: '位於跑道下方由左至右第 8 個放大版飛機停泊位，滑行支線直連南機坪主滑行道與飛行跑道。',
+        role: '跑道下方 · 南停機坪 16 號放大泊位 (預設對應 X31)',
+        desc: '位於跑道下方由左至右第 8 個放大版飛機停泊位 (自動對應雙位數 X31)，滑行支線直連南機坪主滑行道與飛行跑道。',
         quote: '「南停機坪 16 號泊位滑行道連貫正常。」',
-        facilities: [{ name: '跑道下方泊位 16', desc: '連貫南滑行道與飛行跑道' }]
+        facilities: [{ name: '跑道下方泊位 16', desc: '自動編排雙位數 X31，連貫南滑行道與飛行跑道' }]
       },
       // Lower Island Top-Left Corner: 4 Enlarged Horizontal Aircraft Parking Bays (17, 18 on Left; 19, 20 on Right; with central vertical taxiway at x = -85.5 — 自動對應三位數 Bay 位)
       {
@@ -1318,40 +1478,52 @@
     // 3. THREE.JS 3D SCENE SETUP
     // =========================================================================
     const bgContainer = document.getElementById('bg-canvas-container');
-    const bgScene = new THREE.Scene();
-    bgScene.fog = new THREE.FogExp2(0x8fd2dc, 0.00085);
-
     const container = document.getElementById('canvas-container');
-    const scene = new THREE.Scene();
-    scene.fog = bgScene.fog;
-
-    // Foreground Weather Scene so all 3D Weather Animations (Clouds, Rain, Lightning, Sun/Moon, Stars) render in front of the Bulletin Board
     const weatherContainer = document.getElementById('weather-canvas-container');
-    const weatherScene = new THREE.Scene();
 
-    const camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 1, 900);
-    const bgRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
-    bgRenderer.setSize(window.innerWidth, window.innerHeight);
-    bgRenderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2.5));
-    bgRenderer.shadowMap.enabled = true;
-    bgRenderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    bgRenderer.toneMapping = THREE.ACESFilmicToneMapping;
-    bgRenderer.toneMappingExposure = 1.06;
-    if (bgContainer) bgContainer.appendChild(bgRenderer.domElement);
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x8fd2dc, 0.00085);
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
+    // Unified single-WebGL-context scene groups (eliminates 3x 4K canvas compositing bottleneck on 75-inch TVs!)
+    const bgScene = new THREE.Group();
+    bgScene.fog = scene.fog;
+    scene.add(bgScene);
+
+    const weatherScene = new THREE.Group();
+    scene.add(weatherScene);
+
+    // Smart 75-Inch 4K TV Adaptive Pixel Ratio: caps internal render buffer to ~1920x1080 so 4K TVs stay locked at 60 FPS
+    function getOptimalTVPixelRatio(scaleMult = 1.0) {
+      const w = window.innerWidth || 1920;
+      const h = window.innerHeight || 1080;
+      const rawDpr = window.devicePixelRatio || 1;
+      const maxTargetWidth = 1920 * scaleMult;
+      const maxTargetHeight = 1080 * scaleMult;
+      const maxDprByRes = Math.min(maxTargetWidth / Math.max(1, w), maxTargetHeight / Math.max(1, h));
+      return Math.max(0.42, Math.min(rawDpr, maxDprByRes, 1.4));
+    }
+
+    const camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 1, 1600);
+    const renderer = new THREE.WebGLRenderer({
+      antialias: (window.innerWidth * (window.devicePixelRatio || 1)) <= 2560,
+      alpha: true,
+      powerPreference: 'high-performance',
+      stencil: false,
+      depth: true
+    });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2.5));
+    renderer.setPixelRatio(getOptimalTVPixelRatio(1.0));
     renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.shadowMap.type = THREE.PCFShadowMap;
+    renderer.shadowMap.autoUpdate = false;
+    renderer.shadowMap.needsUpdate = true;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.06;
     container.appendChild(renderer.domElement);
 
-    const weatherRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
-    weatherRenderer.setSize(window.innerWidth, window.innerHeight);
-    weatherRenderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2.5));
-    if (weatherContainer) weatherContainer.appendChild(weatherRenderer.domElement);
+    // Lightweight no-op proxy renderers so legacy calls incur zero extra WebGL context overhead
+    const bgRenderer = { setSize() {}, setPixelRatio() {}, render() {}, domElement: renderer.domElement };
+    const weatherRenderer = { setSize() {}, setPixelRatio() {}, render() {}, domElement: renderer.domElement };
 
     const MAX_ANISOTROPY = (renderer.capabilities && typeof renderer.capabilities.getMaxAnisotropy === 'function')
       ? Math.min(16, renderer.capabilities.getMaxAnisotropy() || 8)
@@ -1376,33 +1548,128 @@
     }
 
     function getResponsiveCameraZoom() {
-      const w = window.innerWidth || 1920;
-      const h = window.innerHeight || 960;
-      const aspect = w / Math.max(1, h);
-      const diag = Math.hypot(w, h);
-      if (aspect < 0.85) {
-        // Portrait phones & tablets: further enlarged Dynamic Island
-        return Math.max(1.46, Math.min(1.78, 1.38 + (diag / 1500) * 0.26));
-      }
-      // Landscape tablets, laptops, desktops & large monitors: significantly enlarged Dynamic Island
-      return Math.max(1.58, Math.min(2.12, 1.40 + (w / 1920) * 0.34 + (h / 1080) * 0.18));
+      return 1.0;
     }
 
+    // Exact 8-Corner 3D Frustum Solver: guarantees that in Panorama (全景) mode, 100% of the Dynamic Island
+    // fits inside the unoccluded screen area (clear of Left HUD cards, Top work bubbles, and Bottom dock) on ANY monitor size!
     function getResponsivePanoramaCameraSpec() {
-      const aspect = window.innerWidth / Math.max(1, window.innerHeight);
-      // Further enlarged Dynamic Island & shifted upward to utilize more upper screen space (targetY lowered from 20.5 to 7.8)
-      const aspectScale = aspect < 1.0
-        ? Math.max(0.88, Math.min(1.16, (0.95 / Math.max(0.48, aspect)) * 0.56))
-        : Math.max(0.72, Math.min(1.02, 1.68 / Math.max(1.0, aspect)));
-      const radius = Math.round(122 * aspectScale);
-      const targetY = +(7.8 * Math.min(1.12, Math.max(0.82, aspect / 1.75))).toFixed(2);
+      const w = window.innerWidth || 1920;
+      const h = window.innerHeight || 1080;
+      const aspect = w / Math.max(1, h);
+      const zoom = getResponsiveCameraZoom();
+      const fovRad = (42.0 * Math.PI) / 180.0;
+      const f = zoom / Math.tan(fovRad * 0.5);
+      const phi = 1.26;
+      const theta = 0.0;
+
+      const leftHudEl = document.getElementById('top-left-hud-stack');
+      const leftRect = leftHudEl ? leftHudEl.getBoundingClientRect() : null;
+      const dockEl = document.getElementById('bottom-dock-wrapper') || document.getElementById('bottom-dock-card');
+      const dockRect = dockEl ? dockEl.getBoundingClientRect() : null;
+
+      const leftHudRight = (leftRect && leftRect.width > 0) ? leftRect.right : Math.min(w * 0.25, 380);
+      const leftHudBottom = (leftRect && leftRect.height > 0) ? leftRect.bottom : h * 0.34;
+      const bottomDockTop = (dockRect && dockRect.height > 0) ? dockRect.top : (h - 72);
+      const topOverlayBottom = Math.max(
+        14,
+        (state.showOperationPlanBoard && window._lastBulletinBottomY) ? window._lastBulletinBottomY : 0,
+        window._topAircraftBubblesBottomY || Math.round(h * 0.11)
+      );
+
+      let safeLeft, safeRight, safeTop, safeBottom;
+      if (w >= 720) {
+        safeLeft = Math.min(w * 0.42, leftHudRight + 16);
+        safeRight = w - 16;
+        safeTop = Math.min(h * 0.36, topOverlayBottom + 12);
+        safeBottom = Math.max(safeTop + 180, bottomDockTop - 14);
+      } else {
+        safeLeft = 10;
+        safeRight = w - 10;
+        safeTop = Math.min(h * 0.42, leftHudBottom + 10);
+        safeBottom = Math.max(safeTop + 160, bottomDockTop - 10);
+      }
+
+      const safeW = Math.max(180, safeRight - safeLeft);
+      const safeH = Math.max(150, safeBottom - safeTop);
+      const safeCx = (safeLeft + safeRight) * 0.5;
+      const safeCy = (safeTop + safeBottom) * 0.5;
+
+      // 8 extreme 3D boundary points of the entire Dynamic Island (including seawall foam, centered UPS Main Building roof sign, 22 bays & runway)
+      const islandBounds3D = [
+        [-123.0,  0.0, -77.0],
+        [ 123.0,  0.0, -77.0],
+        [-123.0,  0.0,  79.0],
+        [ 123.0,  0.0,  79.0],
+        [   0.0, 26.5, -58.5],
+        [ -68.0, 20.0, -58.5],
+        [-123.0,  4.0,  23.0],
+        [ 123.0,  4.0,  23.0]
+      ];
+
+      let tx = w >= 720 ? -38.0 : 0.0;
+      let ty = 3.0;
+      const tz = 2.0;
+      let radius = w >= 720 ? 315.0 : 560.0;
+
+      const sinP = Math.sin(phi), cosP = Math.cos(phi);
+      const sinT = Math.sin(theta), cosT = Math.cos(theta);
+      const fx = -sinP * sinT, fy = -cosP, fz = -sinP * cosT;
+      const rl = Math.hypot(fx, fz) || 1;
+      const rx = -fz / rl, ry = 0, rz = fx / rl;
+      const ux = ry * fz - rz * fy;
+      const uy = rz * fx - rx * fz;
+      const uz = rx * fy - ry * fx;
+
+      const projectBounds = (candTx, candTy, candR) => {
+        const cx = candTx + candR * sinP * sinT;
+        const cy = candTy + candR * cosP;
+        const cz = tz + candR * sinP * cosT;
+        let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+        for (let i = 0; i < islandBounds3D.length; i++) {
+          const p = islandBounds3D[i];
+          const dx = p[0] - cx, dy = p[1] - cy, dz = p[2] - cz;
+          const vx = dx * rx + dy * ry + dz * rz;
+          const vy = dx * ux + dy * uy + dz * uz;
+          const vz = -(dx * fx + dy * fy + dz * fz);
+          const depth = Math.max(1.0, -vz);
+          const ndcX = (vx / depth) * (f / aspect);
+          const ndcY = (vy / depth) * f;
+          const sx = (ndcX * 0.5 + 0.5) * w;
+          const sy = (-ndcY * 0.5 + 0.5) * h;
+          if (sx < minX) minX = sx;
+          if (sx > maxX) maxX = sx;
+          if (sy < minY) minY = sy;
+          if (sy > maxY) maxY = sy;
+        }
+        return { minX, maxX, minY, maxY };
+      };
+
+      for (let iter = 0; iter < 8; iter++) {
+        const b1 = projectBounds(tx, ty, radius);
+        const pw = Math.max(1, b1.maxX - b1.minX);
+        const ph = Math.max(1, b1.maxY - b1.minY);
+        const scaleNeed = Math.max(pw / (safeW * 0.94), ph / (safeH * 0.92));
+        radius = Math.max(140, Math.min(860, radius * scaleNeed));
+
+        const b2 = projectBounds(tx, ty, radius);
+        const curCx = (b2.minX + b2.maxX) * 0.5;
+        const curCy = (b2.minY + b2.maxY) * 0.5;
+        const errX = curCx - safeCx;
+        const errY = curCy - safeCy;
+        const worldPerPxX = (2.0 * radius * Math.tan(fovRad * 0.5) * aspect / zoom) / w;
+        const worldPerPxY = (2.0 * radius * Math.tan(fovRad * 0.5) / zoom) / h;
+        tx += errX * worldPerPxX * 0.95;
+        ty -= errY * worldPerPxY * 0.95;
+      }
+
       return {
-        targetX: 2.0,
-        targetY,
-        targetZ: 2.0,
-        radius,
-        phi: 0.99,
-        theta: -0.04
+        targetX: +tx.toFixed(2),
+        targetY: +ty.toFixed(2),
+        targetZ: tz,
+        radius: Math.round(radius),
+        phi,
+        theta
       };
     }
 
@@ -1427,7 +1694,7 @@
       camCtrl.target.lerp(camCtrl.desiredTarget, smoothFactor);
 
       const r = camCtrl.spherical.radius;
-      const phi = Math.max(0.18, Math.min(1.42, camCtrl.spherical.phi));
+      const phi = Math.max(0.18, Math.min(1.48, camCtrl.spherical.phi));
       const theta = camCtrl.spherical.theta;
 
       camera.position.x = camCtrl.target.x + r * Math.sin(phi) * Math.sin(theta);
@@ -1449,9 +1716,9 @@
     const dirLight = new THREE.DirectionalLight(0xfff6e5, 1.18);
     dirLight.position.set(45, 48, 20);
     dirLight.castShadow = true;
-    dirLight.shadow.mapSize.width = 2048;
-    dirLight.shadow.mapSize.height = 2048;
-    dirLight.shadow.bias = -0.0003;
+    dirLight.shadow.mapSize.width = 1024;
+    dirLight.shadow.mapSize.height = 1024;
+    dirLight.shadow.bias = -0.0004;
     dirLight.shadow.camera.near = 5;
     dirLight.shadow.camera.far = 230;
     const d = 105;
@@ -1461,18 +1728,12 @@
     dirLight.shadow.camera.bottom = -d;
     scene.add(dirLight);
 
-    // Dedicated Lights for Background Ocean/Shore Scene & Foreground Weather Scene
-    const bgAmbientLight = new THREE.AmbientLight(0xffffff, 0.88);
-    bgScene.add(bgAmbientLight);
-    const bgDirLight = new THREE.DirectionalLight(0xfff6e5, 1.18);
-    bgDirLight.position.set(45, 48, 20);
-    bgScene.add(bgDirLight);
-
-    const weatherAmbientLight = new THREE.AmbientLight(0xffffff, 0.88);
-    weatherScene.add(weatherAmbientLight);
-    const weatherDirLight = new THREE.DirectionalLight(0xfff6e5, 1.18);
-    weatherDirLight.position.set(45, 48, 20);
-    weatherScene.add(weatherDirLight);
+    // Proxy light references (since bgScene and weatherScene now share main scene's lights directly, avoiding 3x light shader evaluation!)
+    bgScene.remove(bgHemiLight);
+    const bgAmbientLight = { color: new THREE.Color(0xffffff), intensity: 0.88 };
+    const bgDirLight = { color: new THREE.Color(0xfff6e5), intensity: 1.18, position: new THREE.Vector3(45, 48, 20) };
+    const weatherAmbientLight = { color: new THREE.Color(0xffffff), intensity: 0.88 };
+    const weatherDirLight = { color: new THREE.Color(0xfff6e5), intensity: 1.18, position: new THREE.Vector3(45, 48, 20) };
 
     // Global Three.js AnimationMixer Registry (from threejs-animation skill)
     const globalAnimationMixers = [];
@@ -1488,19 +1749,19 @@
     // (A) Daytime 3D Sun Group with Radiant Corona & Keyframe-Rotated 8-Point Solar Ray Crown
     const sunGroup = new THREE.Group();
     const sunCoreMesh = new THREE.Mesh(
-      new THREE.SphereGeometry(3.8, 28, 28),
-      new THREE.MeshBasicMaterial({ color: 0xffdd44 })
+      new THREE.SphereGeometry(3.8, 20, 20),
+      new THREE.MeshBasicMaterial({ color: 0xffdd44, fog: false })
     );
     const sunHaloInner = new THREE.Mesh(
-      new THREE.SphereGeometry(5.2, 24, 24),
-      new THREE.MeshBasicMaterial({ color: 0xfde047, transparent: true, opacity: 0.30, depthWrite: false })
+      new THREE.SphereGeometry(5.2, 16, 16),
+      new THREE.MeshBasicMaterial({ color: 0xfde047, transparent: true, opacity: 0.30, depthWrite: false, fog: false })
     );
     const sunHaloOuter = new THREE.Mesh(
-      new THREE.SphereGeometry(7.4, 24, 24),
-      new THREE.MeshBasicMaterial({ color: 0xfef08a, transparent: true, opacity: 0.14, depthWrite: false })
+      new THREE.SphereGeometry(7.4, 16, 16),
+      new THREE.MeshBasicMaterial({ color: 0xfef08a, transparent: true, opacity: 0.14, depthWrite: false, fog: false })
     );
     const sunRayCrown = new THREE.Group();
-    const rayMat = new THREE.MeshBasicMaterial({ color: 0xfde047, transparent: true, opacity: 0.32, side: THREE.DoubleSide, depthWrite: false });
+    const rayMat = new THREE.MeshBasicMaterial({ color: 0xfde047, transparent: true, opacity: 0.32, side: THREE.DoubleSide, depthWrite: false, fog: false });
     for (let r = 0; r < 8; r++) {
       const rayCone = new THREE.Mesh(new THREE.ConeGeometry(1.05, 5.4, 6), rayMat);
       const ang = (r / 8) * Math.PI * 2;
@@ -1544,21 +1805,21 @@
     crescentGeo.center();
     const moonCrescentMesh = new THREE.Mesh(
       crescentGeo,
-      new THREE.MeshBasicMaterial({ color: 0xfef08a })
+      new THREE.MeshBasicMaterial({ color: 0xfef08a, fog: false })
     );
     moonCrescentMesh.rotation.z = 0.35;
 
     const moonHaloInner = new THREE.Mesh(
-      new THREE.SphereGeometry(5.4, 24, 24),
-      new THREE.MeshBasicMaterial({ color: 0xbae6fd, transparent: true, opacity: 0.22, depthWrite: false })
+      new THREE.SphereGeometry(5.4, 16, 16),
+      new THREE.MeshBasicMaterial({ color: 0xbae6fd, transparent: true, opacity: 0.22, depthWrite: false, fog: false })
     );
     const moonHaloOuter = new THREE.Mesh(
-      new THREE.SphereGeometry(7.8, 24, 24),
-      new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.11, depthWrite: false })
+      new THREE.SphereGeometry(7.8, 16, 16),
+      new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.11, depthWrite: false, fog: false })
     );
 
     const moonStarRing = new THREE.Group();
-    const moonStarMat = new THREE.MeshBasicMaterial({ color: 0xfef9c3 });
+    const moonStarMat = new THREE.MeshBasicMaterial({ color: 0xfef9c3, fog: false });
     for (let s = 0; s < 6; s++) {
       const sAng = (s / 6) * Math.PI * 2;
       const sDist = 6.2 + (s % 2) * 1.1;
@@ -1598,12 +1859,12 @@
       starPositions[i * 3 + 2] = r * Math.sin(phi) * Math.sin(theta);
     }
     starsGeo.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
-    const starsMat = new THREE.PointsMaterial({ color: 0xffffff, size: 1.1, transparent: true, opacity: 0 });
+    const starsMat = new THREE.PointsMaterial({ color: 0xffffff, size: 1.1, transparent: true, opacity: 0, fog: false });
     const starField = new THREE.Points(starsGeo, starsMat);
     weatherScene.add(starField);
 
-    // Ocean Surface
-    const oceanGeo = new THREE.PlaneGeometry(460, 460, 36, 36);
+    // Ocean Surface (optimized 24x24 grid for 75-inch 4K TV smooth wave updates)
+    const oceanGeo = new THREE.PlaneGeometry(460, 460, 24, 24);
     oceanGeo.rotateX(-Math.PI / 2);
     const oceanMat = new THREE.MeshStandardMaterial({
       color: 0x7ac7d2,
@@ -2329,180 +2590,151 @@
       return fkGroup;
     }
 
-    // Build the Right-Side Enlarged 3D ULD Container & Cargo Pallet Automated Handling Zone on the Upper Island
+    // Build the Right-Side Compact 3D ULD Container & Cargo Pallet Automated Handling Zone (proportionally smaller than the Center UPS Main Building!)
     function buildRightSideUldAndPalletZone(deckSurface, upperCenterZ) {
       const zoneGroup = new THREE.Group();
-      // Located on the right side of the Office Tower on the Upper Island (x = +21.5 to +108.5, z = upperCenterZ - 14.5 to upperCenterZ + 14.5)
+      // Located to the right of the Center UPS Main Building (x = +52.0 to +105.0, width 53.0 vs Main Building width 92.0!)
       deckSurface.add(zoneGroup);
 
       const zonePadMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.62 });
-      const zonePad = new THREE.Mesh(new THREE.BoxGeometry(86.0, 0.10, 29.5), zonePadMat);
-      zonePad.position.set(64.5, 0.05, upperCenterZ);
+      const zonePad = new THREE.Mesh(new THREE.BoxGeometry(53.0, 0.10, 23.5), zonePadMat);
+      zonePad.position.set(78.5, 0.05, upperCenterZ);
       zonePad.receiveShadow = true;
       zoneGroup.add(zonePad);
 
-      // High-visibility yellow safety perimeter markings around the ULD & Pallet Yard
+      // High-visibility yellow safety perimeter markings around the compact ULD & Pallet Yard
       const yellowLineMat = new THREE.MeshBasicMaterial({ color: 0xfacc15 });
-      const topLine = new THREE.Mesh(new THREE.BoxGeometry(86.0, 0.12, 0.35), yellowLineMat);
-      topLine.position.set(64.5, 0.07, upperCenterZ - 14.6);
+      const topLine = new THREE.Mesh(new THREE.BoxGeometry(53.0, 0.12, 0.32), yellowLineMat);
+      topLine.position.set(78.5, 0.07, upperCenterZ - 11.6);
       const botLine = topLine.clone();
-      botLine.position.set(64.5, 0.07, upperCenterZ + 14.6);
+      botLine.position.set(78.5, 0.07, upperCenterZ + 11.6);
       zoneGroup.add(topLine, botLine);
 
-      // 1. 3D Overhead Gantry Signboard for ULD Control
-      const signTex = createUldLabelSignTexture(
-        'ULD Control',
-        'AAD · AAY · ALP · AMD · AMJ · AMP · PAG · PMC · NET & STRAPS'
-      );
-      const signBoard = new THREE.Mesh(
-        new THREE.PlaneGeometry(28.0, 5.2),
-        new THREE.MeshBasicMaterial({ map: signTex, side: THREE.DoubleSide })
-      );
-      signBoard.position.set(64.5, 10.6, upperCenterZ - 12.2);
-      const signBack = new THREE.Mesh(
-        new THREE.BoxGeometry(28.6, 5.6, 0.45),
-        new THREE.MeshStandardMaterial({ color: 0x22130c, roughness: 0.4 })
-      );
-      signBack.position.set(64.5, 10.6, upperCenterZ - 12.48);
-      zoneGroup.add(signBack, signBoard);
-
-      [52.0, 77.0].forEach(px => {
-        const pillar = new THREE.Mesh(
-          new THREE.CylinderGeometry(0.32, 0.38, 10.5, 10),
-          new THREE.MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.35 })
-        );
-        pillar.position.set(px, 5.25, upperCenterZ - 12.45);
-        zoneGroup.add(pillar);
-      });
-
-      // 2. Left Section of Yard (x = 24.5..63.5): 2-Tier High-Bay 3D ULD Air Cargo Container Racks (放置 3D 航空貨櫃 AAD / AMJ / AMP)
+      // 2. Left Section of Yard (x = 54.0..77.0): Compact 2-Tier 3D ULD Air Cargo Container Racks (AAD / AMJ / AMP)
       const rackSteelMat = new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.38, metalness: 0.35 });
       const deckSlateMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.5 });
-      const uldCodes = ['AAD', 'AMJ', 'AMP', 'AAY', 'AMD', 'ALP', 'AMJ', 'AMP', 'AAD', 'AMJ', 'AMP', 'AMD'];
-      const rackZ = upperCenterZ - 8.2;
+      const uldCodes = ['AAD', 'AMJ', 'AMP', 'AAY', 'AMD', 'ALP', 'AMJ', 'AMP'];
+      const rackZ = upperCenterZ - 6.8;
 
-      // Multi-bay steel rack frame (6 bays wide x 2 tiers high)
-      const rackShelf1 = new THREE.Mesh(new THREE.BoxGeometry(39.5, 0.24, 3.6), deckSlateMat);
-      rackShelf1.position.set(44.0, 0.22, rackZ);
-      const rackShelf2 = new THREE.Mesh(new THREE.BoxGeometry(39.5, 0.24, 3.6), deckSlateMat);
-      rackShelf2.position.set(44.0, 3.35, rackZ);
-      const rackRoof = new THREE.Mesh(new THREE.BoxGeometry(40.2, 0.28, 4.0), rackSteelMat);
-      rackRoof.position.set(44.0, 6.45, rackZ);
+      // Multi-bay steel rack frame (4 bays wide x 2 tiers high, compact height 5.0m so UPS Main Building dominates!)
+      const rackShelf1 = new THREE.Mesh(new THREE.BoxGeometry(22.4, 0.20, 2.9), deckSlateMat);
+      rackShelf1.position.set(65.2, 0.20, rackZ);
+      const rackShelf2 = new THREE.Mesh(new THREE.BoxGeometry(22.4, 0.20, 2.9), deckSlateMat);
+      rackShelf2.position.set(65.2, 2.65, rackZ);
+      const rackRoof = new THREE.Mesh(new THREE.BoxGeometry(23.0, 0.22, 3.2), rackSteelMat);
+      rackRoof.position.set(65.2, 5.05, rackZ);
       zoneGroup.add(rackShelf1, rackShelf2, rackRoof);
 
-      for (let col = 0; col <= 6; col++) {
-        const rx = 24.8 + col * 6.4;
-        [-1.65, 1.65].forEach(rzOff => {
-          const post = new THREE.Mesh(new THREE.BoxGeometry(0.28, 6.5, 0.28), rackSteelMat);
-          post.position.set(rx, 3.25, rackZ + rzOff);
+      for (let col = 0; col <= 4; col++) {
+        const rx = 54.0 + col * 5.6;
+        [-1.35, 1.35].forEach(rzOff => {
+          const post = new THREE.Mesh(new THREE.BoxGeometry(0.24, 5.1, 0.24), rackSteelMat);
+          post.position.set(rx, 2.55, rackZ + rzOff);
           zoneGroup.add(post);
         });
-        if (col < 6) {
-          const cx = rx + 3.2;
-          // Tier 1 ULD Container
-          const uld1 = create3DUldAirContainer(uldCodes[col * 2], 1.12, col % 2 === 0 ? 0xe2e8f0 : 0xfef3c7);
-          uld1.position.set(cx, 0.34, rackZ);
+        if (col < 4) {
+          const cx = rx + 2.8;
+          const uld1 = create3DUldAirContainer(uldCodes[col * 2], 0.88, col % 2 === 0 ? 0xe2e8f0 : 0xfef3c7);
+          uld1.position.set(cx, 0.30, rackZ);
           zoneGroup.add(uld1);
-          // Tier 2 ULD Container
-          const uld2 = create3DUldAirContainer(uldCodes[col * 2 + 1], 1.12, col % 2 === 1 ? 0xe2e8f0 : 0xf8fafc);
-          uld2.position.set(cx, 3.48, rackZ);
+          const uld2 = create3DUldAirContainer(uldCodes[col * 2 + 1], 0.88, col % 2 === 1 ? 0xe2e8f0 : 0xf8fafc);
+          uld2.position.set(cx, 2.75, rackZ);
           zoneGroup.add(uld2);
         }
       }
 
-      // 3. Right Section of Yard (x = 67.5..104.5): 3D Cargo Pallet & Net/Strap Staging Deck (放置 3D 貨板 PAG / PMC / FCC / Net & Straps)
-      const palletCodes = ['PMC', 'PAG', 'PMC', 'PAG', 'PMC', 'PAG', 'FCC 96', 'FCC 118'];
-      for (let pIdx = 0; pIdx < 8; pIdx++) {
-        const row = Math.floor(pIdx / 4);
-        const col = pIdx % 4;
-        const px = 71.0 + col * 8.6;
-        const pz = (upperCenterZ - 9.2) + row * 5.2;
+      // 3. Right Section of Yard (x = 80.5..101.5): Compact 3D Cargo Pallet & Net/Strap Staging Deck (PAG / PMC / FCC)
+      const palletCodes = ['PMC', 'PAG', 'PMC', 'PAG', 'FCC 96', 'FCC 118'];
+      for (let pIdx = 0; pIdx < 6; pIdx++) {
+        const row = Math.floor(pIdx / 3);
+        const col = pIdx % 3;
+        const px = 82.0 + col * 6.8;
+        const pz = (upperCenterZ - 7.4) + row * 4.2;
 
-        // Elevated ball-transfer roller bed under each pallet
-        const rollerBed = new THREE.Mesh(new THREE.BoxGeometry(4.2, 0.26, 3.4), deckSlateMat);
-        rollerBed.position.set(px, 0.14, pz);
+        const rollerBed = new THREE.Mesh(new THREE.BoxGeometry(3.4, 0.22, 2.8), deckSlateMat);
+        rollerBed.position.set(px, 0.12, pz);
         zoneGroup.add(rollerBed);
 
-        const palMesh = create3DCargoPalletWithNet(palletCodes[pIdx], 1.18, true);
-        palMesh.position.set(px, 0.28, pz);
+        const palMesh = create3DCargoPalletWithNet(palletCodes[pIdx], 0.92, true);
+        palMesh.position.set(px, 0.24, pz);
         zoneGroup.add(palMesh);
       }
 
-      // Stack of empty aluminum pallets with golden tie-down straps on far right corner (x = 104.5)
-      for (let s = 0; s < 6; s++) {
-        const emptyPal = create3DCargoPalletWithNet('PMC', 1.12, false);
-        emptyPal.position.set(104.2, 0.20 + s * 0.24, upperCenterZ - 6.5);
+      // Stack of empty aluminum pallets on far right corner (x = 102.5)
+      for (let s = 0; s < 5; s++) {
+        const emptyPal = create3DCargoPalletWithNet('PMC', 0.88, false);
+        emptyPal.position.set(102.2, 0.18 + s * 0.20, upperCenterZ - 5.2);
         zoneGroup.add(emptyPal);
       }
 
-      // 4. ANIMATION A: 36-Meter Motorized Roller Conveyor Deck (3D 自動滾筒輸送帶，持續運送貨櫃與貨板)
-      const convZ = upperCenterZ + 0.6;
+      // 4. ANIMATION A: Motorized Roller Conveyor Deck (x = 54.5..102.5)
+      const convZ = upperCenterZ + 0.4;
       const convBed = new THREE.Mesh(
-        new THREE.BoxGeometry(74.0, 0.42, 3.4),
+        new THREE.BoxGeometry(47.0, 0.36, 2.8),
         new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.45, roughness: 0.4 })
       );
-      convBed.position.set(59.0, 0.22, convZ);
+      convBed.position.set(78.5, 0.20, convZ);
       zoneGroup.add(convBed);
 
       const railMat = new THREE.MeshStandardMaterial({ color: 0xfbbf24, roughness: 0.3 });
-      [-1.65, 1.65].forEach(rz => {
-        const sideRail = new THREE.Mesh(new THREE.BoxGeometry(74.2, 0.52, 0.18), railMat);
-        sideRail.position.set(59.0, 0.32, convZ + rz);
+      [-1.35, 1.35].forEach(rz => {
+        const sideRail = new THREE.Mesh(new THREE.BoxGeometry(47.2, 0.44, 0.16), railMat);
+        sideRail.position.set(78.5, 0.28, convZ + rz);
         zoneGroup.add(sideRail);
       });
 
       animatedUldYardItems.conveyorCrates.length = 0;
-      const convTypes = ['AMJ', 'PMC', 'AMP', 'PAG', 'AAD', 'PMC'];
-      for (let i = 0; i < 6; i++) {
+      const convTypes = ['AMJ', 'PMC', 'AMP', 'PAG', 'AAD'];
+      for (let i = 0; i < 5; i++) {
         const cType = convTypes[i];
         const isPal = cType === 'PMC' || cType === 'PAG';
         const itemMesh = isPal
-          ? create3DCargoPalletWithNet(cType, 0.92, true)
-          : create3DUldAirContainer(cType, 0.88, i % 2 === 0 ? 0xe2e8f0 : 0xfef3c7);
-        const startX = 24.0 + i * 11.5;
-        itemMesh.position.set(startX, 0.44, convZ);
+          ? create3DCargoPalletWithNet(cType, 0.78, true)
+          : create3DUldAirContainer(cType, 0.74, i % 2 === 0 ? 0xe2e8f0 : 0xfef3c7);
+        const startX = 56.0 + i * 9.0;
+        itemMesh.position.set(startX, 0.38, convZ);
         zoneGroup.add(itemMesh);
         animatedUldYardItems.conveyorCrates.push({
           mesh: itemMesh,
-          baseOffset: i / 6,
-          xMin: 24.0,
-          xMax: 93.0,
+          baseOffset: i / 5,
+          xMin: 56.0,
+          xMax: 100.0,
           z: convZ
         });
       }
 
-      // 5. ANIMATION B: Rail-Guided Automated Transfer Vehicle (ETV / 3D 軌道式升降貨櫃/貨板轉運車)
-      const etvZ = upperCenterZ + 5.8;
-      [-1.5, 1.5].forEach(rz => {
+      // 5. ANIMATION B: Rail-Guided Automated Transfer Vehicle (ETV Shuttle at x = 56..100)
+      const etvZ = upperCenterZ + 4.8;
+      [-1.25, 1.25].forEach(rz => {
         const trackRail = new THREE.Mesh(
-          new THREE.BoxGeometry(76.0, 0.16, 0.28),
+          new THREE.BoxGeometry(47.0, 0.14, 0.24),
           new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.5, roughness: 0.3 })
         );
-        trackRail.position.set(60.0, 0.12, etvZ + rz);
+        trackRail.position.set(78.5, 0.10, etvZ + rz);
         zoneGroup.add(trackRail);
       });
 
       const etvGroup = new THREE.Group();
-      etvGroup.position.set(45.0, 0.18, etvZ);
+      etvGroup.position.set(78.5, 0.16, etvZ);
       const etvBase = new THREE.Mesh(
-        new THREE.BoxGeometry(8.6, 0.55, 3.6),
+        new THREE.BoxGeometry(7.2, 0.48, 3.0),
         new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.35 })
       );
-      etvBase.position.y = 0.28;
+      etvBase.position.y = 0.24;
       etvGroup.add(etvBase);
 
       const etvLiftPlatform = new THREE.Group();
-      etvLiftPlatform.position.y = 0.62;
+      etvLiftPlatform.position.y = 0.54;
       const liftDeck = new THREE.Mesh(
-        new THREE.BoxGeometry(8.2, 0.22, 3.3),
+        new THREE.BoxGeometry(6.8, 0.20, 2.8),
         new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.4, roughness: 0.4 })
       );
       etvLiftPlatform.add(liftDeck);
 
-      const etvUld = create3DUldAirContainer('AMJ', 0.98, 0xe2e8f0);
-      etvUld.position.set(-2.0, 0.14, 0);
-      const etvPallet = create3DCargoPalletWithNet('PMC', 0.98, true);
-      etvPallet.position.set(2.1, 0.14, 0);
+      const etvUld = create3DUldAirContainer('AMJ', 0.80, 0xe2e8f0);
+      etvUld.position.set(-1.6, 0.12, 0);
+      const etvPallet = create3DCargoPalletWithNet('PMC', 0.80, true);
+      etvPallet.position.set(1.7, 0.12, 0);
       etvLiftPlatform.add(etvUld, etvPallet);
       etvGroup.add(etvLiftPlatform);
       zoneGroup.add(etvGroup);
@@ -2510,11 +2742,11 @@
       animatedUldYardItems.etvShuttle = etvGroup;
       animatedUldYardItems.etvLiftPlatform = etvLiftPlatform;
 
-      // 6. ANIMATION C: Dual 3D Heavy Cargo Forklifts lifting & shuttling ULD Containers & Pallets
+      // 6. ANIMATION C: Dual 3D Cargo Forklifts shuttling within the compact right-side ULD zone
       animatedUldYardItems.forklifts.length = 0;
       const fkConfigs = [
-        { x: 38.0, z: upperCenterZ + 10.6, type: 'AMP', minX: 28.0, maxX: 56.0, phase: 0.0 },
-        { x: 82.0, z: upperCenterZ + 10.6, type: 'PAG', minX: 68.0, maxX: 98.0, phase: 2.2 }
+        { x: 64.0, z: upperCenterZ + 8.8, type: 'AMP', minX: 56.0, maxX: 75.0, phase: 0.0 },
+        { x: 90.0, z: upperCenterZ + 8.8, type: 'PAG', minX: 80.0, maxX: 100.0, phase: 2.2 }
       ];
       fkConfigs.forEach(cfg => {
         const fk = create3DCargoForklift(cfg.type);
@@ -2677,11 +2909,12 @@
         roughness: 0.3
       });
 
-      const hubW = 68.0;
-      const hubH = 8.4;
-      const hubD = 17.6;
-      const hubX = -46.0;
-      const hubZ = -59.5;
+      // UPS HKG Gateway Main Flagship Hub Building placed at DEAD CENTER (x = 0.0) and scaled up (92m wide x 12.6m tall x 21m deep) as the Main Building of the Dynamic Island!
+      const hubW = 92.0;
+      const hubH = 12.6;
+      const hubD = 21.0;
+      const hubX = 0.0;
+      const hubZ = -58.5;
 
       const mainHubBox = new THREE.Mesh(new THREE.BoxGeometry(hubW, hubH, hubD), upsDarkBrownMat);
       mainHubBox.position.set(hubX, hubH / 2, hubZ);
@@ -2691,22 +2924,31 @@
       clickableMeshes.push(mainHubBox);
       deckSurface.add(mainHubBox);
 
+      // Architectural Second-Tier Penthouse Crown at the center of the Main UPS Building
+      const upperPenthouse = new THREE.Mesh(new THREE.BoxGeometry(44.0, 2.4, 14.5), upsDarkBrownMat);
+      upperPenthouse.position.set(hubX, hubH + 1.2, hubZ + 0.8);
+      upperPenthouse.castShadow = true;
+      deckSurface.add(upperPenthouse);
+      const penthouseTrim = new THREE.Mesh(new THREE.BoxGeometry(44.8, 0.38, 15.1), upsGoldTrimMat);
+      penthouseTrim.position.set(hubX, hubH + 2.45, hubZ + 0.8);
+      deckSurface.add(penthouseTrim);
+
       // Golden-Amber Roof Trim Frame around the top of the enlarged brown sorting hub
-      const roofTrim = new THREE.Mesh(new THREE.BoxGeometry(hubW + 0.8, 0.50, hubD + 0.8), upsGoldTrimMat);
-      roofTrim.position.set(hubX, hubH + 0.12, hubZ);
+      const roofTrim = new THREE.Mesh(new THREE.BoxGeometry(hubW + 1.0, 0.60, hubD + 1.0), upsGoldTrimMat);
+      roofTrim.position.set(hubX, hubH + 0.15, hubZ);
       deckSurface.add(roofTrim);
 
-      // 5 Enlarged Glowing Cyan/Mint Rectangular Skylight Panels on the Roof
+      // 7 Enlarged Glowing Cyan/Mint Rectangular Skylight Panels across the 92m Main Roof
       const skylightMat = new THREE.MeshStandardMaterial({
         color: 0x99f6e4,
         emissive: 0x2dd4bf,
         emissiveIntensity: 0.85,
         roughness: 0.2
       });
-      for (let sIdx = 0; sIdx < 5; sIdx++) {
-        const sx = hubX - 24.0 + sIdx * 12.0;
-        const skylight = new THREE.Mesh(new THREE.BoxGeometry(8.5, 0.22, 10.4), skylightMat);
-        skylight.position.set(sx, hubH + 0.30, hubZ);
+      for (let sIdx = 0; sIdx < 7; sIdx++) {
+        const sx = hubX - 36.0 + sIdx * 12.0;
+        const skylight = new THREE.Mesh(new THREE.BoxGeometry(9.2, 0.26, 12.4), skylightMat);
+        skylight.position.set(sx, hubH + 0.32, hubZ - 1.2);
         deckSurface.add(skylight);
       }
 
@@ -2766,43 +3008,45 @@
         side: THREE.DoubleSide
       });
 
-      // (a) Enlarged Standing Rooftop 3D UPS Logo Billboard Sign
+      // (a) Monumental Standing Rooftop 3D UPS Logo Billboard Sign at Dead Center (x = 0.0)
       const roofSignBacking = new THREE.Mesh(
-        new THREE.BoxGeometry(9.0, 9.8, 0.65),
+        new THREE.BoxGeometry(11.8, 12.8, 0.80),
         new THREE.MeshStandardMaterial({ color: 0x22130c, roughness: 0.4 })
       );
-      roofSignBacking.position.set(hubX, hubH + 4.9, hubZ + hubD / 2 - 0.5);
+      roofSignBacking.position.set(hubX, hubH + 8.6, hubZ + hubD / 2 - 1.2);
       deckSurface.add(roofSignBacking);
 
-      const roofLogoPlane = new THREE.Mesh(new THREE.PlaneGeometry(8.2, 9.0), logoSignMat);
-      roofLogoPlane.position.set(hubX, hubH + 4.9, hubZ + hubD / 2 - 0.14);
+      const roofLogoPlane = new THREE.Mesh(new THREE.PlaneGeometry(10.8, 11.8), logoSignMat);
+      roofLogoPlane.position.set(hubX, hubH + 8.6, hubZ + hubD / 2 - 0.74);
       deckSurface.add(roofLogoPlane);
 
-      // (b) Enlarged Left & Right Facade 3D UPS Logo Shields
-      [-29.8, 29.8].forEach(lxOffset => {
-        const wallLogoPlane = new THREE.Mesh(new THREE.PlaneGeometry(5.2, 6.0), logoSignMat);
-        wallLogoPlane.position.set(hubX + lxOffset, 4.8, hubZ + hubD / 2 + 0.18);
+      // (b) Enlarged Left & Right Facade 3D UPS Logo Shields on the 92m Main Building
+      [-39.8, 39.8].forEach(lxOffset => {
+        const wallLogoPlane = new THREE.Mesh(new THREE.PlaneGeometry(6.6, 7.6), logoSignMat);
+        wallLogoPlane.position.set(hubX + lxOffset, 7.2, hubZ + hubD / 2 + 0.20);
         deckSurface.add(wallLogoPlane);
       });
 
-      // 7 Enlarged Warm Glowing Yellow Upper Windows + 7 Colorful Protruding Sorting Dock Bays
+      // 9 Enlarged Warm Glowing Yellow Upper Windows (2 rows) + 9 Colorful Protruding Sorting Dock Bays across the 92m Main Facade
       const yellowWinMat = new THREE.MeshStandardMaterial({
         color: 0xfef08a,
         emissive: 0xfacc15,
         emissiveIntensity: 0.95,
         roughness: 0.2
       });
-      const dockBayColors = [0x60a5fa, 0xd6bc8b, 0x818cf8, 0x4fd1c5, 0xa3e635, 0xc084fc, 0x38bdf8];
-      for (let bIdx = 0; bIdx < 7; bIdx++) {
-        const bx = hubX - 27.0 + bIdx * 9.0;
+      const dockBayColors = [0x60a5fa, 0xd6bc8b, 0x818cf8, 0x4fd1c5, 0xa3e635, 0xc084fc, 0x38bdf8, 0xf59e0b, 0x34d399];
+      for (let bIdx = 0; bIdx < 9; bIdx++) {
+        const bx = hubX - 36.0 + bIdx * 9.0;
 
-        const uWin = new THREE.Mesh(new THREE.BoxGeometry(6.2, 1.75, 0.26), yellowWinMat);
-        uWin.position.set(bx, 5.5, hubZ + hubD / 2 + 0.08);
-        deckSurface.add(uWin);
+        const uWinTop = new THREE.Mesh(new THREE.BoxGeometry(6.4, 1.85, 0.26), yellowWinMat);
+        uWinTop.position.set(bx, 9.2, hubZ + hubD / 2 + 0.08);
+        const uWinMid = new THREE.Mesh(new THREE.BoxGeometry(6.4, 1.85, 0.26), yellowWinMat);
+        uWinMid.position.set(bx, 5.8, hubZ + hubD / 2 + 0.08);
+        deckSurface.add(uWinTop, uWinMid);
 
-        const bayMat = new THREE.MeshStandardMaterial({ color: dockBayColors[bIdx], roughness: 0.38 });
-        const bayBox = new THREE.Mesh(new THREE.BoxGeometry(6.2, 2.1, 4.0), bayMat);
-        bayBox.position.set(bx, 1.05, hubZ + hubD / 2 + 2.0);
+        const bayMat = new THREE.MeshStandardMaterial({ color: dockBayColors[bIdx % dockBayColors.length], roughness: 0.38 });
+        const bayBox = new THREE.Mesh(new THREE.BoxGeometry(6.5, 2.5, 4.2), bayMat);
+        bayBox.position.set(bx, 1.25, hubZ + hubD / 2 + 2.1);
         bayBox.castShadow = true;
         deckSurface.add(bayBox);
 
@@ -2852,10 +3096,10 @@
       // 4. ENLARGED 4-Story Grey-Blue Office Building & ATC Radar Tower next to UPS Hub on the Upper Island
       const officeWallMat = new THREE.MeshStandardMaterial({ color: 0x3b5266, roughness: 0.5 });
       const officeRoofMat = new THREE.MeshStandardMaterial({ color: 0x64748b, roughness: 0.5 });
-      const officeW = 17.2;
-      const officeH = 12.8;
-      const officeD = 14.8;
-      const officeX = 2.5;
+      const officeW = 18.0;
+      const officeH = 15.2;
+      const officeD = 16.5;
+      const officeX = -58.5;
       const officeZ = -58.5;
 
       const officeTower = new THREE.Mesh(new THREE.BoxGeometry(officeW, officeH, officeD), officeWallMat);
@@ -2885,14 +3129,14 @@
         }
       }
 
-      // Elevated Glass Curtain-Wall Skybridge connecting Enlarged UPS Sorting Hub to Office Tower
+      // Elevated Glass Curtain-Wall Skybridge connecting Centered UPS Main Hub (x=-46) to West Office Control Wing (x=-49.5)
       const skybridgeGlass = new THREE.Mesh(
-        new THREE.BoxGeometry(6.2, 2.6, 3.8),
+        new THREE.BoxGeometry(5.5, 2.8, 4.2),
         new THREE.MeshStandardMaterial({ color: 0x38bdf8, emissive: 0x0284c7, emissiveIntensity: 0.45, transparent: true, opacity: 0.82, roughness: 0.15 })
       );
-      skybridgeGlass.position.set(-9.0, 6.0, -58.8);
-      const skybridgeRoof = new THREE.Mesh(new THREE.BoxGeometry(6.4, 0.28, 4.1), upsGoldTrimMat);
-      skybridgeRoof.position.set(-9.0, 7.42, -58.8);
+      skybridgeGlass.position.set(-47.8, 7.8, -58.5);
+      const skybridgeRoof = new THREE.Mesh(new THREE.BoxGeometry(5.8, 0.30, 4.5), upsGoldTrimMat);
+      skybridgeRoof.position.set(-47.8, 9.35, -58.5);
       deckSurface.add(skybridgeGlass, skybridgeRoof);
 
       // 360-Degree Air Traffic Control (ATC) Observation Cab & Rotating Doppler Weather Radar on Enlarged Office Tower Roof
@@ -3036,10 +3280,11 @@
       upsBeaconLight.position.set(hubX, 14.5, hubZ);
       group.add(upsBeaconLight);
 
-      // Stylized trees framing the Upper Island
+      // Stylized trees framing the Centered Main Building & West Apron
       addStylizedTree(deckSurface, -88.0, -58.0, 1.25, 'round');
       addStylizedTree(deckSurface, -96.0, -48.0, 1.20, 'round');
-      addStylizedTree(deckSurface, 15.5,  -66.0, 1.15, 'round');
+      addStylizedTree(deckSurface, -74.0, -64.0, 1.20, 'round');
+      addStylizedTree(deckSurface,  48.5, -66.0, 1.15, 'round');
 
       // Build 2 Free-Roaming 3D Airport Tractors each pulling 3 Cargo Containers
       buildRoamingTractorTrains(deckSurface);
@@ -3180,9 +3425,9 @@
       }
 
       const pumpkinPlacements = [
-        [-82.5, -48.5, 1.75, 0.35], [-86.2, -47.2, 1.25, 0.15], [-79.2, -46.8, 1.15, 0.45],
-        [-92.5, -52.5, 1.45, 0.25], [-10.8, -46.8, 1.10, 0.10], [14.5,  -47.2, 1.15, -0.25],
-        [18.8,  -47.5, 0.95, -0.15], [102.5, -48.0, 1.75, -0.35], [106.0, -52.5, 1.45, -0.20],
+        [-82.5, -48.5, 1.75, 0.35], [-86.2, -47.2, 1.25, 0.15], [-74.2, -46.8, 1.15, 0.45],
+        [-92.5, -52.5, 1.45, 0.25], [-48.2, -46.5, 1.10, 0.10], [48.2,  -46.8, 1.15, -0.25],
+        [50.8,  -47.5, 0.95, -0.15], [106.5, -48.0, 1.75, -0.35], [109.0, -52.5, 1.45, -0.20],
         [-108.5, 68.5, 2.25, 0.45], [-103.8, 70.2, 1.35, 0.20], [-111.2, 64.5, 1.20, 0.65],
         [108.5,  68.0, 2.15, -0.45], [103.8, 70.5, 1.35, -0.25], [111.5, 64.0, 1.25, -0.55]
       ];
@@ -3235,11 +3480,11 @@
       }
 
       [
-        { x: -74.0, y: 2.8, z: -45.5, scale: 1.45, phase: 0.0 },
-        { x: -46.0, y: 2.6, z: -45.0, scale: 1.50, phase: 1.4 },
-        { x: -16.5, y: 2.7, z: -45.0, scale: 1.45, phase: 2.8 },
-        { x: 14.0,  y: 2.6, z: -45.5, scale: 1.40, phase: 4.1 },
-        { x: 58.0,  y: 2.8, z: -45.5, scale: 1.50, phase: 5.2 }
+        { x: -74.0, y: 2.8, z: -44.2, scale: 1.45, phase: 0.0 },
+        { x: -32.0, y: 2.8, z: -42.5, scale: 1.50, phase: 1.4 },
+        { x:   0.0, y: 2.9, z: -42.5, scale: 1.45, phase: 2.8 },
+        { x:  32.0, y: 2.8, z: -42.5, scale: 1.40, phase: 4.1 },
+        { x:  74.0, y: 2.8, z: -44.2, scale: 1.50, phase: 5.2 }
       ].forEach(gc => {
         const gMesh = createChibiGhost(gc.scale);
         gMesh.position.set(gc.x, gc.y, gc.z);
@@ -3350,8 +3595,8 @@
       }
 
       [
-        [-83.5, -48.5, 1.45], [-10.5, -48.5, 1.45], [16.5, -48.5, 1.35],
-        [-108.0, 68.5, 1.75], [108.5, 68.5, 1.75],  [-98.0, -64.0, 1.5], [105.0, -64.0, 1.5]
+        [-83.5, -48.5, 1.45], [-72.0, -48.5, 1.40], [49.0, -48.5, 1.35],
+        [-108.0, 68.5, 1.75], [108.5, 68.5, 1.75],  [-98.0, -64.0, 1.5], [108.0, -64.0, 1.5]
       ].forEach(([tx, tz, sc]) => spawnChristmasTree(tx, tz, sc));
 
       // Cute 3D Snowmen wearing Red Scarves & Top Hats
@@ -3382,15 +3627,15 @@
         xmasGroup.add(sGrp);
       }
       [
-        [-88.5, -47.0, 1.15, 0.25], [20.5, -47.5, 1.15, -0.25],
+        [-88.5, -47.0, 1.15, 0.25], [51.0, -46.5, 1.15, -0.25],
         [-102.0, 69.5, 1.25, 0.35], [102.0, 69.5, 1.25, -0.35]
       ].forEach(([sx, sz, sc, ry]) => spawnSnowman(sx, sz, sc, ry));
 
       // 3D Wrapped Christmas Gift Boxes & Festive Candy Canes along the hub
       const giftCols = [0xdc2626, 0x16a34a, 0x2563eb, 0x9333ea];
       [
-        [-80.5, -46.8, 1.2, 0], [-85.2, -46.5, 1.0, 1], [-8.2, -46.8, 1.15, 2],
-        [14.5, -46.8, 1.0, 3], [-105.5, 66.5, 1.35, 0], [105.0, 66.5, 1.35, 1]
+        [-80.5, -46.8, 1.2, 0], [-85.2, -46.5, 1.0, 1], [-48.2, -46.5, 1.15, 2],
+        [48.2, -46.5, 1.0, 3], [-105.5, 66.5, 1.35, 0], [105.0, 66.5, 1.35, 1]
       ].forEach(([gx, gz, gsc, ci]) => {
         const gBox = new THREE.Group();
         const cube = new THREE.Mesh(
@@ -3455,7 +3700,7 @@
       addRoofStringLights(nyGroup, hubX, hubW, hubH, hubD, hubZ, [0xfde047, 0x38bdf8, 0xf43f5e]);
 
       // Giant Glowing "HAPPY NEW YEAR" 3D Rooftop Marquee Neon Sign (Positioned on Left Roof Wing so it NEVER overlaps the central UPS Logo!)
-      const nySignCenterX = hubX - 15.0; // x = -4.5 (spans -12.7 to +3.7, completely clear of central UPS Logo at x = 6.9..14.1)
+      const nySignCenterX = hubX - 24.0; // Left roof wing of centered Main Building, completely clear of central UPS Logo at x = 0
       const nySignCenterY = hubH + 3.85;
       const nySignCenterZ = hubZ + hubD / 2 - 0.5;
 
@@ -3639,7 +3884,7 @@
       nySignPlane.position.set(nySignCenterX, nySignCenterY, nySignCenterZ);
       nyGroup.add(nySignPlane);
 
-      [hubX + 10.5, hubX + 21.5].forEach(starWorldX => {
+      [hubX + 18.0, hubX + 30.0].forEach(starWorldX => {
         const bigStar = new THREE.Mesh(new THREE.OctahedronGeometry(2.5, 0), starGoldMat);
         bigStar.position.set(starWorldX, hubH + 3.2, nySignCenterZ);
         nyGroup.add(bigStar);
@@ -3725,7 +3970,7 @@
         pGrp.scale.set(scale, scale, scale);
         cnyGroup.add(pGrp);
       }
-      [[-84.5, -48.5, 1.45], [16.5, -48.5, 1.45], [-108.0, 68.0, 1.65], [108.0, 68.0, 1.65]].forEach(([px, pz, sc]) => spawnPeachBlossomTree(px, pz, sc));
+      [[-84.5, -48.5, 1.45], [49.0, -48.5, 1.45], [-108.0, 68.0, 1.65], [108.0, 68.0, 1.65]].forEach(([px, pz, sc]) => spawnPeachBlossomTree(px, pz, sc));
 
       // Shiny 3D Gold Ingots (金元寶) at Island Corners & Building Front
       function spawnGoldIngot(x, z, scale = 1.0, rotY = 0) {
@@ -3745,11 +3990,11 @@
       [
         [-106.0, 69.5, 1.65, 0.35], [-101.5, 70.5, 1.25, -0.2],
         [106.5,  69.5, 1.65, -0.35], [101.5, 70.5, 1.25, 0.2],
-        [-80.5, -46.8, 1.20, 0.25], [14.5, -46.8, 1.20, -0.25]
+        [-80.5, -46.8, 1.20, 0.25], [48.5, -46.5, 1.20, -0.25]
       ].forEach(([ix, iz, sc, ry]) => spawnGoldIngot(ix, iz, sc, ry));
 
-      // Cute 3D Chibi Lion Dancers (Q版醒獅)
-      [-50.0, -40.0].forEach((lx, idx) => {
+      // Cute 3D Chibi Lion Dancers (Q版醒獅 in front of Centered Main Building)
+      [-12.0, 12.0].forEach((lx, idx) => {
         const lionGrp = new THREE.Group();
         const lHead = new THREE.Mesh(new THREE.SphereGeometry(1.05, 16, 14), lanternRedMat);
         lHead.position.y = 1.55;
@@ -3787,14 +4032,14 @@
 
       addRoofStringLights(easterGroup, hubX, hubW, hubH, hubD, hubZ, [0xf472b6, 0x34d399, 0xfacc15, 0xc084fc]);
 
-      // Giant 3D Pastel Rainbow Arch spanning behind UPS HKG Gateway Building
+      // Giant 3D Pastel Rainbow Arch spanning behind the 92m Centered UPS HKG Gateway Main Building
       const rainbowColors = [0xf87171, 0xfb923c, 0xfacc15, 0x4ade80, 0x38bdf8, 0xc084fc];
       rainbowColors.forEach((rCol, idx) => {
         const arch = new THREE.Mesh(
-          new THREE.TorusGeometry(28.0 - idx * 0.95, 0.48, 12, 48, Math.PI),
+          new THREE.TorusGeometry(46.0 - idx * 1.05, 0.55, 12, 48, Math.PI),
           new THREE.MeshBasicMaterial({ color: rCol, transparent: true, opacity: 0.78 })
         );
-        arch.position.set(hubX, 0.5, hubZ - 8.5);
+        arch.position.set(hubX, 0.5, hubZ - 11.2);
         easterGroup.add(arch);
       });
 
@@ -3824,7 +4069,7 @@
       }
       [
         [-82.0, -47.5, 1.65, 0, 0.12], [-86.2, -46.8, 1.25, 1, -0.15],
-        [14.5,  -47.2, 1.60, 2, -0.10], [18.5, -46.5, 1.25, 3, 0.18],
+        [48.2,  -47.2, 1.60, 2, -0.10], [51.2, -46.5, 1.25, 3, 0.18],
         [-108.0, 68.5, 1.85, 4, 0.15],  [-103.5, 70.0, 1.35, 0, -0.12],
         [108.5,  68.5, 1.85, 1, -0.15], [103.0,  70.0, 1.35, 2, 0.12]
       ].forEach(([ex, ez, sc, ci, tz]) => spawnEasterEgg(ex, ez, sc, ci, tz));
@@ -3857,8 +4102,8 @@
         easterHoppingBunnies.push({ group: bGrp, baseX: x, baseZ: z, phase });
       }
       [
-        [-88.0, -46.0, 1.25, 0.0], [-10.0, -46.2, 1.25, 1.2],
-        [20.0,  -46.5, 1.25, 2.4], [-98.0, 67.0, 1.35, 3.6],
+        [-88.0, -46.0, 1.25, 0.0], [-48.5, -45.5, 1.25, 1.2],
+        [49.5,  -45.5, 1.25, 2.4], [-98.0, 67.0, 1.35, 3.6],
         [98.0,   67.0, 1.35, 4.8], [-65.0, 32.0, 1.15, 5.5]
       ].forEach(([bx, bz, sc, ph]) => spawnEasterBunny(bx, bz, sc, ph));
 
@@ -4193,9 +4438,9 @@
 
       const bodyTex = enhanceTextureClarity(new THREE.CanvasTexture(bodyCvs));
 
-      // 2. Sculpted Fuselage BufferGeometry (Cosine-spaced rings for ultra-smooth spherical nose)
-      const lengthSegments = 88;
-      const radialSegments = 48;
+      // 2. Sculpted Fuselage BufferGeometry (Cosine-spaced rings for smooth spherical nose & high 4K TV FPS)
+      const lengthSegments = 44;
+      const radialSegments = 28;
       const fuseGeo = new THREE.BufferGeometry();
       const positions = [];
       const uvs = [];
@@ -4416,7 +4661,7 @@
 
       // 6. 3D Sculpted Chevron Sawtooth Nacelle Geometry for the 4 Oversized Turbofan Engines
       function createChevronNacelleGeometry(radius = 0.68, length = 1.48) {
-        const radialSegs = 48, lenSegs = 22, numChevrons = 10;
+        const radialSegs = 30, lenSegs = 12, numChevrons = 10;
         const geo = new THREE.BufferGeometry();
         const pos = [], uvsArr = [], idx = [];
         for (let i = 0; i <= lenSegs; i++) {
@@ -4450,11 +4695,45 @@
       }
 
       const nacelleGeo = createChevronNacelleGeometry(0.68, 1.48);
-      const lipGeo = new THREE.TorusGeometry(0.60, 0.095, 16, 36);
+      const lipGeo = new THREE.TorusGeometry(0.60, 0.095, 12, 24);
       lipGeo.rotateY(Math.PI / 2);
-      const drumGeo = new THREE.CylinderGeometry(0.58, 0.56, 1.35, 28);
+      const drumGeo = new THREE.CylinderGeometry(0.58, 0.56, 1.35, 20);
       drumGeo.rotateZ(Math.PI / 2);
-      const bladeGeo = new THREE.BoxGeometry(0.05, 0.48, 0.13);
+      const singleBladeGeo = new THREE.BoxGeometry(0.05, 0.48, 0.13);
+      // Pre-merge all 16 fan blades into a single BufferGeometry to eliminate 1,680 Mesh draw calls across 28 aircraft!
+      const bladeGeo = new THREE.BufferGeometry();
+      {
+        const bPos = [], bNorm = [], bIdx = [];
+        const srcPos = singleBladeGeo.attributes.position;
+        const srcNorm = singleBladeGeo.attributes.normal;
+        const srcIndex = singleBladeGeo.index;
+        const numBlades = 16;
+        const tmpV = new THREE.Vector3();
+        const tmpN = new THREE.Vector3();
+        const mat4 = new THREE.Matrix4();
+        const normMat = new THREE.Matrix3();
+        const euler = new THREE.Euler();
+        for (let b = 0; b < numBlades; b++) {
+          const angle = (b / numBlades) * Math.PI * 2;
+          euler.set(angle, 0.42, 0, 'XYZ');
+          mat4.makeRotationFromEuler(euler);
+          mat4.setPosition(0, Math.sin(angle) * 0.26, Math.cos(angle) * 0.26);
+          normMat.getNormalMatrix(mat4);
+          const vOffset = b * srcPos.count;
+          for (let vi = 0; vi < srcPos.count; vi++) {
+            tmpV.fromBufferAttribute(srcPos, vi).applyMatrix4(mat4);
+            bPos.push(tmpV.x, tmpV.y, tmpV.z);
+            tmpN.fromBufferAttribute(srcNorm, vi).applyMatrix3(normMat).normalize();
+            bNorm.push(tmpN.x, tmpN.y, tmpN.z);
+          }
+          for (let ii = 0; ii < srcIndex.count; ii++) {
+            bIdx.push(srcIndex.getX(ii) + vOffset);
+          }
+        }
+        bladeGeo.setIndex(bIdx);
+        bladeGeo.setAttribute('position', new THREE.Float32BufferAttribute(bPos, 3));
+        bladeGeo.setAttribute('normal', new THREE.Float32BufferAttribute(bNorm, 3));
+      }
       const spinnerGeo = new THREE.ConeGeometry(0.20, 0.42, 20);
       spinnerGeo.rotateZ(Math.PI / 2);
       const triGeo = new THREE.ConeGeometry(0.11, 0.24, 3);
@@ -4579,7 +4858,6 @@
         for (let k = 0; k < 2; k++) {
           const dot = new THREE.Mesh(assets.dotGeo, assets.whiteDetailMat);
           dot.position.set(-0.32 + k * 0.24, 0.14 + k * 0.02, (1.42 + k * 0.22) * sideSign);
-          attachStickerOutline(dot, 0.28);
           wingGroup.add(dot);
         }
         wingGroup.position.set(0.05, -0.34, 0.62 * sideSign);
@@ -4589,7 +4867,6 @@
         const stabMesh = new THREE.Mesh(isLeft ? assets.leftStabGeo : assets.rightStabGeo, assets.wingGreyMat);
         stabMesh.position.set(2.45, 0.18, 0.38 * sideSign);
         stabMesh.castShadow = true;
-        attachStickerOutline(stabMesh, 0.18);
         modelInner.add(stabMesh);
       });
 
@@ -4610,35 +4887,26 @@
         const cowling = new THREE.Mesh(assets.nacelleGeo, assets.nacMat);
         cowling.castShadow = true;
         cowling.receiveShadow = true;
-        attachStickerOutline(cowling, 0.14);
         engineGroup.add(cowling);
 
         const lipMesh = new THREE.Mesh(assets.lipGeo, assets.intakeLipMat);
         lipMesh.position.x = -0.72;
-        attachStickerOutline(lipMesh, 0.22);
         engineGroup.add(lipMesh);
 
         const drumMesh = new THREE.Mesh(assets.drumGeo, assets.darkCoreMat);
         drumMesh.position.x = -0.05;
         engineGroup.add(drumMesh);
 
-        // Spinning 16-Blade Turbofan Rotor + Conical Spinner with Iconic Grey Triangle Swirl
+        // Spinning Merged 16-Blade Turbofan Rotor + Conical Spinner with Iconic Grey Triangle Swirl
         const rotorGroup = new THREE.Group();
         rotorGroup.position.x = -0.52;
-        const numBlades = 16;
-        for (let b = 0; b < numBlades; b++) {
-          const blade = new THREE.Mesh(assets.bladeGeo, assets.bladeMat);
-          const angle = (b / numBlades) * Math.PI * 2;
-          blade.position.set(0, Math.sin(angle) * 0.26, Math.cos(angle) * 0.26);
-          blade.rotation.x = angle;
-          blade.rotation.y = 0.42;
-          rotorGroup.add(blade);
-        }
+        const mergedBladesMesh = new THREE.Mesh(assets.bladeGeo, assets.bladeMat);
         const spinnerMesh = new THREE.Mesh(assets.spinnerGeo, assets.darkCoreMat);
         spinnerMesh.position.x = -0.10;
         const triMesh = new THREE.Mesh(assets.triGeo, assets.intakeLipMat);
         triMesh.position.set(-0.22, 0.04, 0.04);
-        rotorGroup.add(spinnerMesh, triMesh);
+        rotorGroup.add(mergedBladesMesh, spinnerMesh, triMesh);
+        rotorGroup.userData.aircraftRoot = chibiGroup;
         engineGroup.add(rotorGroup);
         window._allChibiEngineRotors.push(rotorGroup);
 
@@ -4646,7 +4914,6 @@
         innerNozzle.position.x = 0.68;
         const plugMesh = new THREE.Mesh(assets.plugGeo, assets.exhaustConeMat);
         plugMesh.position.x = 1.12;
-        attachStickerOutline(plugMesh, 0.20);
         const pylonMesh = new THREE.Mesh(assets.pylonGeo, assets.wingGreyMat);
         pylonMesh.position.set(-0.05, 0.68, 0);
         pylonMesh.rotation.z = -0.25;
@@ -4865,6 +5132,7 @@
       ]);
       uldLiftTrack.setInterpolation(THREE.InterpolateSmooth);
       uldLiftMixer.clipAction(new THREE.AnimationClip('uldCargoLift_' + data.id, 4.0, [uldLiftTrack])).play();
+      uldLiftMixer._visGroup = crewGroup;
       globalAnimationMixers.push(uldLiftMixer);
 
       const workersContainer = new THREE.Group();
@@ -4976,7 +5244,7 @@
       islandMeshesMap.set(data.id, group);
     }
 
-    // Build all 17 items (1 Giant Rectangular Island with UPS Gateway + 8 North Apron Bays + 8 South Apron Bays)
+    // Build all 23 items (1 Giant Rectangular Island with UPS Gateway + 22 Aircraft Parking Bays 01–22)
     ISLANDS_DATA.forEach((item, idx) => {
       if (item.shape === 'rectangle') {
         buildCenterUPSIsland(item);
@@ -5257,7 +5525,8 @@
       emissiveIntensity: 0.28,
       roughness: 0.75,
       transparent: true,
-      opacity: 0.88
+      opacity: 0.88,
+      fog: false
     });
 
     // 16 Curated 3D Cloud Clusters placed around the LEFT & RIGHT PERIMETER of the Dynamic Island (放在動態島周邊顯示，絕不遮蓋動態島與氣泡)
@@ -5363,7 +5632,8 @@
       transparent: true,
       opacity: 0.88,
       alphaTest: 0.05,
-      depthWrite: false
+      depthWrite: false,
+      fog: false
     });
     const rainSystem = new THREE.Points(rainGeo, rainMat);
     rainSystem.visible = false;
@@ -5454,21 +5724,21 @@
       const topLeftEl = document.getElementById('top-left-hud-stack');
       const bottomUnifiedRowEl = document.getElementById('bottom-unified-row') || document.getElementById('bottom-dock-card');
 
-      // Proportional scale factor that grows with larger monitors and shrinks gracefully on compact/mobile screens
+      // Proportional scale factor: enlarges the 3 Left-Side Info Cards proportionally across standard & 4K/75-inch displays
       const isPortraitMobile = w < 640;
       const rawScale = Math.min(w / 1360, h / 820);
       const hudScale = isPortraitMobile
-        ? Math.max(0.72, Math.min(0.92, w / 460))
-        : Math.max(0.84, Math.min(1.42, Math.pow(rawScale, 0.78) * 1.05));
+        ? Math.max(0.76, Math.min(0.96, w / 440))
+        : Math.max(0.98, Math.min(2.45, Math.pow(rawScale, 0.88) * 1.24));
 
       if (topLeftEl) {
         topLeftEl.style.transform = 'none';
-        const natW = topLeftEl.offsetWidth || 395;
-        const natH = topLeftEl.offsetHeight || 480;
-        const maxWidthRatio = isPortraitMobile ? 0.72 : 0.30;
+        const natW = topLeftEl.scrollWidth || topLeftEl.offsetWidth || 480;
+        const natH = topLeftEl.offsetHeight || 520;
+        const maxWidthRatio = isPortraitMobile ? 0.94 : 0.355;
         const maxAllowedScaleW = (w * maxWidthRatio) / Math.max(1, natW);
-        const maxAllowedScaleH = (h - 96) / Math.max(1, natH);
-        const finalTopLeftScale = Math.max(0.68, Math.min(hudScale, maxAllowedScaleW, maxAllowedScaleH));
+        const maxAllowedScaleH = (isPortraitMobile ? (h * 0.42) : (h - 78)) / Math.max(1, natH);
+        const finalTopLeftScale = Math.max(0.52, Math.min(hudScale, maxAllowedScaleW, maxAllowedScaleH));
         topLeftEl.style.transformOrigin = 'top left';
         topLeftEl.style.transform = `scale(${finalTopLeftScale.toFixed(4)})`;
       }
@@ -5483,8 +5753,13 @@
       }
     }
 
+    let topAircraftBubblesBarEl = null;
+
     function createProjectedLabels() {
       labelsLayer.innerHTML = '';
+      topAircraftBubblesBarEl = document.createElement('div');
+      topAircraftBubblesBarEl.id = 'top-aircraft-bubbles-bar';
+      labelsLayer.appendChild(topAircraftBubblesBarEl);
       runwayChibiPlanes.forEach(rwObj => { if (rwObj.badgeEl) labelsLayer.appendChild(rwObj.badgeEl); });
 
       // Create the UPS HKG Gateway Upper Bubble (Serviceable as of 6:00am Breakdown)
@@ -5525,13 +5800,11 @@
         labelDomMap.set(isl.id, tag);
       });
 
-      // Create UPS Building Top Speech Bubble (Hub BIC/WIC, New warehouse BIC/WIC)
+      // Create UPS Building BIC/WIC Solid Card directly below Serviceable Breakdown on the left
       upsBuildingBicWicBubbleEl = document.createElement('div');
       upsBuildingBicWicBubbleEl.id = 'ups-building-bic-wic-bubble';
-      upsBuildingBicWicBubbleEl.className = 'speech-bubble';
-      upsBuildingBicWicBubbleEl.style.display = 'none';
-      upsBuildingBicWicBubbleEl.style.maxWidth = '310px';
-      upsBuildingBicWicBubbleEl.style.minWidth = '215px';
+      upsBuildingBicWicBubbleEl.className = 'speech-bubble left-bic-wic-solid-card';
+      upsBuildingBicWicBubbleEl.style.display = 'block';
       upsBuildingBicWicBubbleEl.title = '點擊開啟「每日工作編排」修改 Hub BIC/WIC 及 New warehouse BIC/WIC';
       upsBuildingBicWicBubbleEl.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -5542,29 +5815,19 @@
           rm.classList.add('flex');
         }
       });
-      labelsLayer.appendChild(upsBuildingBicWicBubbleEl);
+      const leftBicSlotEl = document.getElementById('left-bic-wic-bubble-slot');
+      if (leftBicSlotEl) {
+        leftBicSlotEl.innerHTML = '';
+        leftBicSlotEl.appendChild(upsBuildingBicWicBubbleEl);
+      } else {
+        labelsLayer.appendChild(upsBuildingBicWicBubbleEl);
+      }
 
-      // Create UPS Building Top Speech Bubble sizing update
-      upsBuildingBicWicBubbleEl.style.maxWidth = '390px';
-      upsBuildingBicWicBubbleEl.style.minWidth = '285px';
-
-      // Create ULD Control Top Speech Bubble (UC)
+      // ULD Control standalone bubble is now merged into Serviceable Breakdown header (kept hidden in DOM)
       uldControlUcBubbleEl = document.createElement('div');
       uldControlUcBubbleEl.id = 'uld-control-uc-bubble';
-      uldControlUcBubbleEl.className = 'speech-bubble';
+      uldControlUcBubbleEl.className = 'hidden';
       uldControlUcBubbleEl.style.display = 'none';
-      uldControlUcBubbleEl.style.maxWidth = '280px';
-      uldControlUcBubbleEl.style.minWidth = '195px';
-      uldControlUcBubbleEl.title = '點擊開啟「每日工作編排」修改 ULD Control (UC) 名單';
-      uldControlUcBubbleEl.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (typeof renderOperationPlanTable === 'function') renderOperationPlanTable();
-        const rm = document.getElementById('roster-modal');
-        if (rm) {
-          rm.classList.remove('hidden');
-          rm.classList.add('flex');
-        }
-      });
       labelsLayer.appendChild(uldControlUcBubbleEl);
 
       // Create Serviceable Breakdown Bubble directly below the Top-Left Flight Information Card (放在左邊航班資訊欄下)
@@ -5598,18 +5861,36 @@
     let _cachedUldNatW = 0;
     let _cachedUldNatH = 0;
     let _minIntrinsicUldW = 0;
+    let _cachedHudObstacle = null;
+    let _cachedDockClearance = 74;
+    let _lastHudMeasureTs = 0;
+    window._labelsDirty = true;
+
+    function invalidateHudLayoutCache() {
+      _cachedHudObstacle = null;
+      window._labelsDirty = true;
+    }
 
     function updateProjectedLabels() {
       const w = window.innerWidth;
       const h = window.innerHeight;
       const visibleItems = [];
 
-      // Measure Top-Left HUD Stack bounding box so Bulletin Board & Speech Bubbles never overlap it
-      const leftHudStackEl = document.querySelector('.fixed.top-3.left-3');
-      const leftHudRectRaw = leftHudStackEl ? leftHudStackEl.getBoundingClientRect() : null;
-      const hudObstacle = (leftHudRectRaw && leftHudRectRaw.width > 0)
-        ? { left: 0, top: 0, right: Math.ceil(leftHudRectRaw.right) + 10, bottom: Math.ceil(leftHudRectRaw.bottom) + 10 }
-        : { left: 0, top: 0, right: w >= 740 ? 374 : 8, bottom: 455 };
+      // Use cached Top-Left HUD Stack & Bottom Dock bounding boxes (avoids 60fps forced synchronous reflow on 75-inch TV!)
+      const nowPerf = performance.now();
+      if (!_cachedHudObstacle || (nowPerf - _lastHudMeasureTs > 1500)) {
+        _lastHudMeasureTs = nowPerf;
+        const leftHudStackEl = document.getElementById('top-left-hud-stack');
+        const leftHudRectRaw = leftHudStackEl ? leftHudStackEl.getBoundingClientRect() : null;
+        _cachedHudObstacle = (leftHudRectRaw && leftHudRectRaw.width > 0)
+          ? { left: 0, top: 0, right: Math.ceil(leftHudRectRaw.right) + 10, bottom: Math.ceil(leftHudRectRaw.bottom) + 10 }
+          : { left: 0, top: 0, right: w >= 740 ? 374 : 8, bottom: 455 };
+        const dockCardEl = document.getElementById('bottom-dock-wrapper') || document.getElementById('bottom-dock-card');
+        const dockRect = dockCardEl ? dockCardEl.getBoundingClientRect() : null;
+        _cachedDockClearance = (dockRect && dockRect.height > 0) ? Math.max(74, h - dockRect.top + 8) : 74;
+      }
+      const hudObstacle = _cachedHudObstacle;
+      const leftHudRectRaw = hudObstacle;
 
       let uldObstacle = null;
       let buildingObstacle = null;
@@ -5621,8 +5902,8 @@
         if (!state.showLabels || upsTagEl.dataset.hideDeparted === '1') {
           if (upsTagEl.style.display !== 'none') upsTagEl.style.display = 'none';
         } else {
-          // Place UPS HKG Gateway tag cleanly in front of the Upper Island UPS building apron
-          _projVecA.set(-46.0, upsGroup.position.y + 1.6, -42.5).project(camera);
+          // Place UPS HKG Gateway tag cleanly at Dead Center (x = 0.0) in front of the Main UPS Building
+          _projVecA.set(0.0, upsGroup.position.y + 1.8, -42.5).project(camera);
           if (_projVecA.z > 1) {
             if (upsTagEl.style.display !== 'none') upsTagEl.style.display = 'none';
           } else {
@@ -5670,16 +5951,16 @@
             const rawBx = (_projVecA.x * 0.5 + 0.5) * w;
             const rawBy = (-_projVecA.y * 0.5 + 0.5) * h;
 
-            // 3) Project the exact top silhouette of the Enlarged Upper Island UPS Building, Rooftop Logo Sign, NY Marquee, Office Tower/ATC Cab, and Right-side ULD Gantry Sign
-            //    so the Bulletin Board uses 100% of the rear sky space down to the building roof without ever covering the Upper Island!
-            const nyTopH = state.festivalTheme === 'newyear' ? 16.2 : 10.2;
+            // 3) Project the exact top silhouette of the Centered UPS Main Building (x=-46..+46), Rooftop Logo Sign (x=0), West Office/ATC Wing (x=-58.5), and Right ULD Zone (x=52..105)
+            //    so the Bulletin Board uses 100% of the rear sky space down to the building roof without ever covering the Dynamic Island!
+            const nyTopH = state.festivalTheme === 'newyear' ? 20.5 : 14.2;
             const checkPts3D = [
-              [-78.0, baseY + 9.8, -50.7],   // Enlarged UPS Sorting Hub front-left roof
-              [-61.0, baseY + nyTopH, -51.2], // Left roof wing / NY marquee top
-              [-46.0, baseY + 18.2, -51.2],  // Central Rooftop UPS Logo top
-              [-12.0, baseY + 9.8, -50.7],   // Enlarged UPS Sorting Hub front-right roof
-              [2.5,   baseY + 17.5, -51.1],  // Enlarged Office Tower & ATC Cab top
-              [64.5,  baseY + 14.2, -69.2]   // Right-side ULD Container & Pallet Hub Sign top
+              [-67.5, baseY + 19.8, -50.2],  // West Office Tower & ATC Cab top
+              [-46.0, baseY + 13.8, -48.0],  // Centered UPS Main Hub front-left roof
+              [-24.0, baseY + nyTopH, -49.0], // Left roof wing / NY marquee top
+              [0.0,   baseY + 25.8, -49.0],  // Dead-Center Monumental Rooftop UPS Logo top
+              [46.0,  baseY + 13.8, -48.0],  // Centered UPS Main Hub front-right roof
+              [78.5,  baseY + 6.5,  -68.0]   // Right-side Compact ULD Zone top
             ];
             let highestIslandOrBuildingSy = h * 0.68;
             for (let pIdx = 0; pIdx < checkPts3D.length; pIdx++) {
@@ -5804,10 +6085,14 @@
         }
       }
 
-      // 2. Arrange ALL Aircraft Loading Work Bubbles in a neat row/grid ABOVE the Dynamic Island (修改所有飛機上方的工作氣泡放在動態島上方排列)
+      // 2. Arrange ALL Aircraft Loading Work Bubbles inside a dedicated non-overlapping Flexbox bar (#top-aircraft-bubbles-bar) ABOVE the Dynamic Island
       const activeAircraftBubbles = [];
+      const barEl = topAircraftBubblesBarEl || document.getElementById('top-aircraft-bubbles-bar');
       islandLoadingCrewMap.forEach((crewObj, islandId) => {
         if (!crewObj.bubbleEl) return;
+        if (barEl && crewObj.bubbleEl.parentNode !== barEl) {
+          barEl.appendChild(crewObj.bubbleEl);
+        }
         const islGroup = islandMeshesMap.get(islandId);
         const islData = ISLANDS_DATA.find(i => i.id === islandId);
         if (!islGroup || !islData || !state.showBubbles || !crewObj.group.visible) {
@@ -5816,122 +6101,87 @@
         }
         if (crewObj.bubbleEl.style.display !== 'block') crewObj.bubbleEl.style.display = 'block';
         crewObj.bubbleEl.classList.add('top-row-aircraft-bubble');
+        crewObj.bubbleEl.style.order = String(parseInt(islandId, 10) || 0);
         activeAircraftBubbles.push({ islandId, el: crewObj.bubbleEl, islData });
       });
 
       let topAircraftRowBottomY = 10;
-      if (activeAircraftBubbles.length > 0) {
-        activeAircraftBubbles.sort((a, b) => a.islandId.localeCompare(b.islandId));
-        const bandLeft = (w >= 640 && hudObstacle) ? (hudObstacle.right + 12) : 12;
-        const bandRight = w - 16;
-        const availBandW = Math.max(320, bandRight - bandLeft);
-        const startTopY = (uldObstacle && state.showOperationPlanBoard) ? (uldObstacle.bottom + 8) : 10;
+      if (barEl) {
+        if (activeAircraftBubbles.length === 0) {
+          if (barEl.style.display !== 'none') barEl.style.display = 'none';
+          window._topAircraftBubblesBottomY = 10;
+        } else {
+          if (barEl.style.display !== 'flex') barEl.style.display = 'flex';
+          const bandLeft = (w >= 640 && hudObstacle) ? (hudObstacle.right + 12) : 12;
+          const bandRight = w - 16;
+          const availBandW = Math.max(320, bandRight - bandLeft);
+          const startTopY = (uldObstacle && state.showOperationPlanBoard) ? (uldObstacle.bottom + 8) : 10;
 
-        // Measure natural widths and determine optimal uniform scale so all aircraft work bubbles fit cleanly above the Dynamic Island
-        const count = activeAircraftBubbles.length;
-        const maxCols = Math.max(1, Math.min(count, Math.floor(availBandW / 290) || 1));
-        const gapX = 12;
-        const gapY = 10;
-        const targetColW = (availBandW - gapX * (maxCols - 1)) / maxCols;
-        const sampleNatW = activeAircraftBubbles[0].el.offsetWidth || 300;
-        const fitScale = Math.min(bubbleScale, Math.max(0.82, targetColW / Math.max(250, sampleNatW)));
+          // Project top boundary of the 3D Dynamic Island so top-row aircraft work bubbles NEVER cover the island
+          const baseY = upsGroup ? upsGroup.position.y : 0;
+          let islandTopSy = h * 0.45;
+          [[-118, baseY + 4, -75], [-58.5, baseY + 19.8, -58.5], [0, baseY + 25.8, -58.5], [118, baseY + 4, -75]].forEach(pt => {
+            _projVecB.set(pt[0], pt[1], pt[2]).project(camera);
+            if (_projVecB.z <= 1) {
+              const py = (-_projVecB.y * 0.5 + 0.5) * h;
+              if (py < islandTopSy) islandTopSy = py;
+            }
+          });
+          const availTopBandH = Math.max(76, islandTopSy - startTopY - 8);
 
-        let curRow = 0;
-        let curCol = 0;
-        let rowMaxH = 0;
-        let curTopY = startTopY;
+          const count = activeAircraftBubbles.length;
+          const gapX = 14;
+          const gapY = 10;
+          let totalNatW = 0;
+          let maxSingleNatW = 320;
+          let maxSingleNatH = 142;
+          activeAircraftBubbles.forEach(item => {
+            if (!item.el._cachedNatW || !item.el._cachedNatH) {
+              item.el._cachedNatW = item.el.offsetWidth || 350;
+              item.el._cachedNatH = item.el.offsetHeight || 142;
+            }
+            totalNatW += item.el._cachedNatW;
+            if (item.el._cachedNatW > maxSingleNatW) maxSingleNatW = item.el._cachedNatW;
+            if (item.el._cachedNatH > maxSingleNatH) maxSingleNatH = item.el._cachedNatH;
+          });
+          totalNatW += gapX * Math.max(0, count - 1);
 
-        for (let idx = 0; idx < count; idx++) {
-          const item = activeAircraftBubbles[idx];
-          item.el.style.setProperty('--bubble-scale', fitScale.toFixed(3));
-          const natW = item.el.offsetWidth || 300;
-          const natH = item.el.offsetHeight || 135;
-          const sw = natW * fitScale;
-          const sh = natH * fitScale;
+          // Choose 1-row or multi-row layout inside the Flexbox bar so every bubble has plenty of room and never overlaps
+          const singleRowScaleW = availBandW / Math.max(1, totalNatW);
+          const singleRowScaleH = availTopBandH / Math.max(1, maxSingleNatH);
+          let barScale = Math.min(bubbleScale, singleRowScaleW, singleRowScaleH);
 
-          const itemsInThisRow = Math.min(maxCols, count - curRow * maxCols);
-          const totalRowW = itemsInThisRow * sw + (itemsInThisRow - 1) * gapX;
-          const rowStartLeft = bandLeft + Math.max(0, (availBandW - totalRowW) * 0.5);
-          const centerX = rowStartLeft + curCol * (sw + gapX) + sw * 0.5;
-
-          item.el.style.left = `${Math.round(centerX)}px`;
-          item.el.style.top = `${Math.round(curTopY)}px`;
-
-          rowMaxH = Math.max(rowMaxH, sh);
-          topAircraftRowBottomY = Math.max(topAircraftRowBottomY, curTopY + sh + 8);
-          window._topAircraftBubblesBottomY = topAircraftRowBottomY;
-
-          curCol++;
-          if (curCol >= maxCols) {
-            curCol = 0;
-            curRow++;
-            curTopY += rowMaxH + gapY;
-            rowMaxH = 0;
+          if (barScale < 0.68 && count > 1) {
+            const cols = Math.min(count, Math.max(2, Math.ceil(count / 2)));
+            const rows = Math.ceil(count / cols);
+            const multiRowNatW = cols * maxSingleNatW + (cols - 1) * gapX;
+            const multiRowNatH = rows * maxSingleNatH + (rows - 1) * gapY;
+            barScale = Math.min(bubbleScale, availBandW / Math.max(1, multiRowNatW), availTopBandH / Math.max(1, multiRowNatH));
           }
+          barScale = Math.max(0.45, Math.min(1.38, barScale));
+
+          const layoutBarW = Math.max(maxSingleNatW, Math.round(availBandW / barScale));
+          barEl.style.left = `${Math.round(bandLeft)}px`;
+          barEl.style.top = `${Math.round(startTopY)}px`;
+          barEl.style.width = `${layoutBarW}px`;
+          barEl.style.transform = `scale(${barScale.toFixed(4)})`;
+
+          const barNatH = barEl.offsetHeight || maxSingleNatH;
+          topAircraftRowBottomY = Math.round(startTopY + barNatH * barScale + 8);
+          window._topAircraftBubblesBottomY = topAircraftRowBottomY;
         }
       }
 
-      // 1D. Project Upper-Island Role Speech Bubbles (Hub BIC/WIC above UPS Building & UC above ULD Control) with enlarged scale
-      if (upsGroup) {
-        if (upsBuildingBicWicBubbleEl) {
-          if (!state.showBubbles) {
-            if (upsBuildingBicWicBubbleEl.style.display !== 'none') upsBuildingBicWicBubbleEl.style.display = 'none';
-          } else {
-            _projVecA.set(-44.0, upsGroup.position.y + 16.5, -58.5).project(camera);
-            if (_projVecA.z > 1) {
-              if (upsBuildingBicWicBubbleEl.style.display !== 'none') upsBuildingBicWicBubbleEl.style.display = 'none';
-            } else {
-              if (upsBuildingBicWicBubbleEl.style.display !== 'block') upsBuildingBicWicBubbleEl.style.display = 'block';
-              upsBuildingBicWicBubbleEl.style.setProperty('--bubble-scale', bubbleScale.toFixed(3));
-              const bx = (_projVecA.x * 0.5 + 0.5) * w;
-              const by = (-_projVecA.y * 0.5 + 0.5) * h;
-              const bubW = Math.max(270, upsBuildingBicWicBubbleEl.offsetWidth || 320) * bubbleScale;
-              const bubH = Math.max(85, upsBuildingBicWicBubbleEl.offsetHeight || 105) * bubbleScale;
-              const safeCy = Math.max(topAircraftRowBottomY + bubH * 0.5 + 4, by - bubH * 0.5);
-              visibleItems.push({
-                el: upsBuildingBicWicBubbleEl,
-                cx: bx,
-                cy: safeCy,
-                w: bubW,
-                h: bubH,
-                weight: 0.35,
-                anchorBottom: true,
-                isSpeechBubble: true,
-                isUpperIslandBubble: true
-              });
-            }
-          }
+      // 1D. Toggle UPS Building BIC/WIC Solid Card inside #left-bic-wic-bubble-slot (directly below Serviceable Breakdown)
+      if (upsBuildingBicWicBubbleEl) {
+        const shouldShowBic = state.showBubbles ? 'block' : 'none';
+        if (upsBuildingBicWicBubbleEl.style.display !== shouldShowBic) {
+          upsBuildingBicWicBubbleEl.style.display = shouldShowBic;
+          updateResponsiveHUDScale();
         }
-
-        if (uldControlUcBubbleEl) {
-          if (!state.showBubbles) {
-            if (uldControlUcBubbleEl.style.display !== 'none') uldControlUcBubbleEl.style.display = 'none';
-          } else {
-            _projVecA.set(52.0, upsGroup.position.y + 16.5, -64.5).project(camera);
-            if (_projVecA.z > 1) {
-              if (uldControlUcBubbleEl.style.display !== 'none') uldControlUcBubbleEl.style.display = 'none';
-            } else {
-              if (uldControlUcBubbleEl.style.display !== 'block') uldControlUcBubbleEl.style.display = 'block';
-              uldControlUcBubbleEl.style.setProperty('--bubble-scale', bubbleScale.toFixed(3));
-              const bx = (_projVecA.x * 0.5 + 0.5) * w;
-              const by = (-_projVecA.y * 0.5 + 0.5) * h;
-              const bubW = Math.max(200, uldControlUcBubbleEl.offsetWidth || 235) * bubbleScale;
-              const bubH = Math.max(68, uldControlUcBubbleEl.offsetHeight || 82) * bubbleScale;
-              const safeCy = Math.max(topAircraftRowBottomY + bubH * 0.5 + 4, by - bubH * 0.5);
-              visibleItems.push({
-                el: uldControlUcBubbleEl,
-                cx: bx,
-                cy: safeCy,
-                w: bubW,
-                h: bubH,
-                weight: 0.35,
-                anchorBottom: true,
-                isSpeechBubble: true,
-                isUpperIslandBubble: true
-              });
-            }
-          }
-        }
+      }
+      if (uldControlUcBubbleEl && uldControlUcBubbleEl.style.display !== 'none') {
+        uldControlUcBubbleEl.style.display = 'none';
       }
 
       // 2C. Project Runway Landing (降落) & Takeoff (起飛) Aircraft Badges
@@ -6023,10 +6273,8 @@
           }
         }
 
-        // 3) Clamp inside safe viewport bounds (dynamically respecting scaled bottom floating dock height)
-        const dockCardEl = document.getElementById('bottom-dock-wrapper') || document.getElementById('bottom-dock-card');
-        const dockRect = dockCardEl ? dockCardEl.getBoundingClientRect() : null;
-        const dockBottomClearance = (dockRect && dockRect.height > 0) ? Math.max(74, h - dockRect.top + 8) : 74;
+        // 3) Clamp inside safe viewport bounds (using cached bottom floating dock clearance — zero reflow inside solver loop!)
+        const dockBottomClearance = _cachedDockClearance;
         const minCx = halfW + 8;
         const maxCx = Math.max(minCx, w - halfW - 8);
         const minCy = Math.max(halfH + 8, item.isUpperIslandBubble ? (topAircraftRowBottomY + halfH + 4) : (halfH + 8));
@@ -6551,25 +6799,30 @@
         updateCelestialTrajectoryAtHKTime(hh, mm, ss, ms);
       }
 
-      // 1-second automatic Flightradar24 5X/UPS (HKG) & HKO Chek Lap Kok (loc=hka) real-time sync
+      // Automatic Flightradar24 5X/UPS (HKG) & HKO Chek Lap Kok (loc=hka) real-time sync (throttled DOM updates for 75-inch TV smoothness)
       state.autoRefreshCountdown = 1;
       fetchHKOWeather(true);
       fetchFlightradar24UPSHKG();
       const badgeText = document.getElementById('api-status-text');
       if (badgeText) {
-        badgeText.textContent = `全自動同步 · 1s (${timeStr})`;
+        const fpsVal = window._currentMeasuredFps ? ` · ${window._currentMeasuredFps}FPS` : '';
+        badgeText.textContent = `全自動同步 · 1s (${timeStr})${fpsVal}`;
       }
 
-      const celShort = state.celestial ? `${state.celestial.isDaytime ? '☀️' : '🌙'} 仰角 ${state.celestial.elevationDeg.toFixed(1)}°` : '';
-      document.getElementById('hk-clock-sub').textContent =
-        state.autoTimeSync && state.autoWeatherSync
-          ? `香港自動跟隨 · ${phaseObj.name} · ${celShort}`
-          : `手動預覽 · ${TIME_PHASES[state.currentPhase].name}`;
-
-      updateBottomSummary();
-
-      // Dynamically show/hide 3D Chibi Egg-Planes & Runway Landing/Takeoff according to Daily Operation Plan & current HK time
-      syncAircraftWithOperationPlan(hh, mm);
+      const nowMinuteKey = hh * 60 + mm;
+      if (window._lastSyncedMinuteKey !== nowMinuteKey || window._flightDataDirty) {
+        window._lastSyncedMinuteKey = nowMinuteKey;
+        window._flightDataDirty = false;
+        const celShort = state.celestial ? `${state.celestial.isDaytime ? '☀️' : '🌙'} 仰角 ${state.celestial.elevationDeg.toFixed(1)}°` : '';
+        document.getElementById('hk-clock-sub').textContent =
+          state.autoTimeSync && state.autoWeatherSync
+            ? `香港自動跟隨 · ${phaseObj.name} · ${celShort}`
+            : `手動預覽 · ${TIME_PHASES[state.currentPhase].name}`;
+        updateBottomSummary();
+        // Dynamically show/hide 3D Chibi Egg-Planes & Runway Landing/Takeoff when minute changes or flight data updates
+        syncAircraftWithOperationPlan(hh, mm);
+        window._labelsDirty = true;
+      }
     }
     setInterval(updateHongKongClock, 1000);
 
@@ -6869,61 +7122,118 @@
       }).join(' / ');
     }
 
-    // Initial fallback baseline before live HKIA network response arrives (5X 004 is 預計 02:06 per HKIA cargo.page)
-    const HKIA_2026_10_31_ARR_REF = [
-      { fltNo: '5X 004', numKey: '4',   schedTime: '01:55', origin: '費城 / 科隆 / 巴黎', statusText: '預計 02:06' },
-      { fltNo: '5X 142', numKey: '142', schedTime: '05:30', origin: '路易斯維爾 / 克拉克', statusText: '到閘口 06:37' },
-      { fltNo: '5X 062', numKey: '62',  schedTime: '13:45', origin: '路易斯維爾 / 安克雷奇', statusText: '到閘口 15:01' },
-      { fltNo: '5X 058', numKey: '58',  schedTime: '16:05', origin: '安大略 / 檀香山', statusText: '到閘口 14:42' },
-      { fltNo: '5X 064', numKey: '64',  schedTime: '16:30', origin: '路易斯維爾 / 安克雷奇', statusText: '到閘口 16:06' },
-      { fltNo: '5X 078', numKey: '78',  schedTime: '19:29', origin: '安克雷奇', statusText: '到閘口 21:54' },
-      { fltNo: '5X 022', numKey: '22',  schedTime: '03:10', origin: '費城 / 科隆 / 巴黎', statusText: '預計 03:10' }
+    // Verified HKIA Cargo 5X Official Schedule & Multi-Date Baseline (2026-11-04 Today & 2026-11-05 Tomorrow)
+    const DAILY_5X_SCHEDULE_TEMPLATE = {
+      arr: {
+        '4':   { fltNo: '5X 004', schedTime: '02:00', origin: '費城 / 科隆 / 巴黎' },
+        '22':  { fltNo: '5X 022', schedTime: '03:10', origin: '費城 / 科隆 / 巴黎' },
+        '142': { fltNo: '5X 142', schedTime: '05:35', origin: '路易斯維爾 / 克拉克' },
+        '67':  { fltNo: '5X 067', schedTime: '08:05', origin: '路易斯維爾 / 胡志明市' },
+        '58D': { fltNo: '5X 058D', schedTime: '10:45', origin: '安大略 / 檀香山' },
+        '62':  { fltNo: '5X 062', schedTime: '14:35', origin: '路易斯維爾 / 安克雷奇' },
+        '2':   { fltNo: '5X 002', schedTime: '14:55', origin: '費城 / 科隆' },
+        '58':  { fltNo: '5X 058', schedTime: '15:15', origin: '安大略 / 檀香山' },
+        '64':  { fltNo: '5X 064', schedTime: '16:30', origin: '路易斯維爾 / 安克雷奇 / 首爾/仁川' },
+        '167': { fltNo: '5X 167', schedTime: '17:15', origin: '克拉克 / 新加坡 / 檳城 / 曼谷' },
+        '78':  { fltNo: '5X 078', schedTime: '19:29', origin: '安克雷奇' }
+      },
+      dep: {
+        '3':   { fltNo: '5X 003', schedTime: '11:10', dest: '班加羅爾 / 科隆 / 費城' },
+        '59D': { fltNo: '5X 059D', schedTime: '12:55', dest: '安克雷奇 / 安大略' },
+        '67':  { fltNo: '5X 067', schedTime: '13:25', dest: '安克雷奇 / 路易斯維爾' },
+        '171': { fltNo: '5X 171', schedTime: '16:25', dest: '新加坡 / 路易斯維爾' },
+        '1':   { fltNo: '5X 001', schedTime: '16:30', dest: '科隆 / 費城' },
+        '61':  { fltNo: '5X 061', schedTime: '17:30', dest: '安克雷奇 / 路易斯維爾' },
+        '59':  { fltNo: '5X 059', schedTime: '20:00', dest: '安克雷奇 / 安大略' },
+        '63':  { fltNo: '5X 063', schedTime: '20:20', dest: '安克雷奇 / 路易斯維爾' },
+        '65':  { fltNo: '5X 065', schedTime: '21:30', dest: '安克雷奇 / 路易斯維爾' },
+        '141': { fltNo: '5X 141', schedTime: '23:10', dest: '克拉克 / 路易斯維爾' }
+      }
+    };
+
+    const HKIA_DATED_ARR_SEED = [
+      // 2026-11-04 (Wednesday) Official HKIA Cargo Arrivals
+      { fltNo: '5X 004',  numKey: '4',   schedTime: '02:00', origin: '費城 / 科隆 / 巴黎', statusText: '到閘口 02:18', blockDate: '2026-11-04', fromLiveHKIA: true },
+      { fltNo: '5X 142',  numKey: '142', schedTime: '05:35', origin: '路易斯維爾 / 克拉克', statusText: '到閘口 06:29', blockDate: '2026-11-04', fromLiveHKIA: true },
+      { fltNo: '5X 067',  numKey: '67',  schedTime: '08:05', origin: '路易斯維爾 / 胡志明市', statusText: '到閘口 10:02', blockDate: '2026-11-04', fromLiveHKIA: true },
+      { fltNo: '5X 058D', numKey: '58D', schedTime: '10:45', origin: '安大略 / 檀香山', statusText: '到閘口 10:52', blockDate: '2026-11-04', fromLiveHKIA: true },
+      { fltNo: '5X 062',  numKey: '62',  schedTime: '14:35', origin: '路易斯維爾 / 安克雷奇', statusText: '到閘口 14:27', blockDate: '2026-11-04', fromLiveHKIA: true },
+      { fltNo: '5X 002',  numKey: '2',   schedTime: '14:55', origin: '費城 / 科隆', statusText: '到閘口 14:52', blockDate: '2026-11-04', fromLiveHKIA: true },
+      { fltNo: '5X 058',  numKey: '58',  schedTime: '15:15', origin: '安大略 / 檀香山', statusText: '到閘口 14:47', blockDate: '2026-11-04', fromLiveHKIA: true },
+      { fltNo: '5X 064',  numKey: '64',  schedTime: '16:30', origin: '路易斯維爾 / 安克雷奇 / 首爾/仁川', statusText: '到閘口 18:43', blockDate: '2026-11-04', fromLiveHKIA: true },
+      { fltNo: '5X 167',  numKey: '167', schedTime: '17:15', origin: '克拉克 / 新加坡 / 檳城 / 曼谷', statusText: '到閘口 18:00', blockDate: '2026-11-04', fromLiveHKIA: true },
+      // 2026-11-05 (Thursday) Official HKIA Cargo Arrivals (05Nov)
+      { fltNo: '5X 004',  numKey: '4',   schedTime: '02:00', origin: '費城 / 科隆 / 巴黎', statusText: '預計 02:22', blockDate: '2026-11-05', fromLiveHKIA: true },
+      { fltNo: '5X 142',  numKey: '142', schedTime: '05:35', origin: '路易斯維爾 / 克拉克', statusText: '-', blockDate: '2026-11-05', fromLiveHKIA: true },
+      { fltNo: '5X 067',  numKey: '67',  schedTime: '08:05', origin: '路易斯維爾 / 胡志明市', statusText: '-', blockDate: '2026-11-05', fromLiveHKIA: true },
+      { fltNo: '5X 062',  numKey: '62',  schedTime: '14:35', origin: '路易斯維爾 / 安克雷奇', statusText: '-', blockDate: '2026-11-05', fromLiveHKIA: true },
+      { fltNo: '5X 002',  numKey: '2',   schedTime: '14:55', origin: '費城 / 科隆', statusText: '-', blockDate: '2026-11-05', fromLiveHKIA: true },
+      { fltNo: '5X 058',  numKey: '58',  schedTime: '15:15', origin: '安大略 / 檀香山', statusText: '-', blockDate: '2026-11-05', fromLiveHKIA: true },
+      { fltNo: '5X 064',  numKey: '64',  schedTime: '16:30', origin: '路易斯維爾 / 安克雷奇 / 首爾/仁川', statusText: '-', blockDate: '2026-11-05', fromLiveHKIA: true },
+      { fltNo: '5X 167',  numKey: '167', schedTime: '17:15', origin: '克拉克 / 新加坡 / 檳城 / 曼谷', statusText: '-', blockDate: '2026-11-05', fromLiveHKIA: true }
     ];
-    const HKIA_2026_10_31_DEP_REF = [
-      { fltNo: '5X 065', numKey: '65',  schedTime: '21:30', dest: '安克雷奇 / 路易斯維爾', statusText: '啟航 20:37' },
-      { fltNo: '5X 141', numKey: '141', schedTime: '23:10', dest: '克拉克 / 路易斯維爾', statusText: '啟航 01:11 (01/11/2026)' },
-      { fltNo: '5X 059', numKey: '59',  schedTime: '02:00', dest: '安克雷奇 / 路易斯維爾', statusText: '啟航 01:54' },
-      { fltNo: '5X 001', numKey: '1',   schedTime: '02:20', dest: '班加羅爾 / 科隆', statusText: '啟航 02:01' },
-      { fltNo: '5X 061', numKey: '61',  schedTime: '02:20', dest: '安克雷奇 / 路易斯維爾', statusText: '啟航 02:22' },
-      { fltNo: '5X 063', numKey: '63',  schedTime: '03:45', dest: '安克雷奇 / 路易斯維爾', statusText: '啟航 04:38' },
-      { fltNo: '5X 003', numKey: '3',   schedTime: '06:50', dest: '班加羅爾 / 科隆', statusText: '啟航 06:49' }
+
+    const HKIA_DATED_DEP_SEED = [
+      // 2026-11-04 (Wednesday) Official HKIA Cargo Departures
+      { fltNo: '5X 003',  numKey: '3',   schedTime: '11:10', dest: '班加羅爾 / 科隆 / 費城', statusText: '啟航 12:11', blockDate: '2026-11-04', fromLiveHKIA: true },
+      { fltNo: '5X 059D', numKey: '59D', schedTime: '12:55', dest: '安克雷奇 / 安大略', statusText: '啟航 04:30', blockDate: '2026-11-04', fromLiveHKIA: true },
+      { fltNo: '5X 067',  numKey: '67',  schedTime: '13:25', dest: '安克雷奇 / 路易斯維爾', statusText: '啟航 13:36', blockDate: '2026-11-04', fromLiveHKIA: true },
+      { fltNo: '5X 171',  numKey: '171', schedTime: '16:25', dest: '新加坡 / 路易斯維爾', statusText: '啟航 16:33', blockDate: '2026-11-04', fromLiveHKIA: true },
+      { fltNo: '5X 001',  numKey: '1',   schedTime: '16:30', dest: '科隆 / 費城', statusText: '啟航 16:39', blockDate: '2026-11-04', fromLiveHKIA: true },
+      { fltNo: '5X 061',  numKey: '61',  schedTime: '17:30', dest: '安克雷奇 / 路易斯維爾', statusText: '啟航 17:17', blockDate: '2026-11-04', fromLiveHKIA: true },
+      { fltNo: '5X 059',  numKey: '59',  schedTime: '20:00', dest: '安克雷奇 / 安大略', statusText: '預計 23:50', blockDate: '2026-11-04', fromLiveHKIA: true },
+      { fltNo: '5X 063',  numKey: '63',  schedTime: '20:20', dest: '安克雷奇 / 路易斯維爾', statusText: '啟航 20:11', blockDate: '2026-11-04', fromLiveHKIA: true },
+      { fltNo: '5X 141',  numKey: '141', schedTime: '23:10', dest: '克拉克 / 路易斯維爾', statusText: '啟航 23:06', blockDate: '2026-11-04', fromLiveHKIA: true },
+      // 2026-11-05 (Thursday) Official HKIA Cargo Departures (05Nov)
+      { fltNo: '5X 003',  numKey: '3',   schedTime: '11:10', dest: '班加羅爾 / 科隆 / 費城', statusText: '-', blockDate: '2026-11-05', fromLiveHKIA: true },
+      { fltNo: '5X 067',  numKey: '67',  schedTime: '13:25', dest: '安克雷奇 / 路易斯維爾', statusText: '-', blockDate: '2026-11-05', fromLiveHKIA: true },
+      { fltNo: '5X 171',  numKey: '171', schedTime: '16:25', dest: '新加坡 / 路易斯維爾', statusText: '預計 16:35', blockDate: '2026-11-05', fromLiveHKIA: true },
+      { fltNo: '5X 001',  numKey: '1',   schedTime: '16:30', dest: '科隆 / 費城', statusText: '-', blockDate: '2026-11-05', fromLiveHKIA: true },
+      { fltNo: '5X 061',  numKey: '61',  schedTime: '17:30', dest: '安克雷奇 / 路易斯維爾', statusText: '-', blockDate: '2026-11-05', fromLiveHKIA: true },
+      { fltNo: '5X 059',  numKey: '59',  schedTime: '20:00', dest: '安克雷奇 / 安大略', statusText: '-', blockDate: '2026-11-05', fromLiveHKIA: true },
+      { fltNo: '5X 063',  numKey: '63',  schedTime: '20:20', dest: '安克雷奇 / 路易斯維爾', statusText: '-', blockDate: '2026-11-05', fromLiveHKIA: true },
+      { fltNo: '5X 141',  numKey: '141', schedTime: '23:10', dest: '克拉克 / 路易斯維爾', statusText: '-', blockDate: '2026-11-05', fromLiveHKIA: true }
     ];
 
     let activeHKIADate = '';
 
-    // Live cached maps for Today (isoDate), Yesterday (yesterdayIsoDate), and Date-Specific Arrivals (numKey@YYYY-MM-DD)
+    // Live cached maps for Today (isoDate), Yesterday (yesterdayIsoDate), and Date-Specific Arrivals & Departures (numKey@YYYY-MM-DD)
     const liveHKIAArrMap = new Map();
     const liveHKIAArrByDateMap = new Map();
     const liveHKIADepMap = new Map();
+    const liveHKIADepByDateMap = new Map();
     const yesterdayHKIAArrMap = new Map();
     const yesterdayHKIADepMap = new Map();
 
     function getHKTodayDateStrings() {
       const now = new Date();
-      const parts = new Intl.DateTimeFormat('en-GB', {
+      const fmt = new Intl.DateTimeFormat('en-GB', {
         timeZone: 'Asia/Hong_Kong',
         year: 'numeric',
         month: '2-digit',
         day: '2-digit'
-      }).formatToParts(now);
+      });
+      const parts = fmt.formatToParts(now);
       const yyyy = parts.find(p => p.type === 'year')?.value || '2026';
-      const mm = parts.find(p => p.type === 'month')?.value || '10';
-      const dd = parts.find(p => p.type === 'day')?.value || '28';
+      const mm = parts.find(p => p.type === 'month')?.value || '11';
+      const dd = parts.find(p => p.type === 'day')?.value || '04';
 
       const yestDate = new Date(now.getTime() - 86400000);
-      const yParts = new Intl.DateTimeFormat('en-GB', {
-        timeZone: 'Asia/Hong_Kong',
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit'
-      }).formatToParts(yestDate);
+      const yParts = fmt.formatToParts(yestDate);
       const yYyyy = yParts.find(p => p.type === 'year')?.value || '2026';
-      const yMm = yParts.find(p => p.type === 'month')?.value || '10';
-      const yDd = yParts.find(p => p.type === 'day')?.value || '27';
+      const yMm = yParts.find(p => p.type === 'month')?.value || '11';
+      const yDd = yParts.find(p => p.type === 'day')?.value || '03';
+
+      const tmrwDate = new Date(now.getTime() + 86400000);
+      const tParts = fmt.formatToParts(tmrwDate);
+      const tYyyy = tParts.find(p => p.type === 'year')?.value || '2026';
+      const tMm = tParts.find(p => p.type === 'month')?.value || '11';
+      const tDd = tParts.find(p => p.type === 'day')?.value || '05';
 
       return {
         isoDate: `${yyyy}-${mm}-${dd}`,
         yesterdayIsoDate: `${yYyyy}-${yMm}-${yDd}`,
+        tomorrowIsoDate: `${tYyyy}-${tMm}-${tDd}`,
         dmySlash: `${dd}/${mm}/${yyyy}`,
         zhDate: `${yyyy}年${parseInt(mm, 10)}月${parseInt(dd, 10)}日`
       };
@@ -6991,24 +7301,36 @@
       liveHKIAArrMap.clear();
       liveHKIAArrByDateMap.clear();
       liveHKIADepMap.clear();
+      liveHKIADepByDateMap.clear();
 
-      // Seed initial baseline into live maps before network response returns (5X 004 = 預計 02:06)
-      HKIA_2026_10_31_ARR_REF.forEach(item => {
-        liveHKIAArrMap.set(item.numKey, { ...item });
-        yesterdayHKIAArrMap.set(item.numKey, { ...item });
+      // Seed verified dated baselines into date-keyed maps and today's active maps
+      HKIA_DATED_ARR_SEED.forEach(item => {
+        liveHKIAArrByDateMap.set(`${item.numKey}@${item.blockDate}`, { ...item });
+        if (item.blockDate === isoDate || (!liveHKIAArrMap.has(item.numKey) && item.blockDate === '2026-11-04')) {
+          liveHKIAArrMap.set(item.numKey, { ...item });
+        }
+        if (item.blockDate === yesterdayIsoDate || (!yesterdayHKIAArrMap.has(item.numKey) && item.blockDate === '2026-11-04')) {
+          yesterdayHKIAArrMap.set(item.numKey, { ...item });
+        }
       });
-      HKIA_2026_10_31_DEP_REF.forEach(item => {
-        yesterdayHKIADepMap.set(item.numKey, { ...item });
+      HKIA_DATED_DEP_SEED.forEach(item => {
+        liveHKIADepByDateMap.set(`${item.numKey}@${item.blockDate}`, { ...item });
+        if (item.blockDate === isoDate || (!liveHKIADepMap.has(item.numKey) && item.blockDate === '2026-11-04')) {
+          liveHKIADepMap.set(item.numKey, { ...item });
+        }
+        if (item.blockDate === yesterdayIsoDate || (!yesterdayHKIADepMap.has(item.numKey) && item.blockDate === '2026-11-04')) {
+          yesterdayHKIADepMap.set(item.numKey, { ...item });
+        }
       });
 
-      // Restore today's live HKIA statuses from v3 localStorage cache
+      // Restore today's live HKIA statuses from v5 localStorage cache (strictly scoped by blockDate)
       try {
-        const cachedRaw = localStorage.getItem('ups_hkia_live_cache_v3_' + isoDate);
+        const cachedRaw = localStorage.getItem('ups_hkia_live_cache_v5_' + isoDate);
         if (cachedRaw) {
           const cached = JSON.parse(cachedRaw);
           if (Array.isArray(cached.arr)) {
             cached.arr.forEach(([k, v]) => {
-              if (v && v.statusText) {
+              if (v && v.statusText && (!v.blockDate || v.blockDate === isoDate)) {
                 liveHKIAArrMap.set(k, v);
               }
             });
@@ -7022,8 +7344,15 @@
           }
           if (Array.isArray(cached.dep)) {
             cached.dep.forEach(([k, v]) => {
-              if (v && v.statusText) {
+              if (v && v.statusText && (!v.blockDate || v.blockDate === isoDate)) {
                 liveHKIADepMap.set(k, v);
+              }
+            });
+          }
+          if (Array.isArray(cached.depByDate)) {
+            cached.depByDate.forEach(([k, v]) => {
+              if (v && v.statusText) {
+                liveHKIADepByDateMap.set(k, v);
               }
             });
           }
@@ -7064,10 +7393,7 @@
       if (!remainder) return '';
 
       const { isoDate } = getHKTodayDateStrings();
-      const opIso = (typeof operationPlan !== 'undefined' && operationPlan?.dateTitle)
-        ? parseOpDateTitleToIso(operationPlan.dateTitle)
-        : '';
-      const refIso = opIso || isoDate;
+      const refIso = isoDate;
       const refYear = parseInt(refIso.slice(0, 4), 10) || new Date().getFullYear();
       const refMs = Date.parse(refIso + 'T00:00:00+08:00') || Date.now();
 
@@ -7207,7 +7533,11 @@
     function isSame5XFlightNum(fltA, fltB) {
       const kA = extract5XFlightNumKey(fltA);
       const kB = extract5XFlightNumKey(fltB);
-      return Boolean(kA && kB && kA === kB);
+      if (!kA || !kB || kA !== kB) return false;
+      const dA = extractArrivalDateFromInFlt(fltA);
+      const dB = extractArrivalDateFromInFlt(fltB);
+      if (dA && dB && dA !== dB) return false;
+      return true;
     }
 
     function formatUnified5XFlightTitle(inFlt, outFlt) {
@@ -7607,8 +7937,12 @@
       const byOutKey = new Map();
 
       flightsList.forEach((flt, idx) => {
-        const inKey = extract5XFlightNumKey(flt.inFlt);
-        const outKey = extract5XFlightNumKey(flt.outFlt);
+        const inDate = extractArrivalDateFromInFlt(flt.inFlt);
+        const outDate = extractArrivalDateFromInFlt(flt.outFlt) || inDate;
+        const rawInKey = extract5XFlightNumKey(flt.inFlt);
+        const rawOutKey = extract5XFlightNumKey(flt.outFlt);
+        const inKey = rawInKey ? (inDate ? `${rawInKey}@${inDate}` : rawInKey) : '';
+        const outKey = rawOutKey ? (outDate ? `${rawOutKey}@${outDate}` : rawOutKey) : '';
 
         let existing = null;
         if (inKey && byInKey.has(inKey)) {
@@ -7727,51 +8061,144 @@
           schedTime: sched || estTime
         };
       }
+      const validSched = Boolean(sched && sched !== '--:--' && sched !== '-');
       return {
         hasDeparted: false,
-        statusLabel: '-',
-        displayTime: sched || '--:--',
-        schedTime: sched || '--:--'
+        statusLabel: validSched ? `預計 ${sched}` : '-',
+        displayTime: validSched ? sched : '--:--',
+        schedTime: validSched ? sched : '--:--'
       };
     }
 
-    function renderFR24LiveBoard() {
+    function renderFR24LiveBoard(forceModalBoard = false) {
       const { zhDate } = getHKTodayDateStrings();
       const uniqueFlights = getUnifiedUniqueFlights(operationPlan.flights);
 
-      // 1. Update On-Screen Top-Left HUD Mini List (Unified by FLT Number — no duplicates!)
+      // Helper: Convert HH:MM inside any string into minutes (0..1439)
+      const extractHHMMToMins = (str) => {
+        if (!str || typeof str !== 'string') return null;
+        const m = str.match(/(\d{1,2}):(\d{2})/);
+        if (!m) return null;
+        const hh = parseInt(m[1], 10);
+        const mm = parseInt(m[2], 10);
+        if (hh < 0 || hh > 23 || mm < 0 || mm > 59) return null;
+        return hh * 60 + mm;
+      };
+
+      // Helper: Check if HKIA live arrival time (from cargo.page) is LATER than Daily Operation Plan STA time
+      const isHKIAArrivalLaterThanSTA = (flt, arrInfo) => {
+        const hkiaMins = extractHHMMToMins(flt.inStatus) ?? extractHHMMToMins(arrInfo?.displayTime);
+        if (hkiaMins === null) return false;
+        let staMins = extractHHMMToMins(flt.sta);
+        const schedMins = extractHHMMToMins(flt.hkiaArrSched);
+        if (staMins === null || (staMins === hkiaMins && schedMins !== null && schedMins !== hkiaMins)) {
+          staMins = schedMins;
+        }
+        if (staMins === null) return false;
+        const diff = (hkiaMins - staMins + 1440) % 1440;
+        return diff > 0 && diff < 720;
+      };
+
+      // Helper: Render a string as Airport Split-Flap Character Cells (1個字1格), advancing a sequential left-to-right tile counter so every cell flips strictly one-by-one from left to right!
+      const STEP_DELAY_MS = 95; // 95ms per character tile from left to right (deliberate, visible 1-by-1 flip)
+      const renderSplitFlapTilesSeq = (rawStr, cellVariant = '', cursorRef = { idx: 0 }, redTimeOnly = false) => {
+        const text = String(rawStr || '').trim() || '-';
+        const chars = Array.from(text);
+        const timeMatch = text.match(/(\d{1,2}:\d{2})/);
+        const timeStartIdx = timeMatch ? text.indexOf(timeMatch[1]) : -1;
+        return `<span class="fids-flap-group">` + chars.map((ch, idx) => {
+          if (ch === ' ') {
+            return `<span style="display:inline-block;width:4px;"></span>`;
+          }
+          const isCJK = /[一-龥]/.test(ch);
+          const isTimeChar = timeStartIdx !== -1 && idx >= timeStartIdx && idx < timeStartIdx + (timeMatch ? timeMatch[1].length : 0);
+          const activeVariant = (redTimeOnly && isTimeChar)
+            ? 'fids-red-late'
+            : (redTimeOnly && timeStartIdx === -1 ? 'fids-red-late' : cellVariant);
+          const delayMs = cursorRef.idx * STEP_DELAY_MS;
+          cursorRef.idx += 1;
+          return `<span class="fids-flap-cell ${isCJK ? 'fids-cjk' : ''} ${activeVariant}" style="--flap-delay:${delayMs}ms">${escapeHtmlStr(ch)}</span>`;
+        }).join('') + `</span>`;
+      };
+
+      // 1. Update On-Screen Top-Left Split-Flap Flight Information Board (Left: Arrival 到港 | Right: Departure 離港 side-by-side in a non-overlapping 2-column grid!)
       const hudListEl = document.getElementById('hud-fr24-mini-list');
       if (hudListEl) {
-        const nextHudHtml = uniqueFlights
+        const planColumns = Array.isArray(operationPlan?.flights) ? operationPlan.flights : uniqueFlights;
+        const headerHtml = `
+          <div class="flex items-center justify-between gap-3 pb-1 mb-0.5 border-b border-red-400/45 text-[10.5px] font-mono font-black text-amber-300 px-1.5 whitespace-nowrap">
+            <span>🛬 到港 ARRIVALS</span>
+            <span class="text-[9.5px] text-amber-200/90">現況 / 時間</span>
+          </div>
+          <div class="flex items-center justify-between gap-3 pb-1 mb-0.5 border-b border-red-400/45 border-l-2 border-l-amber-400/45 text-[10.5px] font-mono font-black text-amber-300 pl-2.5 pr-1.5 whitespace-nowrap">
+            <span>🛫 離港 DEPARTURES</span>
+            <span class="text-[9.5px] text-amber-200/90">現況 / 時間</span>
+          </div>
+        `;
+        const rowsHtml = planColumns
           .filter(flt => {
+            const inTrim = String(flt.inFlt || '').trim();
+            const outTrim = String(flt.outFlt || '').trim();
+            if (!inTrim && !outTrim) return false;
             const depInfo = parseHKIADepartureStatus(flt.outStatus, flt.hkiaDepSched);
-            return !depInfo.hasDeparted && (flt.inFlt || flt.outFlt);
+            return !depInfo.hasDeparted;
           })
           .map((flt) => {
-            const inKey = extract5XFlightNumKey(flt.inFlt);
-            const outKey = extract5XFlightNumKey(flt.outFlt);
+            const inTrim = String(flt.inFlt || '').trim();
+            const outTrim = String(flt.outFlt || '').trim();
+            const inKey = extract5XFlightNumKey(inTrim);
+            const outKey = extract5XFlightNumKey(outTrim);
             const isOutboundOnlyInPort = !inKey && Boolean(outKey);
             const arrInfo = isOutboundOnlyInPort
-              ? { hasArrived: true, statusLabel: '已到港 (同欄出口)', displayTime: '已在港', schedTime: '已在港' }
+              ? { hasArrived: true, statusLabel: '已到港', displayTime: '已在港', schedTime: '已在港' }
               : parseHKIAArrivalStatus(flt.inStatus, flt.hkiaArrSched);
-            const badgeCol = arrInfo.hasArrived ? 'bg-emerald-500 text-slate-950' : 'bg-slate-700 text-amber-200';
-            const unifiedTitle = formatUnified5XFlightTitle(flt.inFlt, flt.outFlt);
+            const depInfo = parseHKIADepartureStatus(flt.outStatus, flt.hkiaDepSched);
+
+            const isLateArr = (inKey || isOutboundOnlyInPort) ? isHKIAArrivalLaterThanSTA(flt, arrInfo) : false;
+            const arrVariant = arrInfo.hasArrived ? 'fids-emerald' : 'fids-slate-status';
+            const depVariant = depInfo.hasDeparted
+              ? 'fids-red-late'
+              : (outKey && depInfo.statusLabel && depInfo.statusLabel !== '-' ? 'fids-amber-status' : 'fids-slate-status');
+
+            const bayRaw = String(flt.parkingBay || flt.islandId || '').trim() || '--';
+            const leftCodeStr = `[${bayRaw}]${inTrim || '--'}`;
+            const rightCodeStr = outTrim || '--';
+            const arrStatusRaw = (inKey || isOutboundOnlyInPort) ? arrInfo.statusLabel : '-';
+            const depStatusRaw = outKey ? depInfo.statusLabel : '-';
+
+            // Sequential cursor from left to right (0, 1, 2, 3...) so every character in the row flips strictly one after another from left to right!
+            const cursorRef = { idx: 0 };
+            const leftCodeTiles = renderSplitFlapTilesSeq(leftCodeStr, '', cursorRef, false);
+            const leftStatusTiles = renderSplitFlapTilesSeq(arrStatusRaw, isLateArr ? 'fids-red-late' : arrVariant, cursorRef, isLateArr);
+            const rightCodeTiles = renderSplitFlapTilesSeq(rightCodeStr, '', cursorRef, false);
+            const rightStatusTiles = renderSplitFlapTilesSeq(depStatusRaw, depVariant, cursorRef, false);
+
             return `
-              <div class="bg-slate-900/95 text-white px-1.5 py-1 rounded-lg flex items-center justify-between border ${arrInfo.hasArrived ? 'border-emerald-400/70' : 'border-slate-700'}">
-                <span class="font-mono font-bold text-amber-300">[${flt.parkingBay || flt.islandId}] ${unifiedTitle}</span>
-                <span class="px-1 rounded font-mono text-[8.5px] font-black ${badgeCol}">${arrInfo.statusLabel}</span>
+              <div class="fids-board-row">
+                <div class="fids-half-pane fids-arr-pane">
+                  ${leftCodeTiles}
+                  ${leftStatusTiles}
+                </div>
+                <div class="fids-half-pane fids-dep-pane">
+                  ${rightCodeTiles}
+                  ${rightStatusTiles}
+                </div>
               </div>
             `;
           }).join('');
+        const nextHudHtml = headerHtml + rowsHtml;
         if (hudListEl._lastHtml !== nextHudHtml) {
           hudListEl.innerHTML = nextHudHtml;
           hudListEl._lastHtml = nextHudHtml;
+          if (typeof updateResponsiveHUDScale === 'function') updateResponsiveHUDScale();
         }
       }
 
-      // 2. Update Modal Live Board (Unified by FLT Number — same FLT Number appears once!)
+      // 2. Update Modal Live Board when Roster Modal is open or being initialized (saves background DOM work on 75-inch TV!)
+      const rosterModalEl = document.getElementById('roster-modal');
       const boardEl = document.getElementById('fr24-live-board');
       if (!boardEl) return;
+      if (!forceModalBoard && boardEl._lastHtml && rosterModalEl && rosterModalEl.classList.contains('hidden')) return;
 
       const nextBoardHtml = uniqueFlights.map((flt) => {
         const inKey = extract5XFlightNumKey(flt.inFlt);
@@ -7861,6 +8288,17 @@
         tickEl.textContent = `當日日期：${zhDate} · 同班號自動統一 · 每 1 秒更新 (${nowStr})`;
       }
     }
+    // Trigger Airport Split-Flap 3D Flip Effect every 10 seconds on #hud-fr24-mini-list (no text label shown)
+    if (!window._fidsFlipIntervalId) {
+      window._fidsFlipIntervalId = setInterval(() => {
+        const listEl = document.getElementById('hud-fr24-mini-list');
+        if (!listEl) return;
+        listEl.classList.remove('fids-flip-active');
+        void listEl.offsetWidth;
+        listEl.classList.add('fids-flip-active');
+      }, 10000);
+    }
+
 
     // Parse HTML or Markdown/Text from HKIA cargo.page (supports table rows starting with HH:MM before 5X flight number)
     function parseHKIACargoPageHTML(htmlText, isArrival) {
@@ -8020,57 +8458,65 @@
       }
     }
 
-    // Apply liveHKIAArrMap & liveHKIADepMap (plus yesterdayHKIAMap when viewing yesterday's plan) to operationPlan.flights
+    // Apply liveHKIAArrByDateMap, liveHKIADepByDateMap, liveHKIAArrMap & liveHKIADepMap to operationPlan.flights
+    // - Flights with an explicit date (e.g. "04 05Nov" or "141 05Nov") strictly match that exact date's HKIA flight record!
+    // - Flights without a date suffix (e.g. "67" or "03") strictly match Today's HKIA flight record (isoDate)!
     function applyHKIAMapsToOperationPlan() {
       const { isoDate, yesterdayIsoDate, zhDate } = getHKTodayDateStrings();
-      const opIsoDate = parseOpDateTitleToIso(operationPlan.dateTitle);
-      // Treat as yesterday/past plan if opIsoDate <= yesterdayIsoDate OR if dateTitle contains Oct 31 / 10月31日
-      const isYesterdayPlan = Boolean(
-        (opIsoDate && opIsoDate < isoDate) ||
-        /oct(?:ober)?\s*31|31\s*oct|10\s*月\s*31/i.test(String(operationPlan.dateTitle || ''))
-      );
 
-      operationPlan.flights.forEach((slot, colIdx) => {
+      operationPlan.flights.forEach((slot) => {
         const inKey = extract5XFlightNumKey(slot.inFlt);
         const outKey = extract5XFlightNumKey(slot.outFlt);
-        const targetArrIso = extractArrivalDateFromInFlt(slot.inFlt);
+        const explicitInDate = extractArrivalDateFromInFlt(slot.inFlt);
+        const explicitOutDate = extractArrivalDateFromInFlt(slot.outFlt);
 
-        const todayArr = inKey ? liveHKIAArrMap.get(inKey) : null;
-        const yestArr = inKey ? yesterdayHKIAArrMap.get(inKey) : null;
-        const todayArrParsed = todayArr ? parseHKIAArrivalStatus(todayArr.statusText, todayArr.schedTime) : null;
-        const yestArrParsed = yestArr ? parseHKIAArrivalStatus(yestArr.statusText, yestArr.schedTime) : null;
+        // If a date is typed on inFlt (e.g. "04 05Nov"), lock arrival to that date; otherwise lock to today (isoDate).
+        const targetArrIso = explicitInDate || isoDate;
+        // If a date is typed on outFlt (e.g. "141 05Nov"), lock departure to that date;
+        // otherwise if inFlt has a future date (e.g. "04 05Nov"), departure cannot be earlier than inFlt's date; otherwise lock to today (isoDate).
+        const targetDepIso = explicitOutDate || (explicitInDate && explicitInDate > isoDate ? explicitInDate : isoDate);
 
+        // 1. Resolve Arrival Status for (inKey, targetArrIso)
         let chosenArr = null;
-        if (inKey && targetArrIso) {
-          // Explicit date typed after Flt Nbr (到港) (e.g. "004-CDG 4/11"):
-          // Lock strictly onto that date's arrival record so cross-day flights never pick up the wrong day's status!
-          const datedItem = liveHKIAArrByDateMap.get(`${inKey}@${targetArrIso}`);
-          if (datedItem) {
+        if (inKey) {
+          const datedArrItem = liveHKIAArrByDateMap.get(`${inKey}@${targetArrIso}`);
+          if (datedArrItem) {
             chosenArr = {
-              item: datedItem,
-              parsed: parseHKIAArrivalStatus(datedItem.statusText, datedItem.schedTime)
+              item: datedArrItem,
+              parsed: parseHKIAArrivalStatus(datedArrItem.statusText, datedArrItem.schedTime)
             };
-          } else {
-            // Check if todayArr or yestArr explicitly belongs to targetArrIso
-            const matchesTargetDate = (cand) => {
-              if (!cand) return false;
-              const statusIso = extractHKIAStatusDateIso(cand.statusText);
-              if (statusIso) return statusIso === targetArrIso;
-              if (cand.blockDate) return cand.blockDate === targetArrIso;
-              return false;
-            };
-            if (matchesTargetDate(todayArr) && todayArrParsed) {
-              chosenArr = { item: todayArr, parsed: todayArrParsed };
-            } else if (matchesTargetDate(yestArr) && yestArrParsed) {
-              chosenArr = { item: yestArr, parsed: yestArrParsed };
+          } else if (targetArrIso === isoDate) {
+            const todayArr = liveHKIAArrMap.get(inKey);
+            if (todayArr) {
+              chosenArr = {
+                item: todayArr,
+                parsed: parseHKIAArrivalStatus(todayArr.statusText, todayArr.schedTime)
+              };
+            }
+          } else if (targetArrIso === yesterdayIsoDate) {
+            const yestArr = yesterdayHKIAArrMap.get(inKey);
+            if (yestArr) {
+              chosenArr = {
+                item: yestArr,
+                parsed: parseHKIAArrivalStatus(yestArr.statusText, yestArr.schedTime)
+              };
             }
           }
-        } else if (inKey) {
-          // Standard automatic matching when no date is typed after Flt Nbr (到港)
-          if (todayArr && todayArrParsed) {
-            chosenArr = { item: todayArr, parsed: todayArrParsed };
-          } else if (yestArr && yestArrParsed) {
-            chosenArr = { item: yestArr, parsed: yestArrParsed };
+          // Fallback to regular daily 5X schedule template if future/custom date is not yet returned by network
+          if (!chosenArr && DAILY_5X_SCHEDULE_TEMPLATE.arr[inKey]) {
+            const tmpl = DAILY_5X_SCHEDULE_TEMPLATE.arr[inKey];
+            const fallbackItem = {
+              fltNo: tmpl.fltNo,
+              numKey: inKey,
+              schedTime: tmpl.schedTime,
+              origin: tmpl.origin,
+              statusText: '-',
+              blockDate: targetArrIso
+            };
+            chosenArr = {
+              item: fallbackItem,
+              parsed: parseHKIAArrivalStatus(fallbackItem.statusText, fallbackItem.schedTime)
+            };
           }
         }
 
@@ -8092,21 +8538,47 @@
           slot.inStatus = '-';
         }
 
-        const todayDep = outKey ? liveHKIADepMap.get(outKey) : null;
-        const yestDep = outKey ? yesterdayHKIADepMap.get(outKey) : null;
-        const todayDepParsed = todayDep ? parseHKIADepartureStatus(todayDep.statusText, todayDep.schedTime) : null;
-        const yestDepParsed = yestDep ? parseHKIADepartureStatus(yestDep.statusText, yestDep.schedTime) : null;
-
+        // 2. Resolve Departure Status for (outKey, targetDepIso)
         let chosenDep = null;
         if (outKey) {
-          if (todayDepParsed && todayDepParsed.hasDeparted) {
-            chosenDep = { item: todayDep, parsed: todayDepParsed };
-          } else if (isYesterdayPlan && yestDepParsed && yestDepParsed.hasDeparted) {
-            chosenDep = { item: yestDep, parsed: yestDepParsed };
-          } else if (todayDep && todayDepParsed) {
-            chosenDep = { item: todayDep, parsed: todayDepParsed };
-          } else if (isYesterdayPlan && yestDep && yestDepParsed) {
-            chosenDep = { item: yestDep, parsed: yestDepParsed };
+          const datedDepItem = liveHKIADepByDateMap.get(`${outKey}@${targetDepIso}`);
+          if (datedDepItem) {
+            chosenDep = {
+              item: datedDepItem,
+              parsed: parseHKIADepartureStatus(datedDepItem.statusText, datedDepItem.schedTime)
+            };
+          } else if (targetDepIso === isoDate) {
+            const todayDep = liveHKIADepMap.get(outKey);
+            if (todayDep) {
+              chosenDep = {
+                item: todayDep,
+                parsed: parseHKIADepartureStatus(todayDep.statusText, todayDep.schedTime)
+              };
+            }
+          } else if (targetDepIso === yesterdayIsoDate) {
+            const yestDep = yesterdayHKIADepMap.get(outKey);
+            if (yestDep) {
+              chosenDep = {
+                item: yestDep,
+                parsed: parseHKIADepartureStatus(yestDep.statusText, yestDep.schedTime)
+              };
+            }
+          }
+          // Fallback to regular daily 5X schedule template if future/custom date is not yet returned by network
+          if (!chosenDep && DAILY_5X_SCHEDULE_TEMPLATE.dep[outKey]) {
+            const tmpl = DAILY_5X_SCHEDULE_TEMPLATE.dep[outKey];
+            const fallbackItem = {
+              fltNo: tmpl.fltNo,
+              numKey: outKey,
+              schedTime: tmpl.schedTime,
+              dest: tmpl.dest,
+              statusText: '-',
+              blockDate: targetDepIso
+            };
+            chosenDep = {
+              item: fallbackItem,
+              parsed: parseHKIADepartureStatus(fallbackItem.statusText, fallbackItem.schedTime)
+            };
           }
         }
 
@@ -8137,19 +8609,22 @@
       if (fr24TextEl) {
         fr24TextEl.textContent = `HKIA 貨機抵港/離港 (5X · ${zhDate}) 1s 自動同步 (${nowStr})`;
       }
-      // Also keep Operation Plan modal column header badges (#op-col-status-*) 100% synchronized every 1s
-      const _hkNow = getHongKongHMS();
-      const _hkNowMins = _hkNow.hh * 60 + _hkNow.mm;
-      operationPlan.flights.forEach((flt, colIdx) => {
-        const badgeContainer = document.getElementById(`op-col-status-${colIdx}`);
-        if (!badgeContainer) return;
-        const st = evaluateFlightStatusAtHKTime(flt, _hkNowMins, colIdx);
-        badgeContainer.innerHTML = st.active
-          ? `<span class="inline-block px-1.5 py-0.2 rounded bg-emerald-500 text-slate-950 text-[9.5px] font-black ml-1">✈️ 在港</span>`
-          : (st.hasDeparted
-              ? `<span class="inline-block px-1.5 py-0.2 rounded bg-rose-500/40 text-rose-200 text-[9.5px] ml-1">🛫 已離港</span>`
-              : `<span class="inline-block px-1.5 py-0.2 rounded bg-slate-700 text-slate-300 text-[9.5px] ml-1">⏳ 未到港</span>`);
-      });
+      // Update Operation Plan modal column header badges (#op-col-status-*) only when modal is open
+      const rosterModalEl = document.getElementById('roster-modal');
+      if (rosterModalEl && !rosterModalEl.classList.contains('hidden')) {
+        const _hkNow = getHongKongHMS();
+        const _hkNowMins = _hkNow.hh * 60 + _hkNow.mm;
+        operationPlan.flights.forEach((flt, colIdx) => {
+          const badgeContainer = document.getElementById(`op-col-status-${colIdx}`);
+          if (!badgeContainer) return;
+          const st = evaluateFlightStatusAtHKTime(flt, _hkNowMins, colIdx);
+          badgeContainer.innerHTML = st.active
+            ? `<span class="inline-block px-1.5 py-0.2 rounded bg-emerald-500 text-slate-950 text-[9.5px] font-black ml-1">✈️ 在港</span>`
+            : (st.hasDeparted
+                ? `<span class="inline-block px-1.5 py-0.2 rounded bg-rose-500/40 text-rose-200 text-[9.5px] ml-1">🛫 已離港</span>`
+                : `<span class="inline-block px-1.5 py-0.2 rounded bg-slate-700 text-slate-300 text-[9.5px] ml-1">⏳ 未到港</span>`);
+        });
+      }
       renderFR24LiveBoard();
     }
 
@@ -8170,61 +8645,79 @@
     async function fetchFlightradar24UPSHKG(forceNetwork = false) {
       // Ensure maps are scoped to today's Hong Kong date (auto-resets at midnight for new days!)
       ensureHKIAMapsForCurrentDate();
-      // Always update the UI & flight statuses immediately on every 1s tick
-      applyHKIAMapsToOperationPlan();
 
       const nowMs = Date.now();
       if (isFetchingFR24 || (!forceNetwork && nowMs - lastHKIANetworkFetchTs < 15000)) {
+        if (!window._initialHKIAApplied) {
+          window._initialHKIAApplied = true;
+          applyHKIAMapsToOperationPlan();
+        }
         return;
       }
+      window._initialHKIAApplied = true;
+      applyHKIAMapsToOperationPlan();
       isFetchingFR24 = true;
       lastHKIANetworkFetchTs = nowMs;
 
-      const { isoDate, yesterdayIsoDate } = getHKTodayDateStrings();
+      const { isoDate, yesterdayIsoDate, tomorrowIsoDate } = getHKTodayDateStrings();
       try {
+        const extraDatesSet = new Set([tomorrowIsoDate]);
+        if (operationPlan && Array.isArray(operationPlan.flights)) {
+          operationPlan.flights.forEach(f => {
+            const dIn = extractArrivalDateFromInFlt(f?.inFlt);
+            const dOut = extractArrivalDateFromInFlt(f?.outFlt);
+            if (dIn && dIn !== isoDate) extraDatesSet.add(dIn);
+            if (dOut && dOut !== isoDate) extraDatesSet.add(dOut);
+          });
+        }
+        const extraDates = Array.from(extraDatesSet).slice(0, 3);
+
         const hkiaArrSpan = `https://www.hongkongairport.com/flightinfo-rest/rest/flights?span=2&date=${isoDate}&lang=zh_HK&cargo=true&arrival=true`;
         const hkiaArrPast = `https://www.hongkongairport.com/flightinfo-rest/rest/flights/past?date=${isoDate}&lang=zh_HK&cargo=true&arrival=true`;
         const hkiaDepSpan = `https://www.hongkongairport.com/flightinfo-rest/rest/flights?span=2&date=${isoDate}&lang=zh_HK&cargo=true&arrival=false`;
         const hkiaDepPast = `https://www.hongkongairport.com/flightinfo-rest/rest/flights/past?date=${isoDate}&lang=zh_HK&cargo=true&arrival=false`;
 
-        const [arrJsonSpan, arrJsonPast, depJsonSpan, depJsonPast] = await Promise.all([
+        const extraArrPromises = extraDates.map(d =>
+          fetchHKIAJsonWithCORSFallback(`https://www.hongkongairport.com/flightinfo-rest/rest/flights?span=1&date=${d}&lang=zh_HK&cargo=true&arrival=true`)
+        );
+        const extraDepPromises = extraDates.map(d =>
+          fetchHKIAJsonWithCORSFallback(`https://www.hongkongairport.com/flightinfo-rest/rest/flights?span=1&date=${d}&lang=zh_HK&cargo=true&arrival=false`)
+        );
+
+        const [arrJsonSpan, arrJsonPast, depJsonSpan, depJsonPast, ...extraResults] = await Promise.all([
           fetchHKIAJsonWithCORSFallback(hkiaArrSpan),
           fetchHKIAJsonWithCORSFallback(hkiaArrPast),
           fetchHKIAJsonWithCORSFallback(hkiaDepSpan),
-          fetchHKIAJsonWithCORSFallback(hkiaDepPast)
+          fetchHKIAJsonWithCORSFallback(hkiaDepPast),
+          ...extraArrPromises,
+          ...extraDepPromises
         ]);
-        const arrJson = [...(Array.isArray(arrJsonPast) ? arrJsonPast : []), ...(Array.isArray(arrJsonSpan) ? arrJsonSpan : [])];
-        const depJson = [...(Array.isArray(depJsonPast) ? depJsonPast : []), ...(Array.isArray(depJsonSpan) ? depJsonSpan : [])];
+        const extraArrBlocks = extraResults.slice(0, extraDates.length).flatMap(r => Array.isArray(r) ? r : []);
+        const extraDepBlocks = extraResults.slice(extraDates.length).flatMap(r => Array.isArray(r) ? r : []);
 
-        const nowEpochMs = Date.now();
+        const arrJson = [
+          ...(Array.isArray(arrJsonPast) ? arrJsonPast : []),
+          ...(Array.isArray(arrJsonSpan) ? arrJsonSpan : []),
+          ...extraArrBlocks
+        ];
+        const depJson = [
+          ...(Array.isArray(depJsonPast) ? depJsonPast : []),
+          ...(Array.isArray(depJsonSpan) ? depJsonSpan : []),
+          ...extraDepBlocks
+        ];
 
-        const shouldReplaceFlightOccurrence = (prev, item) => {
-          if (!prev || !prev.fromLiveHKIA) return true;
-          if (item.schedEpochMs && prev.schedEpochMs) {
-            const prevDist = Math.abs(prev.schedEpochMs - nowEpochMs);
-            const nextDist = Math.abs(item.schedEpochMs - nowEpochMs);
-            // If the new occurrence is significantly closer to current HK time (e.g. tonight's 01:55 5X 004 at +4.5h vs this morning's 01:55 at -19.5h), always use the closer one!
-            if (nextDist + 1800000 < prevDist) return true;
-            if (prevDist + 1800000 < nextDist) return false;
-          }
-          return true;
-        };
-
+        // Strictly scope Today's map (liveHKIAArrMap / liveHKIADepMap) to blockDate === isoDate
+        // so tomorrow's (e.g. 05Nov) flights from span=2 NEVER overwrite today's arrived/departed flights (e.g. 67 arrived, 03 departed)!
         const upsertArrToMap = (targetMap, item) => {
           if (!item || !item.numKey) return;
-          // Ignore occurrences more than 14 hours in the past or more than 16 hours in the future when timestamp is known
-          if (item.schedEpochMs) {
-            const diffHours = (item.schedEpochMs - nowEpochMs) / 3600000;
-            if (diffHours < -14.0 || diffHours > 16.0) return;
-          }
+          const itemDate = item.blockDate || isoDate;
+          if (itemDate !== isoDate) return;
           const prev = targetMap.get(item.numKey);
-          if (!shouldReplaceFlightOccurrence(prev, item)) return;
-          const sameOccurrence = prev && prev.blockDate === item.blockDate && prev.schedTime === item.schedTime;
-          const prevArrived = sameOccurrence ? parseHKIAArrivalStatus(prev.statusText, prev.schedTime).hasArrived : false;
+          const prevArrived = prev ? parseHKIAArrivalStatus(prev.statusText, prev.schedTime).hasArrived : false;
           const nextArrived = parseHKIAArrivalStatus(item.statusText, item.schedTime).hasArrived;
-          const chosenStatus = (sameOccurrence && prevArrived && !nextArrived)
+          const chosenStatus = (prev && prevArrived && !nextArrived)
             ? prev.statusText
-            : (item.statusText || (prev?.statusText) || '-');
+            : ((item.statusText && item.statusText !== '-') ? item.statusText : ((prev?.statusText) || item.statusText || '-'));
           const chosenSched = (item.schedTime && item.schedTime !== '--:--')
             ? item.schedTime
             : ((prev?.schedTime) || '--:--');
@@ -8234,7 +8727,7 @@
             schedTime: chosenSched,
             origin: item.places || item.origin || (prev?.origin) || '',
             statusText: chosenStatus,
-            blockDate: item.blockDate || (prev?.blockDate) || isoDate,
+            blockDate: isoDate,
             schedEpochMs: item.schedEpochMs || (prev?.schedEpochMs) || null,
             fromLiveHKIA: true
           });
@@ -8242,25 +8735,21 @@
 
         const upsertDepToMap = (targetMap, item) => {
           if (!item || !item.numKey) return;
-          if (item.schedEpochMs) {
-            const diffHours = (item.schedEpochMs - nowEpochMs) / 3600000;
-            if (diffHours < -14.0 || diffHours > 16.0) return;
-          }
+          const itemDate = item.blockDate || isoDate;
+          if (itemDate !== isoDate) return;
           const prev = targetMap.get(item.numKey);
-          if (!shouldReplaceFlightOccurrence(prev, item)) return;
-          const sameOccurrence = prev && prev.blockDate === item.blockDate && prev.schedTime === item.schedTime;
-          const prevDeparted = sameOccurrence ? parseHKIADepartureStatus(prev.statusText, prev.schedTime).hasDeparted : false;
+          const prevDeparted = prev ? parseHKIADepartureStatus(prev.statusText, prev.schedTime).hasDeparted : false;
           const nextDeparted = parseHKIADepartureStatus(item.statusText, item.schedTime).hasDeparted;
-          const chosenStatus = (sameOccurrence && prevDeparted && !nextDeparted)
+          const chosenStatus = (prev && prevDeparted && !nextDeparted)
             ? prev.statusText
-            : (item.statusText || (prev?.statusText) || '-');
+            : ((item.statusText && item.statusText !== '-') ? item.statusText : ((prev?.statusText) || item.statusText || '-'));
           targetMap.set(item.numKey, {
             fltNo: item.fltNo || (prev?.fltNo) || `5X ${item.numKey.padStart(3, '0')}`,
             numKey: item.numKey,
             schedTime: (item.schedTime && item.schedTime !== '--:--') ? item.schedTime : ((prev?.schedTime) || '--:--'),
             dest: item.places || item.dest || (prev?.dest) || '',
             statusText: chosenStatus,
-            blockDate: item.blockDate || (prev?.blockDate) || isoDate,
+            blockDate: isoDate,
             schedEpochMs: item.schedEpochMs || (prev?.schedEpochMs) || null,
             fromLiveHKIA: true
           });
@@ -8268,34 +8757,57 @@
 
         const upsertArrByDate = (item) => {
           if (!item || !item.numKey) return;
+          const bDate = item.blockDate || isoDate;
           const record = {
             fltNo: item.fltNo || `5X ${item.numKey.padStart(3, '0')}`,
             numKey: item.numKey,
             schedTime: item.schedTime || '--:--',
             origin: item.places || item.origin || '',
             statusText: item.statusText || '-',
-            blockDate: item.blockDate || isoDate,
+            blockDate: bDate,
             schedEpochMs: item.schedEpochMs || null,
             fromLiveHKIA: true
           };
-          const statusIso = extractHKIAStatusDateIso(record.statusText);
-          const dateKeys = new Set();
-          if (item.blockDate) dateKeys.add(`${item.numKey}@${item.blockDate}`);
-          if (statusIso) dateKeys.add(`${item.numKey}@${statusIso}`);
-          if (dateKeys.size === 0) dateKeys.add(`${item.numKey}@${isoDate}`);
+          const primaryKey = `${item.numKey}@${bDate}`;
+          const prev = liveHKIAArrByDateMap.get(primaryKey);
+          const prevArrived = prev ? parseHKIAArrivalStatus(prev.statusText, prev.schedTime).hasArrived : false;
+          const nextArrived = parseHKIAArrivalStatus(record.statusText, record.schedTime).hasArrived;
+          const chosenStatus = (prev && prevArrived && !nextArrived)
+            ? prev.statusText
+            : ((record.statusText && record.statusText !== '-') ? record.statusText : ((prev?.statusText) || record.statusText));
+          liveHKIAArrByDateMap.set(primaryKey, {
+            ...record,
+            schedTime: (record.schedTime && record.schedTime !== '--:--') ? record.schedTime : ((prev?.schedTime) || '--:--'),
+            origin: record.origin || (prev?.origin) || '',
+            statusText: chosenStatus
+          });
+        };
 
-          dateKeys.forEach(dKey => {
-            const prev = liveHKIAArrByDateMap.get(dKey);
-            const prevArrived = prev ? parseHKIAArrivalStatus(prev.statusText, prev.schedTime).hasArrived : false;
-            const nextArrived = parseHKIAArrivalStatus(record.statusText, record.schedTime).hasArrived;
-            const chosenStatus = (prev && prevArrived && !nextArrived && prev.schedTime === record.schedTime)
-              ? prev.statusText
-              : record.statusText;
-            liveHKIAArrByDateMap.set(dKey, {
-              ...record,
-              origin: record.origin || (prev?.origin) || '',
-              statusText: chosenStatus
-            });
+        const upsertDepByDate = (item) => {
+          if (!item || !item.numKey) return;
+          const bDate = item.blockDate || isoDate;
+          const record = {
+            fltNo: item.fltNo || `5X ${item.numKey.padStart(3, '0')}`,
+            numKey: item.numKey,
+            schedTime: item.schedTime || '--:--',
+            dest: item.places || item.dest || '',
+            statusText: item.statusText || '-',
+            blockDate: bDate,
+            schedEpochMs: item.schedEpochMs || null,
+            fromLiveHKIA: true
+          };
+          const primaryKey = `${item.numKey}@${bDate}`;
+          const prev = liveHKIADepByDateMap.get(primaryKey);
+          const prevDeparted = prev ? parseHKIADepartureStatus(prev.statusText, prev.schedTime).hasDeparted : false;
+          const nextDeparted = parseHKIADepartureStatus(record.statusText, record.schedTime).hasDeparted;
+          const chosenStatus = (prev && prevDeparted && !nextDeparted)
+            ? prev.statusText
+            : ((record.statusText && record.statusText !== '-') ? record.statusText : ((prev?.statusText) || record.statusText));
+          liveHKIADepByDateMap.set(primaryKey, {
+            ...record,
+            schedTime: (record.schedTime && record.schedTime !== '--:--') ? record.schedTime : ((prev?.schedTime) || '--:--'),
+            dest: record.dest || (prev?.dest) || '',
+            statusText: chosenStatus
           });
         };
 
@@ -8316,18 +8828,23 @@
         if (depJson.length > 0) {
           const parsedDep = parseHKIACargoJSON(depJson, isoDate);
           parsedDep.forEach(it => {
+            upsertDepByDate(it);
             upsertDepToMap(liveHKIADepMap, it);
           });
         } else {
           const jinaDep = await fetchHKIACargoPageViaJina('https://www.hongkongairport.com/tc/flights/departures/cargo.page', false);
-          jinaDep.forEach(it => upsertDepToMap(liveHKIADepMap, it));
+          jinaDep.forEach(it => {
+            upsertDepByDate(it);
+            upsertDepToMap(liveHKIADepMap, it);
+          });
         }
 
         try {
-          localStorage.setItem('ups_hkia_live_cache_v3_' + isoDate, JSON.stringify({
+          localStorage.setItem('ups_hkia_live_cache_v5_' + isoDate, JSON.stringify({
             arr: Array.from(liveHKIAArrMap.entries()),
             arrByDate: Array.from(liveHKIAArrByDateMap.entries()),
-            dep: Array.from(liveHKIADepMap.entries())
+            dep: Array.from(liveHKIADepMap.entries()),
+            depByDate: Array.from(liveHKIADepByDateMap.entries())
           }));
           if (yesterdayHKIAArrMap.size > 0 || yesterdayHKIADepMap.size > 0) {
             localStorage.setItem('ups_hkia_live_cache_' + yesterdayIsoDate, JSON.stringify({
@@ -8337,6 +8854,7 @@
           }
         } catch (e) {}
 
+        window._flightDataDirty = true;
         applyHKIAMapsToOperationPlan();
       } catch (e) {}
       isFetchingFR24 = false;
@@ -8444,9 +8962,10 @@
       if (!isl) return;
       if (!state.viewLocked) {
         if (isl.shape === 'rectangle') {
-          camCtrl.desiredTarget.set(4.0, 11.5, -54.0);
-          camCtrl.desiredSpherical.radius = 142;
-          camCtrl.desiredSpherical.phi = 0.94;
+          camCtrl.desiredTarget.set(0.0, 9.5, -52.0);
+          camCtrl.desiredSpherical.radius = 185;
+          camCtrl.desiredSpherical.phi = 0.92;
+          camCtrl.desiredSpherical.theta = 0.0;
         } else {
           camCtrl.desiredTarget.set(isl.x, 1.2, isl.z);
           camCtrl.desiredSpherical.radius = 48;
@@ -8458,12 +8977,12 @@
 
     // Live Activity Log (島嶼日誌 · LIVE)
     const liveLogs = [
-      { time: '08:41', islandId: 'UPS', text: '中心長方形 UPS 大樓已連線香港天文台赤鱲角 (loc=hka) 氣象圖表。' },
-      { time: '08:40', islandId: '15', text: '15 號赤鱲角觀測站回報：現時氣溫 26.8°C，北風 20 公里/小時。' },
-      { time: '08:39', islandId: '13', text: 'UPS 洲際貨機於 13 號速遞機坪完成裝卸，分揀箱送往中心大樓。' },
-      { time: '08:38', islandId: '06', text: 'Agent 工坊派出一隊巡檢機械人前往 09 號治理塔執行防風檢查。' },
-      { time: '08:36', islandId: '14', text: '14 號智慧車隊站派出 12 輛棕色電動速遞車經跨海橋前往市區。' },
-      { time: '08:35', islandId: '05', text: '問大腦研究所更新赤鱲角 24 小時溫度曲線與微氣候預測。' }
+      { time: '08:41', islandId: 'UPS', text: 'UPS HKG Gateway 樞紐大樓已同步香港天文台赤鱲角 (loc=hka) 實時氣象數據。' },
+      { time: '08:40', islandId: '02', text: '北機坪 X17 (02 號泊位) 5X 067 貨機到閘口，地勤團隊開始卸載 Inbound ULD。' },
+      { time: '08:39', islandId: '04', text: '北機坪 X19 (04 號泊位) 5X 142 貨機完成接機與 ULD 轉運至分揀樞紐大樓。' },
+      { time: '08:38', islandId: 'UPS', text: '右側 ULD Control 自動化轉運區更新 6:00am Serviceable Breakdown 總數為 551。' },
+      { time: '08:36', islandId: '09', text: '南機坪 X34 (09 號泊位) 5X 003-BLR 航班裝機作業與 FOD 檢查進行中。' },
+      { time: '08:35', islandId: 'UPS', text: '香港國際機場 (HKIA) 5X 貨機抵港與離港航班動態資訊板已完成即時連線。' }
     ];
 
     function addLiveLogEntry(islandId, text) {
@@ -8576,14 +9095,14 @@
       { key: 'AAY',    label: 'AAY',     sub: '', hdrBg: '#1e293b', hdrText: '#fde68a', cellBg: '#efe8d8', cellText: '#0f172a', defaultVal: '39' },
       { key: 'AAZ',    label: 'AAZ',     sub: '', hdrBg: '#1e293b', hdrText: '#fde68a', cellBg: '#efe8d8', cellText: '#0f172a', defaultVal: '2' },
       { key: 'ALP',    label: 'ALP',     sub: '', hdrBg: '#1e293b', hdrText: '#fde68a', cellBg: '#efe8d8', cellText: '#0f172a', defaultVal: '20' },
-      { key: 'AMD',    label: 'AMD',     sub: '', hdrBg: '#065f46', hdrText: '#a7f3d0', cellBg: '#d1fae5', cellText: '#064e3b', defaultVal: '37' },
-      { key: 'AMJ',    label: 'AMJ',     sub: '', hdrBg: '#065f46', hdrText: '#a7f3d0', cellBg: '#d1fae5', cellText: '#064e3b', defaultVal: '77' },
-      { key: 'AMP',    label: 'AMP',     sub: '', hdrBg: '#1e293b', hdrText: '#fde68a', cellBg: '#efe8d8', cellText: '#0f172a', defaultVal: '90' },
-      { key: 'PAG',    label: 'PAG',     sub: '', hdrBg: '#78350f', hdrText: '#fde68a', cellBg: '#fef3c7', cellText: '#78350f', defaultVal: '44' },
-      { key: 'PMC',    label: 'PMC',     sub: '', hdrBg: '#78350f', hdrText: '#fde68a', cellBg: '#fef3c7', cellText: '#78350f', defaultVal: '179' },
+      { key: 'AMD',    label: 'AMD',     sub: '', hdrBg: '#065f46', hdrText: '#a7f3d0', cellBg: '#d1fae5', cellText: '#064e3b', defaultVal: '39' },
+      { key: 'AMJ',    label: 'AMJ',     sub: '', hdrBg: '#065f46', hdrText: '#a7f3d0', cellBg: '#d1fae5', cellText: '#064e3b', defaultVal: '79' },
+      { key: 'AMP',    label: 'AMP',     sub: '', hdrBg: '#1e293b', hdrText: '#fde68a', cellBg: '#efe8d8', cellText: '#0f172a', defaultVal: '101' },
+      { key: 'PAG',    label: 'PAG',     sub: '', hdrBg: '#78350f', hdrText: '#fde68a', cellBg: '#fef3c7', cellText: '#78350f', defaultVal: '29' },
+      { key: 'PMC',    label: 'PMC',     sub: '', hdrBg: '#78350f', hdrText: '#fde68a', cellBg: '#fef3c7', cellText: '#78350f', defaultVal: '177' },
       { key: 'PM2',    label: 'PM2',     sub: '', hdrBg: '#78350f', hdrText: '#fde68a', cellBg: '#fef3c7', cellText: '#78350f', defaultVal: '0' },
       { key: 'Lease',  label: 'Lease',   sub: '', hdrBg: '#78350f', hdrText: '#fde68a', cellBg: '#fef3c7', cellText: '#78350f', defaultVal: '0' },
-      { key: 'Total',  label: 'Total',   sub: '', hdrBg: '#f59e0b', hdrText: '#0f172a', cellBg: '#fde68a', cellText: '#0f172a', defaultVal: '553' },
+      { key: 'Total',  label: 'Total',   sub: '', hdrBg: '#f59e0b', hdrText: '#0f172a', cellBg: '#fde68a', cellText: '#0f172a', defaultVal: '551' },
       { key: 'FCC96',  label: 'FCC 96',  sub: '', hdrBg: '#0369a1', hdrText: '#e0f2fe', cellBg: '#e0f2fe', cellText: '#0c4a6e', defaultVal: '12' },
       { key: 'FCC118', label: 'FCC 118', sub: '', hdrBg: '#0369a1', hdrText: '#e0f2fe', cellBg: '#e0f2fe', cellText: '#0c4a6e', defaultVal: '23' },
       { key: 'Net',    label: 'Net',     sub: '', hdrBg: '#334155', hdrText: '#f1f5f9', cellBg: '#e2e8f0', cellText: '#0f172a', defaultVal: '478' },
@@ -8616,7 +9135,7 @@
 
     const DEFAULT_OPERATION_PLAN = {
       festivalTheme: 'halloween',
-      dateTitle: 'Wednesday, October 28, 2026',
+      dateTitle: 'Wednesday, November 4, 2026',
       uldBreakdown: {
         AAD: '65', AAY: '39', AAZ: '2', ALP: '20', AMD: '39', AMJ: '79', AMP: '101',
         PAG: '29', PMC: '177', PM2: '0', Lease: '0', Total: '551',
@@ -8652,8 +9171,8 @@
       ],
       flights: [
         {
-          islandId: '01',
-          inFlt: '142-CRK', inStatus: '到閘口 06:57', hkiaArrSched: '05:35', hkiaOrigin: '克拉克', sta: '06:57', inCrewPick: '05:38', meetPlane: 'Keith', inboundUld: '大丹',
+          islandId: '04',
+          inFlt: '142-CRK', inStatus: '到閘口 06:29', hkiaArrSched: '05:35', hkiaOrigin: '路易斯維爾 / 克拉克', sta: '05:35', inCrewPick: '05:38', meetPlane: 'Keith', inboundUld: '大丹',
           outFlt: '', outStatus: '-', hkiaDepSched: '--:--', hkiaDest: '', std: '', tailNbr: 'N352UP', crewPickTime: '', meetCrew: '',
           parkingBay: 'X19', loadTime: '', fod: '', ric: '', belt: '',
           ccdMdp: 'Night WH', ccdP1P5: 'Ling', ccdP6P9: 'Keith', rc: 'Shun',
@@ -8661,8 +9180,8 @@
         },
         {
           islandId: '02',
-          inFlt: '067-SGN', inStatus: '到閘口 08:01', hkiaArrSched: '08:05', hkiaOrigin: '路易斯維爾 / 胡志明市', sta: '08:01', inCrewPick: '08:08', meetPlane: 'Mark', inboundUld: 'Mark',
-          outFlt: '067-ICN', outStatus: '啟航 13:50', hkiaDepSched: '13:25', hkiaDest: '安克雷奇 / 路易斯維爾', std: '13:50', tailNbr: 'N575UP', crewPickTime: '', meetCrew: 'Sam',
+          inFlt: '067-SGN', inStatus: '到閘口 10:02', hkiaArrSched: '08:05', hkiaOrigin: '路易斯維爾 / 胡志明市', sta: '08:05', inCrewPick: '08:08', meetPlane: 'Mark', inboundUld: 'Mark',
+          outFlt: '067-ICN', outStatus: '啟航 13:36', hkiaDepSched: '13:25', hkiaDest: '安克雷奇 / 路易斯維爾', std: '13:36', tailNbr: 'N575UP', crewPickTime: '', meetCrew: 'Sam',
           parkingBay: 'X17', loadTime: '08:15', fod: 'Keith', ric: 'Keith', belt: 'Fung',
           ccdMdp: 'Shun', ccdP1P5: 'Shun', ccdP6P9: 'Lee Fai', rc: 'Lee Fai',
           bulk: 'Keith', lh: '明', exp: 'Kin chi', outsource: ''
@@ -8670,31 +9189,31 @@
         {
           islandId: '09',
           inFlt: '', inStatus: '已到港 (同欄出口)', hkiaArrSched: '已在港', hkiaOrigin: '同欄有出口航班 (已在港)', sta: '', inCrewPick: '', meetPlane: '', inboundUld: '',
-          outFlt: '003-BLR', outStatus: '預計 04:35 (29/10/2026)', hkiaDepSched: '11:10', hkiaDest: '班加羅爾 / 科隆 / 費城', std: '04:35', tailNbr: 'N280UP', crewPickTime: '10:35', meetCrew: '明',
+          outFlt: '003-BLR', outStatus: '啟航 12:11', hkiaDepSched: '11:10', hkiaDest: '班加羅爾 / 科隆 / 費城', std: '12:11', tailNbr: 'N280UP', crewPickTime: '10:35', meetCrew: '明',
           parkingBay: 'X34', loadTime: '08:15', fod: 'Chiu', ric: 'Chiu', belt: 'Ling',
           ccdMdp: 'Shun', ccdP1P5: 'Shun', ccdP6P9: 'Lee Fai', rc: 'Lee Fai',
           bulk: 'Chiu', lh: 'Sam', exp: 'Kin chi', outsource: ''
         },
         {
           islandId: '01',
-          inFlt: '062-ANC', inStatus: '到閘口 14:38', hkiaArrSched: '14:35', hkiaOrigin: '路易斯維爾 / 安克雷奇', sta: '14:38', inCrewPick: '14:43', meetPlane: 'Keith', inboundUld: '大丹',
-          outFlt: '061-ANC', outStatus: '啟航 17:29', hkiaDepSched: '17:10', hkiaDest: '安克雷奇 / 路易斯維爾', std: '17:29', tailNbr: 'N613UP', crewPickTime: '16:15', meetCrew: 'Sam',
+          inFlt: '062-ANC', inStatus: '到閘口 14:27', hkiaArrSched: '14:35', hkiaOrigin: '路易斯維爾 / 安克雷奇', sta: '14:35', inCrewPick: '14:43', meetPlane: 'Keith', inboundUld: '大丹',
+          outFlt: '061-ANC', outStatus: '啟航 17:17', hkiaDepSched: '17:30', hkiaDest: '安克雷奇 / 路易斯維爾', std: '17:17', tailNbr: 'N613UP', crewPickTime: '16:15', meetCrew: 'Sam',
           parkingBay: 'X16', loadTime: '14:35', fod: 'Keith', ric: 'Keith', belt: 'Lee Fai',
           ccdMdp: 'Ling', ccdP1P5: 'Ling', ccdP6P9: 'Fung', rc: 'Fung',
           bulk: 'Keith', lh: '明', exp: 'Kin chi', outsource: ''
         },
         {
-          islandId: '04',
-          inFlt: '002-CGN', inStatus: '到閘口 14:27', hkiaArrSched: '14:55', hkiaOrigin: '科隆', sta: '14:27', inCrewPick: '14:32', meetPlane: 'Chiu', inboundUld: 'Mark',
-          outFlt: '001-CGN', outStatus: '啟航 16:40', hkiaDepSched: '16:30', hkiaDest: '科隆', std: '16:40', tailNbr: 'N284UP', crewPickTime: '15:35', meetCrew: '明',
+          islandId: '03',
+          inFlt: '002-CGN', inStatus: '到閘口 14:52', hkiaArrSched: '14:55', hkiaOrigin: '費城 / 科隆', sta: '14:55', inCrewPick: '14:32', meetPlane: 'Chiu', inboundUld: 'Mark',
+          outFlt: '001-CGN', outStatus: '啟航 16:39', hkiaDepSched: '16:30', hkiaDest: '科隆 / 費城', std: '16:39', tailNbr: 'N284UP', crewPickTime: '15:35', meetCrew: '明',
           parkingBay: 'X18', loadTime: '14:35', fod: 'Shun', ric: 'Shun', belt: 'Fung',
           ccdMdp: 'Ling', ccdP1P5: 'Ling', ccdP6P9: 'Lee Fai', rc: 'Lee Fai',
           bulk: 'Shun', lh: 'Sam', exp: 'Kin chi', outsource: ''
         },
         {
           islandId: '17',
-          inFlt: '058-HNL', inStatus: '到閘口 14:11', hkiaArrSched: '15:15', hkiaOrigin: '檀香山', sta: '14:11', inCrewPick: '14:15', meetPlane: 'Sam', inboundUld: '文仔',
-          outFlt: '059-ANC', outStatus: '-', hkiaDepSched: '20:00', hkiaDest: '安克雷奇 / 安大略', std: '20:00', tailNbr: 'N353UP', crewPickTime: '19:05', meetCrew: 'Peter',
+          inFlt: '058-HNL', inStatus: '到閘口 14:47', hkiaArrSched: '15:15', hkiaOrigin: '安大略 / 檀香山', sta: '15:15', inCrewPick: '14:15', meetPlane: 'Sam', inboundUld: '文仔',
+          outFlt: '059-ANC', outStatus: '預計 23:50', hkiaDepSched: '20:00', hkiaDest: '安克雷奇 / 安大略', std: '23:50', tailNbr: 'N353UP', crewPickTime: '19:05', meetCrew: 'Peter',
           parkingBay: 'X458>X25', loadTime: '16:45', fod: 'Peter', ric: 'Peter', belt: 'Fung',
           ccdMdp: 'Ting Fung', ccdP1P5: 'Ting Fung', ccdP6P9: 'Lee Fai/Chiu', rc: 'Lee Fai/Chiu',
           bulk: 'Peter', lh: 'Sam', exp: 'Kin chi', outsource: ''
@@ -8702,23 +9221,23 @@
         {
           islandId: '10',
           inFlt: '', inStatus: '已到港 (同欄出口)', hkiaArrSched: '已在港', hkiaOrigin: '同欄有出口航班 (已在港)', sta: '', inCrewPick: '', meetPlane: '', inboundUld: '',
-          outFlt: '171-SIN', outStatus: '啟航 16:39', hkiaDepSched: '16:25', hkiaDest: '新加坡', std: '16:39', tailNbr: 'N352UP', crewPickTime: '17:50', meetCrew: '明',
+          outFlt: '171-SIN', outStatus: '啟航 16:33', hkiaDepSched: '16:25', hkiaDest: '新加坡 / 路易斯維爾', std: '16:33', tailNbr: 'N358UP', crewPickTime: '17:50', meetCrew: '明',
           parkingBay: 'X25', loadTime: '15:00', fod: 'Chiu', ric: 'Chiu', belt: 'Fung',
           ccdMdp: 'Ling', ccdP1P5: 'Ling', ccdP6P9: 'Shun', rc: 'Shun',
           bulk: 'Chiu', lh: '明', exp: 'Kin chi', outsource: ''
         },
         {
           islandId: '05',
-          inFlt: '064-ICN', inStatus: '到閘口 17:18', hkiaArrSched: '16:30', hkiaOrigin: '路易斯維爾 / 首爾/仁川', sta: '17:18', inCrewPick: '', meetPlane: '', inboundUld: '文仔',
-          outFlt: '063-ANC', outStatus: '-', hkiaDepSched: '19:25', hkiaDest: '安克雷奇 / 路易斯維爾', std: '19:25', tailNbr: 'N616UP', crewPickTime: '18:30', meetCrew: '',
+          inFlt: '064-ICN', inStatus: '到閘口 18:43', hkiaArrSched: '16:30', hkiaOrigin: '路易斯維爾 / 安克雷奇 / 首爾/仁川', sta: '16:30', inCrewPick: '', meetPlane: '', inboundUld: '文仔',
+          outFlt: '063-ANC', outStatus: '啟航 20:11', hkiaDepSched: '20:20', hkiaDest: '安克雷奇 / 路易斯維爾', std: '20:11', tailNbr: 'N616UP', crewPickTime: '18:30', meetCrew: '',
           parkingBay: 'X20', loadTime: '16:45', fod: 'Peter', ric: 'Peter', belt: 'Lee Fai',
           ccdMdp: 'Ting Fung', ccdP1P5: 'Ting Fung', ccdP6P9: 'Fung/Chiu', rc: 'Fung/Chiu',
           bulk: 'Peter', lh: 'Shun', exp: 'Kin chi', outsource: ''
         },
         {
           islandId: '07',
-          inFlt: '167-BKK', inStatus: '到閘口 18:12', hkiaArrSched: '17:15', hkiaOrigin: '克拉克 / 曼谷', sta: '18:12', inCrewPick: '', meetPlane: '', inboundUld: '大丹',
-          outFlt: '', outStatus: '-', hkiaDepSched: '--:--', hkiaDest: '', std: '', tailNbr: 'N575UP', crewPickTime: '', meetCrew: '',
+          inFlt: '167-BKK', inStatus: '到閘口 18:00', hkiaArrSched: '17:15', hkiaOrigin: '克拉克 / 新加坡 / 檳城 / 曼谷', sta: '17:15', inCrewPick: '', meetPlane: '', inboundUld: '大丹',
+          outFlt: '', outStatus: '-', hkiaDepSched: '--:--', hkiaDest: '', std: '', tailNbr: 'N579UP', crewPickTime: '', meetCrew: '',
           parkingBay: 'X22', loadTime: '', fod: '', ric: '', belt: '',
           ccdMdp: 'Night WH', ccdP1P5: 'Ting Fung', ccdP6P9: 'Ho', rc: 'Ling Fung',
           bulk: '', lh: '', exp: '', outsource: ''
@@ -8754,6 +9273,7 @@
       operationPlan.uldBreakdown = JSON.parse(JSON.stringify(DEFAULT_OPERATION_PLAN.uldBreakdown));
     }
     autoAssignFlightBays(operationPlan.flights);
+    applyHKIAMapsToOperationPlan();
 
     function escapeHtmlStr(raw) {
       return String(raw == null ? '' : raw)
@@ -8768,53 +9288,55 @@
       const br = (operationPlan && operationPlan.bottomRoles) ? operationPlan.bottomRoles : DEFAULT_OPERATION_PLAN.bottomRoles;
       const extraRows = (operationPlan && Array.isArray(operationPlan.bottomExtraRows)) ? operationPlan.bottomExtraRows : [];
 
-      const collectRoleNames = (primaryVal, extraKey, fallbackVal) => {
+      // Split individual names and deduplicate case-insensitively so identical names only appear ONCE
+      const collectUniqueNamesFromValues = (rawValues, fallbackVal) => {
         const list = [];
-        const addRaw = (val) => {
-          if (!val) return;
-          const trimmed = String(val).trim();
-          if (trimmed && trimmed !== '-' && !list.includes(trimmed)) {
-            list.push(trimmed);
-          }
-        };
-        addRaw(primaryVal);
-        extraRows.forEach(er => {
-          if (er && er[extraKey]) addRaw(er[extraKey]);
+        const seenLower = new Set();
+        rawValues.forEach(val => {
+          splitIndividualNames(val).forEach(singleName => {
+            const clean = String(singleName || '').trim();
+            if (!clean || clean === '-') return;
+            const lower = clean.toLowerCase();
+            if (!seenLower.has(lower)) {
+              seenLower.add(lower);
+              list.push(clean);
+            }
+          });
         });
         return list.length > 0 ? list.join(' / ') : fallbackVal;
       };
 
+      const collectRoleNames = (primaryVal, extraKey, fallbackVal) => {
+        const vals = [primaryVal, ...extraRows.map(er => er && er[extraKey])];
+        return collectUniqueNamesFromValues(vals, fallbackVal);
+      };
+
+      const flightsArr = (operationPlan && Array.isArray(operationPlan.flights)) ? operationPlan.flights : [];
       const hubBicNames = collectRoleNames(br.rowLabel, 'rowLabel', 'Chak');
       const hubWicNames = collectRoleNames(br.hubWic, 'hubWic', 'Hei Wah');
       const newWhBicNames = collectRoleNames(br.newWhBic, 'newWhBic', 'David');
       const newWhWicNames = collectRoleNames(br.newWhWic, 'newWhWic', 'Kee Hong');
       const ucNames = collectRoleNames(br.uc, 'uc', '文仔 / Ping');
+      const bkgNames = collectRoleNames(br.bkg, 'bkg', 'Yin / Billy');
+      const expNames = collectUniqueNamesFromValues(flightsArr.map(f => f && f.exp), 'Kin chi');
+      const lhNames = collectUniqueNamesFromValues(flightsArr.map(f => f && f.lh), '明 / Sam / Shun');
 
       if (upsBuildingBicWicBubbleEl) {
         upsBuildingBicWicBubbleEl.innerHTML = `
-          <div class="flex items-center justify-between border-b border-white/25 pb-1.5 mb-2 gap-2">
-            <span class="text-[13px] font-black text-amber-300">🏢 UPS 大樓 · 值班主管編排</span>
-            <span class="text-[11.5px] font-mono bg-emerald-500 text-slate-950 font-black px-2 py-0.5 rounded" style="text-shadow:none;">BIC / WIC</span>
-          </div>
-          <div class="grid grid-cols-2 gap-1.5 text-[12px] leading-snug">
-            <div class="bg-slate-900/95 text-white px-2.5 py-1 rounded-lg flex items-center justify-between gap-2 border border-emerald-400/70"><span class="font-mono font-bold text-amber-300">Hub BIC</span> <span class="px-1.5 py-0.5 rounded font-mono text-[11.5px] font-black bg-emerald-500 text-slate-950" style="text-shadow:none;">${escapeHtmlStr(hubBicNames)}</span></div>
-            <div class="bg-slate-900/95 text-white px-2.5 py-1 rounded-lg flex items-center justify-between gap-2 border border-emerald-400/70"><span class="font-mono font-bold text-amber-300">Hub WIC</span> <span class="px-1.5 py-0.5 rounded font-mono text-[11.5px] font-black bg-emerald-500 text-slate-950" style="text-shadow:none;">${escapeHtmlStr(hubWicNames)}</span></div>
-            <div class="bg-slate-900/95 text-white px-2.5 py-1 rounded-lg flex items-center justify-between gap-2 border border-emerald-400/70"><span class="font-mono font-bold text-amber-300">New WH BIC</span> <span class="px-1.5 py-0.5 rounded font-mono text-[11.5px] font-black bg-emerald-500 text-slate-950" style="text-shadow:none;">${escapeHtmlStr(newWhBicNames)}</span></div>
-            <div class="bg-slate-900/95 text-white px-2.5 py-1 rounded-lg flex items-center justify-between gap-2 border border-emerald-400/70"><span class="font-mono font-bold text-amber-300">New WH WIC</span> <span class="px-1.5 py-0.5 rounded font-mono text-[11.5px] font-black bg-emerald-500 text-slate-950" style="text-shadow:none;">${escapeHtmlStr(newWhWicNames)}</span></div>
+          <div class="grid grid-cols-2 gap-1.5 text-[12.5px] leading-snug">
+            <div class="bg-slate-900 px-2.5 py-1.5 rounded-xl flex items-center justify-between gap-1.5 border border-amber-400/80 shadow-sm"><span class="font-mono font-extrabold text-amber-300 text-[11.5px]">Hub BIC</span> <span class="font-mono font-extrabold text-amber-300 text-[12.5px]">${escapeHtmlStr(hubBicNames)}</span></div>
+            <div class="bg-slate-900 px-2.5 py-1.5 rounded-xl flex items-center justify-between gap-1.5 border border-amber-400/80 shadow-sm"><span class="font-mono font-extrabold text-amber-300 text-[11.5px]">Hub WIC</span> <span class="font-mono font-extrabold text-amber-300 text-[12.5px]">${escapeHtmlStr(hubWicNames)}</span></div>
+            <div class="bg-slate-900 px-2.5 py-1.5 rounded-xl flex items-center justify-between gap-1.5 border border-amber-400/80 shadow-sm"><span class="font-mono font-extrabold text-amber-300 text-[11.5px]">New WH BIC</span> <span class="font-mono font-extrabold text-amber-300 text-[12.5px]">${escapeHtmlStr(newWhBicNames)}</span></div>
+            <div class="bg-slate-900 px-2.5 py-1.5 rounded-xl flex items-center justify-between gap-1.5 border border-amber-400/80 shadow-sm"><span class="font-mono font-extrabold text-amber-300 text-[11.5px]">New WH WIC</span> <span class="font-mono font-extrabold text-amber-300 text-[12.5px]">${escapeHtmlStr(newWhWicNames)}</span></div>
+            <div class="bg-slate-900 px-2.5 py-1.5 rounded-xl flex items-center justify-between gap-1.5 border border-amber-400/80 shadow-sm"><span class="font-mono font-extrabold text-amber-300 text-[11.5px]">BKG</span> <span class="font-mono font-extrabold text-amber-300 text-[12.5px]">${escapeHtmlStr(bkgNames)}</span></div>
+            <div class="bg-slate-900 px-2.5 py-1.5 rounded-xl flex items-center justify-between gap-1.5 border border-amber-400/80 shadow-sm"><span class="font-mono font-extrabold text-amber-300 text-[11.5px]">Exp</span> <span class="font-mono font-extrabold text-amber-300 text-[12.5px]">${escapeHtmlStr(expNames)}</span></div>
+            <div class="col-span-2 bg-slate-900 px-2.5 py-1.5 rounded-xl flex items-center justify-between gap-2 border border-emerald-400/80 shadow-sm"><span class="font-mono font-extrabold text-amber-300 text-[11.5px]">LH</span> <span class="font-mono font-extrabold text-amber-300 text-[12.5px]">${escapeHtmlStr(lhNames)}</span></div>
           </div>
         `;
       }
 
-      if (uldControlUcBubbleEl) {
-        uldControlUcBubbleEl.innerHTML = `
-          <div class="flex items-center justify-between border-b border-white/25 pb-1.5 mb-2 gap-2">
-            <span class="text-[13px] font-black text-amber-300">📦 ULD Control · 貨櫃控制</span>
-            <span class="text-[11.5px] font-mono bg-emerald-500 text-slate-950 font-black px-2 py-0.5 rounded" style="text-shadow:none;">UC</span>
-          </div>
-          <div class="grid grid-cols-1 gap-1.5 text-[12.5px] leading-snug">
-            <div class="bg-slate-900/95 text-white px-2.5 py-1 rounded-lg flex items-center justify-between gap-2 border border-emerald-400/70"><span class="font-mono font-bold text-amber-300">UC</span> <span class="px-2 py-0.5 rounded font-mono text-[12px] font-black bg-emerald-500 text-slate-950" style="text-shadow:none;">${escapeHtmlStr(ucNames)}</span></div>
-          </div>
-        `;
+      if (typeof renderRightServiceableBreakdownBubble === 'function') {
+        renderRightServiceableBreakdownBubble();
       }
     }
 
@@ -8838,25 +9360,26 @@
         makeUldCell('AAD', getVal('AAD', '65'), 'text-slate-900'),
         makeUldCell('AAY', getVal('AAY', '39'), 'text-slate-900'),
         makeUldCell('AAZ', getVal('AAZ', '2'), 'text-slate-900'),
-        makeUldCell('AMP', getVal('AMP', '90'), 'text-slate-900'),
+        makeUldCell('AMP', getVal('AMP', '101'), 'text-slate-900'),
         makeUldCell('ALP', getVal('ALP', '20'), 'text-slate-900')
       ].join('');
 
       // Row 2: AMJ / AMD (1行)
       const row2Html = [
-        makeUldCell('AMJ', getVal('AMJ', '77'), 'text-teal-700'),
-        makeUldCell('AMD', getVal('AMD', '37'), 'text-teal-700')
+        makeUldCell('AMJ', getVal('AMJ', '79'), 'text-teal-700'),
+        makeUldCell('AMD', getVal('AMD', '39'), 'text-teal-700')
       ].join('');
 
-      // Row 3: PAG / PMC / Lease (1行)
+      // Row 3: PAG / PMC / PM2 / Lease (1行 — 完整包含 PM2)
       const row3Html = [
-        makeUldCell('PAG', getVal('PAG', '44'), 'text-sky-700'),
-        makeUldCell('PMC', getVal('PMC', '179'), 'text-sky-700'),
+        makeUldCell('PAG', getVal('PAG', '29'), 'text-sky-700'),
+        makeUldCell('PMC', getVal('PMC', '177'), 'text-sky-700'),
+        makeUldCell('PM2', getVal('PM2', '0'), 'text-sky-700'),
         makeUldCell('Lease', getVal('Lease', '0'), 'text-sky-700')
       ].join('');
 
       // Row 4: Total (1行 — matches bottom dock's dark slate + amber-500 pill bar)
-      const totalVal = getVal('Total', '553');
+      const totalVal = getVal('Total', '551');
       const row4Html = `
         <div class="bg-slate-900 px-3 py-1 rounded-full flex items-center justify-between gap-2 shadow-sm">
           <span class="font-mono font-extrabold text-amber-300 text-[12px] tracking-wide">Total (Serviceable ULD 總數)</span>
@@ -8864,29 +9387,41 @@
         </div>
       `;
 
-      // Row 5: FCC Q6 / FCC 118, Net / Straps (1行)
+      // Row 5: FCC 96 / FCC 118, Net / Straps (1行 — 修正 FCC 96 名稱)
       const row5Html = [
-        makeUldCell('FCC Q6', getVal('FCC96', '12'), 'text-indigo-700'),
+        makeUldCell('FCC 96', getVal('FCC96', '12'), 'text-indigo-700'),
         makeUldCell('FCC 118', getVal('FCC118', '23'), 'text-indigo-700'),
         makeUldCell('Net', getVal('Net', '478'), 'text-slate-900'),
         makeUldCell('Straps', getVal('Straps', '520'), 'text-slate-900')
       ].join('');
 
+      const br = (operationPlan && operationPlan.bottomRoles) ? operationPlan.bottomRoles : DEFAULT_OPERATION_PLAN.bottomRoles;
+      const extraRows = (operationPlan && Array.isArray(operationPlan.bottomExtraRows)) ? operationPlan.bottomExtraRows : [];
+      const ucList = [];
+      const addUc = (v) => {
+        if (!v) return;
+        const t = String(v).trim();
+        if (t && t !== '-' && !ucList.includes(t)) ucList.push(t);
+      };
+      addUc(br.uc);
+      extraRows.forEach(er => { if (er && er.uc) addUc(er.uc); });
+      const ucNamesStr = ucList.length > 0 ? ucList.join(' / ') : '文仔 / Ping';
+
       rightServiceableBubbleEl.innerHTML = `
-        <div class="flex items-center justify-between border-b border-slate-200/90 pb-1.5 mb-2 gap-2">
-          <div class="flex items-center gap-1.5">
-            <span class="w-2 h-2 rounded-full bg-amber-500"></span>
-            <span class="text-[13px] font-black text-slate-900 tracking-tight">Serviceable Breakdown</span>
+        <div class="grid grid-cols-2 items-center border-b border-slate-300/90 pb-1.5 mb-2 gap-1.5">
+          <div class="flex items-center justify-center gap-1.5 bg-white/80 rounded-xl py-1 px-2 border border-slate-200/90 shadow-sm">
+            <span class="w-2 h-2 rounded-full bg-amber-500 flex-shrink-0"></span>
+            <span class="text-[12.5px] font-black text-slate-900 tracking-tight whitespace-nowrap">Serviceable Breakdown</span>
           </div>
-          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 live-dot"></span>
-            <span>6:00am 實時統計</span>
-          </span>
+          <div class="bg-slate-900/95 border border-emerald-400/70 rounded-xl px-3 py-1 flex items-center justify-between gap-2 shadow-sm w-full">
+            <span class="font-mono text-[12px] font-extrabold text-amber-300 whitespace-nowrap">UC</span>
+            <span class="font-mono text-[12px] font-extrabold text-amber-300 whitespace-nowrap">${escapeHtmlStr(ucNamesStr)}</span>
+          </div>
         </div>
         <div class="flex flex-col gap-1.5">
           <div class="grid grid-cols-5 gap-1">${row1Html}</div>
           <div class="grid grid-cols-2 gap-1.5">${row2Html}</div>
-          <div class="grid grid-cols-3 gap-1.5">${row3Html}</div>
+          <div class="grid grid-cols-4 gap-1">${row3Html}</div>
           <div class="grid grid-cols-1">${row4Html}</div>
           <div class="grid grid-cols-4 gap-1">${row5Html}</div>
         </div>
@@ -8984,7 +9519,7 @@
             </tbody>
           </table>
           <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; padding:2px 8px; background:linear-gradient(90deg, #23140d 0%, #0f172a 38%, #1e293b 72%, #0f172a 100%); border:1px solid rgba(251, 191, 36, 0.45); border-left:3.5px solid #ffb500; border-radius:5px; box-shadow:inset 0 1px 0 rgba(255,255,255,0.10), 0 2px 6px rgba(0,0,0,0.25); font-size:calc(10.5px * var(--uld-font-scale, 1)); font-weight:800; color:#fde68a; line-height:1.16; flex-shrink:0;">
-            <span style="text-shadow:0 1px 2px rgba(0,0,0,0.6);">📋 每日工作編排壁報板 (${operationPlan.dateTitle || 'Tuesday, October 27, 2026'})</span>
+            <span style="text-shadow:0 1px 2px rgba(0,0,0,0.6);">📋 每日工作編排壁報板 (${operationPlan.dateTitle || 'Wednesday, November 4, 2026'})</span>
             <span style="color:#7dd3fc; background:rgba(14, 116, 144, 0.28); border:1px solid rgba(56, 189, 248, 0.35); border-radius:4px; padding:0px 6px;">🚜 ${operationPlan.tractorBanner || '1 x 24 Tractor (1200-0800)'}</span>
             <span style="color:#a7f3d0; background:rgba(6, 95, 70, 0.35); border:1px solid rgba(52, 211, 153, 0.4); border-radius:4px; padding:0px 6px;">✏️ 點擊壁報板可修改</span>
           </div>
@@ -9251,6 +9786,9 @@
         if (operationPlan.festivalTheme && typeof applyFestivalTheme === 'function') {
           applyFestivalTheme(operationPlan.festivalTheme, true);
         }
+        window._flightDataDirty = true;
+        window._initialHKIAApplied = false;
+        if (typeof invalidateHudLayoutCache === 'function') invalidateHudLayoutCache();
         if (typeof applyHKIAMapsToOperationPlan === 'function') applyHKIAMapsToOperationPlan();
         renderUPSGatewayUldBubble();
         const activeTag = document.activeElement ? document.activeElement.tagName : '';
@@ -9604,6 +10142,9 @@
 
     function saveOperationPlan(immediateCloud = false) {
       hasUnsavedModalEdits = true;
+      window._flightDataDirty = true;
+      window._initialHKIAApplied = false;
+      if (typeof invalidateHudLayoutCache === 'function') invalidateHudLayoutCache();
       renderUPSGatewayUldBubble();
       autoAssignFlightBays(operationPlan.flights);
       const nowTs = Date.now();
@@ -9912,6 +10453,10 @@
       });
 
       operationPlan.flights.forEach(f => {
+        splitIndividualNames(f.exp).forEach(n => {
+          if (excludedNamesSet.has(n.toLowerCase())) return;
+          rawEntries.push({ role: 'Exp', name: n, color: 0x38bdf8 });
+        });
         splitIndividualNames(f.outsource).forEach(n => {
           if (excludedNamesSet.has(n.toLowerCase())) return;
           rawEntries.push({ role: 'Outsource', name: n, color: 0xf97316 });
@@ -10000,37 +10545,40 @@
         }
       });
 
-      const sig = JSON.stringify({ allFlightPersonList, physicalWorkerList, flt });
+      const sig = JSON.stringify({ allFlightPersonList, physicalWorkerList, bay: flt.parkingBay, inFlt: flt.inFlt, outFlt: flt.outFlt, islandId });
       if (crewObj.signature === sig) return;
       crewObj.signature = sig;
 
       if (!crewObj.bubbleEl) {
         const bub = document.createElement('div');
-        bub.className = 'speech-bubble top-row-aircraft-bubble !max-w-[355px] !min-w-[275px] !bg-slate-900/12 !text-white';
+        bub.className = 'speech-bubble top-row-aircraft-bubble !bg-slate-900/12 !text-white';
         bub.addEventListener('click', (e) => {
           e.stopPropagation();
           focusOnIsland(islandId);
         });
-        labelsLayer.appendChild(bub);
+        const barParent = document.getElementById('top-aircraft-bubbles-bar') || labelsLayer;
+        barParent.appendChild(bub);
         crewObj.bubbleEl = bub;
       }
 
       const lhDisplayVal = lhNamesArr.length > 0 ? lhNamesArr.join(' / ') : (String(flt.lh || '').trim() || '-');
-      const lhBadgeClass = (lhDisplayVal && lhDisplayVal !== '-') ? 'bg-emerald-500 text-slate-950' : 'bg-slate-700 text-amber-200';
-      const lhChipHtml = `<div class="bg-slate-900/95 text-white px-2.5 py-1 rounded-lg flex items-center justify-between gap-2 border border-emerald-400/70 shadow-sm"><span class="font-mono font-bold text-amber-300 text-[12px]">LH</span> <span class="px-1.5 py-0.5 rounded font-mono text-[11.5px] font-black ${lhBadgeClass}" style="text-shadow:none;">${escapeHtmlStr(lhDisplayVal)}</span></div>`;
+      const lhChipHtml = `<div class="bg-slate-900/95 px-3 py-1.5 rounded-lg flex items-center justify-between gap-3 border border-emerald-400/70 shadow-sm whitespace-nowrap"><span class="font-mono font-extrabold text-amber-300 text-[12.5px] whitespace-nowrap flex-shrink-0">LH</span><span class="font-mono font-extrabold text-amber-300 text-[12.5px] whitespace-nowrap flex-shrink-0">${escapeHtmlStr(lhDisplayVal)}</span></div>`;
       const deduplicatedSummaryChips = deduplicatedCoreList
-        .map(p => `<div class="bg-slate-900/95 text-white px-2.5 py-1 rounded-lg flex items-center justify-between gap-2 border border-emerald-400/70 shadow-sm"><span class="font-mono font-bold text-amber-300 text-[12px]">${escapeHtmlStr(p.role)}</span> <span class="px-1.5 py-0.5 rounded font-mono text-[11.5px] font-black bg-emerald-500 text-slate-950" style="text-shadow:none;">${escapeHtmlStr(p.name)}</span></div>`)
+        .map(p => `<div class="bg-slate-900/95 px-3 py-1.5 rounded-lg flex items-center justify-between gap-3 border border-emerald-400/70 shadow-sm whitespace-nowrap"><span class="font-mono font-extrabold text-amber-300 text-[12.5px] whitespace-nowrap flex-shrink-0">${escapeHtmlStr(p.role)}</span><span class="font-mono font-extrabold text-amber-300 text-[12.5px] whitespace-nowrap flex-shrink-0">${escapeHtmlStr(p.name)}</span></div>`)
         .concat([lhChipHtml])
         .join('');
 
       const unifiedFltLabel = formatUnified5XFlightTitle(flt.inFlt, flt.outFlt);
+      crewObj.bubbleEl._cachedNatW = 0;
+      crewObj.bubbleEl._cachedNatH = 0;
+      window._labelsDirty = true;
       crewObj.bubbleEl.innerHTML = `
-        <div class="flex items-center justify-between border-b border-white/25 pb-1.5 mb-2 gap-2">
-          <span class="text-[13px] font-black text-amber-300">💬 裝機作業 · [${escapeHtmlStr(flt.parkingBay || ('停機位 ' + islandId))}]</span>
-          <span class="text-[11.5px] font-mono bg-emerald-500 text-slate-950 font-black px-2 py-0.5 rounded shadow-sm" style="text-shadow:none;">${escapeHtmlStr(unifiedFltLabel)}</span>
+        <div class="bg-slate-900/95 border border-emerald-400/70 rounded-lg px-3 py-1.5 mb-1.5 flex items-center justify-between gap-4 shadow-sm whitespace-nowrap">
+          <span class="text-[13px] font-mono font-extrabold text-amber-300 whitespace-nowrap">[${escapeHtmlStr(flt.parkingBay || ('停機位 ' + islandId))}] ${escapeHtmlStr(unifiedFltLabel)}</span>
+          <span class="text-[11.5px] font-mono font-extrabold text-amber-300 whitespace-nowrap">裝機作業</span>
         </div>
-        <div class="grid grid-cols-2 gap-1.5 text-[12px] leading-snug">
-          ${deduplicatedSummaryChips || '<div class="col-span-2 text-slate-100">裝機作業進行中</div>'}
+        <div style="display:grid; grid-template-columns:repeat(2, minmax(max-content, 1fr)); gap:6px;" class="text-[12.5px] leading-snug">
+          ${deduplicatedSummaryChips || '<div class="col-span-2 bg-slate-900/95 border border-emerald-400/70 rounded-lg px-3 py-1.5 font-mono font-extrabold text-amber-300">裝機作業進行中</div>'}
         </div>
       `;
 
@@ -10178,12 +10726,7 @@
       islandChibiPlanesMap.forEach((planeMesh) => {
         planeMesh.visible = false;
       });
-      islandLoadingCrewMap.forEach((crewObj) => {
-        crewObj.group.visible = false;
-        if (crewObj.bubbleEl && crewObj.bubbleEl.style.display !== 'none') {
-          crewObj.bubbleEl.style.display = 'none';
-        }
-      });
+      const activeLoadingBaySet = new Set();
       islandRoadSignsMap.forEach((signGroup, islId) => {
         updateBayRoadSignText(islId, '');
       });
@@ -10258,8 +10801,12 @@
 
         if (status.isLoading && status.active && crewObj) {
           activeLoadingCount++;
+          activeLoadingBaySet.add(targetIslandId);
           syncIslandLoadingCrewWorkers(targetIslandId, flt, globalActiveLoadingNames);
           crewObj.group.visible = true;
+          if (state.showBubbles && crewObj.bubbleEl && crewObj.bubbleEl.style.display !== 'block') {
+            crewObj.bubbleEl.style.display = 'block';
+          }
         }
 
         if (tagEl && islData) {
@@ -10267,6 +10814,16 @@
           tagEl.dataset.hideDeparted = '1';
           tagEl.innerHTML = '';
           tagEl.style.display = 'none';
+        }
+      });
+
+      // Hide loading crew & bubble ONLY for bays that are not actively loading right now (prevents 1-second display:none flash!)
+      islandLoadingCrewMap.forEach((crewObj, islId) => {
+        if (!activeLoadingBaySet.has(islId)) {
+          crewObj.group.visible = false;
+          if (crewObj.bubbleEl && crewObj.bubbleEl.style.display !== 'none') {
+            crewObj.bubbleEl.style.display = 'none';
+          }
         }
       });
 
@@ -10319,10 +10876,20 @@
           </tr>
         `;
 
+        const ULD_SUM_KEYS = ['AAD', 'AAY', 'AAZ', 'ALP', 'AMD', 'AMJ', 'AMP', 'PAG', 'PMC', 'PM2', 'Lease'];
         document.querySelectorAll('.op-uld-input').forEach(inp => {
           inp.addEventListener('input', (e) => {
             const k = e.target.getAttribute('data-uld-key');
             operationPlan.uldBreakdown[k] = e.target.value;
+            if (ULD_SUM_KEYS.includes(k)) {
+              const autoSum = ULD_SUM_KEYS.reduce((acc, key) => {
+                const n = parseFloat(String(operationPlan.uldBreakdown[key] || '0').trim());
+                return acc + (isNaN(n) ? 0 : n);
+              }, 0);
+              operationPlan.uldBreakdown.Total = String(autoSum);
+              const totalInp = document.querySelector('.op-uld-input[data-uld-key="Total"]');
+              if (totalInp) totalInp.value = String(autoSum);
+            }
             saveOperationPlan(false);
           });
           inp.addEventListener('change', () => {
@@ -10457,7 +11024,7 @@
       });
       bottomBodyEl.innerHTML = bottomHtml;
       renderUPSGatewayUldBubble();
-      renderFR24LiveBoard();
+      renderFR24LiveBoard(true);
 
       // Bind input & change listeners for instant automatic multi-device Cloud Sync as soon as user types or finishes editing
       document.querySelectorAll('.op-cell-input').forEach(inp => {
@@ -10591,7 +11158,7 @@
     container.addEventListener('wheel', (e) => {
       e.preventDefault();
       if (state.viewLocked) return;
-      camCtrl.desiredSpherical.radius = Math.max(24, Math.min(360, camCtrl.desiredSpherical.radius + e.deltaY * 0.05));
+      camCtrl.desiredSpherical.radius = Math.max(24, Math.min(900, camCtrl.desiredSpherical.radius + e.deltaY * 0.05));
     }, { passive: false });
 
     // Camera view preset buttons & View Lock toggle
@@ -10682,6 +11249,8 @@
       }
       rosterModal.classList.add('hidden');
       rosterModal.classList.remove('flex');
+      window._flightDataDirty = true;
+      window._initialHKIAApplied = false;
       fetchFlightradar24UPSHKG();
       updateHongKongClock();
       renderSelectedIslandDetail(state.selectedIslandId);
@@ -11557,44 +12126,71 @@
         camCtrl.desiredSpherical.phi = spec.phi;
         camCtrl.desiredSpherical.theta = spec.theta;
       }
-      bgRenderer.setSize(window.innerWidth, window.innerHeight);
       renderer.setSize(window.innerWidth, window.innerHeight);
-      weatherRenderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(getOptimalTVPixelRatio(_currentTvScaleMult));
+      renderer.shadowMap.needsUpdate = true;
+      invalidateHudLayoutCache();
     });
 
     // =========================================================================
     // 12. MAIN 3D ANIMATION LOOP
     // =========================================================================
     let clock = new THREE.Clock();
+    let _frameCounter = 0;
+    let _fpsFrameCount = 0;
+    let _fpsAccumTime = 0;
+    let _currentTvScaleMult = 1.0;
+    const _lastCamPos = new THREE.Vector3();
 
     function animate() {
       requestAnimationFrame(animate);
       const dt = clock.getDelta();
       const elapsed = clock.elapsedTime;
+      _frameCounter++;
+
+      // 75-Inch 4K TV Auto-FPS Governor: dynamically adjusts internal pixel ratio if FPS ever dips
+      _fpsFrameCount++;
+      _fpsAccumTime += dt;
+      if (_fpsAccumTime >= 1.5) {
+        const measuredFps = Math.round(_fpsFrameCount / _fpsAccumTime);
+        window._currentMeasuredFps = measuredFps;
+        if (measuredFps < 48 && _currentTvScaleMult > 0.56) {
+          _currentTvScaleMult = Math.max(0.55, _currentTvScaleMult - 0.12);
+          renderer.setPixelRatio(getOptimalTVPixelRatio(_currentTvScaleMult));
+        } else if (measuredFps >= 58 && _currentTvScaleMult < 1.0) {
+          _currentTvScaleMult = Math.min(1.0, _currentTvScaleMult + 0.05);
+          renderer.setPixelRatio(getOptimalTVPixelRatio(_currentTvScaleMult));
+        }
+        _fpsFrameCount = 0;
+        _fpsAccumTime = 0;
+      }
 
       if (!state.paused) {
         if (state.autoRotate && !camCtrl.isDragging && !state.viewLocked) {
           camCtrl.desiredSpherical.theta += 0.0022;
         }
 
-        // Gentle bobbing of the Unified Giant Rectangular Dynamic Island (all bays & central runway move in unison with the island!)
-        const amp = state.weatherMode === 'storm' ? 0.18 : 0.06;
-        const islandBob = Math.sin(elapsed * 1.2) * amp;
-        islandMeshesMap.forEach((group, id) => {
-          group.position.y = (id === 'UPS' ? 0 : 0.96) + islandBob;
-        });
-        runwayGroup.position.y = 0.98 + islandBob;
-
-        // Ocean wave animation (stronger during storm)
-        const waveAmp = state.weatherMode === 'storm' ? 0.65 : (state.weatherMode !== 'clear' ? 0.32 : 0.16);
-        const waveSpeed = state.weatherMode === 'storm' ? 3.2 : 1.5;
-        for (let i = 0; i < oceanPosAttr.count; i++) {
-          const vx = oceanPosAttr.getX(i);
-          const vz = oceanPosAttr.getZ(i);
-          const wy = oceanBaseY[i] + Math.sin(vx * 0.12 + elapsed * waveSpeed) * Math.cos(vz * 0.12 + elapsed * waveSpeed) * waveAmp;
-          oceanPosAttr.setY(i, wy);
+        // Keep the 4,500-mesh airport island rock-steady in normal weather (eliminates 4,500-mesh matrixWorld cascade every frame!); only bob in storm mode
+        if (state.weatherMode === 'storm' && (_frameCounter & 1) === 0) {
+          const islandBob = Math.sin(elapsed * 1.2) * 0.18;
+          islandMeshesMap.forEach((group, id) => {
+            group.position.y = (id === 'UPS' ? 0 : 0.96) + islandBob;
+          });
+          runwayGroup.position.y = 0.98 + islandBob;
         }
-        oceanPosAttr.needsUpdate = true;
+
+        // Ocean wave animation (updated every 2nd frame for 75-inch 4K TV smoothness)
+        if ((_frameCounter & 1) === 0) {
+          const waveAmp = state.weatherMode === 'storm' ? 0.65 : (state.weatherMode !== 'clear' ? 0.32 : 0.16);
+          const waveSpeed = state.weatherMode === 'storm' ? 3.2 : 1.5;
+          for (let i = 0; i < oceanPosAttr.count; i++) {
+            const vx = oceanPosAttr.getX(i);
+            const vz = oceanPosAttr.getZ(i);
+            const wy = oceanBaseY[i] + Math.sin(vx * 0.12 + elapsed * waveSpeed) * Math.cos(vz * 0.12 + elapsed * waveSpeed) * waveAmp;
+            oceanPosAttr.setY(i, wy);
+          }
+          oceanPosAttr.needsUpdate = true;
+        }
 
         // Trees swaying in wind (faster during storm/rain)
         const windFactor = state.weatherMode === 'storm' ? 0.18 : (state.weatherMode !== 'clear' ? 0.08 : 0.03);
@@ -11668,11 +12264,11 @@
           });
         });
 
-        // Animate 3D ULD Container & Cargo Pallet Handling Zone on the Right Side of the Upper UPS Island!
+        // Animate Compact 3D ULD Container & Cargo Pallet Handling Zone on the Right Side (x = 56..100)
         if (animatedUldYardItems.etvShuttle && animatedUldYardItems.etvLiftPlatform) {
-          const etvX = 60.0 + Math.sin(elapsed * 0.55) * 32.0;
+          const etvX = 78.5 + Math.sin(elapsed * 0.55) * 18.0;
           animatedUldYardItems.etvShuttle.position.x = etvX;
-          animatedUldYardItems.etvLiftPlatform.position.y = 0.62 + (Math.sin(elapsed * 1.8) * 0.5 + 0.5) * 1.45;
+          animatedUldYardItems.etvLiftPlatform.position.y = 0.54 + (Math.sin(elapsed * 1.8) * 0.5 + 0.5) * 1.15;
         }
         animatedUldYardItems.conveyorCrates.forEach((cItem) => {
           const span = cItem.xMax - cItem.xMin;
@@ -11772,9 +12368,12 @@
           upsDrone.rotation.y = Math.sin(elapsed * 0.8) * 0.45;
         }
 
-        // Advance all Three.js Keyframe AnimationMixers (Solar Ray Crown, Island Levitation Thrusters, Dock Parcel Conveyors)
+        // Advance visible Three.js Keyframe AnimationMixers (skips hidden loading bay mixers)
         for (let mIdx = 0; mIdx < globalAnimationMixers.length; mIdx++) {
-          globalAnimationMixers[mIdx].update(dt);
+          const mx = globalAnimationMixers[mIdx];
+          if (!mx._visGroup || mx._visGroup.visible) {
+            mx.update(dt);
+          }
         }
 
         // Update Custom GLSL Coastal Water Foam Shader Time Uniform
@@ -11828,11 +12427,14 @@
 
 
 
-        // Spin the 16-blade turbofan rotors inside all 4 oversized engines on every Chibi 747-8F aircraft
+        // Spin the merged 16-blade turbofan rotors only on VISIBLE Chibi 747-8F aircraft
         if (Array.isArray(window._allChibiEngineRotors)) {
           const rotorDelta = dt * 14.0;
           for (let rIdx = 0; rIdx < window._allChibiEngineRotors.length; rIdx++) {
-            window._allChibiEngineRotors[rIdx].rotation.x += rotorDelta;
+            const rGrp = window._allChibiEngineRotors[rIdx];
+            if (!rGrp.userData.aircraftRoot || rGrp.userData.aircraftRoot.visible) {
+              rGrp.rotation.x += rotorDelta;
+            }
           }
         }
 
@@ -11847,6 +12449,7 @@
             if ((rwObj.mode === 'arriving' || rwObj.mode === 'repositioning') && rwObj.eventKey && window._finishedLandingEvents) {
               window._finishedLandingEvents.add(rwObj.eventKey);
             }
+            window._flightDataDirty = true;
             updateHongKongClock();
             return;
           }
@@ -11902,9 +12505,12 @@
         }
 
         // === MULTI-FESTIVAL THEME ANIMATIONS ===
-        halloweenStringBulbs.forEach((b) => {
-          b.mat.emissiveIntensity = 0.85 + Math.sin(elapsed * 4.5 + b.phase) * 0.55;
-        });
+        if (state.festivalTheme !== 'normal' && (_frameCounter & 1) === 0) {
+          for (let bi = 0; bi < halloweenStringBulbs.length; bi++) {
+            const b = halloweenStringBulbs[bi];
+            b.mat.emissiveIntensity = 0.85 + Math.sin(elapsed * 4.5 + b.phase) * 0.55;
+          }
+        }
 
         if (state.festivalTheme === 'halloween') {
           halloweenAnimatedGhosts.forEach((g) => {
@@ -11930,10 +12536,6 @@
           const flap = Math.sin(elapsed * 14.0 + b.phase) * 0.65;
           if (b.mesh.userData.wingL) b.mesh.userData.wingL.rotation.z = flap;
           if (b.mesh.userData.wingR) b.mesh.userData.wingR.rotation.z = -flap;
-        });
-
-        halloweenStringBulbs.forEach((b) => {
-          b.mat.emissiveIntensity = 0.85 + Math.sin(elapsed * 4.5 + b.phase) * 0.55;
         });
 
           halloweenPumpkinGlows.forEach((p) => {
@@ -12085,10 +12687,18 @@
       }
 
       updateCameraFromSpherical(dt);
-      bgRenderer.render(bgScene, camera);
+      if ((_frameCounter & 3) === 0) {
+        renderer.shadowMap.needsUpdate = true;
+      }
       renderer.render(scene, camera);
-      weatherRenderer.render(weatherScene, camera);
-      updateProjectedLabels();
+
+      const camMoved = _lastCamPos.distanceToSquared(camera.position) > 0.0004;
+      if (camMoved) _lastCamPos.copy(camera.position);
+      const hasActiveRunwayPlane = runwayChibiPlanes.some(p => p.active && p.mesh.visible);
+      if (camMoved || camCtrl.isDragging || state.autoRotate || hasActiveRunwayPlane || window._labelsDirty || (_frameCounter & 3) === 0) {
+        window._labelsDirty = false;
+        updateProjectedLabels();
+      }
     }
 
     // Bind Hideable Pop-up Festival Theme Switcher Menu
@@ -12148,6 +12758,13 @@
       fetchHKOWeather();
       fetchFlightradar24UPSHKG();
       drawCharts();
+      // Re-compute exact Panorama framing after HUD cards & top aircraft bubbles are rendered so 100% of the Dynamic Island is visible and unoccluded!
+      updateProjectedLabels();
+      const initPanoramaSpec = getResponsivePanoramaCameraSpec();
+      camCtrl.target.set(initPanoramaSpec.targetX, initPanoramaSpec.targetY, initPanoramaSpec.targetZ);
+      camCtrl.desiredTarget.copy(camCtrl.target);
+      camCtrl.spherical = { radius: initPanoramaSpec.radius, phi: initPanoramaSpec.phi, theta: initPanoramaSpec.theta };
+      camCtrl.desiredSpherical = { radius: initPanoramaSpec.radius, phi: initPanoramaSpec.phi, theta: initPanoramaSpec.theta };
       animate();
     }
     window.onload = initializeGatewayApp;
