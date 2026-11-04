@@ -483,7 +483,7 @@
   <div id="weather-canvas-container"></div>
 
   <!-- TOP-LEFT STACK: (1) UPS HKG GATEWAY WEATHER CARD + (2) SEPARATED FLIGHT INFORMATION CARD BELOW IT -->
-  <div class="fixed top-3 left-3 z-30 flex flex-col gap-2.5 max-w-[330px] sm:max-w-[360px]">
+  <div id="top-left-hud-stack" class="fixed top-3 left-3 z-30 flex flex-col gap-2.5 max-w-[330px] sm:max-w-[360px]" style="transform-origin: top left;">
     <!-- Card 1: UPS HKG Gateway Weather Card -->
     <div class="glass-card rounded-2xl px-4 py-3">
       <div class="flex items-center justify-between gap-2">
@@ -522,6 +522,14 @@
         </div>
       </div>
 
+      <!-- Chek Lap Kok 24h Temperature & Weather Chart Button inside Top-Left Weather Info Card -->
+      <div class="mt-2 pt-2 border-t border-slate-200/80 flex items-center justify-between gap-2">
+        <span class="text-[10px] font-bold text-slate-500">📊 赤鱲角 24小時氣象趨勢</span>
+        <button id="btn-open-chart" class="px-3 py-1 rounded-full text-[11px] font-extrabold bg-sky-600 text-white shadow-sm hover:bg-sky-500 transition flex items-center gap-1 border border-sky-400/40">
+          赤鱲角氣溫圖表
+        </button>
+      </div>
+
       <!-- Active Weather Warnings Banner (only shown when an actual HKO warning is in effect) -->
       <div id="warning-strip" class="hidden mt-2 flex-wrap items-center gap-1.5"></div>
     </div>
@@ -547,8 +555,8 @@
   </div>
 
   <!-- ULTRA-SLIM UNIFIED BOTTOM FLOATING DOCK (Matches Approved Preview Image: 50%+ Height Reduction) -->
-  <div class="fixed bottom-2 left-1/2 -translate-x-1/2 z-30 w-max max-w-[99vw]">
-    <div class="glass-card rounded-2xl px-3 py-1.5 flex flex-col items-center justify-center gap-1 shadow-xl border border-white/90">
+  <div id="bottom-dock-wrapper" class="fixed bottom-2 left-1/2 -translate-x-1/2 z-30 w-max max-w-[99vw]">
+    <div id="bottom-dock-card" class="glass-card rounded-2xl px-3 py-1.5 flex flex-col items-center justify-center gap-1 shadow-xl border border-white/90" style="transform-origin: bottom center;">
       <!-- Top Slim Row: Compact HK Time + Unified Dark Status Pill -->
       <div class="w-full flex flex-wrap items-center justify-between gap-2 px-1">
         <div class="flex items-center gap-1.5">
@@ -569,24 +577,18 @@
         <button id="btn-cam-panorama" class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-slate-900 text-white shadow-sm hover:bg-slate-800 transition">
           全景
         </button>
-        <button id="btn-cam-top" class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-slate-900 text-white shadow-sm hover:bg-slate-800 transition">
-          俯瞰六角陣
-        </button>
         <button id="btn-cam-ups" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500 text-slate-950 shadow-sm hover:bg-amber-400 transition">
           UPS HKG Gateway
-        </button>
-        <button id="btn-cam-runway" class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-sky-600 text-white shadow-sm hover:bg-sky-500 transition flex items-center gap-0.5">
-          🛫 跑道起降
         </button>
         <button id="btn-lock-view" class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-white/90 text-slate-700 shadow-sm hover:bg-white transition flex items-center gap-0.5 border border-slate-200/80" title="鎖定/解鎖動態島 3D 視覺距離與角度" aria-pressed="false">
           <span id="lock-view-icon">🔓</span>
           <span id="lock-view-label">鎖定視角</span>
         </button>
-        <button id="btn-open-chart" class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-white/90 text-sky-700 shadow-sm hover:bg-white transition border border-sky-200">
-          赤鱲角氣溫圖表
-        </button>
         <button id="btn-open-roster" class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-600 text-white shadow-sm hover:bg-emerald-500 transition flex items-center gap-0.5">
           📋 每日工作編排
+        </button>
+        <button id="toggle-operation-plan-board" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500 text-slate-950 shadow-sm hover:bg-amber-400 transition flex items-center gap-0.5" title="顯示/隱藏上方 Operation Plan 報告板" aria-pressed="true">
+          📊 Operation Plan
         </button>
         <button id="btn-hud-cloud-sync" class="hidden" aria-hidden="true" title="跨設備雲端即時同步狀態（點擊立即從雲端拉取最新每日工作編排）">
           <span id="hud-cloud-dot" class="w-1.5 h-1.5 rounded-full bg-emerald-300 live-dot"></span>
@@ -866,175 +868,175 @@
         shape: 'rectangle',
         color: '#ffb500',
         rimColor: '#351c15',
-        x: 12,
-        z: -40,
-        role: '大型長方形 3D 動態島 · 22 座智能編排飛機停泊位 · 7 座分揀月台',
-        desc: '大型長方形 3D 動態島：左上角設有 4 個橫向飛機停泊位 (17–20，自動編排三位數 Bay 位)，近 UPS 大樓設有 8 個北停機坪泊位 (01–08，由左至右自動編排雙位數 X16–X23)，中央為 07R/25L 飛行跑道，跑道下方設有 8 個南停機坪泊位 (09–16，由左至右自動編排雙位數 X24–X30)，左下角設有 2 個橫向飛機停泊位 (21–22，自動編排單位數 Bay 位)。全島飛機行路連貫飛行跑道與所有停泊位，支援到港滑行入位與離港滑行起飛動畫。',
-        quote: '「全島 22 座飛機停泊位、路牌標示與到離港滑行道動畫已全面連貫中央飛行跑道 07R/25L。」',
+        x: -38,
+        z: -58,
+        role: '上方獨立動態島 · UPS 樞紐大樓 + 右側 3D 貨櫃/貨板自動化處理區 · 下方放大版 22 座停泊位與滑行跑道島',
+        desc: '重新佈局雙島架構：上方為獨立「UPS HKG Gateway 樞紐小島」（不連接下方停泊位，並已移除後方沙洲小島），左側設有整體放大的 UPS 分揀樞紐大樓與 4 層辦公大樓，大樓右側新增大型 3D 航空貨櫃 (AAD/AMJ/AMP) 與貨板 (PAG/PMC) 自動化轉運車、剷車升降與滾筒輸送帶 3D 動畫區；下方為整體放大的獨立「22 座飛機停泊位與 07R/25L 滑行跑道動態島」。',
+        quote: '「上方獨立小島設有放大版 UPS 樞紐大樓與右側 3D 貨櫃/貨板自動化動畫區；下方獨立大島設有整體放大的 22 座停泊位與 07R/25L 滑行跑道。」',
         facilities: [
-          { name: '左上角 4 座橫向飛機泊位 (17–20)', desc: '兩左 (17, 18) 兩右 (19, 20) 橫向擺位，當 Bay 位出現三位數字 (如 D327、D324、X458) 時自動編排' },
-          { name: '近 UPS 大樓 8 座泊位 (01–08)', desc: '當輸入雙位數 (X16–X23) 時由左至右自動編排至 01–08 號泊位' },
-          { name: '跑道下方 8 座泊位 (09–16)', desc: '當輸入雙位數 (X24–X30) 時由左至右自動編排至 09–16 號泊位' },
-          { name: '左下角 2 座橫向飛機泊位 (21–22)', desc: '橫向擺位並連貫西側垂直飛機行路與跑道，當輸入單位數字時自動編排' }
+          { name: '上方獨立小島 · 放大版 UPS 樞紐大樓與右側 3D 貨櫃/貨板區', desc: '與下方停泊位完全分離，大樓右側設有 3D 航空貨櫃 (AAD/AMJ/AMP) 及網繩貨板 (PAG/PMC) 自動轉運車、剷車與滾筒輸送動畫' },
+          { name: '下方獨立大島 · 左上 4 座放大橫向泊位 (17–20)', desc: '兩左 (17, 18) 兩右 (19, 20) 橫向擺位，當 Bay 位出現三位數字 (如 D327、D324、X458) 時自動編排' },
+          { name: '下方獨立大島 · 北機坪 8 座放大泊位 (01–08) 與南機坪 8 座放大泊位 (09–16)', desc: '雙位數 X16–X23 自動編排至 01–08 號泊位；X24–X30 自動編排至跑道下方 09–16 號泊位' },
+          { name: '下方獨立大島 · 左下角 2 座放大橫向泊位 (21–22)', desc: '橫向擺位並連貫西側垂直滑行道與放大版 07R/25L 跑道，當輸入單位數字時自動編排' }
         ]
       },
-      // Middle-Upper Row (Near UPS Building): 8 North Apron Aircraft Parking Bays (01 to 08 — 自動對應 X16 至 X23 由左至右)
+      // Lower Island Upper Row (North Apron): 8 Enlarged Aircraft Parking Bays (01 to 08 — 自動對應 X16 至 X23 由左至右)
       {
-        id: '01', code: '01', name: '', shape: 'bay', apron: 'north', orientation: 'vertical', color: '#ef4444', x: -73.5, z: -9,
-        role: '近 UPS 大樓 · 北停機坪 01 號泊位 (預設對應 X16)',
-        desc: '位於近 UPS 大樓由左至右第 1 個飛機停泊位 (自動對應雙位數 X16)，滑行支線直連北機坪主滑行道與飛行跑道。',
+        id: '01', code: '01', name: '', shape: 'bay', apron: 'north', orientation: 'vertical', color: '#ef4444', x: -44.0, z: -10.5,
+        role: '下方停泊島 · 北停機坪 01 號放大泊位 (預設對應 X16)',
+        desc: '位於下方停泊島北排由左至右第 1 個放大版飛機停泊位 (自動對應雙位數 X16)，滑行支線直連北機坪主滑行道與中央飛行跑道。',
         quote: '「北停機坪 01 號泊位滑行道連貫正常。」',
-        facilities: [{ name: '近 UPS 大樓泊位 01', desc: '自動編排雙位數 X16，連貫北滑行道與下方飛行跑道' }]
+        facilities: [{ name: '北停機坪泊位 01', desc: '自動編排雙位數 X16，連貫北滑行道與中央飛行跑道' }]
       },
       {
-        id: '02', code: '02', name: '', shape: 'bay', apron: 'north', orientation: 'vertical', color: '#10b981', x: -40.5, z: -9,
-        role: '近 UPS 大樓 · 北停機坪 02 號泊位 (預設對應 X17)',
-        desc: '位於近 UPS 大樓由左至右第 2 個飛機停泊位 (自動對應雙位數 X17)，滑行支線直連北機坪主滑行道與飛行跑道。',
+        id: '02', code: '02', name: '', shape: 'bay', apron: 'north', orientation: 'vertical', color: '#10b981', x: -22.8, z: -10.5,
+        role: '下方停泊島 · 北停機坪 02 號放大泊位 (預設對應 X17)',
+        desc: '位於下方停泊島北排由左至右第 2 個放大版飛機停泊位 (自動對應雙位數 X17)，滑行支線直連北機坪主滑行道與中央飛行跑道。',
         quote: '「北停機坪 02 號泊位滑行道連貫正常。」',
-        facilities: [{ name: '近 UPS 大樓泊位 02', desc: '自動編排雙位數 X17，連貫北滑行道與下方飛行跑道' }]
+        facilities: [{ name: '北停機坪泊位 02', desc: '自動編排雙位數 X17，連貫北滑行道與中央飛行跑道' }]
       },
       {
-        id: '03', code: '03', name: '', shape: 'bay', apron: 'north', orientation: 'vertical', color: '#6366f1', x: -21.5, z: -9,
-        role: '近 UPS 大樓 · 北停機坪 03 號泊位 (預設對應 X18)',
-        desc: '位於近 UPS 大樓由左至右第 3 個飛機停泊位 (自動對應雙位數 X18)，滑行支線直連北機坪主滑行道與飛行跑道。',
+        id: '03', code: '03', name: '', shape: 'bay', apron: 'north', orientation: 'vertical', color: '#6366f1', x: -1.6, z: -10.5,
+        role: '下方停泊島 · 北停機坪 03 號放大泊位 (預設對應 X18)',
+        desc: '位於下方停泊島北排由左至右第 3 個放大版飛機停泊位 (自動對應雙位數 X18)，滑行支線直連北機坪主滑行道與中央飛行跑道。',
         quote: '「北停機坪 03 號泊位滑行道連貫正常。」',
-        facilities: [{ name: '近 UPS 大樓泊位 03', desc: '自動編排雙位數 X18，連貫北滑行道與下方飛行跑道' }]
+        facilities: [{ name: '北停機坪泊位 03', desc: '自動編排雙位數 X18，連貫北滑行道與中央飛行跑道' }]
       },
       {
-        id: '04', code: '04', name: '', shape: 'bay', apron: 'north', orientation: 'vertical', color: '#2d6a4f', x: -2.5, z: -9,
-        role: '近 UPS 大樓 · 北停機坪 04 號泊位 (預設對應 X19)',
-        desc: '位於近 UPS 大樓由左至右第 4 個飛機停泊位 (自動對應雙位數 X19)，滑行支線直連北機坪主滑行道與飛行跑道。',
+        id: '04', code: '04', name: '', shape: 'bay', apron: 'north', orientation: 'vertical', color: '#2d6a4f', x: 19.6, z: -10.5,
+        role: '下方停泊島 · 北停機坪 04 號放大泊位 (預設對應 X19)',
+        desc: '位於下方停泊島北排由左至右第 4 個放大版飛機停泊位 (自動對應雙位數 X19)，滑行支線直連北機坪主滑行道與中央飛行跑道。',
         quote: '「北停機坪 04 號泊位滑行道連貫正常。」',
-        facilities: [{ name: '近 UPS 大樓泊位 04', desc: '自動編排雙位數 X19，連貫北滑行道與下方飛行跑道' }]
+        facilities: [{ name: '北停機坪泊位 04', desc: '自動編排雙位數 X19，連貫北滑行道與中央飛行跑道' }]
       },
       {
-        id: '05', code: '05', name: '', shape: 'bay', apron: 'north', orientation: 'vertical', color: '#ec4899', x: 16.5, z: -9,
-        role: '近 UPS 大樓 · 北停機坪 05 號泊位 (預設對應 X20)',
-        desc: '位於近 UPS 大樓由左至右第 5 個飛機停泊位 (自動對應雙位數 X20)，滑行支線直連北機坪主滑行道與飛行跑道。',
+        id: '05', code: '05', name: '', shape: 'bay', apron: 'north', orientation: 'vertical', color: '#ec4899', x: 40.8, z: -10.5,
+        role: '下方停泊島 · 北停機坪 05 號放大泊位 (預設對應 X20)',
+        desc: '位於下方停泊島北排由左至右第 5 個放大版飛機停泊位 (自動對應雙位數 X20)，滑行支線直連北機坪主滑行道與中央飛行跑道。',
         quote: '「北停機坪 05 號泊位滑行道連貫正常。」',
-        facilities: [{ name: '近 UPS 大樓泊位 05', desc: '自動編排雙位數 X20，連貫北滑行道與下方飛行跑道' }]
+        facilities: [{ name: '北停機坪泊位 05', desc: '自動編排雙位數 X20，連貫北滑行道與中央飛行跑道' }]
       },
       {
-        id: '06', code: '06', name: '', shape: 'bay', apron: 'north', orientation: 'vertical', color: '#b45309', x: 35.5, z: -9,
-        role: '近 UPS 大樓 · 北停機坪 06 號泊位 (預設對應 X21)',
-        desc: '位於近 UPS 大樓由左至右第 6 個飛機停泊位 (自動對應雙位數 X21)，滑行支線直連北機坪主滑行道與飛行跑道。',
+        id: '06', code: '06', name: '', shape: 'bay', apron: 'north', orientation: 'vertical', color: '#b45309', x: 62.0, z: -10.5,
+        role: '下方停泊島 · 北停機坪 06 號放大泊位 (預設對應 X21)',
+        desc: '位於下方停泊島北排由左至右第 6 個放大版飛機停泊位 (自動對應雙位數 X21)，滑行支線直連北機坪主滑行道與中央飛行跑道。',
         quote: '「北停機坪 06 號泊位滑行道連貫正常。」',
-        facilities: [{ name: '近 UPS 大樓泊位 06', desc: '自動編排雙位數 X21，連貫北滑行道與下方飛行跑道' }]
+        facilities: [{ name: '北停機坪泊位 06', desc: '自動編排雙位數 X21，連貫北滑行道與中央飛行跑道' }]
       },
       {
-        id: '07', code: '07', name: '', shape: 'bay', apron: 'north', orientation: 'vertical', color: '#84cc16', x: 54.5, z: -9,
-        role: '近 UPS 大樓 · 北停機坪 07 號泊位 (預設對應 X22)',
-        desc: '位於近 UPS 大樓由左至右第 7 個飛機停泊位 (自動對應雙位數 X22)，滑行支線直連北機坪主滑行道與飛行跑道。',
+        id: '07', code: '07', name: '', shape: 'bay', apron: 'north', orientation: 'vertical', color: '#84cc16', x: 83.2, z: -10.5,
+        role: '下方停泊島 · 北停機坪 07 號放大泊位 (預設對應 X22)',
+        desc: '位於下方停泊島北排由左至右第 7 個放大版飛機停泊位 (自動對應雙位數 X22)，滑行支線直連北機坪主滑行道與中央飛行跑道。',
         quote: '「北停機坪 07 號泊位滑行道連貫正常。」',
-        facilities: [{ name: '近 UPS 大樓泊位 07', desc: '自動編排雙位數 X22，連貫北滑行道與下方飛行跑道' }]
+        facilities: [{ name: '北停機坪泊位 07', desc: '自動編排雙位數 X22，連貫北滑行道與中央飛行跑道' }]
       },
       {
-        id: '08', code: '08', name: '', shape: 'bay', apron: 'north', orientation: 'vertical', color: '#0d9488', x: 73.5, z: -9,
-        role: '近 UPS 大樓 · 北停機坪 08 號泊位 (預設對應 X23)',
-        desc: '位於近 UPS 大樓由左至右第 8 個飛機停泊位 (自動對應雙位數 X23)，滑行支線直連北機坪主滑行道與飛行跑道。',
+        id: '08', code: '08', name: '', shape: 'bay', apron: 'north', orientation: 'vertical', color: '#0d9488', x: 104.4, z: -10.5,
+        role: '下方停泊島 · 北停機坪 08 號放大泊位 (預設對應 X23)',
+        desc: '位於下方停泊島北排由左至右第 8 個放大版飛機停泊位 (自動對應雙位數 X23)，滑行支線直連北機坪主滑行道與中央飛行跑道。',
         quote: '「北停機坪 08 號泊位滑行道連貫正常。」',
-        facilities: [{ name: '近 UPS 大樓泊位 08', desc: '自動編排雙位數 X23，連貫北滑行道與下方飛行跑道' }]
+        facilities: [{ name: '北停機坪泊位 08', desc: '自動編排雙位數 X23，連貫北滑行道與中央飛行跑道' }]
       },
-      // Bottom Row (Below Runway): 8 South Apron Aircraft Parking Bays (09 to 16 — 自動對應 X24 至 X30 由左至右)
+      // Lower Island Bottom Row (Below Runway): 8 Enlarged South Apron Aircraft Parking Bays (09 to 16 — 自動對應 X24 至 X30 由左至右)
       {
-        id: '09', code: '09', name: '', shape: 'bay', apron: 'south', orientation: 'vertical', color: '#1e293b', x: -54.5, z: 39,
-        role: '跑道下方 · 南停機坪 09 號泊位 (預設對應 X24)',
-        desc: '位於跑道下方由左至右第 1 個飛機停泊位 (自動對應雙位數 X24)，滑行支線直連南機坪主滑行道與飛行跑道。',
+        id: '09', code: '09', name: '', shape: 'bay', apron: 'south', orientation: 'vertical', color: '#1e293b', x: -44.0, z: 56.5,
+        role: '跑道下方 · 南停機坪 09 號放大泊位 (預設對應 X24)',
+        desc: '位於跑道下方由左至右第 1 個放大版飛機停泊位 (自動對應雙位數 X24)，滑行支線直連南機坪主滑行道與飛行跑道。',
         quote: '「南停機坪 09 號泊位滑行道連貫正常。」',
         facilities: [{ name: '跑道下方泊位 09', desc: '自動編排雙位數 X24，連貫南滑行道與飛行跑道' }]
       },
       {
-        id: '10', code: '10', name: '', shape: 'bay', apron: 'south', orientation: 'vertical', color: '#f97316', x: -35.5, z: 39,
-        role: '跑道下方 · 南停機坪 10 號泊位 (預設對應 X25)',
-        desc: '位於跑道下方由左至右第 2 個飛機停泊位 (自動對應雙位數 X25)，滑行支線直連南機坪主滑行道與飛行跑道。',
+        id: '10', code: '10', name: '', shape: 'bay', apron: 'south', orientation: 'vertical', color: '#f97316', x: -22.8, z: 56.5,
+        role: '跑道下方 · 南停機坪 10 號放大泊位 (預設對應 X25)',
+        desc: '位於跑道下方由左至右第 2 個放大版飛機停泊位 (自動對應雙位數 X25)，滑行支線直連南機坪主滑行道與飛行跑道。',
         quote: '「南停機坪 10 號泊位滑行道連貫正常。」',
         facilities: [{ name: '跑道下方泊位 10', desc: '自動編排雙位數 X25，連貫南滑行道與飛行跑道' }]
       },
       {
-        id: '11', code: '11', name: '', shape: 'bay', apron: 'south', orientation: 'vertical', color: '#14b8a6', x: -16.5, z: 39,
-        role: '跑道下方 · 南停機坪 11 號泊位 (預設對應 X26)',
-        desc: '位於跑道下方由左至右第 3 個飛機停泊位 (自動對應雙位數 X26)，滑行支線直連南機坪主滑行道與飛行跑道。',
+        id: '11', code: '11', name: '', shape: 'bay', apron: 'south', orientation: 'vertical', color: '#14b8a6', x: -1.6, z: 56.5,
+        role: '跑道下方 · 南停機坪 11 號放大泊位 (預設對應 X26)',
+        desc: '位於跑道下方由左至右第 3 個放大版飛機停泊位 (自動對應雙位數 X26)，滑行支線直連南機坪主滑行道與飛行跑道。',
         quote: '「南停機坪 11 號泊位滑行道連貫正常。」',
         facilities: [{ name: '跑道下方泊位 11', desc: '自動編排雙位數 X26，連貫南滑行道與飛行跑道' }]
       },
       {
-        id: '12', code: '12', name: '', shape: 'bay', apron: 'south', orientation: 'vertical', color: '#4f46e5', x: 2.5, z: 39,
-        role: '跑道下方 · 南停機坪 12 號泊位 (預設對應 X27)',
-        desc: '位於跑道下方由左至右第 4 個飛機停泊位 (自動對應雙位數 X27)，滑行支線直連南機坪主滑行道與飛行跑道。',
+        id: '12', code: '12', name: '', shape: 'bay', apron: 'south', orientation: 'vertical', color: '#4f46e5', x: 19.6, z: 56.5,
+        role: '跑道下方 · 南停機坪 12 號放大泊位 (預設對應 X27)',
+        desc: '位於跑道下方由左至右第 4 個放大版飛機停泊位 (自動對應雙位數 X27)，滑行支線直連南機坪主滑行道與飛行跑道。',
         quote: '「南停機坪 12 號泊位滑行道連貫正常。」',
         facilities: [{ name: '跑道下方泊位 12', desc: '自動編排雙位數 X27，連貫南滑行道與飛行跑道' }]
       },
       {
-        id: '13', code: '13', name: '', shape: 'bay', apron: 'south', orientation: 'vertical', color: '#d97706', x: 21.5, z: 39,
-        role: '跑道下方 · 南停機坪 13 號泊位 (預設對應 X28)',
-        desc: '位於跑道下方由左至右第 5 個飛機停泊位 (自動對應雙位數 X28)，滑行支線直連南機坪主滑行道與飛行跑道。',
+        id: '13', code: '13', name: '', shape: 'bay', apron: 'south', orientation: 'vertical', color: '#d97706', x: 40.8, z: 56.5,
+        role: '跑道下方 · 南停機坪 13 號放大泊位 (預設對應 X28)',
+        desc: '位於跑道下方由左至右第 5 個放大版飛機停泊位 (自動對應雙位數 X28)，滑行支線直連南機坪主滑行道與飛行跑道。',
         quote: '「南停機坪 13 號泊位滑行道連貫正常。」',
         facilities: [{ name: '跑道下方泊位 13', desc: '自動編排雙位數 X28，連貫南滑行道與飛行跑道' }]
       },
       {
-        id: '14', code: '14', name: '', shape: 'bay', apron: 'south', orientation: 'vertical', color: '#78350f', x: 40.5, z: 39,
-        role: '跑道下方 · 南停機坪 14 號泊位 (預設對應 X29)',
-        desc: '位於跑道下方由左至右第 6 個飛機停泊位 (自動對應雙位數 X29)，滑行支線直連南機坪主滑行道與飛行跑道。',
+        id: '14', code: '14', name: '', shape: 'bay', apron: 'south', orientation: 'vertical', color: '#78350f', x: 62.0, z: 56.5,
+        role: '跑道下方 · 南停機坪 14 號放大泊位 (預設對應 X29)',
+        desc: '位於跑道下方由左至右第 6 個放大版飛機停泊位 (自動對應雙位數 X29)，滑行支線直連南機坪主滑行道與飛行跑道。',
         quote: '「南停機坪 14 號泊位滑行道連貫正常。」',
         facilities: [{ name: '跑道下方泊位 14', desc: '自動編排雙位數 X29，連貫南滑行道與飛行跑道' }]
       },
       {
-        id: '15', code: '15', name: '', shape: 'bay', apron: 'south', orientation: 'vertical', color: '#0284c7', x: 59.5, z: 39,
-        role: '跑道下方 · 南停機坪 15 號泊位 (預設對應 X30)',
-        desc: '位於跑道下方由左至右第 7 個飛機停泊位 (自動對應雙位數 X30)，滑行支線直連南機坪主滑行道與飛行跑道。',
+        id: '15', code: '15', name: '', shape: 'bay', apron: 'south', orientation: 'vertical', color: '#0284c7', x: 83.2, z: 56.5,
+        role: '跑道下方 · 南停機坪 15 號放大泊位 (預設對應 X30)',
+        desc: '位於跑道下方由左至右第 7 個放大版飛機停泊位 (自動對應雙位數 X30)，滑行支線直連南機坪主滑行道與飛行跑道。',
         quote: '「南停機坪 15 號泊位滑行道連貫正常。」',
         facilities: [{ name: '跑道下方泊位 15', desc: '自動編排雙位數 X30，連貫南滑行道與飛行跑道' }]
       },
       {
-        id: '16', code: '16', name: '', shape: 'bay', apron: 'south', orientation: 'vertical', color: '#9333ea', x: 78.5, z: 39,
-        role: '跑道下方 · 南停機坪 16 號泊位',
-        desc: '位於跑道下方由左至右第 8 個飛機停泊位，滑行支線直連南機坪主滑行道與飛行跑道。',
+        id: '16', code: '16', name: '', shape: 'bay', apron: 'south', orientation: 'vertical', color: '#9333ea', x: 104.4, z: 56.5,
+        role: '跑道下方 · 南停機坪 16 號放大泊位',
+        desc: '位於跑道下方由左至右第 8 個放大版飛機停泊位，滑行支線直連南機坪主滑行道與飛行跑道。',
         quote: '「南停機坪 16 號泊位滑行道連貫正常。」',
         facilities: [{ name: '跑道下方泊位 16', desc: '連貫南滑行道與飛行跑道' }]
       },
-      // Top-Left Corner: 4 Horizontal Aircraft Parking Bays (17, 18 on Left; 19, 20 on Right; with 1 central vertical taxiway at x = -57.0 — 自動對應三位數 Bay 位)
+      // Lower Island Top-Left Corner: 4 Enlarged Horizontal Aircraft Parking Bays (17, 18 on Left; 19, 20 on Right; with central vertical taxiway at x = -85.5 — 自動對應三位數 Bay 位)
       {
-        id: '17', code: '17', name: '', shape: 'bay', apron: 'northwest', orientation: 'horizontal-left', taxiwayX: -57.0, color: '#06b6d4', x: -73.5, z: -46.5,
-        role: '左上角 · 17 號橫向飛機泊位 (三位數自動編排 · 左上)',
-        desc: '位於動態島左上角左側第 1 個橫向飛機停泊位，當輸入三位數字 Bay 位時自動編排，由中央飛機行路 (x=-57) 連貫至下方飛行跑道。',
-        quote: '「左上角 17 號橫向泊位已連貫中央飛機行路與飛行跑道。」',
-        facilities: [{ name: '左上橫向泊位 17', desc: '三位數字自動編排（左側上），直通左上中央飛機行路與下方跑道' }]
+        id: '17', code: '17', name: '', shape: 'bay', apron: 'northwest', orientation: 'horizontal-left', taxiwayX: -85.5, color: '#06b6d4', x: -103.5, z: -18.5,
+        role: '下方停泊島左上 · 17 號橫向放大泊位 (三位數自動編排 · 左上)',
+        desc: '位於下方停泊島左上角左側第 1 個橫向飛機停泊位，當輸入三位數字 Bay 位時自動編排，由中央垂直滑行道 (x=-85.5) 連貫至飛行跑道。',
+        quote: '「左上角 17 號橫向泊位已連貫中央滑行道與飛行跑道。」',
+        facilities: [{ name: '左上橫向泊位 17', desc: '三位數字自動編排（左側上），直通垂直滑行道與下方跑道' }]
       },
       {
-        id: '18', code: '18', name: '', shape: 'bay', apron: 'northwest', orientation: 'horizontal-left', taxiwayX: -57.0, color: '#3b82f6', x: -73.5, z: -32.5,
-        role: '左上角 · 18 號橫向飛機泊位 (三位數自動編排 · 左下)',
-        desc: '位於動態島左上角左側第 2 個橫向飛機停泊位，當輸入三位數字 Bay 位時自動編排，由中央飛機行路 (x=-57) 連貫至下方飛行跑道。',
-        quote: '「左上角 18 號橫向泊位已連貫中央飛機行路與飛行跑道。」',
-        facilities: [{ name: '左上橫向泊位 18', desc: '三位數字自動編排（左側下），直通左上中央飛機行路與下方跑道' }]
+        id: '18', code: '18', name: '', shape: 'bay', apron: 'northwest', orientation: 'horizontal-left', taxiwayX: -85.5, color: '#3b82f6', x: -103.5, z: -3.0,
+        role: '下方停泊島左上 · 18 號橫向放大泊位 (三位數自動編排 · 左下)',
+        desc: '位於下方停泊島左上角左側第 2 個橫向飛機停泊位，當輸入三位數字 Bay 位時自動編排，由中央垂直滑行道 (x=-85.5) 連貫至飛行跑道。',
+        quote: '「左上角 18 號橫向泊位已連貫中央滑行道與飛行跑道。」',
+        facilities: [{ name: '左上橫向泊位 18', desc: '三位數字自動編排（左側下），直通垂直滑行道與下方跑道' }]
       },
       {
-        id: '19', code: '19', name: '', shape: 'bay', apron: 'northwest', orientation: 'horizontal-right', taxiwayX: -57.0, color: '#8b5cf6', x: -40.5, z: -46.5,
-        role: '左上角 · 19 號橫向飛機泊位 (三位數自動編排 · 右上)',
-        desc: '位於動態島左上角右側第 1 個橫向飛機停泊位，當輸入三位數字 Bay 位時自動編排，由中央飛機行路 (x=-57) 連貫至下方飛行跑道。',
-        quote: '「左上角 19 號橫向泊位已連貫中央飛機行路與飛行跑道。」',
-        facilities: [{ name: '左上橫向泊位 19', desc: '三位數字自動編排（右側上），直通左上中央飛機行路與下方跑道' }]
+        id: '19', code: '19', name: '', shape: 'bay', apron: 'northwest', orientation: 'horizontal-right', taxiwayX: -85.5, color: '#8b5cf6', x: -67.5, z: -18.5,
+        role: '下方停泊島左上 · 19 號橫向放大泊位 (三位數自動編排 · 右上)',
+        desc: '位於下方停泊島左上角右側第 1 個橫向飛機停泊位，當輸入三位數字 Bay 位時自動編排，由中央垂直滑行道 (x=-85.5) 連貫至飛行跑道。',
+        quote: '「左上角 19 號橫向泊位已連貫中央滑行道與飛行跑道。」',
+        facilities: [{ name: '左上橫向泊位 19', desc: '三位數字自動編排（右側上），直通垂直滑行道與下方跑道' }]
       },
       {
-        id: '20', code: '20', name: '', shape: 'bay', apron: 'northwest', orientation: 'horizontal-right', taxiwayX: -57.0, color: '#ec4899', x: -40.5, z: -32.5,
-        role: '左上角 · 20 號橫向飛機泊位 (三位數自動編排 · 右下)',
-        desc: '位於動態島左上角右側第 2 個橫向飛機停泊位，當輸入三位數字 Bay 位時自動編排，由中央飛機行路 (x=-57) 連貫至下方飛行跑道。',
-        quote: '「左上角 20 號橫向泊位已連貫中央飛機行路與飛行跑道。」',
-        facilities: [{ name: '左上橫向泊位 20', desc: '三位數字自動編排（右側下），直通左上中央飛機行路與下方跑道' }]
+        id: '20', code: '20', name: '', shape: 'bay', apron: 'northwest', orientation: 'horizontal-right', taxiwayX: -85.5, color: '#ec4899', x: -67.5, z: -3.0,
+        role: '下方停泊島左上 · 20 號橫向放大泊位 (三位數自動編排 · 右下)',
+        desc: '位於下方停泊島左上角右側第 2 個橫向飛機停泊位，當輸入三位數字 Bay 位時自動編排，由中央垂直滑行道 (x=-85.5) 連貫至飛行跑道。',
+        quote: '「左上角 20 號橫向泊位已連貫中央滑行道與飛行跑道。」',
+        facilities: [{ name: '左上橫向泊位 20', desc: '三位數字自動編排（右側下），直通垂直滑行道與下方跑道' }]
       },
-      // Bottom-Left Corner: 2 Horizontal Aircraft Parking Bays (21, 22 — 移至左下角橫向擺位，連貫西側飛機行路 x=-73.5 與下方飛行跑道，自動對應單位數 Bay 位)
+      // Lower Island Bottom-Left Corner: 2 Enlarged Horizontal Aircraft Parking Bays (21, 22 — 連貫西側滑行道 x=-85.5 與飛行跑道，自動對應單位數 Bay 位)
       {
-        id: '21', code: '21', name: '', shape: 'bay', apron: 'southwest', orientation: 'horizontal-left', taxiwayX: -73.5, color: '#eab308', x: -89.0, z: 32.5,
-        role: '左下角 · 21 號橫向飛機泊位 (單位數自動編排 · 左上)',
-        desc: '位於動態島左下角第 1 個橫向飛機停泊位，當輸入單位數字 Bay 位時自動編排，透過西側飛機行路 (x=-73.5) 直接連貫飛行跑道與南機坪滑行道。',
-        quote: '「左下角 21 號橫向泊位已連貫西側飛機行路與飛行跑道。」',
-        facilities: [{ name: '左下橫向泊位 21', desc: '橫向擺位（左下角），自動編排單位數 Bay 位，直通西側飛機行路與飛行跑道' }]
+        id: '21', code: '21', name: '', shape: 'bay', apron: 'southwest', orientation: 'horizontal-left', taxiwayX: -85.5, color: '#eab308', x: -103.5, z: 46.5,
+        role: '下方停泊島左下 · 21 號橫向放大泊位 (單位數自動編排 · 左上)',
+        desc: '位於下方停泊島左下角第 1 個橫向飛機停泊位，當輸入單位數字 Bay 位時自動編排，透過西側垂直滑行道 (x=-85.5) 直接連貫飛行跑道與南機坪滑行道。',
+        quote: '「左下角 21 號橫向泊位已連貫西側滑行道與飛行跑道。」',
+        facilities: [{ name: '左下橫向泊位 21', desc: '橫向擺位（左下角），自動編排單位數 Bay 位，直通西側滑行道與飛行跑道' }]
       },
       {
-        id: '22', code: '22', name: '', shape: 'bay', apron: 'southwest', orientation: 'horizontal-left', taxiwayX: -73.5, color: '#10b981', x: -89.0, z: 46.5,
-        role: '左下角 · 22 號橫向飛機泊位 (單位數自動編排 · 左下)',
-        desc: '位於動態島左下角第 2 個橫向飛機停泊位，當輸入單位數字 Bay 位時自動編排，透過西側飛機行路 (x=-73.5) 直接連貫飛行跑道與南機坪滑行道。',
-        quote: '「左下角 22 號橫向泊位已連貫西側飛機行路與飛行跑道。」',
-        facilities: [{ name: '左下橫向泊位 22', desc: '橫向擺位（左下角），自動編排單位數 Bay 位，直通西側飛機行路與飛行跑道' }]
+        id: '22', code: '22', name: '', shape: 'bay', apron: 'southwest', orientation: 'horizontal-left', taxiwayX: -85.5, color: '#10b981', x: -103.5, z: 62.0,
+        role: '下方停泊島左下 · 22 號橫向放大泊位 (單位數自動編排 · 左下)',
+        desc: '位於下方停泊島左下角第 2 個橫向飛機停泊位，當輸入單位數字 Bay 位時自動編排，透過西側垂直滑行道 (x=-85.5) 直接連貫飛行跑道與南機坪滑行道。',
+        quote: '「左下角 22 號橫向泊位已連貫西側滑行道與飛行跑道。」',
+        facilities: [{ name: '左下橫向泊位 22', desc: '橫向擺位（左下角），自動編排單位數 Bay 位，直通西側滑行道與飛行跑道' }]
       }
     ];
 
@@ -1251,6 +1253,7 @@
       activeWarnings: new Set(), // Active warning codes synced automatically from HKO
       showLabels: true,
       showBubbles: true,
+      showOperationPlanBoard: true,
       showArcs: false,
       autoRotate: false,
       viewLocked: false,
@@ -1330,29 +1333,48 @@
       return tex;
     }
 
-    // Custom Smooth Orbit & Pan Camera Controller (frame-rate independent damping for 60Hz/120Hz fluidity)
+    // Custom Smooth Orbit & Pan Camera Controller + Responsive Multi-Screen Dynamic Island Magnification
     function getResponsive3DScaleFactor() {
       const w = window.innerWidth || 1920;
       const h = window.innerHeight || 960;
       const aspect = w / Math.max(1, h);
-      return Math.max(0.94, Math.min(1.18, (w / 1680) * 0.52 + (aspect / 1.78) * 0.52));
+      const diag = Math.hypot(w, h);
+      return Math.max(1.08, Math.min(1.34, 0.96 + (diag / 2200) * 0.22 + Math.min(0.16, aspect * 0.08)));
+    }
+
+    function getResponsiveCameraZoom() {
+      const w = window.innerWidth || 1920;
+      const h = window.innerHeight || 960;
+      const aspect = w / Math.max(1, h);
+      const diag = Math.hypot(w, h);
+      if (aspect < 0.85) {
+        // Portrait phones & tablets: keep the entire Dynamic Island enlarged & close
+        return Math.max(1.26, Math.min(1.52, 1.20 + (diag / 1600) * 0.22));
+      }
+      // Landscape tablets, laptops, desktops & large monitors: scale up proportionally with screen dimensions
+      return Math.max(1.32, Math.min(1.72, 1.16 + (w / 1920) * 0.26 + (h / 1080) * 0.14));
     }
 
     function getResponsivePanoramaCameraSpec() {
       const aspect = window.innerWidth / Math.max(1, window.innerHeight);
-      // Pull camera closer (base radius 156) and scale automatically with screen aspect ratio
-      const aspectScale = Math.max(0.82, Math.min(1.62, 1.95 / Math.max(0.65, aspect)));
-      const radius = Math.round(156 * aspectScale);
-      const targetY = +(22.0 * Math.min(1.16, Math.max(0.86, aspect / 1.85))).toFixed(2);
+      // Enlarged Dynamic Island framing across all screen sizes (closer radius + responsive zoom)
+      const aspectScale = aspect < 1.0
+        ? Math.max(0.92, Math.min(1.22, (0.95 / Math.max(0.48, aspect)) * 0.60))
+        : Math.max(0.75, Math.min(1.08, 1.72 / Math.max(1.0, aspect)));
+      const radius = Math.round(142 * aspectScale);
+      const targetY = +(20.5 * Math.min(1.15, Math.max(0.85, aspect / 1.75))).toFixed(2);
       return {
-        targetX: 1.0,
+        targetX: 2.0,
         targetY,
-        targetZ: 3.5,
+        targetZ: 8.5,
         radius,
-        phi: 1.03,
-        theta: -0.06
+        phi: 1.01,
+        theta: -0.04
       };
     }
+
+    camera.zoom = getResponsiveCameraZoom();
+    camera.updateProjectionMatrix();
     const _initCamSpec = getResponsivePanoramaCameraSpec();
     const camCtrl = {
       target: new THREE.Vector3(_initCamSpec.targetX, _initCamSpec.targetY, _initCamSpec.targetZ),
@@ -1423,9 +1445,9 @@
     const globalAnimationMixers = [];
     let islandFoamShaderMat = null;
 
-    // Dedicated 3D Sun (sunGroup) & 3D Crescent Moon (moonGroup) placed on the Far Right Sky (in bgScene behind Bulletin Board so it NEVER covers the board!)
+    // Dedicated 3D Sun (sunGroup) & 3D Crescent Moon (moonGroup) placed in the Upper Sky in weatherScene (上方顯示天氣動畫)
     const celestialGroup = new THREE.Group();
-    bgScene.add(celestialGroup);
+    weatherScene.add(celestialGroup);
 
     const sunOrb = new THREE.Group();
     celestialGroup.add(sunOrb);
@@ -1572,29 +1594,8 @@
     const shoreGroup = new THREE.Group();
     bgScene.add(shoreGroup);
     function buildBackgroundShore() {
-      const sandMat = new THREE.MeshStandardMaterial({ color: 0xe6d5b8, roughness: 0.85 });
-      const shoreMesh = new THREE.Mesh(new THREE.CylinderGeometry(55, 62, 3.5, 16), sandMat);
-      shoreMesh.position.set(-15, -1.8, -95);
-      shoreMesh.scale.set(1.8, 1, 0.45);
-      shoreMesh.receiveShadow = true;
-      shoreGroup.add(shoreMesh);
-
-
-
-      // Autumn/Green stylized trees on shore (matching video background)
-      const treeColors = [0xd97706, 0xb45309, 0x2d6a4f, 0xca8a04, 0x991b1b];
-      for (let i = 0; i < 28; i++) {
-        const tx = -75 + Math.random() * 120;
-        const tz = -80 - Math.random() * 25;
-        const tMat = new THREE.MeshStandardMaterial({ color: treeColors[i % treeColors.length], roughness: 0.7 });
-        const cone = new THREE.Mesh(new THREE.ConeGeometry(1.4 + Math.random() * 0.8, 3.5 + Math.random() * 2, 7), tMat);
-        cone.position.set(tx, 1.5, tz);
-        cone.castShadow = true;
-        shoreGroup.add(cone);
-      }
-
-      // Small red/orange buoys & boats in water (like video)
-      const buoyPositions = [[-48, -15], [-52, 22], [46, 36], [50, -24]];
+      // 後方沙洲小島 (黎方小島) 已按要求完全移除，保持上方獨立 UPS 大樓小島周圍海域清爽開闊
+      const buoyPositions = [[-134, -28], [-136, 36], [134, 42], [136, -28]];
       buoyPositions.forEach(([bx, bz]) => {
         const bGroup = new THREE.Group();
         const base = new THREE.Mesh(
@@ -2029,8 +2030,8 @@
       }
 
       // Initialize smooth roaming state & path trail so the 3 cargo containers articulate naturally behind the tractor
-      const startX = trainIndex === 0 ? -42.0 : 32.0;
-      const startZ = trainIndex === 0 ? 21.5 : -26.0;
+      const startX = trainIndex === 0 ? -42.0 : 28.0;
+      const startZ = trainIndex === 0 ? 38.5 : -42.2;
       const history = [];
       for (let h = 0; h < 260; h++) {
         history.push({ x: startX - h * 0.04, z: startZ, yaw: Math.PI / 2 });
@@ -2043,8 +2044,8 @@
         x: startX,
         z: startZ,
         yaw: trainIndex === 0 ? Math.PI / 2 : -Math.PI / 2,
-        targetX: trainIndex === 0 ? 9.5 : -9.5,
-        targetZ: trainIndex === 0 ? 5.8 : 3.5,
+        targetX: trainIndex === 0 ? 45.0 : -35.0,
+        targetZ: trainIndex === 0 ? 38.5 : -42.2,
         speed: 0.065 + trainIndex * 0.01,
         history
       };
@@ -2064,23 +2065,497 @@
     const halloweenStringBulbs = [];
     const halloweenPumpkinGlows = [];
 
+    const animatedUldYardItems = {
+      etvShuttle: null,
+      etvLiftPlatform: null,
+      forklifts: [],
+      conveyorCrates: [],
+      stackerCrane: null,
+      stackerCarriage: null
+    };
+
+    function createUldLabelSignTexture(titleText, subText, accentHex = '#ffb500') {
+      const cvs = document.createElement('canvas');
+      cvs.width = 1024;
+      cvs.height = 256;
+      const ctx = cvs.getContext('2d');
+      ctx.fillStyle = '#18110d';
+      ctx.fillRect(0, 0, 1024, 256);
+      ctx.strokeStyle = accentHex;
+      ctx.lineWidth = 14;
+      ctx.strokeRect(10, 10, 1004, 236);
+      ctx.fillStyle = accentHex;
+      ctx.font = '900 96px "Fredoka", "Noto Sans TC", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(titleText, 512, 104);
+      ctx.fillStyle = '#f8fafc';
+      ctx.font = '800 40px "Fredoka", "Noto Sans TC", sans-serif';
+      ctx.fillText(subText, 512, 190);
+      return enhanceTextureClarity(new THREE.CanvasTexture(cvs));
+    }
+
+    function createUldCodeDecalTexture(codeStr, bgHex = '#e2e8f0', badgeHex = '#351c15', textHex = '#ffb500') {
+      const cvs = document.createElement('canvas');
+      cvs.width = 256;
+      cvs.height = 256;
+      const ctx = cvs.getContext('2d');
+      ctx.fillStyle = bgHex;
+      ctx.fillRect(0, 0, 256, 256);
+      ctx.strokeStyle = '#64748b';
+      ctx.lineWidth = 10;
+      ctx.strokeRect(6, 6, 244, 244);
+      // Top UPS Gold/Brown Header Bar
+      ctx.fillStyle = badgeHex;
+      ctx.fillRect(14, 18, 228, 76);
+      ctx.fillStyle = textHex;
+      ctx.font = '900 46px "Fredoka", Arial, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('UPS · ' + codeStr, 128, 56);
+      // Barcode & ID lines
+      ctx.fillStyle = '#0f172a';
+      ctx.font = '900 54px "Fredoka", monospace';
+      ctx.fillText(codeStr + ' HKG', 128, 152);
+      ctx.fillStyle = '#d97706';
+      ctx.fillRect(24, 202, 208, 22);
+      return enhanceTextureClarity(new THREE.CanvasTexture(cvs));
+    }
+
+    // Build a realistic 3D Contoured Aviation ULD Container (航空貨櫃: AAD / AMJ / AMP with sloped aviation roof chamfer & decal)
+    function create3DUldAirContainer(codeStr = 'AMJ', scale = 1.0, bodyColor = 0xe2e8f0) {
+      const uldGrp = new THREE.Group();
+      const shape = new THREE.Shape();
+      // Contoured aviation upper-deck/main-deck ULD cross-section
+      shape.moveTo(-1.35, 0);
+      shape.lineTo(1.35, 0);
+      shape.lineTo(1.35, 1.45);
+      shape.lineTo(0.85, 2.05);
+      shape.lineTo(-1.35, 2.05);
+      shape.closePath();
+
+      const extrudeGeo = new THREE.ExtrudeGeometry(shape, {
+        depth: 2.2,
+        bevelEnabled: true,
+        bevelSegments: 2,
+        steps: 1,
+        bevelSize: 0.05,
+        bevelThickness: 0.05
+      });
+      extrudeGeo.translate(0, 0, -1.1);
+      const skinMat = new THREE.MeshStandardMaterial({ color: bodyColor, roughness: 0.32, metalness: 0.28 });
+      const bodyMesh = new THREE.Mesh(extrudeGeo, skinMat);
+      bodyMesh.castShadow = true;
+      bodyMesh.receiveShadow = true;
+      uldGrp.add(bodyMesh);
+
+      // Brown & Gold UPS bumper frame at base
+      const baseFrame = new THREE.Mesh(
+        new THREE.BoxGeometry(2.76, 0.24, 2.28),
+        new THREE.MeshStandardMaterial({ color: 0x351c15, roughness: 0.45 })
+      );
+      baseFrame.position.y = 0.12;
+      uldGrp.add(baseFrame);
+
+      const goldStripe = new THREE.Mesh(
+        new THREE.BoxGeometry(2.78, 0.14, 2.30),
+        new THREE.MeshStandardMaterial({ color: 0xffb500, emissive: 0xd97706, emissiveIntensity: 0.25 })
+      );
+      goldStripe.position.y = 0.28;
+      uldGrp.add(goldStripe);
+
+      // Front & Back ULD Code Decal Panels
+      const decalMat = new THREE.MeshBasicMaterial({
+        map: createUldCodeDecalTexture(codeStr, bodyColor === 0xfef3c7 ? '#fef3c7' : '#e2e8f0')
+      });
+      [1.16, -1.16].forEach(zPos => {
+        const dPlane = new THREE.Mesh(new THREE.PlaneGeometry(1.85, 1.35), decalMat);
+        dPlane.position.set(-0.15, 1.05, zPos);
+        if (zPos < 0) dPlane.rotation.y = Math.PI;
+        uldGrp.add(dPlane);
+      });
+
+      uldGrp.scale.setScalar(scale);
+      return uldGrp;
+    }
+
+    // Build a realistic 3D Aluminum Cargo Pallet with Parcel Stack, Cargo Net & Yellow Straps (3D 航空貨板 PAG / PMC + 網繩綁帶)
+    function create3DCargoPalletWithNet(codeStr = 'PMC', scale = 1.0, loaded = true) {
+      const palGrp = new THREE.Group();
+      // Heavy-duty flat aluminum PMC/PAG pallet base with edge latches
+      const aluMat = new THREE.MeshStandardMaterial({ color: 0xcbd5e1, metalness: 0.65, roughness: 0.28 });
+      const edgeRimMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.35 });
+      const baseSlab = new THREE.Mesh(new THREE.BoxGeometry(3.1, 0.18, 2.5), aluMat);
+      baseSlab.position.y = 0.09;
+      baseSlab.castShadow = true;
+      palGrp.add(baseSlab);
+
+      const rimF = new THREE.Mesh(new THREE.BoxGeometry(3.16, 0.20, 0.12), edgeRimMat);
+      rimF.position.set(0, 0.10, 1.25);
+      const rimB = rimF.clone();
+      rimB.position.set(0, 0.10, -1.25);
+      palGrp.add(rimF, rimB);
+
+      if (loaded) {
+        const boxColors = [0xb45309, 0xd97706, 0x78350f, 0x92400e, 0xeab308];
+        // Multi-box air cargo load stacked on the pallet
+        const boxSpecs = [
+          [-0.72, 0.68, -0.52, 1.25, 1.02, 1.05, 0],
+          [ 0.72, 0.68, -0.52, 1.25, 1.02, 1.05, 1],
+          [-0.72, 0.68,  0.55, 1.25, 1.02, 1.05, 2],
+          [ 0.72, 0.68,  0.55, 1.25, 1.02, 1.05, 3],
+          [-0.38, 1.52,  0.0,  1.45, 0.72, 1.55, 4],
+          [ 0.78, 1.48,  0.0,  0.82, 0.65, 1.45, 0]
+        ];
+        boxSpecs.forEach(([bx, by, bz, bw, bh, bd, ci]) => {
+          const cMesh = new THREE.Mesh(
+            new THREE.BoxGeometry(bw, bh, bd),
+            new THREE.MeshStandardMaterial({ color: boxColors[ci % boxColors.length], roughness: 0.48 })
+          );
+          cMesh.position.set(bx, by, bz);
+          cMesh.castShadow = true;
+          palGrp.add(cMesh);
+        });
+
+        // 3D Crisscross Cargo Netting & Yellow Tension Straps (Net & Straps) wrapping the palletized cargo
+        const strapMat = new THREE.MeshBasicMaterial({ color: 0xfacc15 });
+        [-0.75, 0.0, 0.75].forEach(sx => {
+          const overStrap = new THREE.Mesh(new THREE.BoxGeometry(0.10, 1.78, 2.28), strapMat);
+          overStrap.position.set(sx, 1.04, 0);
+          palGrp.add(overStrap);
+        });
+        [-0.55, 0.55].forEach(sz => {
+          const crossStrap = new THREE.Mesh(new THREE.BoxGeometry(2.86, 1.76, 0.10), strapMat);
+          crossStrap.position.set(0, 1.04, sz);
+          palGrp.add(crossStrap);
+        });
+      }
+
+      palGrp.scale.setScalar(scale);
+      return palGrp;
+    }
+
+    // Build a 3D Cargo Forklift / High-Loader with vertical mast & lifting forks
+    function create3DCargoForklift(carryingType = 'AMJ') {
+      const fkGroup = new THREE.Group();
+      const bodyMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.32 });
+      const darkMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.55 });
+      const wheelMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.75 });
+
+      const chassis = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.75, 2.5), bodyMat);
+      chassis.position.y = 0.55;
+      chassis.castShadow = true;
+      fkGroup.add(chassis);
+
+      const counterweight = new THREE.Mesh(new THREE.BoxGeometry(1.84, 0.85, 0.55), darkMat);
+      counterweight.position.set(0, 0.62, -1.08);
+      fkGroup.add(counterweight);
+
+      const cabFrame = new THREE.Mesh(new THREE.BoxGeometry(1.55, 1.25, 1.45), darkMat);
+      cabFrame.position.set(0, 1.52, -0.15);
+      fkGroup.add(cabFrame);
+
+      const beacon = new THREE.Mesh(
+        new THREE.SphereGeometry(0.18, 10, 10),
+        new THREE.MeshBasicMaterial({ color: 0xfef08a })
+      );
+      beacon.position.set(0, 2.26, -0.15);
+      fkGroup.add(beacon);
+
+      [[-0.88, 0.32, 0.78], [0.88, 0.32, 0.78], [-0.88, 0.32, -0.78], [0.88, 0.32, -0.78]].forEach(([wx, wy, wz]) => {
+        const w = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.32, 0.26, 12), wheelMat);
+        w.rotation.z = Math.PI / 2;
+        w.position.set(wx, wy, wz);
+        fkGroup.add(w);
+      });
+
+      // Vertical Telescopic Mast at front (+Z)
+      [-0.55, 0.55].forEach(mx => {
+        const rail = new THREE.Mesh(new THREE.BoxGeometry(0.16, 3.6, 0.18), darkMat);
+        rail.position.set(mx, 1.9, 1.35);
+        fkGroup.add(rail);
+      });
+
+      // Animated Fork Carriage & Payload
+      const forkCarriage = new THREE.Group();
+      forkCarriage.position.set(0, 0.45, 2.45);
+      [-0.52, 0.52].forEach(fx => {
+        const tine = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.10, 2.2), darkMat);
+        tine.position.set(fx, 0, 0);
+        forkCarriage.add(tine);
+      });
+
+      const payload = carryingType === 'PAG'
+        ? create3DCargoPalletWithNet('PAG', 0.86, true)
+        : create3DUldAirContainer(carryingType, 0.82, 0xe2e8f0);
+      payload.position.set(0, 0.08, 0.1);
+      forkCarriage.add(payload);
+
+      fkGroup.add(forkCarriage);
+      fkGroup.userData = { forkCarriage, beacon };
+      return fkGroup;
+    }
+
+    // Build the Right-Side Enlarged 3D ULD Container & Cargo Pallet Automated Handling Zone on the Upper Island
+    function buildRightSideUldAndPalletZone(deckSurface, upperCenterZ) {
+      const zoneGroup = new THREE.Group();
+      // Located on the right side of the Office Tower on the Upper Island (x = +21.5 to +108.5, z = upperCenterZ - 14.5 to upperCenterZ + 14.5)
+      deckSurface.add(zoneGroup);
+
+      const zonePadMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.62 });
+      const zonePad = new THREE.Mesh(new THREE.BoxGeometry(86.0, 0.10, 29.5), zonePadMat);
+      zonePad.position.set(64.5, 0.05, upperCenterZ);
+      zonePad.receiveShadow = true;
+      zoneGroup.add(zonePad);
+
+      // High-visibility yellow safety perimeter markings around the ULD & Pallet Yard
+      const yellowLineMat = new THREE.MeshBasicMaterial({ color: 0xfacc15 });
+      const topLine = new THREE.Mesh(new THREE.BoxGeometry(86.0, 0.12, 0.35), yellowLineMat);
+      topLine.position.set(64.5, 0.07, upperCenterZ - 14.6);
+      const botLine = topLine.clone();
+      botLine.position.set(64.5, 0.07, upperCenterZ + 14.6);
+      zoneGroup.add(topLine, botLine);
+
+      // 1. 3D Overhead Gantry Signboard for ULD Control
+      const signTex = createUldLabelSignTexture(
+        'ULD Control',
+        'AAD · AAY · ALP · AMD · AMJ · AMP · PAG · PMC · NET & STRAPS'
+      );
+      const signBoard = new THREE.Mesh(
+        new THREE.PlaneGeometry(28.0, 5.2),
+        new THREE.MeshBasicMaterial({ map: signTex, side: THREE.DoubleSide })
+      );
+      signBoard.position.set(64.5, 10.6, upperCenterZ - 12.2);
+      const signBack = new THREE.Mesh(
+        new THREE.BoxGeometry(28.6, 5.6, 0.45),
+        new THREE.MeshStandardMaterial({ color: 0x22130c, roughness: 0.4 })
+      );
+      signBack.position.set(64.5, 10.6, upperCenterZ - 12.48);
+      zoneGroup.add(signBack, signBoard);
+
+      [52.0, 77.0].forEach(px => {
+        const pillar = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.32, 0.38, 10.5, 10),
+          new THREE.MeshStandardMaterial({ color: 0xf59e0b, roughness: 0.35 })
+        );
+        pillar.position.set(px, 5.25, upperCenterZ - 12.45);
+        zoneGroup.add(pillar);
+      });
+
+      // 2. Left Section of Yard (x = 24.5..63.5): 2-Tier High-Bay 3D ULD Air Cargo Container Racks (放置 3D 航空貨櫃 AAD / AMJ / AMP)
+      const rackSteelMat = new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.38, metalness: 0.35 });
+      const deckSlateMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.5 });
+      const uldCodes = ['AAD', 'AMJ', 'AMP', 'AAY', 'AMD', 'ALP', 'AMJ', 'AMP', 'AAD', 'AMJ', 'AMP', 'AMD'];
+      const rackZ = upperCenterZ - 8.2;
+
+      // Multi-bay steel rack frame (6 bays wide x 2 tiers high)
+      const rackShelf1 = new THREE.Mesh(new THREE.BoxGeometry(39.5, 0.24, 3.6), deckSlateMat);
+      rackShelf1.position.set(44.0, 0.22, rackZ);
+      const rackShelf2 = new THREE.Mesh(new THREE.BoxGeometry(39.5, 0.24, 3.6), deckSlateMat);
+      rackShelf2.position.set(44.0, 3.35, rackZ);
+      const rackRoof = new THREE.Mesh(new THREE.BoxGeometry(40.2, 0.28, 4.0), rackSteelMat);
+      rackRoof.position.set(44.0, 6.45, rackZ);
+      zoneGroup.add(rackShelf1, rackShelf2, rackRoof);
+
+      for (let col = 0; col <= 6; col++) {
+        const rx = 24.8 + col * 6.4;
+        [-1.65, 1.65].forEach(rzOff => {
+          const post = new THREE.Mesh(new THREE.BoxGeometry(0.28, 6.5, 0.28), rackSteelMat);
+          post.position.set(rx, 3.25, rackZ + rzOff);
+          zoneGroup.add(post);
+        });
+        if (col < 6) {
+          const cx = rx + 3.2;
+          // Tier 1 ULD Container
+          const uld1 = create3DUldAirContainer(uldCodes[col * 2], 1.12, col % 2 === 0 ? 0xe2e8f0 : 0xfef3c7);
+          uld1.position.set(cx, 0.34, rackZ);
+          zoneGroup.add(uld1);
+          // Tier 2 ULD Container
+          const uld2 = create3DUldAirContainer(uldCodes[col * 2 + 1], 1.12, col % 2 === 1 ? 0xe2e8f0 : 0xf8fafc);
+          uld2.position.set(cx, 3.48, rackZ);
+          zoneGroup.add(uld2);
+        }
+      }
+
+      // 3. Right Section of Yard (x = 67.5..104.5): 3D Cargo Pallet & Net/Strap Staging Deck (放置 3D 貨板 PAG / PMC / FCC / Net & Straps)
+      const palletCodes = ['PMC', 'PAG', 'PMC', 'PAG', 'PMC', 'PAG', 'FCC 96', 'FCC 118'];
+      for (let pIdx = 0; pIdx < 8; pIdx++) {
+        const row = Math.floor(pIdx / 4);
+        const col = pIdx % 4;
+        const px = 71.0 + col * 8.6;
+        const pz = (upperCenterZ - 9.2) + row * 5.2;
+
+        // Elevated ball-transfer roller bed under each pallet
+        const rollerBed = new THREE.Mesh(new THREE.BoxGeometry(4.2, 0.26, 3.4), deckSlateMat);
+        rollerBed.position.set(px, 0.14, pz);
+        zoneGroup.add(rollerBed);
+
+        const palMesh = create3DCargoPalletWithNet(palletCodes[pIdx], 1.18, true);
+        palMesh.position.set(px, 0.28, pz);
+        zoneGroup.add(palMesh);
+      }
+
+      // Stack of empty aluminum pallets with golden tie-down straps on far right corner (x = 104.5)
+      for (let s = 0; s < 6; s++) {
+        const emptyPal = create3DCargoPalletWithNet('PMC', 1.12, false);
+        emptyPal.position.set(104.2, 0.20 + s * 0.24, upperCenterZ - 6.5);
+        zoneGroup.add(emptyPal);
+      }
+
+      // 4. ANIMATION A: 36-Meter Motorized Roller Conveyor Deck (3D 自動滾筒輸送帶，持續運送貨櫃與貨板)
+      const convZ = upperCenterZ + 0.6;
+      const convBed = new THREE.Mesh(
+        new THREE.BoxGeometry(74.0, 0.42, 3.4),
+        new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.45, roughness: 0.4 })
+      );
+      convBed.position.set(59.0, 0.22, convZ);
+      zoneGroup.add(convBed);
+
+      const railMat = new THREE.MeshStandardMaterial({ color: 0xfbbf24, roughness: 0.3 });
+      [-1.65, 1.65].forEach(rz => {
+        const sideRail = new THREE.Mesh(new THREE.BoxGeometry(74.2, 0.52, 0.18), railMat);
+        sideRail.position.set(59.0, 0.32, convZ + rz);
+        zoneGroup.add(sideRail);
+      });
+
+      animatedUldYardItems.conveyorCrates.length = 0;
+      const convTypes = ['AMJ', 'PMC', 'AMP', 'PAG', 'AAD', 'PMC'];
+      for (let i = 0; i < 6; i++) {
+        const cType = convTypes[i];
+        const isPal = cType === 'PMC' || cType === 'PAG';
+        const itemMesh = isPal
+          ? create3DCargoPalletWithNet(cType, 0.92, true)
+          : create3DUldAirContainer(cType, 0.88, i % 2 === 0 ? 0xe2e8f0 : 0xfef3c7);
+        const startX = 24.0 + i * 11.5;
+        itemMesh.position.set(startX, 0.44, convZ);
+        zoneGroup.add(itemMesh);
+        animatedUldYardItems.conveyorCrates.push({
+          mesh: itemMesh,
+          baseOffset: i / 6,
+          xMin: 24.0,
+          xMax: 93.0,
+          z: convZ
+        });
+      }
+
+      // 5. ANIMATION B: Rail-Guided Automated Transfer Vehicle (ETV / 3D 軌道式升降貨櫃/貨板轉運車)
+      const etvZ = upperCenterZ + 5.8;
+      [-1.5, 1.5].forEach(rz => {
+        const trackRail = new THREE.Mesh(
+          new THREE.BoxGeometry(76.0, 0.16, 0.28),
+          new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.5, roughness: 0.3 })
+        );
+        trackRail.position.set(60.0, 0.12, etvZ + rz);
+        zoneGroup.add(trackRail);
+      });
+
+      const etvGroup = new THREE.Group();
+      etvGroup.position.set(45.0, 0.18, etvZ);
+      const etvBase = new THREE.Mesh(
+        new THREE.BoxGeometry(8.6, 0.55, 3.6),
+        new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.35 })
+      );
+      etvBase.position.y = 0.28;
+      etvGroup.add(etvBase);
+
+      const etvLiftPlatform = new THREE.Group();
+      etvLiftPlatform.position.y = 0.62;
+      const liftDeck = new THREE.Mesh(
+        new THREE.BoxGeometry(8.2, 0.22, 3.3),
+        new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.4, roughness: 0.4 })
+      );
+      etvLiftPlatform.add(liftDeck);
+
+      const etvUld = create3DUldAirContainer('AMJ', 0.98, 0xe2e8f0);
+      etvUld.position.set(-2.0, 0.14, 0);
+      const etvPallet = create3DCargoPalletWithNet('PMC', 0.98, true);
+      etvPallet.position.set(2.1, 0.14, 0);
+      etvLiftPlatform.add(etvUld, etvPallet);
+      etvGroup.add(etvLiftPlatform);
+      zoneGroup.add(etvGroup);
+
+      animatedUldYardItems.etvShuttle = etvGroup;
+      animatedUldYardItems.etvLiftPlatform = etvLiftPlatform;
+
+      // 6. ANIMATION C: Dual 3D Heavy Cargo Forklifts lifting & shuttling ULD Containers & Pallets
+      animatedUldYardItems.forklifts.length = 0;
+      const fkConfigs = [
+        { x: 38.0, z: upperCenterZ + 10.6, type: 'AMP', minX: 28.0, maxX: 56.0, phase: 0.0 },
+        { x: 82.0, z: upperCenterZ + 10.6, type: 'PAG', minX: 68.0, maxX: 98.0, phase: 2.2 }
+      ];
+      fkConfigs.forEach(cfg => {
+        const fk = create3DCargoForklift(cfg.type);
+        fk.position.set(cfg.x, 0.08, cfg.z);
+        fk.rotation.y = Math.PI / 2;
+        zoneGroup.add(fk);
+        animatedUldYardItems.forklifts.push({
+          mesh: fk,
+          forkCarriage: fk.userData.forkCarriage,
+          minX: cfg.minX,
+          maxX: cfg.maxX,
+          z: cfg.z,
+          phase: cfg.phase
+        });
+      });
+    }
+
+    function buildIslandPlatformBase(parentGroup, width, depth, centerZ, islandId) {
+      const hull = new THREE.Mesh(new THREE.BoxGeometry(width - 1.2, 2.8, depth - 1.2), darkHullMat);
+      hull.position.set(0, -1.4, centerZ);
+      hull.castShadow = true;
+      hull.receiveShadow = true;
+      parentGroup.add(hull);
+
+      const seawallSkirtMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.55, metalness: 0.2 });
+      const seawallSkirt = new THREE.Mesh(new THREE.BoxGeometry(width + 3.0, 0.55, depth + 3.0), seawallSkirtMat);
+      seawallSkirt.position.set(0, -0.18, centerZ);
+      parentGroup.add(seawallSkirt);
+
+      const rimMat = new THREE.MeshStandardMaterial({ color: 0x5b7083, roughness: 0.45, metalness: 0.15 });
+      const rim = new THREE.Mesh(new THREE.BoxGeometry(width + 1.6, 0.65, depth + 1.6), rimMat);
+      rim.position.set(0, 0.18, centerZ);
+      parentGroup.add(rim);
+
+      const ledRimMat = new THREE.MeshStandardMaterial({
+        color: 0xffb500,
+        emissive: 0xf59e0b,
+        emissiveIntensity: 0.75,
+        roughness: 0.25
+      });
+      const ledRimBand = new THREE.Mesh(new THREE.BoxGeometry(width + 1.9, 0.18, depth + 1.9), ledRimMat);
+      ledRimBand.position.set(0, 0.42, centerZ);
+      parentGroup.add(ledRimBand);
+
+      const apronDeckMat = new THREE.MeshStandardMaterial({ color: 0x768fa6, roughness: 0.58 });
+      const topDeck = new THREE.Mesh(new THREE.BoxGeometry(width, 0.72, depth), apronDeckMat);
+      topDeck.position.set(0, 0.6, centerZ);
+      topDeck.receiveShadow = true;
+      topDeck.userData = { islandId };
+      clickableMeshes.push(topDeck);
+      parentGroup.add(topDeck);
+    }
+
     function buildCenterUPSIsland(data) {
       const group = new THREE.Group();
       group.position.set(0, 0, 0);
       group.userData = { islandId: data.id };
 
-      // 1. Giant Unified Rectangular Dynamic Island Platform (204 x 122, accommodating Top-Left 4 Horizontal Bays + Bottom-Right 2 Horizontal Bays + Full Taxiway Network)
-      const megaW = 204.0;
-      const megaD = 122.0;
+      // =====================================================================
+      // UNIFIED GIANT DYNAMIC ISLAND (整體連貫單一巨型動態島：上方放大版 UPS 大樓 + 右側 ULD Control + 中間連貫主幹道路 + 下方放大版停泊位與滑行跑道，完全無分割!)
+      // Spans x = -118..+118 (width 236), z = -75..+76 (depth 151, centered at z = +0.5)
+      // =====================================================================
+      const upperW = 236.0;
+      const upperD = 36.0;
+      const upperCenterZ = -57.0;
+      const lowerW = 236.0;
+      const lowerD = 104.0;
+      const lowerCenterZ = 24.0;
+      const unifiedW = 236.0;
+      const unifiedD = 151.0;
+      const unifiedCenterZ = 0.5;
+      buildIslandPlatformBase(group, unifiedW, unifiedD, unifiedCenterZ, data.id);
 
-      // Deep dark cliff hull in water
-      const hull = new THREE.Mesh(new THREE.BoxGeometry(megaW - 1.2, 2.8, megaD - 1.2), darkHullMat);
-      hull.position.y = -1.4;
-      hull.castShadow = true;
-      hull.receiveShadow = true;
-      group.add(hull);
-
-      // Custom GLSL Coastal Water Foam & Wave Ripple Halo Ring around the Dynamic Island (from threejs-shaders skill)
+      // Custom GLSL Coastal Water Foam & Wave Ripple Halo Rings around both Separated Islands
       islandFoamShaderMat = new THREE.ShaderMaterial({
         transparent: true,
         depthWrite: false,
@@ -2114,15 +2589,15 @@
           }
         `
       });
-      const foamPlane = new THREE.Mesh(new THREE.PlaneGeometry(megaW + 18.0, megaD + 18.0), islandFoamShaderMat);
-      foamPlane.rotation.x = -Math.PI / 2;
-      foamPlane.position.y = -1.75;
-      group.add(foamPlane);
+      const unifiedFoamPlane = new THREE.Mesh(new THREE.PlaneGeometry(unifiedW + 18.0, unifiedD + 16.0), islandFoamShaderMat);
+      unifiedFoamPlane.rotation.x = -Math.PI / 2;
+      unifiedFoamPlane.position.set(0, -1.75, unifiedCenterZ);
+      group.add(unifiedFoamPlane);
 
-      // 4 Corner Sub-Surface Levitation Energy Rings driven by AnimationMixer
-      [[-megaW * 0.44, -megaD * 0.42], [megaW * 0.44, -megaD * 0.42], [-megaW * 0.44, megaD * 0.42], [megaW * 0.44, megaD * 0.42]].forEach(([tx, tz], tIdx) => {
+      // 4 Corner Sub-Surface Levitation Energy Rings under the Lower Island
+      [[-lowerW * 0.44, lowerCenterZ - lowerD * 0.42], [lowerW * 0.44, lowerCenterZ - lowerD * 0.42], [-lowerW * 0.44, lowerCenterZ + lowerD * 0.42], [lowerW * 0.44, lowerCenterZ + lowerD * 0.42]].forEach(([tx, tz], tIdx) => {
         const thrusterRing = new THREE.Mesh(
-          new THREE.TorusGeometry(4.2, 0.28, 12, 32),
+          new THREE.TorusGeometry(4.6, 0.30, 12, 32),
           new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.55 })
         );
         thrusterRing.rotation.x = Math.PI / 2;
@@ -2138,59 +2613,29 @@
         globalAnimationMixers.push(tMixer);
       });
 
-      // Outer stepped seawall & glowing UPS Gold LED Perimeter Strip around the Dynamic Island
-      const seawallSkirtMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.55, metalness: 0.2 });
-      const seawallSkirt = new THREE.Mesh(new THREE.BoxGeometry(megaW + 3.0, 0.55, megaD + 3.0), seawallSkirtMat);
-      seawallSkirt.position.y = -0.18;
-      group.add(seawallSkirt);
-
-      const rimMat = new THREE.MeshStandardMaterial({ color: 0x5b7083, roughness: 0.45, metalness: 0.15 });
-      const rim = new THREE.Mesh(new THREE.BoxGeometry(megaW + 1.6, 0.65, megaD + 1.6), rimMat);
-      rim.position.y = 0.18;
-      group.add(rim);
-
-      const ledRimMat = new THREE.MeshStandardMaterial({
-        color: 0xffb500,
-        emissive: 0xf59e0b,
-        emissiveIntensity: 0.75,
-        roughness: 0.25
-      });
-      const ledRimBand = new THREE.Mesh(new THREE.BoxGeometry(megaW + 1.9, 0.18, megaD + 1.9), ledRimMat);
-      ledRimBand.position.y = 0.42;
-      group.add(ledRimBand);
-
-      // Main Slate-Blue Apron Concrete Surface across the entire Dynamic Island
-      const apronDeckMat = new THREE.MeshStandardMaterial({ color: 0x768fa6, roughness: 0.58 });
-      const topDeck = new THREE.Mesh(new THREE.BoxGeometry(megaW, 0.72, megaD), apronDeckMat);
-      topDeck.position.y = 0.6;
-      topDeck.receiveShadow = true;
-      topDeck.userData = { islandId: data.id };
-      clickableMeshes.push(topDeck);
-      group.add(topDeck);
-
       const deckSurface = new THREE.Group();
       deckSurface.position.y = 0.96;
       group.add(deckSurface);
       megaIslandDeckSurface = deckSurface;
 
-      // 2. North Apron Protective Blast Wall (最上方 · 北停機坪青灰色三面圍牆，完全依照照片!)
+      // 2. Upper Island Protective Blast Wall along the Rear & Sides of the Upper Island
       const wallMat = new THREE.MeshStandardMaterial({ color: 0x5c8d89, roughness: 0.5 });
-      const backWall = new THREE.Mesh(new THREE.BoxGeometry(megaW - 2.0, 3.2, 1.2), wallMat);
-      backWall.position.set(0, 1.6, -megaD / 2 + 1.2);
+      const backWall = new THREE.Mesh(new THREE.BoxGeometry(upperW - 2.0, 3.5, 1.3), wallMat);
+      backWall.position.set(0, 1.75, upperCenterZ - upperD / 2 + 1.0);
       backWall.castShadow = true;
       deckSurface.add(backWall);
 
-      const leftNorthWall = new THREE.Mesh(new THREE.BoxGeometry(1.2, 3.2, 30.0), wallMat);
-      leftNorthWall.position.set(-megaW / 2 + 1.2, 1.6, -megaD / 2 + 16.0);
+      const leftNorthWall = new THREE.Mesh(new THREE.BoxGeometry(1.3, 3.5, upperD - 2.0), wallMat);
+      leftNorthWall.position.set(-upperW / 2 + 1.0, 1.75, upperCenterZ);
       leftNorthWall.castShadow = true;
       deckSurface.add(leftNorthWall);
 
-      const rightNorthWall = new THREE.Mesh(new THREE.BoxGeometry(1.2, 3.2, 30.0), wallMat);
-      rightNorthWall.position.set(megaW / 2 - 1.2, 1.6, -megaD / 2 + 16.0);
+      const rightNorthWall = new THREE.Mesh(new THREE.BoxGeometry(1.3, 3.5, upperD - 2.0), wallMat);
+      rightNorthWall.position.set(upperW / 2 - 1.0, 1.75, upperCenterZ);
       rightNorthWall.castShadow = true;
       deckSurface.add(rightNorthWall);
 
-      // 3. Main Long Horizontal UPS HKG Gateway Sorting Hub Building (長方形快遞樞紐 · 7 座分揀月台, matching 8d1fe971.jpeg)
+      // 3. ENLARGED Main UPS HKG Gateway Sorting Hub Building on the Left/Center-Left of the Upper Island (整體放大!)
       const upsDarkBrownMat = new THREE.MeshStandardMaterial({ color: 0x22130c, roughness: 0.45 });
       const upsGoldTrimMat = new THREE.MeshStandardMaterial({
         color: 0xf59e0b,
@@ -2199,11 +2644,11 @@
         roughness: 0.3
       });
 
-      const hubW = 54.0;
-      const hubH = 6.6;
-      const hubD = 15.2;
-      const hubX = 10.5;
-      const hubZ = -40.0;
+      const hubW = 68.0;
+      const hubH = 8.4;
+      const hubD = 17.6;
+      const hubX = -46.0;
+      const hubZ = -59.5;
 
       const mainHubBox = new THREE.Mesh(new THREE.BoxGeometry(hubW, hubH, hubD), upsDarkBrownMat);
       mainHubBox.position.set(hubX, hubH / 2, hubZ);
@@ -2213,12 +2658,12 @@
       clickableMeshes.push(mainHubBox);
       deckSurface.add(mainHubBox);
 
-      // Golden-Amber Roof Trim Frame around the top of the brown sorting hub
-      const roofTrim = new THREE.Mesh(new THREE.BoxGeometry(hubW + 0.6, 0.42, hubD + 0.6), upsGoldTrimMat);
-      roofTrim.position.set(hubX, hubH + 0.10, hubZ);
+      // Golden-Amber Roof Trim Frame around the top of the enlarged brown sorting hub
+      const roofTrim = new THREE.Mesh(new THREE.BoxGeometry(hubW + 0.8, 0.50, hubD + 0.8), upsGoldTrimMat);
+      roofTrim.position.set(hubX, hubH + 0.12, hubZ);
       deckSurface.add(roofTrim);
 
-      // 5 Glowing Cyan/Mint Rectangular Skylight Panels on the Roof (enlarged proportionally)
+      // 5 Enlarged Glowing Cyan/Mint Rectangular Skylight Panels on the Roof
       const skylightMat = new THREE.MeshStandardMaterial({
         color: 0x99f6e4,
         emissive: 0x2dd4bf,
@@ -2226,19 +2671,18 @@
         roughness: 0.2
       });
       for (let sIdx = 0; sIdx < 5; sIdx++) {
-        const sx = hubX - 19.2 + sIdx * 9.6;
-        const skylight = new THREE.Mesh(new THREE.BoxGeometry(6.8, 0.18, 8.8), skylightMat);
-        skylight.position.set(sx, hubH + 0.26, hubZ);
+        const sx = hubX - 24.0 + sIdx * 12.0;
+        const skylight = new THREE.Mesh(new THREE.BoxGeometry(8.5, 0.22, 10.4), skylightMat);
+        skylight.position.set(sx, hubH + 0.30, hubZ);
         deckSurface.add(skylight);
       }
 
-      // Official 2014 UPS Logo (https://upload.wikimedia.org/wikipedia/commons/6/6b/United_Parcel_Service_logo_2014.svg) mounted on the 3D UPS HKG Gateway Building!
+      // Official 2014 UPS Logo mounted on the Enlarged 3D UPS HKG Gateway Building
       const logoCvs = document.createElement('canvas');
       logoCvs.width = 256;
       logoCvs.height = 300;
       const lCtx = logoCvs.getContext('2d');
 
-      // Pre-draw the exact 2014 UPS Shield immediately on frame 1 so it is never blank even before/without CORS image load
       function drawFallbackUPSShield(ctx) {
         ctx.clearRect(0, 0, 256, 300);
         ctx.fillStyle = '#ffb500';
@@ -2274,7 +2718,6 @@
       drawFallbackUPSShield(lCtx);
 
       const logoTex = enhanceTextureClarity(new THREE.CanvasTexture(logoCvs));
-
       const logoImg = new Image();
       logoImg.crossOrigin = 'anonymous';
       logoImg.onload = () => {
@@ -2290,26 +2733,26 @@
         side: THREE.DoubleSide
       });
 
-      // (a) Enlarged Standing Rooftop 3D UPS Logo Billboard Sign at the center-front of the UPS HKG Gateway Roof
+      // (a) Enlarged Standing Rooftop 3D UPS Logo Billboard Sign
       const roofSignBacking = new THREE.Mesh(
-        new THREE.BoxGeometry(7.2, 8.0, 0.55),
+        new THREE.BoxGeometry(9.0, 9.8, 0.65),
         new THREE.MeshStandardMaterial({ color: 0x22130c, roughness: 0.4 })
       );
-      roofSignBacking.position.set(hubX, hubH + 4.0, hubZ + hubD / 2 - 0.5);
+      roofSignBacking.position.set(hubX, hubH + 4.9, hubZ + hubD / 2 - 0.5);
       deckSurface.add(roofSignBacking);
 
-      const roofLogoPlane = new THREE.Mesh(new THREE.PlaneGeometry(6.5, 7.3), logoSignMat);
-      roofLogoPlane.position.set(hubX, hubH + 4.0, hubZ + hubD / 2 - 0.20);
+      const roofLogoPlane = new THREE.Mesh(new THREE.PlaneGeometry(8.2, 9.0), logoSignMat);
+      roofLogoPlane.position.set(hubX, hubH + 4.9, hubZ + hubD / 2 - 0.14);
       deckSurface.add(roofLogoPlane);
 
-      // (b) Enlarged Left & Right Facade 3D UPS Logo Shields on the front wall of the UPS HKG Gateway Building
-      [-23.8, 23.8].forEach(lxOffset => {
-        const wallLogoPlane = new THREE.Mesh(new THREE.PlaneGeometry(4.2, 4.9), logoSignMat);
-        wallLogoPlane.position.set(hubX + lxOffset, 3.8, hubZ + hubD / 2 + 0.16);
+      // (b) Enlarged Left & Right Facade 3D UPS Logo Shields
+      [-29.8, 29.8].forEach(lxOffset => {
+        const wallLogoPlane = new THREE.Mesh(new THREE.PlaneGeometry(5.2, 6.0), logoSignMat);
+        wallLogoPlane.position.set(hubX + lxOffset, 4.8, hubZ + hubD / 2 + 0.18);
         deckSurface.add(wallLogoPlane);
       });
 
-      // 7 Enlarged Warm Glowing Yellow Upper Windows + 7 Colorful Protruding Sorting Dock Bays (7 座分揀月台)
+      // 7 Enlarged Warm Glowing Yellow Upper Windows + 7 Colorful Protruding Sorting Dock Bays
       const yellowWinMat = new THREE.MeshStandardMaterial({
         color: 0xfef08a,
         emissive: 0xfacc15,
@@ -2318,55 +2761,53 @@
       });
       const dockBayColors = [0x60a5fa, 0xd6bc8b, 0x818cf8, 0x4fd1c5, 0xa3e635, 0xc084fc, 0x38bdf8];
       for (let bIdx = 0; bIdx < 7; bIdx++) {
-        const bx = hubX - 21.6 + bIdx * 7.2;
+        const bx = hubX - 27.0 + bIdx * 9.0;
 
-        const uWin = new THREE.Mesh(new THREE.BoxGeometry(5.0, 1.4, 0.24), yellowWinMat);
-        uWin.position.set(bx, 4.3, hubZ + hubD / 2 + 0.08);
+        const uWin = new THREE.Mesh(new THREE.BoxGeometry(6.2, 1.75, 0.26), yellowWinMat);
+        uWin.position.set(bx, 5.5, hubZ + hubD / 2 + 0.08);
         deckSurface.add(uWin);
 
         const bayMat = new THREE.MeshStandardMaterial({ color: dockBayColors[bIdx], roughness: 0.38 });
-        const bayBox = new THREE.Mesh(new THREE.BoxGeometry(5.0, 1.65, 3.4), bayMat);
-        bayBox.position.set(bx, 0.82, hubZ + hubD / 2 + 1.7);
+        const bayBox = new THREE.Mesh(new THREE.BoxGeometry(6.2, 2.1, 4.0), bayMat);
+        bayBox.position.set(bx, 1.05, hubZ + hubD / 2 + 2.0);
         bayBox.castShadow = true;
         deckSurface.add(bayBox);
 
-        // Detailed roll-up cargo shutter door, canopy visor & status beacon on each sorting dock
         const shutterDoor = new THREE.Mesh(
-          new THREE.BoxGeometry(3.6, 1.25, 0.12),
+          new THREE.BoxGeometry(4.5, 1.6, 0.14),
           new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.4, metalness: 0.35 })
         );
-        shutterDoor.position.set(bx, 0.68, hubZ + hubD / 2 + 3.42);
+        shutterDoor.position.set(bx, 0.88, hubZ + hubD / 2 + 4.02);
         const dockCanopy = new THREE.Mesh(
-          new THREE.BoxGeometry(5.2, 0.16, 0.9),
+          new THREE.BoxGeometry(6.4, 0.20, 1.1),
           upsGoldTrimMat
         );
-        dockCanopy.position.set(bx, 1.68, hubZ + hubD / 2 + 3.25);
+        dockCanopy.position.set(bx, 2.15, hubZ + hubD / 2 + 3.85);
         const dockBeacon = new THREE.Mesh(
-          new THREE.SphereGeometry(0.14, 10, 10),
+          new THREE.SphereGeometry(0.18, 10, 10),
           new THREE.MeshBasicMaterial({ color: bIdx % 2 === 0 ? 0x10b981 : 0xfacc15 })
         );
-        dockBeacon.position.set(bx + 2.1, 1.82, hubZ + hubD / 2 + 3.4);
+        dockBeacon.position.set(bx + 2.6, 2.32, hubZ + hubD / 2 + 4.0);
 
-        // 3D Roller Conveyor Track + Keyframe-Animated Parcel Box sliding out of each Sorting Dock Bay
         const convTrack = new THREE.Mesh(
-          new THREE.BoxGeometry(1.5, 0.22, 2.6),
+          new THREE.BoxGeometry(1.85, 0.26, 3.2),
           new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.5, roughness: 0.4 })
         );
-        convTrack.position.set(bx, 0.14, hubZ + hubD / 2 + 4.5);
+        convTrack.position.set(bx, 0.16, hubZ + hubD / 2 + 5.4);
         const parcelBox = new THREE.Mesh(
-          new THREE.BoxGeometry(0.85, 0.65, 0.85),
+          new THREE.BoxGeometry(1.08, 0.82, 1.08),
           new THREE.MeshStandardMaterial({ color: bIdx % 2 === 0 ? 0xd97706 : 0x78350f, roughness: 0.4 })
         );
-        const zStart = hubZ + hubD / 2 + 3.5;
-        const zEnd = hubZ + hubD / 2 + 5.4;
-        parcelBox.position.set(bx, 0.56, zStart);
+        const zStart = hubZ + hubD / 2 + 4.2;
+        const zEnd = hubZ + hubD / 2 + 6.5;
+        parcelBox.position.set(bx, 0.68, zStart);
         deckSurface.add(shutterDoor, dockCanopy, dockBeacon, convTrack, parcelBox);
 
         const pMixer = new THREE.AnimationMixer(parcelBox);
         const pTrack = new THREE.VectorKeyframeTrack('.position', [0, 1.8, 2.4], [
-          bx, 0.56, zStart,
-          bx, 0.56, zEnd,
-          bx, 0.56, zStart
+          bx, 0.68, zStart,
+          bx, 0.68, zEnd,
+          bx, 0.68, zStart
         ]);
         pTrack.setInterpolation(THREE.InterpolateSmooth);
         const pAct = pMixer.clipAction(new THREE.AnimationClip('dockParcel_' + bIdx, 2.4, [pTrack]));
@@ -2375,14 +2816,14 @@
         globalAnimationMixers.push(pMixer);
       }
 
-      // 4. Enlarged Right-hand 4-Story Grey-Blue Office Building with 4x4 Glowing Window Grid
+      // 4. ENLARGED 4-Story Grey-Blue Office Building & ATC Radar Tower next to UPS Hub on the Upper Island
       const officeWallMat = new THREE.MeshStandardMaterial({ color: 0x3b5266, roughness: 0.5 });
       const officeRoofMat = new THREE.MeshStandardMaterial({ color: 0x64748b, roughness: 0.5 });
-      const officeW = 13.5;
-      const officeH = 10.4;
-      const officeD = 12.0;
-      const officeX = 48.5;
-      const officeZ = -38.5;
+      const officeW = 17.2;
+      const officeH = 12.8;
+      const officeD = 14.8;
+      const officeX = 2.5;
+      const officeZ = -58.5;
 
       const officeTower = new THREE.Mesh(new THREE.BoxGeometry(officeW, officeH, officeD), officeWallMat);
       officeTower.position.set(officeX, officeH / 2, officeZ);
@@ -2392,8 +2833,8 @@
       clickableMeshes.push(officeTower);
       deckSurface.add(officeTower);
 
-      const officeCap = new THREE.Mesh(new THREE.BoxGeometry(officeW + 0.5, 0.38, officeD + 0.5), officeRoofMat);
-      officeCap.position.set(officeX, officeH + 0.19, officeZ);
+      const officeCap = new THREE.Mesh(new THREE.BoxGeometry(officeW + 0.6, 0.45, officeD + 0.6), officeRoofMat);
+      officeCap.position.set(officeX, officeH + 0.22, officeZ);
       deckSurface.add(officeCap);
 
       const officeWinMat = new THREE.MeshStandardMaterial({
@@ -2403,91 +2844,47 @@
       });
       for (let r = 0; r < 4; r++) {
         for (let c = 0; c < 4; c++) {
-          const wx = officeX - 4.2 + c * 2.8;
-          const wy = 1.75 + r * 2.3;
-          const wFront = new THREE.Mesh(new THREE.BoxGeometry(1.7, 1.35, 0.18), officeWinMat);
-          wFront.position.set(wx, wy, officeZ + officeD / 2 + 0.06);
+          const wx = officeX - 5.4 + c * 3.6;
+          const wy = 2.1 + r * 2.85;
+          const wFront = new THREE.Mesh(new THREE.BoxGeometry(2.15, 1.65, 0.22), officeWinMat);
+          wFront.position.set(wx, wy, officeZ + officeD / 2 + 0.08);
           deckSurface.add(wFront);
         }
       }
 
-      // 5. Ground Service Road, Yellow Safety Gantry Arch & Colorful Staging Sheds directly in front of the Top UPS HKG Gateway Building (z = -25.5, positioned to the right of the Top-Left 4 Horizontal Bays)
-      const roadMat = new THREE.MeshStandardMaterial({ color: 0x263445, roughness: 0.75 });
-      const serviceRoad = new THREE.Mesh(new THREE.BoxGeometry(108.0, 0.06, 3.6), roadMat);
-      serviceRoad.position.set(28.0, 0.03, -25.5);
-      deckSurface.add(serviceRoad);
-
-      // Yellow safety gantry arch over the service road
-      const gantryMat = new THREE.MeshStandardMaterial({ color: 0xeab308, roughness: 0.4 });
-      const postL = new THREE.Mesh(new THREE.BoxGeometry(0.32, 3.0, 0.32), gantryMat);
-      postL.position.set(22.5, 1.5, -27.3);
-      const postR = postL.clone();
-      postR.position.set(22.5, 1.5, -23.7);
-      const beamTop = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.35, 4.0), gantryMat);
-      beamTop.position.set(22.5, 3.0, -25.5);
-      deckSurface.add(postL, postR, beamTop);
-
-      // Colorful cargo staging sheds along the service road in front of the UPS building
-      const shedConfigs = [
-        { x: -18, z: -21.5, col: 0x3b4cca },
-        { x: 0,   z: -21.5, col: 0x38a169 },
-        { x: 18,  z: -21.5, col: 0x84cc16 },
-        { x: 36,  z: -21.5, col: 0x8b4560 },
-        { x: 54,  z: -21.5, col: 0x3b82f6 }
-      ];
-      shedConfigs.forEach(sh => {
-        const shed = new THREE.Mesh(
-          new THREE.BoxGeometry(9.5, 1.35, 3.6),
-          new THREE.MeshStandardMaterial({ color: sh.col, roughness: 0.5 })
-        );
-        shed.position.set(sh.x, 0.68, sh.z);
-        shed.castShadow = true;
-        deckSurface.add(shed);
-      });
-
-      upsBeaconLight = new THREE.PointLight(0xffb500, 1.2, 55);
-      upsBeaconLight.position.set(hubX, 12.0, hubZ);
-      group.add(upsBeaconLight);
-
-      // Small round stylized trees around the UPS Gateway & Office Tower
-      addStylizedTree(deckSurface, -22.0, -36.0, 1.05, 'round');
-      addStylizedTree(deckSurface, 36.0, -28.0, 1.0, 'round');
-      addStylizedTree(deckSurface, 56.0, -34.0, 1.05, 'round');
-      addStylizedTree(deckSurface, 78.0, -42.0, 1.1, 'round');
-
-      // Elevated Glass Curtain-Wall Skybridge connecting UPS Sorting Hub to Office Tower + ATC Control Cab
+      // Elevated Glass Curtain-Wall Skybridge connecting Enlarged UPS Sorting Hub to Office Tower
       const skybridgeGlass = new THREE.Mesh(
-        new THREE.BoxGeometry(4.6, 2.1, 3.2),
+        new THREE.BoxGeometry(6.2, 2.6, 3.8),
         new THREE.MeshStandardMaterial({ color: 0x38bdf8, emissive: 0x0284c7, emissiveIntensity: 0.45, transparent: true, opacity: 0.82, roughness: 0.15 })
       );
-      skybridgeGlass.position.set(39.6, 4.8, -39.2);
-      const skybridgeRoof = new THREE.Mesh(new THREE.BoxGeometry(4.8, 0.24, 3.5), upsGoldTrimMat);
-      skybridgeRoof.position.set(39.6, 5.95, -39.2);
+      skybridgeGlass.position.set(-9.0, 6.0, -58.8);
+      const skybridgeRoof = new THREE.Mesh(new THREE.BoxGeometry(6.4, 0.28, 4.1), upsGoldTrimMat);
+      skybridgeRoof.position.set(-9.0, 7.42, -58.8);
       deckSurface.add(skybridgeGlass, skybridgeRoof);
 
-      // 360-Degree Air Traffic Control (ATC) Observation Cab & Rotating Doppler Weather Radar on Office Tower Roof
+      // 360-Degree Air Traffic Control (ATC) Observation Cab & Rotating Doppler Weather Radar on Enlarged Office Tower Roof
       const atcCabGlass = new THREE.Mesh(
-        new THREE.CylinderGeometry(2.6, 2.2, 2.2, 12),
+        new THREE.CylinderGeometry(3.2, 2.7, 2.7, 12),
         new THREE.MeshStandardMaterial({ color: 0xbae6fd, emissive: 0x38bdf8, emissiveIntensity: 0.5, transparent: true, opacity: 0.85, roughness: 0.12 })
       );
-      atcCabGlass.position.set(officeX + 2.2, officeH + 1.4, officeZ + 1.2);
+      atcCabGlass.position.set(officeX + 2.8, officeH + 1.75, officeZ + 1.5);
       const atcCabRoof = new THREE.Mesh(
-        new THREE.CylinderGeometry(2.9, 2.7, 0.35, 12),
+        new THREE.CylinderGeometry(3.6, 3.3, 0.42, 12),
         new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.4 })
       );
-      atcCabRoof.position.set(officeX + 2.2, officeH + 2.65, officeZ + 1.2);
+      atcCabRoof.position.set(officeX + 2.8, officeH + 3.25, officeZ + 1.5);
       deckSurface.add(atcCabGlass, atcCabRoof);
 
       const radarBase = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.55, 0.75, 1.4, 12),
+        new THREE.CylinderGeometry(0.68, 0.92, 1.7, 12),
         new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.5, roughness: 0.35 })
       );
-      radarBase.position.set(officeX - 3.2, officeH + 1.0, officeZ - 2.5);
+      radarBase.position.set(officeX - 3.8, officeH + 1.2, officeZ - 2.8);
       deckSurface.add(radarBase);
       const radarDishGrp = new THREE.Group();
-      radarDishGrp.position.set(officeX - 3.2, officeH + 2.0, officeZ - 2.5);
+      radarDishGrp.position.set(officeX - 3.8, officeH + 2.4, officeZ - 2.8);
       const dish = new THREE.Mesh(
-        new THREE.SphereGeometry(1.25, 16, 12, 0, Math.PI * 2, 0, Math.PI * 0.45),
+        new THREE.SphereGeometry(1.55, 16, 12, 0, Math.PI * 2, 0, Math.PI * 0.45),
         new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.25, side: THREE.DoubleSide })
       );
       dish.rotation.x = Math.PI * 0.35;
@@ -2497,62 +2894,130 @@
 
       // Spinning 3-Cup HKO Anemometer on ATC Roof
       const anemometerGrp = new THREE.Group();
-      anemometerGrp.position.set(officeX + 2.2, officeH + 3.2, officeZ + 1.2);
+      anemometerGrp.position.set(officeX + 2.8, officeH + 3.9, officeZ + 1.5);
       for (let a = 0; a < 3; a++) {
         const ang = (a / 3) * Math.PI * 2;
-        const arm = new THREE.Mesh(new THREE.BoxGeometry(0.95, 0.08, 0.08), upsGoldTrimMat);
-        arm.position.set(Math.cos(ang) * 0.45, 0, Math.sin(ang) * 0.45);
+        const arm = new THREE.Mesh(new THREE.BoxGeometry(1.15, 0.10, 0.10), upsGoldTrimMat);
+        arm.position.set(Math.cos(ang) * 0.55, 0, Math.sin(ang) * 0.55);
         arm.rotation.y = -ang;
-        const cup = new THREE.Mesh(new THREE.SphereGeometry(0.2, 10, 10), upsGoldTrimMat);
-        cup.position.set(Math.cos(ang) * 0.92, 0, Math.sin(ang) * 0.92);
+        const cup = new THREE.Mesh(new THREE.SphereGeometry(0.24, 10, 10), upsGoldTrimMat);
+        cup.position.set(Math.cos(ang) * 1.12, 0, Math.sin(ang) * 1.12);
         anemometerGrp.add(arm, cup);
       }
       deckSurface.add(anemometerGrp);
       rotatingRadars.push(anemometerGrp);
 
-      // Hovering 3D UPS Quadcopter Cargo Drone with 4 Spinning Rotor Blades
+      // Hovering 3D UPS Quadcopter Cargo Drone
       upsDrone = new THREE.Group();
       const droneBody = new THREE.Mesh(
-        new THREE.BoxGeometry(1.5, 0.45, 1.5),
+        new THREE.BoxGeometry(1.85, 0.55, 1.85),
         new THREE.MeshStandardMaterial({ color: 0x351c15, roughness: 0.3 })
       );
       const droneParcel = new THREE.Mesh(
-        new THREE.BoxGeometry(0.9, 0.6, 0.9),
+        new THREE.BoxGeometry(1.1, 0.75, 1.1),
         upsGoldTrimMat
       );
-      droneParcel.position.y = -0.48;
+      droneParcel.position.y = -0.58;
       upsDrone.add(droneBody, droneParcel);
-      [[-0.9, -0.9], [0.9, -0.9], [-0.9, 0.9], [0.9, 0.9]].forEach(([rx, rz]) => {
+      [[-1.1, -1.1], [1.1, -1.1], [-1.1, 1.1], [1.1, 1.1]].forEach(([rx, rz]) => {
         const rotorRing = new THREE.Mesh(
-          new THREE.TorusGeometry(0.42, 0.055, 8, 16),
+          new THREE.TorusGeometry(0.52, 0.065, 8, 16),
           upsGoldTrimMat
         );
         rotorRing.rotation.x = Math.PI / 2;
-        rotorRing.position.set(rx, 0.16, rz);
+        rotorRing.position.set(rx, 0.20, rz);
         const bladeBar = new THREE.Mesh(
-          new THREE.BoxGeometry(0.76, 0.04, 0.12),
+          new THREE.BoxGeometry(0.92, 0.05, 0.14),
           new THREE.MeshBasicMaterial({ color: 0xfef08a })
         );
-        bladeBar.position.set(rx, 0.18, rz);
+        bladeBar.position.set(rx, 0.22, rz);
         rotatingRadars.push(bladeBar);
         upsDrone.add(rotorRing, bladeBar);
       });
-      upsDrone.position.set(hubX + 14.0, hubH + 4.2, hubZ + 2.0);
+      upsDrone.position.set(hubX + 16.0, hubH + 4.8, hubZ + 2.0);
       deckSurface.add(upsDrone);
 
+      // 5. NEW RIGHT-SIDE 3D ULD CARGO CONTAINER & PALLET AUTOMATED HANDLING ZONE (新增大樓右邊位置放置貨櫃/貨板 3D 動畫 · 整體放大!)
+      buildRightSideUldAndPalletZone(deckSurface, upperCenterZ);
 
+      // 6. Unified Inter-Zone Road Network connecting the UPS Building & ULD Control directly to the Lower Parking Bays (大樓與下方停泊位中間加設連貫道路，整體連貫無分割!)
+      const roadMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.76 });
+      const roadYellowMat = new THREE.MeshBasicMaterial({ color: 0xfacc15 });
+      const roadWhiteMat = new THREE.MeshBasicMaterial({ color: 0xf8fafc });
+      const roadStudMat = new THREE.MeshStandardMaterial({
+        color: 0x4ade80,
+        emissive: 0x22c55e,
+        emissiveIntensity: 0.85
+      });
 
-      // Build 2 Free-Roaming 3D Airport Tractors each pulling 3 Cargo Containers (roaming across the ENTIRE giant Dynamic Island!)
+      // (a) Upper Apron Service Road in front of UPS Building & ULD Control (z = -42.2)
+      const serviceRoad = new THREE.Mesh(new THREE.BoxGeometry(222.0, 0.07, 4.2), roadMat);
+      serviceRoad.position.set(0.0, 0.035, -42.2);
+      serviceRoad.receiveShadow = true;
+      deckSurface.add(serviceRoad);
+
+      // (b) Main East-West Connecting Highway Road between UPS Building / ULD Control and Lower Aircraft Parking Bays (z = -33.5)
+      const midConnectingRoad = new THREE.Mesh(new THREE.BoxGeometry(224.0, 0.08, 6.8), roadMat);
+      midConnectingRoad.position.set(0.0, 0.04, -33.5);
+      midConnectingRoad.receiveShadow = true;
+      deckSurface.add(midConnectingRoad);
+
+      // White edge stripes along the Main Connecting Road (z = -33.5 ± 3.1)
+      [-3.1, 3.1].forEach(zOff => {
+        const edgeLine = new THREE.Mesh(new THREE.BoxGeometry(222.0, 0.095, 0.24), roadWhiteMat);
+        edgeLine.position.set(0.0, 0.055, -33.5 + zOff);
+        deckSurface.add(edgeLine);
+      });
+
+      // Dashed yellow centerline + glowing guide studs along the Main Connecting Road (z = -33.5) & Upper Service Road (z = -42.2)
+      for (let rx = -104; rx <= 104; rx += 7.5) {
+        const dashMid = new THREE.Mesh(new THREE.BoxGeometry(3.6, 0.098, 0.30), roadYellowMat);
+        dashMid.position.set(rx, 0.06, -33.5);
+        const dashUp = new THREE.Mesh(new THREE.BoxGeometry(3.2, 0.092, 0.24), roadYellowMat);
+        dashUp.position.set(rx, 0.055, -42.2);
+        deckSurface.add(dashMid, dashUp);
+
+        if (Math.abs(rx % 15) < 1) {
+          const stud = new THREE.Mesh(new THREE.SphereGeometry(0.14, 6, 6), roadStudMat);
+          stud.position.set(rx, 0.09, -33.5);
+          deckSurface.add(stud);
+        }
+      }
+
+      // (c) 6 North-South Connecting Link Roads bridging Upper Service Road (z = -42.2) -> Main Connecting Road (z = -33.5) -> Lower Parking Bays & Taxiway Spine (z = -21.5)
+      const connectorXs = [-85.5, -44.0, -1.6, 40.8, 83.2, 104.4];
+      connectorXs.forEach(cx => {
+        const linkDepth = 21.5; // spans z = -42.5 to z = -21.0
+        const linkCenterZ = -31.75;
+        const linkRoad = new THREE.Mesh(new THREE.BoxGeometry(5.6, 0.075, linkDepth), roadMat);
+        linkRoad.position.set(cx, 0.038, linkCenterZ);
+        linkRoad.receiveShadow = true;
+        deckSurface.add(linkRoad);
+
+        const linkCenterLine = new THREE.Mesh(new THREE.BoxGeometry(0.30, 0.096, linkDepth - 1.0), roadYellowMat);
+        linkCenterLine.position.set(cx, 0.058, linkCenterZ);
+        deckSurface.add(linkCenterLine);
+      });
+
+      upsBeaconLight = new THREE.PointLight(0xffb500, 1.2, 65);
+      upsBeaconLight.position.set(hubX, 14.5, hubZ);
+      group.add(upsBeaconLight);
+
+      // Stylized trees framing the Upper Island
+      addStylizedTree(deckSurface, -88.0, -58.0, 1.25, 'round');
+      addStylizedTree(deckSurface, -96.0, -48.0, 1.20, 'round');
+      addStylizedTree(deckSurface, 15.5,  -66.0, 1.15, 'round');
+
+      // Build 2 Free-Roaming 3D Airport Tractors each pulling 3 Cargo Containers
       buildRoamingTractorTrains(deckSurface);
 
-      // Dynamic container for Permanent 3D Staff Workers on UPS HKG Gateway (positioned relative to UPS Gateway building)
+      // Dynamic container for Permanent 3D Staff Workers on UPS HKG Gateway (positioned in front of the Upper Island UPS Building)
       upsGatewayWorkersGroup = new THREE.Group();
-      upsGatewayWorkersGroup.position.set(hubX, 0, hubZ + 6.5);
+      upsGatewayWorkersGroup.position.set(hubX, 0, hubZ + 11.2);
       deckSurface.add(upsGatewayWorkersGroup);
 
-      // === HALLOWEEN THEME START: 3D Jack-o'-Lanterns, Floating Ghosts, Bats & Festive String Lights ===
+      // === FESTIVAL THEMES ON THE NEW DUAL-ISLAND LAYOUT ===
       buildHalloweenIslandDecorations(deckSurface, hubX, hubW, hubH, hubD, hubZ);
-      // === HALLOWEEN THEME END ===
 
       scene.add(group);
       islandMeshesMap.set(data.id, group);
@@ -2682,12 +3147,11 @@
       }
 
       const pumpkinPlacements = [
-        [-14.5, -34.5, 1.65, 0.35], [-18.2, -33.2, 1.15, 0.15], [-11.2, -32.8, 1.05, 0.45],
-        [-24.5, -39.5, 1.35, 0.25], [-8.8,  -31.8, 0.82, 0.10], [32.5,  -32.2, 0.92, -0.25],
-        [34.8,  -32.5, 0.85, -0.15], [54.5,  -35.0, 1.75, -0.35], [66.0,  -36.5, 1.45, -0.20],
-        [63.2,  -35.2, 0.95, 0.10], [68.8,  -35.8, 0.88, -0.40], [-91.5,  51.5, 2.15, 0.45],
-        [-86.8,  53.2, 1.25, 0.20], [-94.2,  47.5, 1.10, 0.65], [86.5,   52.0, 2.05, -0.45],
-        [81.8,   53.5, 1.30, -0.25], [90.5,   48.0, 1.15, -0.55], [83.5,   49.2, 0.90, -0.10]
+        [-82.5, -48.5, 1.75, 0.35], [-86.2, -47.2, 1.25, 0.15], [-79.2, -46.8, 1.15, 0.45],
+        [-92.5, -52.5, 1.45, 0.25], [-10.8, -46.8, 1.10, 0.10], [14.5,  -47.2, 1.15, -0.25],
+        [18.8,  -47.5, 0.95, -0.15], [102.5, -48.0, 1.75, -0.35], [106.0, -52.5, 1.45, -0.20],
+        [-108.5, 68.5, 2.25, 0.45], [-103.8, 70.2, 1.35, 0.20], [-111.2, 64.5, 1.20, 0.65],
+        [108.5,  68.0, 2.15, -0.45], [103.8, 70.5, 1.35, -0.25], [111.5, 64.0, 1.25, -0.55]
       ];
       pumpkinPlacements.forEach(([px, pz, sc, ry]) => spawnPumpkin(px, pz, sc, ry));
 
@@ -2738,11 +3202,11 @@
       }
 
       [
-        { x: -14.0, y: 2.6, z: -29.5, scale: 1.35, phase: 0.0 },
-        { x: -6.5,  y: 2.4, z: -29.0, scale: 1.40, phase: 1.4 },
-        { x: 28.5,  y: 2.5, z: -29.0, scale: 1.40, phase: 2.8 },
-        { x: 38.0,  y: 2.4, z: -29.5, scale: 1.35, phase: 4.1 },
-        { x: 52.0,  y: 2.6, z: -29.5, scale: 1.45, phase: 5.2 }
+        { x: -74.0, y: 2.8, z: -45.5, scale: 1.45, phase: 0.0 },
+        { x: -46.0, y: 2.6, z: -45.0, scale: 1.50, phase: 1.4 },
+        { x: -16.5, y: 2.7, z: -45.0, scale: 1.45, phase: 2.8 },
+        { x: 14.0,  y: 2.6, z: -45.5, scale: 1.40, phase: 4.1 },
+        { x: 58.0,  y: 2.8, z: -45.5, scale: 1.50, phase: 5.2 }
       ].forEach(gc => {
         const gMesh = createChibiGhost(gc.scale);
         gMesh.position.set(gc.x, gc.y, gc.z);
@@ -2853,8 +3317,8 @@
       }
 
       [
-        [-14.5, -34.5, 1.35], [38.5, -33.5, 1.35], [64.0, -35.5, 1.25],
-        [-90.0, 50.5, 1.65],  [86.5, 50.5, 1.65],  [-88.0, -52.0, 1.4], [86.0, -50.0, 1.4]
+        [-83.5, -48.5, 1.45], [-10.5, -48.5, 1.45], [16.5, -48.5, 1.35],
+        [-108.0, 68.5, 1.75], [108.5, 68.5, 1.75],  [-98.0, -64.0, 1.5], [105.0, -64.0, 1.5]
       ].forEach(([tx, tz, sc]) => spawnChristmasTree(tx, tz, sc));
 
       // Cute 3D Snowmen wearing Red Scarves & Top Hats
@@ -2885,15 +3349,15 @@
         xmasGroup.add(sGrp);
       }
       [
-        [-21.5, -33.0, 1.05, 0.25], [56.5, -34.0, 1.05, -0.25],
-        [-84.0, 52.0, 1.15, 0.35],  [80.0, 52.0, 1.15, -0.35]
+        [-88.5, -47.0, 1.15, 0.25], [20.5, -47.5, 1.15, -0.25],
+        [-102.0, 69.5, 1.25, 0.35], [102.0, 69.5, 1.25, -0.35]
       ].forEach(([sx, sz, sc, ry]) => spawnSnowman(sx, sz, sc, ry));
 
       // 3D Wrapped Christmas Gift Boxes & Festive Candy Canes along the hub
       const giftCols = [0xdc2626, 0x16a34a, 0x2563eb, 0x9333ea];
       [
-        [-12.5, -32.8, 1.1, 0], [-16.2, -32.5, 0.9, 1], [36.2, -32.2, 1.05, 2],
-        [40.5, -32.5, 0.9, 3], [-87.5, 48.5, 1.25, 0], [84.0, 48.5, 1.25, 1]
+        [-80.5, -46.8, 1.2, 0], [-85.2, -46.5, 1.0, 1], [-8.2, -46.8, 1.15, 2],
+        [14.5, -46.8, 1.0, 3], [-105.5, 66.5, 1.35, 0], [105.0, 66.5, 1.35, 1]
       ].forEach(([gx, gz, gsc, ci]) => {
         const gBox = new THREE.Group();
         const cube = new THREE.Mesh(
@@ -3228,7 +3692,7 @@
         pGrp.scale.set(scale, scale, scale);
         cnyGroup.add(pGrp);
       }
-      [[-15.5, -34.5, 1.35], [37.5, -33.5, 1.35], [-91.0, 50.0, 1.5], [86.0, 50.0, 1.5]].forEach(([px, pz, sc]) => spawnPeachBlossomTree(px, pz, sc));
+      [[-84.5, -48.5, 1.45], [16.5, -48.5, 1.45], [-108.0, 68.0, 1.65], [108.0, 68.0, 1.65]].forEach(([px, pz, sc]) => spawnPeachBlossomTree(px, pz, sc));
 
       // Shiny 3D Gold Ingots (金元寶) at Island Corners & Building Front
       function spawnGoldIngot(x, z, scale = 1.0, rotY = 0) {
@@ -3246,13 +3710,13 @@
         cnyGroup.add(iGrp);
       }
       [
-        [-88.0, 52.5, 1.55, 0.35], [-83.5, 53.5, 1.15, -0.2],
-        [84.5,  52.5, 1.55, -0.35], [79.5, 53.5, 1.15, 0.2],
-        [-11.5, -32.2, 1.10, 0.25], [34.5, -32.2, 1.10, -0.25]
+        [-106.0, 69.5, 1.65, 0.35], [-101.5, 70.5, 1.25, -0.2],
+        [106.5,  69.5, 1.65, -0.35], [101.5, 70.5, 1.25, 0.2],
+        [-80.5, -46.8, 1.20, 0.25], [14.5, -46.8, 1.20, -0.25]
       ].forEach(([ix, iz, sc, ry]) => spawnGoldIngot(ix, iz, sc, ry));
 
       // Cute 3D Chibi Lion Dancers (Q版醒獅)
-      [8.0, 16.0].forEach((lx, idx) => {
+      [-50.0, -40.0].forEach((lx, idx) => {
         const lionGrp = new THREE.Group();
         const lHead = new THREE.Mesh(new THREE.SphereGeometry(1.05, 16, 14), lanternRedMat);
         lHead.position.y = 1.55;
@@ -3261,7 +3725,7 @@
         const lBody = new THREE.Mesh(new THREE.BoxGeometry(1.4, 1.2, 2.2), starGoldMat);
         lBody.position.set(0, 0.9, -1.2);
         lionGrp.add(lHead, lMane, lBody);
-        lionGrp.position.set(lx, 0, -31.8);
+        lionGrp.position.set(lx, 0, -46.5);
         cnyGroup.add(lionGrp);
         cnyLionDancers.push({ group: lionGrp, baseX: lx, phase: idx * 1.6 });
       });
@@ -3326,10 +3790,10 @@
         easterGroup.add(eGrp);
       }
       [
-        [-14.0, -33.5, 1.55, 0, 0.12], [-17.2, -32.8, 1.15, 1, -0.15],
-        [34.5,  -33.2, 1.50, 2, -0.10], [37.5, -32.5, 1.15, 3, 0.18],
-        [-91.0,  51.5, 1.75, 4, 0.15],  [-86.5, 53.0, 1.25, 0, -0.12],
-        [86.5,   51.5, 1.75, 1, -0.15], [82.0,  53.0, 1.25, 2, 0.12]
+        [-82.0, -47.5, 1.65, 0, 0.12], [-86.2, -46.8, 1.25, 1, -0.15],
+        [14.5,  -47.2, 1.60, 2, -0.10], [18.5, -46.5, 1.25, 3, 0.18],
+        [-108.0, 68.5, 1.85, 4, 0.15],  [-103.5, 70.0, 1.35, 0, -0.12],
+        [108.5,  68.5, 1.85, 1, -0.15], [103.0,  70.0, 1.35, 2, 0.12]
       ].forEach(([ex, ez, sc, ci, tz]) => spawnEasterEgg(ex, ez, sc, ci, tz));
 
       // Cute Hopping 3D White Chibi Easter Bunnies
@@ -3360,9 +3824,9 @@
         easterHoppingBunnies.push({ group: bGrp, baseX: x, baseZ: z, phase });
       }
       [
-        [-21.0, -32.0, 1.15, 0.0], [28.0, -31.8, 1.15, 1.2],
-        [52.0,  -33.0, 1.15, 2.4], [-82.0, 49.0, 1.25, 3.6],
-        [78.0,   49.0, 1.25, 4.8], [-55.0, 22.0, 1.10, 5.5]
+        [-88.0, -46.0, 1.25, 0.0], [-10.0, -46.2, 1.25, 1.2],
+        [20.0,  -46.5, 1.25, 2.4], [-98.0, 67.0, 1.35, 3.6],
+        [98.0,   67.0, 1.35, 4.8], [-65.0, 32.0, 1.15, 5.5]
       ].forEach(([bx, bz, sc, ph]) => spawnEasterBunny(bx, bz, sc, ph));
 
       // 10 Fluttering 3D Pastel Butterflies for Easter Theme
@@ -4196,7 +4660,7 @@
       modelInner.add(portRedNav, stbdGreenNav, dorsalBeacon, tailStrobe);
 
       // Calibrated Aircraft Scale (basePlaneScale = 0.86 -> 9.20 world wingspan & 6.17 length, matching original bay clearance!)
-      const BASE_CHIBI_SCALE = 0.86;
+      const BASE_CHIBI_SCALE = 1.02;
       const _pScale = BASE_CHIBI_SCALE * (typeof getResponsive3DScaleFactor === 'function' ? getResponsive3DScaleFactor() : 1.0);
       chibiGroup.scale.set(_pScale, _pScale, _pScale);
       chibiGroup.userData.basePlaneScale = BASE_CHIBI_SCALE;
@@ -4211,8 +4675,8 @@
 
       const isHorizontal = data.orientation === 'horizontal-left' || data.orientation === 'horizontal-right';
       const _bScale = typeof getResponsive3DScaleFactor === 'function' ? getResponsive3DScaleFactor() : 1.0;
-      const bayW = (isHorizontal ? 16.2 : 16.8) * Math.min(1.08, _bScale);
-      const bayD = (isHorizontal ? 13.0 : 15.6) * Math.min(1.08, _bScale);
+      const bayW = (isHorizontal ? 18.8 : 19.4) * Math.min(1.10, _bScale);
+      const bayD = (isHorizontal ? 14.8 : 18.2) * Math.min(1.10, _bScale);
 
       // 1. Two-Tone High-Contrast International Cargo Apron Stand Pad & Clickable Area
       const outerBorderMat = new THREE.MeshStandardMaterial({ color: 0x475e75, roughness: 0.6 });
@@ -4291,10 +4755,10 @@
         botBound.position.set(0, 0.04, bayD * 0.45);
         group.add(topBound, botBound);
       } else {
-        // VERTICAL PARKING BAY (01–08 on North Apron at z=-9 connects to North Taxiway at z=+2.2; 09–16 on South Apron at z=+39 connects to South Taxiway at z=+27.2)
+        // VERTICAL PARKING BAY (01–08 on Enlarged North Apron at z=-10.5 connects to North Taxiway at z=+7.5; 09–16 on Enlarged South Apron at z=+56.5 connects to South Taxiway at z=+38.5)
         const isNorth = data.apron === 'north';
-        const stopZ = isNorth ? -4.2 : 4.2;
-        const taxiwayWorldZ = isNorth ? 2.2 : 27.2;
+        const stopZ = isNorth ? -4.8 : 4.8;
+        const taxiwayWorldZ = isNorth ? 7.5 : 38.5;
         const taxiwayLocalZ = taxiwayWorldZ - data.z;
         const lineLenZ = Math.abs(taxiwayLocalZ - stopZ);
         const lineCenterZ = (stopZ + taxiwayLocalZ) * 0.5;
@@ -4379,11 +4843,12 @@
       // 5. 3D Road-Sign Shape Signpost (黑底黃色字路牌，顯示輸入的 Bay 位文字，如 X22)
       // Positioned at the front-right of each bay and elevated to y=4.35 so the 3D aircraft never blocks it
       const roadSign = createBayRoadSignMesh();
+      roadSign.scale.setScalar(1.16);
       if (isHorizontal) {
         const dirToTaxi = data.orientation === 'horizontal-left' ? 1 : -1;
-        roadSign.position.set(dirToTaxi * 5.4, 0.05, 5.0);
+        roadSign.position.set(dirToTaxi * 6.2, 0.05, 5.6);
       } else {
-        roadSign.position.set(5.0, 0.05, data.apron === 'north' ? 5.0 : 4.8);
+        roadSign.position.set(5.8, 0.05, data.apron === 'north' ? 5.8 : 5.6);
       }
       group.add(roadSign);
       islandRoadSignsMap.set(data.id, roadSign);
@@ -4539,12 +5004,12 @@
     // 5B. CENTRAL FLIGHT RUNWAY 07R / 25L (中央飛行跑道 07R / 25L — 位於北停機坪與 UPS 大樓之間，完全依照照片!)
     // =========================================================================
     const runwayGroup = new THREE.Group();
-    runwayGroup.position.set(0, 0.98, 15.0); // Positioned between North Bays (z=-38) and UPS Gateway (z=+5) matching 8d1fe971.jpeg!
+    runwayGroup.position.set(0, 0.98, 23.0); // Enlarged Central Flight Runway 07R / 25L at world z = +23.0 on the Lower Island
     scene.add(runwayGroup);
 
     function buildBottomRunwayAndTaxiways() {
-      const rwLength = 192;
-      const rwWidth = 10.5;
+      const rwLength = 224;
+      const rwWidth = 13.6;
       const taxiwayAsphaltMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.78 });
       const yellowLineMat = new THREE.MeshBasicMaterial({ color: 0xfacc15 });
       const taxiEdgeLightMat = new THREE.MeshStandardMaterial({
@@ -4553,10 +5018,10 @@
         emissiveIntensity: 0.9
       });
 
-      // Helper to add a straight taxiway road segment (in world X, Z coordinates; converted to runwayGroup local coordinates where runwayGroup is at z = +15.0)
-      function addTaxiwaySegment(worldX1, worldZ1, worldX2, worldZ2, width = 4.6) {
-        const localZ1 = worldZ1 - 15.0;
-        const localZ2 = worldZ2 - 15.0;
+      // Helper to add a straight taxiway road segment (in world X, Z coordinates; converted to runwayGroup local coordinates where runwayGroup is at z = +23.0)
+      function addTaxiwaySegment(worldX1, worldZ1, worldX2, worldZ2, width = 5.6) {
+        const localZ1 = worldZ1 - 23.0;
+        const localZ2 = worldZ2 - 23.0;
         const isHorizontalSeg = Math.abs(worldZ1 - worldZ2) < 0.01;
         const segW = isHorizontalSeg ? Math.abs(worldX2 - worldX1) + width : width;
         const segD = isHorizontalSeg ? width : Math.abs(localZ2 - localZ1) + width;
@@ -4568,140 +5033,137 @@
         asphalt.receiveShadow = true;
         runwayGroup.add(asphalt);
 
-        const lineW = isHorizontalSeg ? Math.abs(worldX2 - worldX1) + 0.4 : 0.28;
-        const lineD = isHorizontalSeg ? 0.28 : Math.abs(localZ2 - localZ1) + 0.4;
+        const lineW = isHorizontalSeg ? Math.abs(worldX2 - worldX1) + 0.5 : 0.36;
+        const lineD = isHorizontalSeg ? 0.36 : Math.abs(localZ2 - localZ1) + 0.5;
         const centerLine = new THREE.Mesh(new THREE.BoxGeometry(lineW, 0.095, lineD), yellowLineMat);
         centerLine.position.set(cx, 0.06, cz);
         runwayGroup.add(centerLine);
 
-        // Subtle green taxiway centerline lights along the segment
+        // Green taxiway centerline lights along the segment
         const len = isHorizontalSeg ? Math.abs(worldX2 - worldX1) : Math.abs(localZ2 - localZ1);
         const steps = Math.max(2, Math.floor(len / 9));
         for (let s = 0; s <= steps; s++) {
           const t = s / steps;
           const lx = worldX1 + (worldX2 - worldX1) * t;
           const lz = localZ1 + (localZ2 - localZ1) * t;
-          const gl = new THREE.Mesh(new THREE.SphereGeometry(0.13, 6, 6), taxiEdgeLightMat);
+          const gl = new THREE.Mesh(new THREE.SphereGeometry(0.15, 6, 6), taxiEdgeLightMat);
           gl.position.set(lx, 0.1, lz);
           runwayGroup.add(gl);
         }
       }
 
-      // 1. Main Dark Asphalt Flight Runway Surface (07R / 25L at world z = +15.0)
+      // 1. Enlarged Main Dark Asphalt Flight Runway Surface (07R / 25L at world z = +23.0)
       const rwSurface = new THREE.Mesh(
-        new THREE.BoxGeometry(rwLength, 0.14, rwWidth),
+        new THREE.BoxGeometry(rwLength, 0.16, rwWidth),
         new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.75 })
       );
-      rwSurface.position.y = 0.07;
+      rwSurface.position.y = 0.08;
       rwSurface.receiveShadow = true;
       runwayGroup.add(rwSurface);
 
-      // 2. INTERCONNECTED AIRCRAFT TAXIWAY NETWORK (所有飛機行路連貫下方飛行跑道 · 每條行路也連貫所有飛機停泊位)
-      // (A) North Parallel Horizontal Taxiway (world z = +2.2, connecting all North Bays 01–08 from x = -73.5 to x = +73.5)
-      addTaxiwaySegment(-73.5, 2.2, 73.5, 2.2, 4.6);
+      // 2. ENLARGED INTERCONNECTED AIRCRAFT TAXIWAY NETWORK ON THE LOWER ISLAND
+      // (A) Enlarged North Parallel Horizontal Taxiway (world z = +7.5, connecting Northwest Spine x = -85.5 and all North Bays 01–08 up to x = +104.4)
+      addTaxiwaySegment(-85.5, 7.5, 104.4, 7.5, 5.6);
 
-      // (B) Top-Left Middle Vertical Taxiway (world x = -57.0, running between Left Horizontal Bays 17,18 and Right Horizontal Bays 19,20 from z = -49.0 straight down through North Taxiway z = +2.2 into Main Flight Runway z = +15.0!)
-      addTaxiwaySegment(-57.0, -49.0, -57.0, 15.0, 4.8);
+      // (B) Top-Left Vertical Taxiway Spine on Lower Island (world x = -85.5, running between Left Horizontal Bays 17,18 and Right Horizontal Bays 19,20 from z = -21.5 straight down through North Taxiway z = +7.5 into Main Flight Runway z = +23.0)
+      addTaxiwaySegment(-85.5, -21.5, -85.5, 23.0, 5.8);
 
-      // (C) Additional North-to-Runway Vertical Connector Taxiways linking the North Parallel Taxiway (z = +2.2) straight into the Main Flight Runway (z = +15.0)
-      addTaxiwaySegment(-73.5, 2.2, -73.5, 15.0, 4.4);
-      addTaxiwaySegment(-31.0, 2.2, -31.0, 15.0, 4.4);
-      addTaxiwaySegment(7.0,   2.2, 7.0,   15.0, 4.4);
-      addTaxiwaySegment(45.0,  2.2, 45.0,  15.0, 4.4);
-      addTaxiwaySegment(73.5,  2.2, 73.5,  15.0, 4.6);
+      // (C) North-to-Runway Vertical Connector Taxiways linking North Parallel Taxiway (z = +7.5) straight into Main Flight Runway (z = +23.0)
+      addTaxiwaySegment(-44.0, 7.5, -44.0, 23.0, 5.4);
+      addTaxiwaySegment(-1.6,  7.5, -1.6,  23.0, 5.4);
+      addTaxiwaySegment(40.8,  7.5, 40.8,  23.0, 5.4);
+      addTaxiwaySegment(83.2,  7.5, 83.2,  23.0, 5.4);
+      addTaxiwaySegment(104.4, 7.5, 104.4, 23.0, 5.6);
 
-      // (D) South Parallel Horizontal Taxiway (world z = +27.2, connecting Bottom-Left Vertical Spine x = -73.5 and all South Bays 09–16 up to x = +78.5)
-      addTaxiwaySegment(-73.5, 27.2, 78.5, 27.2, 4.6);
+      // (D) Enlarged South Parallel Horizontal Taxiway (world z = +38.5, connecting Bottom-Left Vertical Spine x = -85.5 and all South Bays 09–16 up to x = +104.4)
+      addTaxiwaySegment(-85.5, 38.5, 104.4, 38.5, 5.6);
 
-      // (E) South-to-Runway Vertical Connector Taxiways linking the South Parallel Taxiway (z = +27.2) straight into the Main Flight Runway (z = +15.0)
-      addTaxiwaySegment(-45.0, 15.0, -45.0, 27.2, 4.4);
-      addTaxiwaySegment(-7.0,  15.0, -7.0,  27.2, 4.4);
-      addTaxiwaySegment(31.0,  15.0, 31.0,  27.2, 4.4);
-      addTaxiwaySegment(73.5,  15.0, 73.5,  27.2, 4.6);
+      // (E) South-to-Runway Vertical Connector Taxiways linking South Parallel Taxiway (z = +38.5) straight into Main Flight Runway (z = +23.0)
+      addTaxiwaySegment(-44.0, 23.0, -44.0, 38.5, 5.4);
+      addTaxiwaySegment(-1.6,  23.0, -1.6,  38.5, 5.4);
+      addTaxiwaySegment(40.8,  23.0, 40.8,  38.5, 5.4);
+      addTaxiwaySegment(83.2,  23.0, 83.2,  38.5, 5.4);
+      addTaxiwaySegment(104.4, 23.0, 104.4, 38.5, 5.6);
 
-      // (F) Bottom-Left Vertical Taxiway Spine (world x = -73.5, running from Main Flight Runway z = +15.0 through South Parallel Taxiway z = +27.2 down to z = +48.5 to serve Bottom-Left Horizontal Bays 21 & 22!)
-      addTaxiwaySegment(-73.5, 15.0, -73.5, 48.5, 4.8);
+      // (F) Bottom-Left Vertical Taxiway Spine (world x = -85.5, running from Main Flight Runway z = +23.0 through South Parallel Taxiway z = +38.5 down to z = +65.0 to serve Bottom-Left Horizontal Bays 21 & 22)
+      addTaxiwaySegment(-85.5, 23.0, -85.5, 65.0, 5.8);
 
       // White dashed runway centerline markings
       const whiteLineMat = new THREE.MeshBasicMaterial({ color: 0xf8fafc });
-      for (let x = -80; x <= 80; x += 7.5) {
-        const dash = new THREE.Mesh(new THREE.BoxGeometry(3.8, 0.05, 0.32), whiteLineMat);
-        dash.position.set(x, 0.15, 0);
+      for (let x = -94; x <= 94; x += 8.5) {
+        const dash = new THREE.Mesh(new THREE.BoxGeometry(4.6, 0.06, 0.42), whiteLineMat);
+        dash.position.set(x, 0.17, 0);
         runwayGroup.add(dash);
       }
 
-      // Threshold Piano Key Stripes, Aiming Point Blocks, PAPI Glide-Slope Lights, Animated Windsocks & Approach Strobe Arrays at West (-88) & East (+88)
+      // Enlarged Threshold Piano Key Stripes, Aiming Point Blocks, PAPI Glide-Slope Lights, Animated Windsocks & Approach Strobe Arrays at West (-103) & East (+103)
       window._runwayAlsStrobes = [];
       window._airportWindsocks = [];
-      [-88, 88].forEach((endX, endIdx) => {
+      [-103, 103].forEach((endX, endIdx) => {
         const dirSign = endX < 0 ? 1 : -1;
-        for (let z = -3.8; z <= 3.8; z += 1.1) {
-          const keyStripe = new THREE.Mesh(new THREE.BoxGeometry(4.2, 0.05, 0.55), whiteLineMat);
-          keyStripe.position.set(endX, 0.15, z);
+        for (let z = -5.0; z <= 5.0; z += 1.25) {
+          const keyStripe = new THREE.Mesh(new THREE.BoxGeometry(5.2, 0.06, 0.65), whiteLineMat);
+          keyStripe.position.set(endX, 0.17, z);
           runwayGroup.add(keyStripe);
         }
-        // Touchdown Zone (TDZ) Aiming Point Twin White Blocks
-        [-2.2, 2.2].forEach(tz => {
-          const aimBlock = new THREE.Mesh(new THREE.BoxGeometry(5.5, 0.055, 1.15), whiteLineMat);
-          aimBlock.position.set(endX + dirSign * 14.0, 0.15, tz);
+        [-2.8, 2.8].forEach(tz => {
+          const aimBlock = new THREE.Mesh(new THREE.BoxGeometry(6.8, 0.06, 1.45), whiteLineMat);
+          aimBlock.position.set(endX + dirSign * 16.5, 0.17, tz);
           runwayGroup.add(aimBlock);
         });
-        // 4-Box PAPI (Precision Approach Path Indicator: 2 White, 2 Red glowing lenses) beside touchdown zone
         for (let p = 0; p < 4; p++) {
           const isWhite = p < 2;
           const papiBox = new THREE.Mesh(
-            new THREE.BoxGeometry(0.45, 0.28, 0.45),
+            new THREE.BoxGeometry(0.55, 0.34, 0.55),
             new THREE.MeshBasicMaterial({ color: isWhite ? 0xffffff : 0xff2a2a })
           );
-          papiBox.position.set(endX + dirSign * 11.5, 0.22, -6.2 - p * 0.72);
+          papiBox.position.set(endX + dirSign * 13.5, 0.25, -7.6 - p * 0.85);
           runwayGroup.add(papiBox);
         }
-        // Sequenced Approach Lighting System (ALS "Rabbit" Strobe Bars leading onto Runway Threshold)
         for (let step = 0; step < 5; step++) {
           const alsMat = new THREE.MeshBasicMaterial({ color: 0xe0f2fe, transparent: true, opacity: 0.35 });
-          const alsBar = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.14, 2.4), alsMat);
-          alsBar.position.set(endX - dirSign * (3.2 + step * 2.2), 0.16, 0);
+          const alsBar = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.16, 3.0), alsMat);
+          alsBar.position.set(endX - dirSign * (3.6 + step * 2.5), 0.18, 0);
           runwayGroup.add(alsBar);
           window._runwayAlsStrobes.push({ mat: alsMat, step });
         }
-        // 3D Orange/White Airport Windsock Mast beside Runway End
         const wsGrp = new THREE.Group();
-        wsGrp.position.set(endX + dirSign * 6.5, 0, 6.4);
+        wsGrp.position.set(endX + dirSign * 7.5, 0, 7.8);
         const wsPole = new THREE.Mesh(
-          new THREE.CylinderGeometry(0.08, 0.11, 2.8, 8),
+          new THREE.CylinderGeometry(0.10, 0.14, 3.4, 8),
           new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.6, roughness: 0.3 })
         );
-        wsPole.position.y = 1.4;
+        wsPole.position.y = 1.7;
         const sockPivot = new THREE.Group();
-        sockPivot.position.y = 2.75;
+        sockPivot.position.y = 3.35;
         const sockCone = new THREE.Mesh(
-          new THREE.ConeGeometry(0.32, 1.45, 10, 1, true),
+          new THREE.ConeGeometry(0.38, 1.75, 10, 1, true),
           new THREE.MeshStandardMaterial({ color: 0xf97316, roughness: 0.4, side: THREE.DoubleSide })
         );
         sockCone.rotation.z = Math.PI / 2;
-        sockCone.position.x = 0.72;
+        sockCone.position.x = 0.88;
         const sockStripe = new THREE.Mesh(
-          new THREE.CylinderGeometry(0.22, 0.16, 0.38, 10),
+          new THREE.CylinderGeometry(0.26, 0.19, 0.45, 10),
           new THREE.MeshBasicMaterial({ color: 0xffffff })
         );
         sockStripe.rotation.z = Math.PI / 2;
-        sockStripe.position.x = 0.72;
+        sockStripe.position.x = 0.88;
         sockPivot.add(sockCone, sockStripe);
         wsGrp.add(wsPole, sockPivot);
         runwayGroup.add(wsGrp);
         window._airportWindsocks.push({ pivot: sockPivot, phase: endIdx * 1.7 });
       });
 
-      // Runway Edge Lights
-      for (let x = -90; x <= 90; x += 8) {
-        [-4.9, 4.9].forEach(zSide => {
+      // Runway Edge Lights along the Enlarged Runway
+      for (let x = -106; x <= 106; x += 8.5) {
+        [-6.3, 6.3].forEach(zSide => {
           const edgeBulbMat = new THREE.MeshStandardMaterial({
             color: 0xfef08a,
             emissive: 0xfacc15,
             emissiveIntensity: 0.95
           });
-          const edgeLight = new THREE.Mesh(new THREE.SphereGeometry(0.18, 8, 8), edgeBulbMat);
-          edgeLight.position.set(x, 0.2, zSide);
+          const edgeLight = new THREE.Mesh(new THREE.SphereGeometry(0.22, 8, 8), edgeBulbMat);
+          edgeLight.position.set(x, 0.22, zSide);
           runwayGroup.add(edgeLight);
           lampBulbs.push(edgeBulbMat);
         });
@@ -4714,7 +5176,7 @@
         const isArrSlot = slotMode === 'arriving';
         const rwPlane = createChibiEggPlane(slotMode === 'repositioning' ? 0x38bdf8 : (isArrSlot ? 0x10b981 : 0xffb500), null);
         rwPlane.rotation.y = -Math.PI / 2;
-        rwPlane.position.set(-45 + (i % 4) * 25, 0.22, isArrSlot ? -1.5 : 1.5);
+        rwPlane.position.set(-45 + (i % 4) * 25, 0.22, isArrSlot ? -1.8 : 1.8);
         rwPlane.visible = false;
         runwayGroup.add(rwPlane);
 
@@ -4724,8 +5186,8 @@
         rwBadge.addEventListener('click', (e) => {
           e.stopPropagation();
           if (state.viewLocked) return;
-          camCtrl.desiredTarget.set(0, 1.5, 15);
-          camCtrl.desiredSpherical = { radius: 85, phi: 0.95, theta: -0.15 };
+          camCtrl.desiredTarget.set(0, 1.5, 23);
+          camCtrl.desiredSpherical = { radius: 96, phi: 0.95, theta: -0.10 };
         });
         document.getElementById('labels-layer').appendChild(rwBadge);
 
@@ -4738,7 +5200,7 @@
           fromIslandId: '',
           targetIslandId: '',
           mode: slotMode,
-          laneZ: isArrSlot ? -1.5 : 1.5,
+          laneZ: isArrSlot ? -1.8 : 1.8,
           waypoints: [],
           segLengths: [],
           totalLength: 1,
@@ -4752,9 +5214,9 @@
     // =========================================================================
     // 6. 3D WEATHER PARTICLE SYSTEMS (RAIN, LIGHTNING BOLTS, CLOUDS, STORM)
     // =========================================================================
-    // Fluffy 3D Clouds (placed in bgScene behind #rear-bulletin-layer along the visible Sky Corridor & Island Left/Right Flanks!)
+    // Fluffy 3D Clouds placed in the Upper Sky of weatherScene (動態島天氣動畫放在上方顯示)
     const cloudsGroup = new THREE.Group();
-    bgScene.add(cloudsGroup);
+    weatherScene.add(cloudsGroup);
     const cloudClusters = [];
     const cloudMat = new THREE.MeshStandardMaterial({
       color: 0xffffff,
@@ -4762,30 +5224,27 @@
       emissiveIntensity: 0.28,
       roughness: 0.75,
       transparent: true,
-      opacity: 0.90
+      opacity: 0.88
     });
 
-    // 16 Curated 3D Cloud Clusters across:
-    //  - Band A: Rear Sky Corridor between Bulletin Board bottom & 3D UPS Building / Dynamic Island (z = -56..-64, y = 3.5..6.2)
-    //  - Band B: Left Sky Flank below Left HUD Panel & beside West Apron (x = -112..-76, z = -42..+22, y = 4.2..7.5)
-    //  - Band C: Right Sky Flank beside East Apron & below Bulletin Board Right Corner (x = +78..+118, z = -45..+18, y = 4.5..8.2)
+    // 16 Curated 3D Cloud Clusters elevated into the Upper Sky Canopy above the Dynamic Island (y = 26..42, z = -78..-25)
     const cloudBandPresets = [
-      { x: -68, y: 4.2, z: -58, sc: 1.05, minX: -115, maxX: 115 },
-      { x: -42, y: 4.8, z: -60, sc: 1.12, minX: -115, maxX: 115 },
-      { x: -16, y: 5.0, z: -61, sc: 1.08, minX: -115, maxX: 115 },
-      { x:  10, y: 5.2, z: -62, sc: 1.15, minX: -115, maxX: 115 },
-      { x:  36, y: 4.8, z: -60, sc: 1.10, minX: -115, maxX: 115 },
-      { x:  62, y: 4.5, z: -58, sc: 1.06, minX: -115, maxX: 115 },
-      { x:  88, y: 5.0, z: -56, sc: 1.12, minX: -115, maxX: 115 },
-      { x: -108, y: 5.5, z: -12, sc: 1.35, minX: -118, maxX: -72 },
-      { x: -96,  y: 4.8, z: -34, sc: 1.22, minX: -118, maxX: -72 },
-      { x: -86,  y: 4.5, z: -46, sc: 1.15, minX: -118, maxX: -72 },
-      { x: -102, y: 5.0, z:  14, sc: 1.28, minX: -118, maxX: -72 },
-      { x:  86,  y: 5.2, z: -42, sc: 1.18, minX:  74,  maxX: 122 },
-      { x:  98,  y: 5.8, z: -26, sc: 1.25, minX:  74,  maxX: 122 },
-      { x: 110,  y: 5.4, z:  -6, sc: 1.32, minX:  74,  maxX: 122 },
-      { x:  92,  y: 4.8, z:  12, sc: 1.18, minX:  74,  maxX: 122 },
-      { x: -56,  y: 4.4, z: -55, sc: 1.02, minX: -115, maxX: 115 }
+      { x: -82, y: 34.0, z: -68, sc: 1.18, minX: -125, maxX: 125 },
+      { x: -54, y: 36.5, z: -72, sc: 1.24, minX: -125, maxX: 125 },
+      { x: -24, y: 38.0, z: -74, sc: 1.20, minX: -125, maxX: 125 },
+      { x:   6, y: 39.0, z: -75, sc: 1.28, minX: -125, maxX: 125 },
+      { x:  36, y: 37.5, z: -72, sc: 1.22, minX: -125, maxX: 125 },
+      { x:  66, y: 35.5, z: -68, sc: 1.16, minX: -125, maxX: 125 },
+      { x:  94, y: 36.8, z: -65, sc: 1.22, minX: -125, maxX: 125 },
+      { x: -108, y: 29.5, z: -48, sc: 1.32, minX: -125, maxX: 125 },
+      { x: -72,  y: 31.0, z: -54, sc: 1.22, minX: -125, maxX: 125 },
+      { x: -38,  y: 32.5, z: -56, sc: 1.18, minX: -125, maxX: 125 },
+      { x:   0,  y: 33.0, z: -58, sc: 1.25, minX: -125, maxX: 125 },
+      { x:  42,  y: 31.8, z: -54, sc: 1.20, minX: -125, maxX: 125 },
+      { x:  82,  y: 30.5, z: -50, sc: 1.25, minX: -125, maxX: 125 },
+      { x:  110, y: 29.0, z: -44, sc: 1.30, minX: -125, maxX: 125 },
+      { x: -18,  y: 27.5, z: -42, sc: 1.12, minX: -125, maxX: 125 },
+      { x:  54,  y: 28.0, z: -42, sc: 1.14, minX: -125, maxX: 125 }
     ];
 
     cloudBandPresets.forEach((cp, c) => {
@@ -4857,9 +5316,9 @@
     const rainGeo = new THREE.BufferGeometry();
     const rainPositions = new Float32Array(rainCount * 3);
     for (let i = 0; i < rainCount; i++) {
-      rainPositions[i * 3] = (Math.random() - 0.5) * 130;
-      rainPositions[i * 3 + 1] = Math.random() * 45;
-      rainPositions[i * 3 + 2] = (Math.random() - 0.5) * 130;
+      rainPositions[i * 3] = (Math.random() - 0.5) * 190;
+      rainPositions[i * 3 + 1] = 6 + Math.random() * 58;
+      rainPositions[i * 3 + 2] = -75 + Math.random() * 145;
     }
     rainGeo.setAttribute('position', new THREE.BufferAttribute(rainPositions, 3));
     const rainMat = new THREE.PointsMaterial({
@@ -4908,13 +5367,13 @@
     let lightningTimer = 0;
 
     function triggerLightningStrike() {
-      const strikeX = (Math.random() - 0.5) * 65;
-      const strikeZ = (Math.random() - 0.5) * 65;
+      const strikeX = (Math.random() - 0.5) * 110;
+      const strikeZ = -58 + (Math.random() - 0.5) * 45;
       const posArr = lightningBolt.geometry.attributes.position;
       for (let i = 0; i <= 10; i++) {
-        const jitterX = i === 0 || i === 10 ? 0 : (Math.random() - 0.5) * 4.8;
+        const jitterX = i === 0 || i === 10 ? 0 : (Math.random() - 0.5) * 5.2;
         const jitterZ = i === 0 || i === 10 ? 0 : (Math.random() - 0.5) * 4.8;
-        posArr.setXYZ(i, strikeX + jitterX, 42 - i * 4.1, strikeZ + jitterZ);
+        posArr.setXYZ(i, strikeX + jitterX, 62 - i * 4.8, strikeZ + jitterZ);
       }
       posArr.needsUpdate = true;
 
@@ -4950,6 +5409,43 @@
     const labelsLayer = document.getElementById('labels-layer');
     const labelDomMap = new Map();
     let upsGatewayUldBubbleEl = null;
+    let upsBuildingBicWicBubbleEl = null;
+    let uldControlUcBubbleEl = null;
+
+    function updateResponsiveHUDScale() {
+      const w = window.innerWidth || 1280;
+      const h = window.innerHeight || 800;
+      const topLeftEl = document.getElementById('top-left-hud-stack');
+      const bottomDockCardEl = document.getElementById('bottom-dock-card');
+
+      // Proportional scale factor that grows with larger monitors and shrinks gracefully on compact/mobile screens
+      const isPortraitMobile = w < 640;
+      const rawScale = Math.min(w / 1360, h / 820);
+      const hudScale = isPortraitMobile
+        ? Math.max(0.72, Math.min(0.92, w / 460))
+        : Math.max(0.84, Math.min(1.58, Math.pow(rawScale, 0.78) * 1.08));
+
+      if (topLeftEl) {
+        topLeftEl.style.transform = 'none';
+        const natW = topLeftEl.offsetWidth || 350;
+        const natH = topLeftEl.offsetHeight || 420;
+        const maxWidthRatio = isPortraitMobile ? 0.68 : 0.31;
+        const maxAllowedScaleW = (w * maxWidthRatio) / Math.max(1, natW);
+        const maxAllowedScaleH = (h - 105) / Math.max(1, natH);
+        const finalTopLeftScale = Math.max(0.68, Math.min(hudScale, maxAllowedScaleW, maxAllowedScaleH));
+        topLeftEl.style.transformOrigin = 'top left';
+        topLeftEl.style.transform = `scale(${finalTopLeftScale.toFixed(4)})`;
+      }
+
+      if (bottomDockCardEl) {
+        bottomDockCardEl.style.transform = 'none';
+        const natDockW = bottomDockCardEl.offsetWidth || 760;
+        const maxDockScaleW = (w * 0.96) / Math.max(1, natDockW);
+        const finalDockScale = Math.max(isPortraitMobile ? 0.78 : 0.82, Math.min(hudScale, maxDockScaleW, 1.55));
+        bottomDockCardEl.style.transformOrigin = 'bottom center';
+        bottomDockCardEl.style.transform = `scale(${finalDockScale.toFixed(4)})`;
+      }
+    }
 
     function createProjectedLabels() {
       labelsLayer.innerHTML = '';
@@ -4959,6 +5455,7 @@
       upsGatewayUldBubbleEl = document.createElement('div');
       upsGatewayUldBubbleEl.id = 'ups-gateway-uld-bubble';
       upsGatewayUldBubbleEl.className = 'uld-bubble-card';
+      upsGatewayUldBubbleEl.style.display = 'none';
       upsGatewayUldBubbleEl.title = '點擊開啟「每日工作編排」手動修改數目字';
       upsGatewayUldBubbleEl.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -4977,6 +5474,7 @@
         tag.className = 'island-tag' + (isl.shape === 'rectangle' ? ' center-ups' : '');
         if (isl.shape === 'rectangle') {
           tag.innerHTML = `<img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/United_Parcel_Service_logo_2014.svg" alt="UPS" class="w-4 h-5 object-contain flex-shrink-0" /><span>${isl.name}</span>`;
+          tag.style.display = 'none';
         } else {
           // Bay number nameplates (01..22) removed per user request
           tag.innerHTML = '';
@@ -4990,8 +5488,47 @@
         labelsLayer.appendChild(tag);
         labelDomMap.set(isl.id, tag);
       });
+
+      // Create UPS Building Top Speech Bubble (Hub BIC/WIC, New warehouse BIC/WIC)
+      upsBuildingBicWicBubbleEl = document.createElement('div');
+      upsBuildingBicWicBubbleEl.id = 'ups-building-bic-wic-bubble';
+      upsBuildingBicWicBubbleEl.className = 'speech-bubble';
+      upsBuildingBicWicBubbleEl.style.display = 'none';
+      upsBuildingBicWicBubbleEl.style.maxWidth = '310px';
+      upsBuildingBicWicBubbleEl.style.minWidth = '215px';
+      upsBuildingBicWicBubbleEl.title = '點擊開啟「每日工作編排」修改 Hub BIC/WIC 及 New warehouse BIC/WIC';
+      upsBuildingBicWicBubbleEl.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (typeof renderOperationPlanTable === 'function') renderOperationPlanTable();
+        const rm = document.getElementById('roster-modal');
+        if (rm) {
+          rm.classList.remove('hidden');
+          rm.classList.add('flex');
+        }
+      });
+      labelsLayer.appendChild(upsBuildingBicWicBubbleEl);
+
+      // Create ULD Control Top Speech Bubble (UC)
+      uldControlUcBubbleEl = document.createElement('div');
+      uldControlUcBubbleEl.id = 'uld-control-uc-bubble';
+      uldControlUcBubbleEl.className = 'speech-bubble';
+      uldControlUcBubbleEl.style.display = 'none';
+      uldControlUcBubbleEl.style.maxWidth = '240px';
+      uldControlUcBubbleEl.style.minWidth = '155px';
+      uldControlUcBubbleEl.title = '點擊開啟「每日工作編排」修改 ULD Control (UC) 名單';
+      uldControlUcBubbleEl.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (typeof renderOperationPlanTable === 'function') renderOperationPlanTable();
+        const rm = document.getElementById('roster-modal');
+        if (rm) {
+          rm.classList.remove('hidden');
+          rm.classList.add('flex');
+        }
+      });
+      labelsLayer.appendChild(uldControlUcBubbleEl);
     }
     createProjectedLabels();
+    updateResponsiveHUDScale();
 
     const _projVecA = new THREE.Vector3();
     const _projVecB = new THREE.Vector3();
@@ -5021,8 +5558,8 @@
         if (!state.showLabels || upsTagEl.dataset.hideDeparted === '1') {
           if (upsTagEl.style.display !== 'none') upsTagEl.style.display = 'none';
         } else {
-          // Place UPS HKG Gateway tag cleanly in front of the building apron so it never overlaps the building roof or Bulletin Board
-          _projVecA.set(12.0, upsGroup.position.y + 1.5, -26.8).project(camera);
+          // Place UPS HKG Gateway tag cleanly in front of the Upper Island UPS building apron
+          _projVecA.set(-46.0, upsGroup.position.y + 1.6, -42.5).project(camera);
           if (_projVecA.z > 1) {
             if (upsTagEl.style.display !== 'none') upsTagEl.style.display = 'none';
           } else {
@@ -5034,9 +5571,9 @@
         }
       }
 
-      // Project the Enlarged UPS HKG Gateway Bulletin Board strictly BEHIND/ABOVE the UPS Building (zero building occlusion)
+      // Project the Enlarged UPS HKG Gateway Bulletin Board strictly BEHIND/ABOVE the UPS Building (controlled by Operation Plan toggle button!)
       if (upsGatewayUldBubbleEl && upsGroup) {
-        if (!state.showBubbles) {
+        if (!state.showOperationPlanBoard) {
           if (upsGatewayUldBubbleEl.style.display !== 'none') upsGatewayUldBubbleEl.style.display = 'none';
         } else {
           _projVecA.set(18.0, upsGroup.position.y + 14.5, -52.0).project(camera);
@@ -5064,22 +5601,22 @@
               : (w >= 720 ? 368 : 6);
             const maxRightClear = w - 6;
 
-            // 2) Project 3D anchor behind UPS HKG Gateway Building so the Bulletin Board moves naturally with the 3D view
+            // 2) Project 3D anchor behind the Upper UPS HKG Gateway Island so the Bulletin Board moves naturally with the 3D view
             const baseY = upsGroup.position.y;
-            _projVecA.set(16.0, baseY + 13.5, -42.0).project(camera);
+            _projVecA.set(16.0, baseY + 16.5, -62.0).project(camera);
             const rawBx = (_projVecA.x * 0.5 + 0.5) * w;
             const rawBy = (-_projVecA.y * 0.5 + 0.5) * h;
 
-            // 3) Project the exact top silhouette of the UPS Building, Rooftop Logo Sign, NY Marquee, and Office Tower/ATC Cab
-            //    so the Bulletin Board uses 100% of the rear sky space down to the building roof without ever covering the building!
-            const nyTopH = state.festivalTheme === 'newyear' ? 14.5 : 8.2;
+            // 3) Project the exact top silhouette of the Enlarged Upper Island UPS Building, Rooftop Logo Sign, NY Marquee, Office Tower/ATC Cab, and Right-side ULD Gantry Sign
+            //    so the Bulletin Board uses 100% of the rear sky space down to the building roof without ever covering the Upper Island!
+            const nyTopH = state.festivalTheme === 'newyear' ? 16.2 : 10.2;
             const checkPts3D = [
-              [-16.5, baseY + 7.8, -32.4],  // UPS Sorting Hub front-left roof
-              [-4.5,  baseY + nyTopH, -32.9], // Left roof wing / NY marquee top
-              [10.5,  baseY + 15.5, -32.9], // Central Rooftop UPS Logo top
-              [37.5,  baseY + 7.8, -32.4],  // UPS Sorting Hub front-right roof
-              [48.5,  baseY + 14.2, -37.3], // Office Tower & ATC Cab top
-              [10.5,  baseY + 8.0, -47.6]   // UPS Sorting Hub back roof
+              [-78.0, baseY + 9.8, -50.7],   // Enlarged UPS Sorting Hub front-left roof
+              [-61.0, baseY + nyTopH, -51.2], // Left roof wing / NY marquee top
+              [-46.0, baseY + 18.2, -51.2],  // Central Rooftop UPS Logo top
+              [-12.0, baseY + 9.8, -50.7],   // Enlarged UPS Sorting Hub front-right roof
+              [2.5,   baseY + 17.5, -51.1],  // Enlarged Office Tower & ATC Cab top
+              [64.5,  baseY + 14.2, -69.2]   // Right-side ULD Container & Pallet Hub Sign top
             ];
             let highestIslandOrBuildingSy = h * 0.68;
             for (let pIdx = 0; pIdx < checkPts3D.length; pIdx++) {
@@ -5094,10 +5631,10 @@
               }
             }
 
-            // Project left-back and right-front base of UPS Building + Office Tower so Speech Bubbles never overlap the building
-            _projVecB.set(-12.5, baseY + 1.0, -46.5).project(camera);
+            // Project left-back and right-front base of Upper UPS Building + Office Tower + ULD Yard so Speech Bubbles never overlap the Upper Island
+            _projVecB.set(-80.0, baseY + 1.0, -68.0).project(camera);
             const sxBldLeft = (_projVecB.x * 0.5 + 0.5) * w;
-            _projVecB.set(52.0, baseY + 0.6, -32.2).project(camera);
+            _projVecB.set(106.0, baseY + 0.6, -40.0).project(camera);
             const sxBldRight = (_projVecB.x * 0.5 + 0.5) * w;
             const syBldFrontBase = (-_projVecB.y * 0.5 + 0.5) * h;
 
@@ -5188,6 +5725,67 @@
         }
       }
 
+      // 1D. Project Upper-Island Role Speech Bubbles:
+      //     (a) Hub BIC/WIC & New warehouse BIC/WIC above UPS Building
+      //     (b) UC above ULD Control
+      if (upsGroup) {
+        if (upsBuildingBicWicBubbleEl) {
+          if (!state.showBubbles) {
+            if (upsBuildingBicWicBubbleEl.style.display !== 'none') upsBuildingBicWicBubbleEl.style.display = 'none';
+          } else {
+            _projVecA.set(-44.0, upsGroup.position.y + 15.8, -58.5).project(camera);
+            if (_projVecA.z > 1) {
+              if (upsBuildingBicWicBubbleEl.style.display !== 'none') upsBuildingBicWicBubbleEl.style.display = 'none';
+            } else {
+              if (upsBuildingBicWicBubbleEl.style.display !== 'block') upsBuildingBicWicBubbleEl.style.display = 'block';
+              const bx = (_projVecA.x * 0.5 + 0.5) * w;
+              const by = (-_projVecA.y * 0.5 + 0.5) * h;
+              const bubW = Math.max(215, upsBuildingBicWicBubbleEl.offsetWidth || 265);
+              const bubH = Math.max(66, upsBuildingBicWicBubbleEl.offsetHeight || 84);
+              visibleItems.push({
+                el: upsBuildingBicWicBubbleEl,
+                cx: bx,
+                cy: by - bubH * 0.5,
+                w: bubW,
+                h: bubH,
+                weight: 0.35,
+                anchorBottom: true,
+                isSpeechBubble: true,
+                isUpperIslandBubble: true
+              });
+            }
+          }
+        }
+
+        if (uldControlUcBubbleEl) {
+          if (!state.showBubbles) {
+            if (uldControlUcBubbleEl.style.display !== 'none') uldControlUcBubbleEl.style.display = 'none';
+          } else {
+            _projVecA.set(64.5, upsGroup.position.y + 15.8, -64.5).project(camera);
+            if (_projVecA.z > 1) {
+              if (uldControlUcBubbleEl.style.display !== 'none') uldControlUcBubbleEl.style.display = 'none';
+            } else {
+              if (uldControlUcBubbleEl.style.display !== 'block') uldControlUcBubbleEl.style.display = 'block';
+              const bx = (_projVecA.x * 0.5 + 0.5) * w;
+              const by = (-_projVecA.y * 0.5 + 0.5) * h;
+              const bubW = Math.max(155, uldControlUcBubbleEl.offsetWidth || 185);
+              const bubH = Math.max(52, uldControlUcBubbleEl.offsetHeight || 62);
+              visibleItems.push({
+                el: uldControlUcBubbleEl,
+                cx: bx,
+                cy: by - bubH * 0.5,
+                w: bubW,
+                h: bubH,
+                weight: 0.35,
+                anchorBottom: true,
+                isSpeechBubble: true,
+                isUpperIslandBubble: true
+              });
+            }
+          }
+        }
+      }
+
       // 2. Project Aircraft Loading Crew Speech Bubbles (only during 裝機時間)
       islandLoadingCrewMap.forEach((crewObj, islandId) => {
         if (!crewObj.bubbleEl) return;
@@ -5254,8 +5852,8 @@
         const halfW = item.w * 0.5;
         const halfH = item.h * 0.5;
 
-        // 1) Avoid Enlarged Bulletin Board (push below Bulletin Board if overlapping)
-        if (uldObstacle) {
+        // 1) Avoid Enlarged Bulletin Board (push below Bulletin Board if overlapping, except Upper Island bubbles which sit right at the upper island roofline)
+        if (uldObstacle && !item.isUpperIslandBubble) {
           const ovX = (item.cx + halfW > uldObstacle.left) && (item.cx - halfW < uldObstacle.right);
           const ovY = (item.cy + halfH > uldObstacle.top) && (item.cy - halfH < uldObstacle.bottom);
           if (ovX && ovY) {
@@ -5263,8 +5861,8 @@
           }
         }
 
-        // 1B) Avoid UPS HKG Gateway Building & Office Tower (never allow speech bubbles to cover the building)
-        if (buildingObstacle && item.isSpeechBubble) {
+        // 1B) Avoid UPS HKG Gateway Building & Office Tower for lower-bay aircraft bubbles (Upper Island bubbles are intentionally positioned above UPS Building & ULD Control)
+        if (buildingObstacle && item.isSpeechBubble && !item.isUpperIslandBubble) {
           const ovBldX = (item.cx + halfW > buildingObstacle.left) && (item.cx - halfW < buildingObstacle.right);
           const ovBldY = (item.cy + halfH > buildingObstacle.top) && (item.cy - halfH < buildingObstacle.bottom);
           if (ovBldX && ovBldY) {
@@ -5294,11 +5892,14 @@
           }
         }
 
-        // 3) Clamp inside safe viewport bounds (leaving bottom 74px clear for the slim floating dock)
+        // 3) Clamp inside safe viewport bounds (dynamically respecting scaled bottom floating dock height)
+        const dockCardEl = document.getElementById('bottom-dock-card');
+        const dockRect = dockCardEl ? dockCardEl.getBoundingClientRect() : null;
+        const dockBottomClearance = (dockRect && dockRect.height > 0) ? Math.max(74, h - dockRect.top + 8) : 74;
         const minCx = halfW + 8;
         const maxCx = Math.max(minCx, w - halfW - 8);
         const minCy = halfH + 8;
-        const maxCy = Math.max(minCy, h - halfH - 74);
+        const maxCy = Math.max(minCy, h - halfH - dockBottomClearance);
         item.cx = Math.max(minCx, Math.min(maxCx, item.cx));
         item.cy = Math.max(minCy, Math.min(maxCy, item.cy));
       };
@@ -5600,12 +6201,10 @@
       if (!camera) return;
       const w = window.innerWidth || 1280;
       const h = window.innerHeight || 800;
-      // Place Sun / Moon on the FAR RIGHT side of the viewport, cleanly below the Bulletin Board bottom edge so it NEVER overlaps the board!
-      const bulletinBottom = window._lastBulletinBottomY || Math.round(h * 0.36);
-      const targetPxX = Math.max(w - 58, w * 0.94);
-      const minSafePxY = Math.min(h - 85, bulletinBottom + 54);
-      const arcOffsetY = (1.0 - Math.sin(progress01 * Math.PI)) * 18;
-      const targetPxY = Math.min(h - 75, minSafePxY + arcOffsetY);
+      // Place 3D Sun / Crescent Moon in the UPPER SKY area (上方顯示天氣動畫)
+      const targetPxX = Math.max(w - 68, w * 0.93);
+      const arcOffsetY = (1.0 - Math.sin(progress01 * Math.PI)) * 28;
+      const targetPxY = Math.max(54, Math.min(130, 62 + arcOffsetY));
 
       const ndcX = (targetPxX / w) * 2 - 1;
       const ndcY = -(targetPxY / h) * 2 + 1;
@@ -6652,7 +7251,7 @@
     function buildBayTaxiWaypoints(islandId, mode) {
       const isl = ISLANDS_DATA.find(i => i.id === islandId) || ISLANDS_DATA[1];
       const bayX = isl.x;
-      const bayLocalZ = isl.z - 15.0; // relative to runwayGroup at z = +15.0
+      const bayLocalZ = isl.z - 23.0; // relative to runwayGroup at world z = +23.0
 
       const pickClosestConnector = (candidates, targetX) => {
         let best = candidates[0];
@@ -6668,92 +7267,91 @@
       };
 
       if (mode === 'arriving') {
-        // ARRIVAL: Western Sky -> Touchdown on Runway -> Rollout to Taxiway Turnoff -> Taxi along Taxiway -> Enter Parking Bay
         if (isl.apron === 'northwest') {
-          // Top-Left 4 Horizontal Bays (17–20) via Middle Vertical Taxiway x = -57.0
+          // Lower Island Top-Left 4 Horizontal Bays (17–20) via Vertical Taxiway x = -85.5
           return [
-            { x: -92.0, y: 12.0, z: -1.5 },
-            { x: -75.0, y: 0.22, z: -1.5 },
-            { x: -57.0, y: 0.22, z: 0.0 },
-            { x: -57.0, y: 0.22, z: bayLocalZ },
-            { x: bayX,  y: 0.14, z: bayLocalZ }
+            { x: -108.0, y: 12.0, z: -1.8 },
+            { x: -94.0,  y: 0.22, z: -1.8 },
+            { x: -85.5,  y: 0.22, z: 0.0 },
+            { x: -85.5,  y: 0.22, z: bayLocalZ },
+            { x: bayX,   y: 0.14, z: bayLocalZ }
           ];
         }
         if (isl.apron === 'southwest') {
-          // Bottom-Left 2 Horizontal Bays (21–22) via West-South Vertical Taxiway x = -73.5
+          // Lower Island Bottom-Left 2 Horizontal Bays (21–22) via Vertical Taxiway x = -85.5
           return [
-            { x: -92.0, y: 11.5, z: 1.5 },
-            { x: -82.0, y: 0.22, z: 1.5 },
-            { x: -73.5, y: 0.22, z: 0.0 },
-            { x: -73.5, y: 0.22, z: bayLocalZ },
-            { x: bayX,  y: 0.14, z: bayLocalZ }
+            { x: -108.0, y: 11.5, z: 1.8 },
+            { x: -94.0,  y: 0.22, z: 1.8 },
+            { x: -85.5,  y: 0.22, z: 0.0 },
+            { x: -85.5,  y: 0.22, z: bayLocalZ },
+            { x: bayX,   y: 0.14, z: bayLocalZ }
           ];
         }
         if (isl.apron === 'south') {
-          // South Row Bays (09–16) via South Parallel Taxiway (world z = +27.2 -> localZ = +12.2)
-          const connX = pickClosestConnector([-73.5, -45.0, -7.0, 31.0, 73.5], bayX);
-          const tdX = Math.min(-66.0, connX - 16.0);
+          // South Row Bays (09–16) via South Parallel Taxiway (world z = +38.5 -> localZ = +15.5)
+          const connX = pickClosestConnector([-85.5, -44.0, -1.6, 40.8, 83.2, 104.4], bayX);
+          const tdX = Math.min(-78.0, connX - 18.0);
           return [
-            { x: -92.0, y: 12.0, z: 1.5 },
-            { x: tdX,   y: 0.22, z: 1.5 },
-            { x: connX, y: 0.22, z: 0.0 },
-            { x: connX, y: 0.22, z: 12.2 },
-            { x: bayX,  y: 0.22, z: 12.2 },
-            { x: bayX,  y: 0.14, z: bayLocalZ }
+            { x: -108.0, y: 12.0, z: 1.8 },
+            { x: tdX,    y: 0.22, z: 1.8 },
+            { x: connX,  y: 0.22, z: 0.0 },
+            { x: connX,  y: 0.22, z: 15.5 },
+            { x: bayX,   y: 0.22, z: 15.5 },
+            { x: bayX,   y: 0.14, z: bayLocalZ }
           ];
         }
-        // Default: North Row Bays (01–08) via North Parallel Taxiway (world z = +2.2 -> localZ = -12.8)
-        const connX = pickClosestConnector([-73.5, -57.0, -31.0, 7.0, 45.0, 73.5], bayX);
-        const tdX = Math.min(-66.0, connX - 16.0);
+        // Default: North Row Bays (01–08) via North Parallel Taxiway (world z = +7.5 -> localZ = -15.5)
+        const connX = pickClosestConnector([-85.5, -44.0, -1.6, 40.8, 83.2, 104.4], bayX);
+        const tdX = Math.min(-78.0, connX - 18.0);
         return [
-          { x: -92.0, y: 12.0, z: -1.5 },
-          { x: tdX,   y: 0.22, z: -1.5 },
-          { x: connX, y: 0.22, z: 0.0 },
-          { x: connX, y: 0.22, z: -12.8 },
-          { x: bayX,  y: 0.22, z: -12.8 },
-          { x: bayX,  y: 0.14, z: bayLocalZ }
+          { x: -108.0, y: 12.0, z: -1.8 },
+          { x: tdX,    y: 0.22, z: -1.8 },
+          { x: connX,  y: 0.22, z: 0.0 },
+          { x: connX,  y: 0.22, z: -15.5 },
+          { x: bayX,   y: 0.22, z: -15.5 },
+          { x: bayX,   y: 0.14, z: bayLocalZ }
         ];
       } else {
         // DEPARTURE: Start at Assigned Parking Bay -> Taxi along Bay Spur & Taxiway -> Enter Flight Runway -> Takeoff Roll & Climb!
         if (isl.apron === 'northwest') {
           return [
-            { x: bayX,  y: 0.14, z: bayLocalZ },
-            { x: -57.0, y: 0.22, z: bayLocalZ },
-            { x: -57.0, y: 0.22, z: 1.5 },
-            { x: 26.0,  y: 0.22, z: 1.5 },
-            { x: 92.0,  y: 15.0, z: 1.5 }
+            { x: bayX,   y: 0.14, z: bayLocalZ },
+            { x: -85.5,  y: 0.22, z: bayLocalZ },
+            { x: -85.5,  y: 0.22, z: 1.8 },
+            { x: 34.0,   y: 0.22, z: 1.8 },
+            { x: 108.0,  y: 15.0, z: 1.8 }
           ];
         }
         if (isl.apron === 'southwest') {
           return [
-            { x: bayX,  y: 0.14, z: bayLocalZ },
-            { x: -73.5, y: 0.22, z: bayLocalZ },
-            { x: -73.5, y: 0.22, z: 1.5 },
-            { x: 24.0,  y: 0.22, z: 1.5 },
-            { x: 92.0,  y: 15.0, z: 1.5 }
+            { x: bayX,   y: 0.14, z: bayLocalZ },
+            { x: -85.5,  y: 0.22, z: bayLocalZ },
+            { x: -85.5,  y: 0.22, z: 1.8 },
+            { x: 34.0,   y: 0.22, z: 1.8 },
+            { x: 108.0,  y: 15.0, z: 1.8 }
           ];
         }
         if (isl.apron === 'south') {
-          const connX = pickClosestConnector([-73.5, -45.0, -7.0, 31.0], Math.min(bayX, 31.0));
-          const liftoffX = Math.max(connX + 46.0, 36.0);
+          const connX = pickClosestConnector([-85.5, -44.0, -1.6, 40.8], Math.min(bayX, 40.8));
+          const liftoffX = Math.max(connX + 48.0, 42.0);
           return [
             { x: bayX,     y: 0.14, z: bayLocalZ },
-            { x: bayX,     y: 0.22, z: 12.2 },
-            { x: connX,    y: 0.22, z: 12.2 },
-            { x: connX,    y: 0.22, z: 1.5 },
-            { x: liftoffX, y: 0.22, z: 1.5 },
-            { x: 94.0,     y: 15.0, z: 1.5 }
+            { x: bayX,     y: 0.22, z: 15.5 },
+            { x: connX,    y: 0.22, z: 15.5 },
+            { x: connX,    y: 0.22, z: 1.8 },
+            { x: liftoffX, y: 0.22, z: 1.8 },
+            { x: 108.0,    y: 15.0, z: 1.8 }
           ];
         }
-        const connX = pickClosestConnector([-73.5, -57.0, -31.0, 7.0], Math.min(bayX, 7.0));
-        const liftoffX = Math.max(connX + 46.0, 36.0);
+        const connX = pickClosestConnector([-85.5, -44.0, -1.6, 40.8], Math.min(bayX, 40.8));
+        const liftoffX = Math.max(connX + 48.0, 42.0);
         return [
           { x: bayX,     y: 0.14, z: bayLocalZ },
-          { x: bayX,     y: 0.22, z: -12.8 },
-          { x: connX,    y: 0.22, z: -12.8 },
-          { x: connX,    y: 0.22, z: 1.5 },
-          { x: liftoffX, y: 0.22, z: 1.5 },
-          { x: 94.0,     y: 15.0, z: 1.5 }
+          { x: bayX,     y: 0.22, z: -15.5 },
+          { x: connX,    y: 0.22, z: -15.5 },
+          { x: connX,    y: 0.22, z: 1.8 },
+          { x: liftoffX, y: 0.22, z: 1.8 },
+          { x: 108.0,    y: 15.0, z: 1.8 }
         ];
       }
     }
@@ -6762,33 +7360,33 @@
     function buildBayToBayTaxiWaypoints(fromIslandId, toIslandId) {
       const fromIsl = ISLANDS_DATA.find(i => i.id === fromIslandId) || ISLANDS_DATA[17];
       const toIsl = ISLANDS_DATA.find(i => i.id === toIslandId) || ISLANDS_DATA[1];
-      const fX = fromIsl.x, fZ = fromIsl.z - 15.0;
-      const tX = toIsl.x,   tZ = toIsl.z - 15.0;
+      const fX = fromIsl.x, fZ = fromIsl.z - 23.0;
+      const tX = toIsl.x,   tZ = toIsl.z - 23.0;
 
       const getApronExitChain = (isl, bx, bz) => {
         if (isl.apron === 'northwest') {
           return [
             { x: bx,    y: 0.14, z: bz },
-            { x: -57.0, y: 0.22, z: bz },
-            { x: -57.0, y: 0.22, z: -12.8 }
+            { x: -85.5, y: 0.22, z: bz },
+            { x: -85.5, y: 0.22, z: -15.5 }
           ];
         }
         if (isl.apron === 'southwest') {
           return [
             { x: bx,    y: 0.14, z: bz },
-            { x: -73.5, y: 0.22, z: bz },
-            { x: -73.5, y: 0.22, z: 12.2 }
+            { x: -85.5, y: 0.22, z: bz },
+            { x: -85.5, y: 0.22, z: 15.5 }
           ];
         }
         if (isl.apron === 'south') {
           return [
             { x: bx, y: 0.14, z: bz },
-            { x: bx, y: 0.22, z: 12.2 }
+            { x: bx, y: 0.22, z: 15.5 }
           ];
         }
         return [
           { x: bx, y: 0.14, z: bz },
-          { x: bx, y: 0.22, z: -12.8 }
+          { x: bx, y: 0.22, z: -15.5 }
         ];
       };
 
@@ -6799,8 +7397,7 @@
 
       const midChain = [];
       if (Math.abs(startLast.z - endFirst.z) > 1.0) {
-        // Cross between North Taxiway (z = -12.8) and South Taxiway (z = +12.2) via nearest cross-connector
-        const connectors = [-73.5, -57.0, -31.0, 7.0, 45.0, 73.5];
+        const connectors = [-85.5, -44.0, -1.6, 40.8, 83.2, 104.4];
         let bestConn = connectors[0];
         let bestDist = Infinity;
         connectors.forEach(c => {
@@ -7715,9 +8312,9 @@
       if (!isl) return;
       if (!state.viewLocked) {
         if (isl.shape === 'rectangle') {
-          camCtrl.desiredTarget.set(isl.x, 12.5, isl.z - 8.0);
-          camCtrl.desiredSpherical.radius = 128;
-          camCtrl.desiredSpherical.phi = 0.92;
+          camCtrl.desiredTarget.set(4.0, 11.5, -54.0);
+          camCtrl.desiredSpherical.radius = 142;
+          camCtrl.desiredSpherical.phi = 0.94;
         } else {
           camCtrl.desiredTarget.set(isl.x, 1.2, isl.z);
           camCtrl.desiredSpherical.radius = 48;
@@ -8026,7 +8623,71 @@
     }
     autoAssignFlightBays(operationPlan.flights);
 
+    function escapeHtmlStr(raw) {
+      return String(raw == null ? '' : raw)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function renderUpperIslandRoleBubbles() {
+      const br = (operationPlan && operationPlan.bottomRoles) ? operationPlan.bottomRoles : DEFAULT_OPERATION_PLAN.bottomRoles;
+      const extraRows = (operationPlan && Array.isArray(operationPlan.bottomExtraRows)) ? operationPlan.bottomExtraRows : [];
+
+      const collectRoleNames = (primaryVal, extraKey, fallbackVal) => {
+        const list = [];
+        const addRaw = (val) => {
+          if (!val) return;
+          const trimmed = String(val).trim();
+          if (trimmed && trimmed !== '-' && !list.includes(trimmed)) {
+            list.push(trimmed);
+          }
+        };
+        addRaw(primaryVal);
+        extraRows.forEach(er => {
+          if (er && er[extraKey]) addRaw(er[extraKey]);
+        });
+        return list.length > 0 ? list.join(' / ') : fallbackVal;
+      };
+
+      const hubBicNames = collectRoleNames(br.rowLabel, 'rowLabel', 'Chak');
+      const hubWicNames = collectRoleNames(br.hubWic, 'hubWic', 'Hei Wah');
+      const newWhBicNames = collectRoleNames(br.newWhBic, 'newWhBic', 'David');
+      const newWhWicNames = collectRoleNames(br.newWhWic, 'newWhWic', 'Kee Hong');
+      const ucNames = collectRoleNames(br.uc, 'uc', '文仔 / Ping');
+
+      if (upsBuildingBicWicBubbleEl) {
+        upsBuildingBicWicBubbleEl.innerHTML = `
+          <div class="flex items-center justify-between border-b border-white/25 pb-1 mb-1 gap-2">
+            <span class="text-[10px] font-black text-amber-300">🏢 UPS 大樓 · 值班主管編排</span>
+            <span class="text-[9px] font-mono bg-amber-500/80 text-slate-950 font-black px-1.5 py-0.2 rounded">BIC / WIC</span>
+          </div>
+          <div class="grid grid-cols-2 gap-1 text-[9.5px] leading-snug">
+            <div class="bg-amber-500/25 px-1.5 py-0.5 rounded border border-amber-400/75"><span class="text-amber-300 font-black">Hub BIC</span> <span class="text-white font-bold">${escapeHtmlStr(hubBicNames)}</span></div>
+            <div class="bg-amber-500/25 px-1.5 py-0.5 rounded border border-amber-400/75"><span class="text-amber-300 font-black">Hub WIC</span> <span class="text-white font-bold">${escapeHtmlStr(hubWicNames)}</span></div>
+            <div class="bg-amber-500/25 px-1.5 py-0.5 rounded border border-amber-400/75"><span class="text-amber-300 font-black">New warehouse BIC</span> <span class="text-white font-bold">${escapeHtmlStr(newWhBicNames)}</span></div>
+            <div class="bg-amber-500/25 px-1.5 py-0.5 rounded border border-amber-400/75"><span class="text-amber-300 font-black">New warehouse WIC</span> <span class="text-white font-bold">${escapeHtmlStr(newWhWicNames)}</span></div>
+          </div>
+        `;
+      }
+
+      if (uldControlUcBubbleEl) {
+        uldControlUcBubbleEl.innerHTML = `
+          <div class="flex items-center justify-between border-b border-white/25 pb-1 mb-1 gap-2">
+            <span class="text-[10px] font-black text-amber-300">📦 ULD Control · 貨櫃控制</span>
+            <span class="text-[9px] font-mono bg-amber-500/80 text-slate-950 font-black px-1.5 py-0.2 rounded">UC</span>
+          </div>
+          <div class="grid grid-cols-1 gap-1 text-[10px] leading-snug">
+            <div class="bg-amber-500/25 px-1.5 py-0.5 rounded border border-amber-400/75"><span class="text-amber-300 font-black">UC</span> <span class="text-white font-bold">${escapeHtmlStr(ucNames)}</span></div>
+          </div>
+        `;
+      }
+    }
+
     function renderUPSGatewayUldBubble() {
+      renderUpperIslandRoleBubbles();
       if (!upsGatewayUldBubbleEl) return;
       const ub = operationPlan.uldBreakdown || DEFAULT_OPERATION_PLAN.uldBreakdown;
       const flights = (operationPlan && Array.isArray(operationPlan.flights)) ? operationPlan.flights : DEFAULT_OPERATION_PLAN.flights;
@@ -9002,6 +9663,7 @@
     }
 
     function syncGatewayPermanentStaffBadges(excludedNamesSet = new Set()) {
+      if (typeof renderUpperIslandRoleBubbles === 'function') renderUpperIslandRoleBubbles();
       if (!upsGatewayWorkersGroup) return;
       const br = operationPlan.bottomRoles || {};
 
@@ -9110,6 +9772,13 @@
         });
       });
 
+      const lhNamesArr = splitIndividualNames(flt.lh);
+      const deduplicatedCoreList = deduplicatePersonRoles(rawPersonList);
+
+      // Include LH workers in rawPersonList for 3D physical worker spawning at the bay
+      lhNamesArr.forEach(lhName => {
+        rawPersonList.push({ role: 'LH', name: lhName, color: 0xeab308 });
+      });
       const allFlightPersonList = deduplicatePersonRoles(rawPersonList);
 
       const physicalWorkerList = [];
@@ -9138,8 +9807,11 @@
         crewObj.bubbleEl = bub;
       }
 
-      const deduplicatedSummaryChips = allFlightPersonList
-        .map(p => `<div class="bg-slate-900/20 px-1.5 py-0.5 rounded border border-white/25"><span class="text-amber-300 font-bold">${p.role}</span> <span class="text-white font-semibold">${p.name}</span></div>`)
+      const lhDisplayVal = lhNamesArr.length > 0 ? lhNamesArr.join(' / ') : (String(flt.lh || '').trim() || '-');
+      const lhChipHtml = `<div class="bg-amber-500/25 px-1.5 py-0.5 rounded border border-amber-400/75"><span class="text-amber-300 font-black">LH</span> <span class="text-white font-bold">${lhDisplayVal}</span></div>`;
+      const deduplicatedSummaryChips = deduplicatedCoreList
+        .map(p => `<div class="bg-amber-500/25 px-1.5 py-0.5 rounded border border-amber-400/75"><span class="text-amber-300 font-black">${p.role}</span> <span class="text-white font-bold">${p.name}</span></div>`)
+        .concat([lhChipHtml])
         .join('');
 
       const unifiedFltLabel = formatUnified5XFlightTitle(flt.inFlt, flt.outFlt);
@@ -9720,19 +10392,8 @@
       camCtrl.desiredTarget.set(spec.targetX, spec.targetY, spec.targetZ);
       camCtrl.desiredSpherical = { radius: spec.radius, phi: spec.phi, theta: spec.theta };
     });
-    document.getElementById('btn-cam-top').addEventListener('click', () => {
-      if (state.viewLocked) return;
-      camCtrl.desiredTarget.set(0, 0, 0);
-      camCtrl.desiredSpherical = { radius: 235, phi: 0.18, theta: 0.0 };
-    });
     document.getElementById('btn-cam-ups').addEventListener('click', () => {
       focusOnIsland('UPS');
-    });
-    document.getElementById('btn-cam-runway').addEventListener('click', () => {
-      triggerDemoRunwayTaxiSequence();
-      if (state.viewLocked) return;
-      camCtrl.desiredTarget.set(0, 2.0, 15);
-      camCtrl.desiredSpherical = { radius: 115, phi: 0.96, theta: 0.08 };
     });
     document.getElementById('btn-lock-view').addEventListener('click', () => {
       state.viewLocked = !state.viewLocked;
@@ -10631,6 +11292,14 @@
         ? 'px-2 py-0.5 rounded-full text-[11px] font-bold bg-slate-900 text-white transition'
         : 'px-2 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-700 transition';
     });
+    document.getElementById('toggle-operation-plan-board').addEventListener('click', (e) => {
+      state.showOperationPlanBoard = !state.showOperationPlanBoard;
+      e.currentTarget.setAttribute('aria-pressed', String(state.showOperationPlanBoard));
+      e.currentTarget.className = state.showOperationPlanBoard
+        ? 'px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500 text-slate-950 shadow-sm hover:bg-amber-400 transition flex items-center gap-0.5'
+        : 'px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-200 text-slate-600 shadow-sm hover:bg-slate-300 transition flex items-center gap-0.5';
+      updateProjectedLabels();
+    });
     document.getElementById('toggle-bubbles').addEventListener('click', (e) => {
       state.showBubbles = !state.showBubbles;
       e.currentTarget.className = state.showBubbles
@@ -10652,18 +11321,20 @@
     });
 
     window.addEventListener('resize', () => {
+      updateResponsiveHUDScale();
       _cachedUldNatW = 0;
       _minIntrinsicUldW = 0;
       camera.aspect = window.innerWidth / window.innerHeight;
+      camera.zoom = getResponsiveCameraZoom();
       camera.updateProjectionMatrix();
       const _dynScale = getResponsive3DScaleFactor();
       islandChibiPlanesMap.forEach((planeMesh) => {
-        const s = (planeMesh.userData.basePlaneScale || 0.86) * _dynScale;
+        const s = (planeMesh.userData.basePlaneScale || 1.02) * _dynScale;
         planeMesh.scale.set(s, s, s);
       });
       runwayChibiPlanes.forEach((rwObj) => {
         if (rwObj.mesh) {
-          const s = (rwObj.mesh.userData.basePlaneScale || 0.86) * _dynScale;
+          const s = (rwObj.mesh.userData.basePlaneScale || 1.02) * _dynScale;
           rwObj.mesh.scale.set(s, s, s);
         }
       });
@@ -10788,24 +11459,53 @@
           });
         });
 
-        // Animate 2 Free-Roaming Tractor Trains (每架車頭拖着三個貨物箱隨意走動)
-        tractorTrains.forEach((tr) => {
+        // Animate 3D ULD Container & Cargo Pallet Handling Zone on the Right Side of the Upper UPS Island!
+        if (animatedUldYardItems.etvShuttle && animatedUldYardItems.etvLiftPlatform) {
+          const etvX = 60.0 + Math.sin(elapsed * 0.55) * 32.0;
+          animatedUldYardItems.etvShuttle.position.x = etvX;
+          animatedUldYardItems.etvLiftPlatform.position.y = 0.62 + (Math.sin(elapsed * 1.8) * 0.5 + 0.5) * 1.45;
+        }
+        animatedUldYardItems.conveyorCrates.forEach((cItem) => {
+          const span = cItem.xMax - cItem.xMin;
+          const prog = (elapsed * 0.065 + cItem.baseOffset) % 1.0;
+          cItem.mesh.position.x = cItem.xMin + prog * span;
+        });
+        animatedUldYardItems.forklifts.forEach((fkItem) => {
+          const cyc = elapsed * 0.75 + fkItem.phase;
+          const midX = (fkItem.minX + fkItem.maxX) * 0.5;
+          const halfSpan = (fkItem.maxX - fkItem.minX) * 0.5;
+          const prevX = fkItem.mesh.position.x;
+          const nextX = midX + Math.sin(cyc) * halfSpan;
+          fkItem.mesh.position.x = nextX;
+          fkItem.mesh.rotation.y = (nextX >= prevX) ? (Math.PI / 2) : (-Math.PI / 2);
+          if (fkItem.forkCarriage) {
+            fkItem.forkCarriage.position.y = 0.38 + (Math.sin(cyc * 2.2) * 0.5 + 0.5) * 1.85;
+          }
+        });
+
+        // Animate 2 Free-Roaming Tractor Trains (Train #0 on Lower Aircraft Apron Island; Train #1 on Upper UPS & ULD Island)
+        tractorTrains.forEach((tr, trIdx) => {
           const dx = tr.targetX - tr.x;
           const dz = tr.targetZ - tr.z;
           const dist = Math.hypot(dx, dz);
 
-          // Pick a new random roaming waypoint across the ENTIRE Giant Rectangular Dynamic Island (North Apron, South Apron, East/West Perimeter, Central Road)!
           if (dist < 2.2) {
-            const islandWideZones = [
-              { xMin: -74.0, xMax: 74.0, zMin: -28.0, zMax: -22.0 }, // Top UPS HKG Gateway service road
-              { xMin: -74.0, xMax: 74.0, zMin: -16.0, zMax: 2.0 },   // Upper 8 Parking Bays (01-08)
-              { xMin: -74.0, xMax: 74.0, zMin: 26.0, zMax: 48.0 },   // Bottom 8 Parking Bays (09-16)
-              { xMin: -78.0, xMax: -68.0, zMin: -46.0, zMax: 48.0 }, // West full-island corridor
-              { xMin: 68.0, xMax: 78.0, zMin: -46.0, zMax: 48.0 }    // East full-island corridor
-            ];
-            const chosenZone = islandWideZones[Math.floor(Math.random() * islandWideZones.length)];
-            tr.targetX = chosenZone.xMin + Math.random() * (chosenZone.xMax - chosenZone.xMin);
-            tr.targetZ = chosenZone.zMin + Math.random() * (chosenZone.zMax - chosenZone.zMin);
+            if (trIdx === 1) {
+              // Shuttle along the Upper Service Road (z=-42.2) and the new Middle Connecting Road (z=-33.5) between UPS Building, ULD Control & Lower Bays
+              const useMidRoad = Math.random() < 0.55;
+              tr.targetX = -84.0 + Math.random() * 186.0;
+              tr.targetZ = useMidRoad ? (-34.8 + Math.random() * 2.6) : (-43.2 + Math.random() * 2.2);
+            } else {
+              // Lower Island: roam across the enlarged 22 aircraft parking bays & taxiway corridors (z = -18..+64)
+              const lowerZones = [
+                { xMin: -82.0, xMax: 102.0, zMin: 4.5,  zMax: 10.5 },
+                { xMin: -82.0, xMax: 102.0, zMin: 35.5, zMax: 42.5 },
+                { xMin: -88.0, xMax: -80.0, zMin: -18.0, zMax: 62.0 }
+              ];
+              const chosenZone = lowerZones[Math.floor(Math.random() * lowerZones.length)];
+              tr.targetX = chosenZone.xMin + Math.random() * (chosenZone.xMax - chosenZone.xMin);
+              tr.targetZ = chosenZone.zMin + Math.random() * (chosenZone.zMax - chosenZone.zMin);
+            }
           }
 
           // Smoothly steer yaw toward target waypoint
@@ -10819,9 +11519,13 @@
           tr.x += Math.sin(tr.yaw) * moveSpd;
           tr.z += Math.cos(tr.yaw) * moveSpd;
 
-          // Keep within the Giant Rectangular Dynamic Island bounds (-79..+79, -48..+48)
-          tr.x = Math.max(-79.0, Math.min(79.0, tr.x));
-          tr.z = Math.max(-52.0, Math.min(52.0, tr.z));
+          if (trIdx === 1) {
+            tr.x = Math.max(-104.0, Math.min(104.0, tr.x));
+            tr.z = Math.max(-46.5, Math.min(-31.0, tr.z));
+          } else {
+            tr.x = Math.max(-108.0, Math.min(108.0, tr.x));
+            tr.z = Math.max(-22.0, Math.min(66.0, tr.z));
+          }
 
           tr.head.position.set(tr.x, 0, tr.z);
           tr.head.rotation.y = tr.yaw;
@@ -10855,7 +11559,7 @@
 
         // UPS Cargo Drone hovering & lifting off from Central Rectangular UPS Building
         if (upsDrone) {
-          upsDrone.position.y = 10.8 + Math.sin(elapsed * 2.2) * 0.95;
+          upsDrone.position.y = 13.5 + Math.sin(elapsed * 2.2) * 0.95;
           upsDrone.rotation.y = Math.sin(elapsed * 0.8) * 0.45;
         }
 
@@ -11130,11 +11834,11 @@
           for (let i = 0; i < rainCount; i++) {
             let rx = rAttr.getX(i) + windSlant;
             let ry = rAttr.getY(i) - fallSpeed;
-            if (ry < -1) {
-              ry = 44;
-              rx = (Math.random() - 0.5) * 130;
+            if (ry < 2) {
+              ry = 62;
+              rx = (Math.random() - 0.5) * 190;
             }
-            if (rx > 65) rx = -65;
+            if (rx > 95) rx = -95;
             rAttr.setX(i, rx);
             rAttr.setY(i, ry);
           }
@@ -11216,8 +11920,16 @@
       });
     });
 
-    // Initialize everything on load
-    window.onload = () => {
+    // Initialize everything immediately when DOM is ready (and re-sync HUD scale on window load)
+    let _appInitCompleted = false;
+    function initializeGatewayApp() {
+      if (_appInitCompleted) {
+        updateResponsiveHUDScale();
+        return;
+      }
+      _appInitCompleted = true;
+      updateResponsiveHUDScale();
+      renderUpperIslandRoleBubbles();
       applyFestivalTheme(operationPlan.festivalTheme || state.festivalTheme || 'halloween', true);
       renderOperationPlanTable();
       renderSelectedIslandDetail('UPS');
@@ -11228,7 +11940,9 @@
       fetchFlightradar24UPSHKG();
       drawCharts();
       animate();
-    };
+    }
+    window.onload = initializeGatewayApp;
+    initializeGatewayApp();
   </script>
 </body>
 </html>
