@@ -289,37 +289,68 @@
       letter-spacing: 0.03em;
     }
     .speech-bubble {
+      --bubble-scale: 1;
       position: absolute;
-      transform: translate(-50%, -100%);
+      transform-origin: bottom center;
+      transform: translate(-50%, -100%) scale(var(--bubble-scale, 1));
       pointer-events: auto;
       cursor: pointer;
-      background: rgba(15, 23, 42, 0.16);
-      border-radius: 12px;
-      padding: 6px 10px;
-      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.12), 0 0 0 1.5px rgba(251, 191, 36, 0.7);
-      max-width: 195px;
-      min-width: 130px;
-      font-size: 10.5px;
-      line-height: 1.35;
+      background: rgba(15, 23, 42, 0.12);
+      backdrop-filter: blur(2.5px);
+      -webkit-backdrop-filter: blur(2.5px);
+      border-radius: 16px;
+      padding: 10px 13px;
+      box-shadow: 0 8px 26px rgba(15, 23, 42, 0.18), 0 0 0 2px rgba(251, 191, 36, 0.85);
+      max-width: 360px;
+      min-width: 245px;
+      font-size: 13px;
+      line-height: 1.38;
       color: #ffffff;
       text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
-      transition: opacity 0.25s ease, transform 0.25s ease, background 0.2s ease;
-      z-index: 20;
+      transition: opacity 0.22s ease, transform 0.22s ease, background 0.2s ease, box-shadow 0.2s ease;
+      z-index: 22;
     }
     .speech-bubble:hover {
-      background: rgba(15, 23, 42, 0.32);
+      background: rgba(15, 23, 42, 0.24);
+      box-shadow: 0 12px 32px rgba(15, 23, 42, 0.28), 0 0 0 2.5px #fde047;
+      z-index: 36;
     }
     .speech-bubble::after {
       content: '';
       position: absolute;
-      bottom: -5px;
+      bottom: -6px;
       left: 50%;
       transform: translateX(-50%) rotate(45deg);
-      width: 10px;
-      height: 10px;
+      width: 12px;
+      height: 12px;
       background: transparent;
-      border-right: 1.5px solid rgba(251, 191, 36, 0.75);
-      border-bottom: 1.5px solid rgba(251, 191, 36, 0.75);
+      border-right: 2px solid rgba(251, 191, 36, 0.85);
+      border-bottom: 2px solid rgba(251, 191, 36, 0.85);
+    }
+    .speech-bubble.top-row-aircraft-bubble {
+      transform-origin: top center;
+      transform: translate(-50%, 0) scale(var(--bubble-scale, 1));
+    }
+    .speech-bubble.right-serviceable-bubble {
+      position: relative;
+      transform-origin: top left;
+      transform: none;
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      padding: 10px 12px;
+      background: #faf8f5 !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      border: 1.5px solid #ffffff !important;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.16) !important;
+      border-radius: 16px !important;
+      color: #0f172a !important;
+      text-shadow: none !important;
+      z-index: 28;
+    }
+    .speech-bubble.right-serviceable-bubble::after {
+      display: none;
     }
     .glass-card {
       background: rgba(250, 248, 245, 0.93);
@@ -399,18 +430,19 @@
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 3px;
-      padding: 1.5px 6px;
-      border-radius: 5px;
-      background: rgba(15, 23, 42, 0.18);
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 9px;
+      background: rgba(15, 23, 42, 0.16);
+      backdrop-filter: blur(2.5px);
       color: #ffffff;
       text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
-      border: 1px solid rgba(251, 191, 36, 0.7);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
-      font-size: 9.5px;
-      font-weight: 700;
+      border: 1.5px solid rgba(251, 191, 36, 0.85);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+      font-size: 13px;
+      font-weight: 800;
       white-space: nowrap;
-      z-index: 22;
+      z-index: 24;
     }
     .staff-badge:hover {
       transform: translate(-50%, -108%) scale(1.08);
@@ -418,13 +450,13 @@
       z-index: 35;
     }
     .staff-badge .role-tag {
-      padding: 1px 4px;
-      border-radius: 3px;
-      font-size: 9px;
+      padding: 2px 7px;
+      border-radius: 5px;
+      font-size: 12px;
       font-weight: 900;
       color: #0f172a;
       text-shadow: none;
-      background: rgba(251, 191, 36, 0.85);
+      background: rgba(251, 191, 36, 0.92);
     }
     .crew-board {
       position: absolute;
@@ -449,7 +481,7 @@
       width: 100%;
       height: 100%;
       pointer-events: none;
-      z-index: 14;
+      z-index: 4;
     }
     #flash-overlay {
       position: absolute;
@@ -482,63 +514,16 @@
   <!-- Foreground 3D Weather Animation Layer (Clouds, Rain, Lightning, Sun/Moon, Stars cover the rear Bulletin Board) -->
   <div id="weather-canvas-container"></div>
 
-  <!-- TOP-LEFT STACK: (1) UPS HKG GATEWAY WEATHER CARD + (2) SEPARATED FLIGHT INFORMATION CARD BELOW IT -->
-  <div id="top-left-hud-stack" class="fixed top-3 left-3 z-30 flex flex-col gap-2.5 max-w-[330px] sm:max-w-[360px]" style="transform-origin: top left;">
-    <!-- Card 1: UPS HKG Gateway Weather Card -->
-    <div class="glass-card rounded-2xl px-4 py-3">
-      <div class="flex items-center justify-between gap-2">
-        <span class="text-[10px] font-bold tracking-widest uppercase text-slate-400">HKG · CHEK LAP KOK · 3D Gateway</span>
-        <span id="api-status-badge" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-700">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 live-dot"></span>
-          <span id="api-status-text">全自動同步 · 1s</span>
-        </span>
-      </div>
-      <div class="flex items-center gap-2 mt-1">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/United_Parcel_Service_logo_2014.svg" alt="UPS Logo" class="w-6 h-7 object-contain flex-shrink-0 drop-shadow-sm" />
-        <h1 class="text-lg sm:text-xl font-black tracking-tight text-slate-900">UPS HKG Gateway</h1>
-        <span class="inline-flex items-center gap-1 text-xs font-bold text-amber-700 bg-amber-100/90 px-2 py-0.5 rounded-full">
-          <span class="w-2 h-2 rounded-full bg-amber-500"></span>
-          <span id="header-phase-badge">赤鱲角 · 上午</span>
-        </span>
-      </div>
-
-      <!-- Live Chek Lap Kok Weather Strip inside Top-Left Card -->
-      <div class="mt-2.5 pt-2.5 border-t border-slate-200/80 grid grid-cols-4 gap-1.5 text-center">
-        <div class="bg-white/80 rounded-xl py-1.5 px-1 border border-slate-200/60">
-          <div class="text-[10px] text-slate-400 font-semibold">赤鱲角氣溫</div>
-          <div id="metric-temp" class="text-sm font-extrabold text-slate-800">27.0°C</div>
-        </div>
-        <div class="bg-white/80 rounded-xl py-1.5 px-1 border border-slate-200/60">
-          <div class="text-[10px] text-slate-400 font-semibold">相對濕度</div>
-          <div id="metric-hum" class="text-sm font-extrabold text-sky-700">56%</div>
-        </div>
-        <div class="bg-white/80 rounded-xl py-1.5 px-1 border border-slate-200/60">
-          <div class="text-[10px] text-slate-400 font-semibold">風向風速</div>
-          <div id="metric-wind" class="text-xs font-extrabold text-teal-700">北 20km/h</div>
-        </div>
-        <div class="bg-white/80 rounded-xl py-1.5 px-1 border border-slate-200/60">
-          <div class="text-[10px] text-slate-400 font-semibold">過去雨量</div>
-          <div id="metric-rain" class="text-sm font-extrabold text-indigo-700">0 mm</div>
-        </div>
-      </div>
-
-      <!-- Chek Lap Kok 24h Temperature & Weather Chart Button inside Top-Left Weather Info Card -->
-      <div class="mt-2 pt-2 border-t border-slate-200/80 flex items-center justify-between gap-2">
-        <span class="text-[10px] font-bold text-slate-500">📊 赤鱲角 24小時氣象趨勢</span>
-        <button id="btn-open-chart" class="px-3 py-1 rounded-full text-[11px] font-extrabold bg-sky-600 text-white shadow-sm hover:bg-sky-500 transition flex items-center gap-1 border border-sky-400/40">
-          赤鱲角氣溫圖表
-        </button>
-      </div>
-
-      <!-- Active Weather Warnings Banner (only shown when an actual HKO warning is in effect) -->
-      <div id="warning-strip" class="hidden mt-2 flex-wrap items-center gap-1.5"></div>
-    </div>
-
-    <!-- Card 2: Separated Standalone Flight Information Card Directly Below UPS HKG Gateway Card -->
-    <div class="glass-card rounded-2xl px-3.5 py-3">
+  <!-- TOP-LEFT STACK: (1) FLIGHT INFORMATION CARD AT TOP-LEFT + (2) SERVICEABLE BREAKDOWN BUBBLE DIRECTLY BELOW IT -->
+  <div id="top-left-hud-stack" class="fixed top-3 left-3 z-30 flex flex-col gap-2.5 w-[355px] sm:w-[405px]" style="transform-origin: top left;">
+    <!-- Card 1 (Top-Left): Standalone Flight Information Card -->
+    <div id="top-left-flight-card" class="glass-card rounded-2xl px-3.5 py-2.5">
       <a href="https://www.hongkongairport.com/tc/flights/arrivals/cargo.page" id="hud-fr24-tick" class="hidden" aria-hidden="true"></a>
-      <div id="hud-fr24-mini-list" class="grid grid-cols-2 gap-1.5 text-[9.5px] max-h-[260px] overflow-y-auto custom-scroll"></div>
+      <div id="hud-fr24-mini-list" class="grid grid-cols-2 gap-1.5 text-[10px] max-h-[240px] overflow-y-auto custom-scroll"></div>
     </div>
+
+    <!-- Card 2 (Directly Below Left Flight Info Card): Serviceable Breakdown Bubble Slot -->
+    <div id="left-serviceable-bubble-slot" class="w-full"></div>
   </div>
 
   <!-- OLD DETAIL CARD REMOVED VISUALLY PER USER REQUEST (DOM IDs preserved inside hidden container so no function is affected) -->
@@ -554,11 +539,58 @@
     <div id="detail-facilities"></div>
   </div>
 
-  <!-- ULTRA-SLIM UNIFIED BOTTOM FLOATING DOCK (Matches Approved Preview Image: 50%+ Height Reduction) -->
+  <!-- ULTRA-SLIM UNIFIED BOTTOM FLOATING DOCK: (LEFT) UPS HKG GATEWAY WEATHER BAR + (RIGHT) MAIN CONTROL DOCK SIDE-BY-SIDE (平排放) -->
   <div id="bottom-dock-wrapper" class="fixed bottom-2 left-1/2 -translate-x-1/2 z-30 w-max max-w-[99vw]">
-    <div id="bottom-dock-card" class="glass-card rounded-2xl px-3 py-1.5 flex flex-col items-center justify-center gap-1 shadow-xl border border-white/90" style="transform-origin: bottom center;">
+    <div id="bottom-unified-row" class="flex flex-row flex-nowrap items-stretch justify-center gap-2 whitespace-nowrap" style="transform-origin: bottom center;">
+      <!-- Left Bottom Bar: UPS HKG Gateway Weather Info Bar (same solid-feel rounded-2xl pill shape, strictly side-by-side with Bottom Dock) -->
+      <div id="bottom-weather-card" class="glass-card !bg-[#faf8f5] rounded-2xl px-3 py-1.5 flex flex-col items-center justify-between gap-1 shadow-xl border border-white shrink-0">
+        <!-- Top Slim Row: UPS Logo + Title + Phase Badge + Sync Badge + 24h Chart Button -->
+        <div class="w-full flex flex-nowrap items-center justify-between gap-2 px-1">
+          <div class="flex items-center gap-1.5">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/United_Parcel_Service_logo_2014.svg" alt="UPS Logo" class="w-4 h-5 object-contain flex-shrink-0 drop-shadow-sm" />
+            <h1 class="text-sm sm:text-base font-black tracking-tight text-slate-900 leading-none">UPS HKG Gateway</h1>
+            <span class="inline-flex items-center gap-1 text-[10px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full leading-none">
+              <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+              <span id="header-phase-badge">赤鱲角 · 上午</span>
+            </span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span id="api-status-badge" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9.5px] font-semibold bg-emerald-100 text-emerald-800 leading-none">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 live-dot"></span>
+              <span id="api-status-text">全自動同步 · 1s</span>
+            </span>
+            <button id="btn-open-chart" class="px-2.5 py-0.5 rounded-full text-[10.5px] font-extrabold bg-sky-600 text-white shadow-sm hover:bg-sky-500 transition flex items-center gap-1 border border-sky-400/40 leading-tight">
+              赤鱲角氣溫圖表
+            </button>
+          </div>
+        </div>
+
+        <!-- Bottom Slim Row: 4 Weather Metrics in One Single Horizontal Strip + Active HKO Warnings -->
+        <div class="w-full flex items-center justify-center gap-1.5 flex-nowrap">
+          <div class="bg-white rounded-full py-0.5 px-2.5 border border-slate-200/90 flex items-center gap-1 shadow-sm">
+            <span class="text-[10px] text-slate-500 font-bold">赤鱲角氣溫</span>
+            <span id="metric-temp" class="text-[11.5px] font-black text-slate-900">27.0°C</span>
+          </div>
+          <div class="bg-white rounded-full py-0.5 px-2.5 border border-slate-200/90 flex items-center gap-1 shadow-sm">
+            <span class="text-[10px] text-slate-500 font-bold">相對濕度</span>
+            <span id="metric-hum" class="text-[11.5px] font-black text-sky-700">56%</span>
+          </div>
+          <div class="bg-white rounded-full py-0.5 px-2.5 border border-slate-200/90 flex items-center gap-1 shadow-sm">
+            <span class="text-[10px] text-slate-500 font-bold">風向風速</span>
+            <span id="metric-wind" class="text-[11px] font-black text-teal-700">北 20km/h</span>
+          </div>
+          <div class="bg-white rounded-full py-0.5 px-2.5 border border-slate-200/90 flex items-center gap-1 shadow-sm">
+            <span class="text-[10px] text-slate-500 font-bold">過去雨量</span>
+            <span id="metric-rain" class="text-[11.5px] font-black text-indigo-700">0 mm</span>
+          </div>
+          <div id="warning-strip" class="hidden items-center gap-1"></div>
+        </div>
+      </div>
+
+      <!-- Right Bottom Bar: Main Time & Quick Action Control Dock -->
+      <div id="bottom-dock-card" class="glass-card !bg-[#faf8f5] rounded-2xl px-3 py-1.5 flex flex-col items-center justify-between gap-1 shadow-xl border border-white shrink-0">
       <!-- Top Slim Row: Compact HK Time + Unified Dark Status Pill -->
-      <div class="w-full flex flex-wrap items-center justify-between gap-2 px-1">
+      <div class="w-full flex flex-nowrap items-center justify-between gap-2 px-1">
         <div class="flex items-center gap-1.5">
           <div id="hk-clock-time" class="text-base sm:text-lg font-black font-mono tracking-tight text-slate-900 leading-none">08:42:00</div>
           <span class="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[9px] font-extrabold leading-tight">香港<br/>時間</span>
@@ -573,7 +605,7 @@
       </div>
 
       <!-- Bottom Slim Row: All Quick Action & Scene Toggle Buttons in One Low-Profile Strip -->
-      <div class="flex items-center justify-center gap-1 flex-wrap">
+      <div class="flex items-center justify-center gap-1 flex-nowrap">
         <button id="btn-cam-panorama" class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-slate-900 text-white shadow-sm hover:bg-slate-800 transition">
           全景
         </button>
@@ -587,7 +619,7 @@
         <button id="btn-open-roster" class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-600 text-white shadow-sm hover:bg-emerald-500 transition flex items-center gap-0.5">
           📋 每日工作編排
         </button>
-        <button id="toggle-operation-plan-board" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500 text-slate-950 shadow-sm hover:bg-amber-400 transition flex items-center gap-0.5" title="顯示/隱藏上方 Operation Plan 報告板" aria-pressed="true">
+        <button id="toggle-operation-plan-board" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-200 text-slate-600 shadow-sm hover:bg-slate-300 transition flex items-center gap-0.5" title="顯示/隱藏上方 Operation Plan 報告板" aria-pressed="false">
           📊 Operation Plan
         </button>
         <button id="btn-hud-cloud-sync" class="hidden" aria-hidden="true" title="跨設備雲端即時同步狀態（點擊立即從雲端拉取最新每日工作編排）">
@@ -613,6 +645,7 @@
         <button id="btn-open-help" class="w-6 h-6 rounded-full text-[11px] font-bold bg-white/90 text-slate-700 shadow-sm hover:bg-white transition flex items-center justify-center border border-slate-200/80" title="操作說明">
           ?
         </button>
+      </div>
       </div>
     </div>
 
@@ -1253,7 +1286,7 @@
       activeWarnings: new Set(), // Active warning codes synced automatically from HKO
       showLabels: true,
       showBubbles: true,
-      showOperationPlanBoard: true,
+      showOperationPlanBoard: false,
       showArcs: false,
       autoRotate: false,
       viewLocked: false,
@@ -1339,7 +1372,7 @@
       const h = window.innerHeight || 960;
       const aspect = w / Math.max(1, h);
       const diag = Math.hypot(w, h);
-      return Math.max(1.08, Math.min(1.34, 0.96 + (diag / 2200) * 0.22 + Math.min(0.16, aspect * 0.08)));
+      return Math.max(1.16, Math.min(1.46, 1.04 + (diag / 2100) * 0.24 + Math.min(0.18, aspect * 0.09)));
     }
 
     function getResponsiveCameraZoom() {
@@ -1348,27 +1381,27 @@
       const aspect = w / Math.max(1, h);
       const diag = Math.hypot(w, h);
       if (aspect < 0.85) {
-        // Portrait phones & tablets: keep the entire Dynamic Island enlarged & close
-        return Math.max(1.26, Math.min(1.52, 1.20 + (diag / 1600) * 0.22));
+        // Portrait phones & tablets: further enlarged Dynamic Island
+        return Math.max(1.46, Math.min(1.78, 1.38 + (diag / 1500) * 0.26));
       }
-      // Landscape tablets, laptops, desktops & large monitors: scale up proportionally with screen dimensions
-      return Math.max(1.32, Math.min(1.72, 1.16 + (w / 1920) * 0.26 + (h / 1080) * 0.14));
+      // Landscape tablets, laptops, desktops & large monitors: significantly enlarged Dynamic Island
+      return Math.max(1.58, Math.min(2.12, 1.40 + (w / 1920) * 0.34 + (h / 1080) * 0.18));
     }
 
     function getResponsivePanoramaCameraSpec() {
       const aspect = window.innerWidth / Math.max(1, window.innerHeight);
-      // Enlarged Dynamic Island framing across all screen sizes (closer radius + responsive zoom)
+      // Further enlarged Dynamic Island & shifted upward to utilize more upper screen space (targetY lowered from 20.5 to 7.8)
       const aspectScale = aspect < 1.0
-        ? Math.max(0.92, Math.min(1.22, (0.95 / Math.max(0.48, aspect)) * 0.60))
-        : Math.max(0.75, Math.min(1.08, 1.72 / Math.max(1.0, aspect)));
-      const radius = Math.round(142 * aspectScale);
-      const targetY = +(20.5 * Math.min(1.15, Math.max(0.85, aspect / 1.75))).toFixed(2);
+        ? Math.max(0.88, Math.min(1.16, (0.95 / Math.max(0.48, aspect)) * 0.56))
+        : Math.max(0.72, Math.min(1.02, 1.68 / Math.max(1.0, aspect)));
+      const radius = Math.round(122 * aspectScale);
+      const targetY = +(7.8 * Math.min(1.12, Math.max(0.82, aspect / 1.75))).toFixed(2);
       return {
         targetX: 2.0,
         targetY,
-        targetZ: 8.5,
+        targetZ: 2.0,
         radius,
-        phi: 1.01,
+        phi: 0.99,
         theta: -0.04
       };
     }
@@ -5227,24 +5260,26 @@
       opacity: 0.88
     });
 
-    // 16 Curated 3D Cloud Clusters elevated into the Upper Sky Canopy above the Dynamic Island (y = 26..42, z = -78..-25)
+    // 16 Curated 3D Cloud Clusters placed around the LEFT & RIGHT PERIMETER of the Dynamic Island (放在動態島周邊顯示，絕不遮蓋動態島與氣泡)
     const cloudBandPresets = [
-      { x: -82, y: 34.0, z: -68, sc: 1.18, minX: -125, maxX: 125 },
-      { x: -54, y: 36.5, z: -72, sc: 1.24, minX: -125, maxX: 125 },
-      { x: -24, y: 38.0, z: -74, sc: 1.20, minX: -125, maxX: 125 },
-      { x:   6, y: 39.0, z: -75, sc: 1.28, minX: -125, maxX: 125 },
-      { x:  36, y: 37.5, z: -72, sc: 1.22, minX: -125, maxX: 125 },
-      { x:  66, y: 35.5, z: -68, sc: 1.16, minX: -125, maxX: 125 },
-      { x:  94, y: 36.8, z: -65, sc: 1.22, minX: -125, maxX: 125 },
-      { x: -108, y: 29.5, z: -48, sc: 1.32, minX: -125, maxX: 125 },
-      { x: -72,  y: 31.0, z: -54, sc: 1.22, minX: -125, maxX: 125 },
-      { x: -38,  y: 32.5, z: -56, sc: 1.18, minX: -125, maxX: 125 },
-      { x:   0,  y: 33.0, z: -58, sc: 1.25, minX: -125, maxX: 125 },
-      { x:  42,  y: 31.8, z: -54, sc: 1.20, minX: -125, maxX: 125 },
-      { x:  82,  y: 30.5, z: -50, sc: 1.25, minX: -125, maxX: 125 },
-      { x:  110, y: 29.0, z: -44, sc: 1.30, minX: -125, maxX: 125 },
-      { x: -18,  y: 27.5, z: -42, sc: 1.12, minX: -125, maxX: 125 },
-      { x:  54,  y: 28.0, z: -42, sc: 1.14, minX: -125, maxX: 125 }
+      // Right-hand side perimeter clouds (beside Dynamic Island east edge x = +124..+168)
+      { x: 132, y: 18.0, z: -42, sc: 1.18, minX: 124, maxX: 172 },
+      { x: 148, y: 22.5, z: -24, sc: 1.24, minX: 124, maxX: 172 },
+      { x: 136, y: 14.5, z:  -6, sc: 1.15, minX: 124, maxX: 172 },
+      { x: 154, y: 19.5, z:  12, sc: 1.22, minX: 124, maxX: 172 },
+      { x: 138, y: 12.5, z:  30, sc: 1.16, minX: 124, maxX: 172 },
+      { x: 158, y: 16.5, z:  46, sc: 1.20, minX: 124, maxX: 172 },
+      { x: 128, y: 25.0, z: -58, sc: 1.18, minX: 122, maxX: 168 },
+      { x: 146, y: 27.5, z: -68, sc: 1.22, minX: 122, maxX: 168 },
+      // Left-hand side perimeter clouds (beside Dynamic Island west edge x = -168..-124)
+      { x: -134, y: 16.0, z: -36, sc: 1.16, minX: -172, maxX: -124 },
+      { x: -152, y: 21.0, z: -18, sc: 1.22, minX: -172, maxX: -124 },
+      { x: -138, y: 13.5, z:   2, sc: 1.14, minX: -172, maxX: -124 },
+      { x: -156, y: 18.0, z:  20, sc: 1.20, minX: -172, maxX: -124 },
+      { x: -136, y: 11.5, z:  38, sc: 1.15, minX: -172, maxX: -124 },
+      { x: -150, y: 15.0, z:  52, sc: 1.18, minX: -172, maxX: -124 },
+      { x: -130, y: 24.5, z: -56, sc: 1.16, minX: -168, maxX: -122 },
+      { x: -148, y: 27.0, z: -66, sc: 1.20, minX: -168, maxX: -122 }
     ];
 
     cloudBandPresets.forEach((cp, c) => {
@@ -5411,39 +5446,40 @@
     let upsGatewayUldBubbleEl = null;
     let upsBuildingBicWicBubbleEl = null;
     let uldControlUcBubbleEl = null;
+    let rightServiceableBubbleEl = null;
 
     function updateResponsiveHUDScale() {
       const w = window.innerWidth || 1280;
       const h = window.innerHeight || 800;
       const topLeftEl = document.getElementById('top-left-hud-stack');
-      const bottomDockCardEl = document.getElementById('bottom-dock-card');
+      const bottomUnifiedRowEl = document.getElementById('bottom-unified-row') || document.getElementById('bottom-dock-card');
 
       // Proportional scale factor that grows with larger monitors and shrinks gracefully on compact/mobile screens
       const isPortraitMobile = w < 640;
       const rawScale = Math.min(w / 1360, h / 820);
       const hudScale = isPortraitMobile
         ? Math.max(0.72, Math.min(0.92, w / 460))
-        : Math.max(0.84, Math.min(1.58, Math.pow(rawScale, 0.78) * 1.08));
+        : Math.max(0.84, Math.min(1.42, Math.pow(rawScale, 0.78) * 1.05));
 
       if (topLeftEl) {
         topLeftEl.style.transform = 'none';
-        const natW = topLeftEl.offsetWidth || 350;
-        const natH = topLeftEl.offsetHeight || 420;
-        const maxWidthRatio = isPortraitMobile ? 0.68 : 0.31;
+        const natW = topLeftEl.offsetWidth || 395;
+        const natH = topLeftEl.offsetHeight || 480;
+        const maxWidthRatio = isPortraitMobile ? 0.72 : 0.30;
         const maxAllowedScaleW = (w * maxWidthRatio) / Math.max(1, natW);
-        const maxAllowedScaleH = (h - 105) / Math.max(1, natH);
+        const maxAllowedScaleH = (h - 96) / Math.max(1, natH);
         const finalTopLeftScale = Math.max(0.68, Math.min(hudScale, maxAllowedScaleW, maxAllowedScaleH));
         topLeftEl.style.transformOrigin = 'top left';
         topLeftEl.style.transform = `scale(${finalTopLeftScale.toFixed(4)})`;
       }
 
-      if (bottomDockCardEl) {
-        bottomDockCardEl.style.transform = 'none';
-        const natDockW = bottomDockCardEl.offsetWidth || 760;
-        const maxDockScaleW = (w * 0.96) / Math.max(1, natDockW);
-        const finalDockScale = Math.max(isPortraitMobile ? 0.78 : 0.82, Math.min(hudScale, maxDockScaleW, 1.55));
-        bottomDockCardEl.style.transformOrigin = 'bottom center';
-        bottomDockCardEl.style.transform = `scale(${finalDockScale.toFixed(4)})`;
+      if (bottomUnifiedRowEl) {
+        bottomUnifiedRowEl.style.transform = 'none';
+        const natDockW = bottomUnifiedRowEl.scrollWidth || bottomUnifiedRowEl.offsetWidth || 1260;
+        const maxDockScaleW = (w * 0.985) / Math.max(1, natDockW);
+        const finalDockScale = Math.max(0.42, Math.min(hudScale, maxDockScaleW, 1.38));
+        bottomUnifiedRowEl.style.transformOrigin = 'bottom center';
+        bottomUnifiedRowEl.style.transform = `scale(${finalDockScale.toFixed(4)})`;
       }
     }
 
@@ -5508,13 +5544,17 @@
       });
       labelsLayer.appendChild(upsBuildingBicWicBubbleEl);
 
+      // Create UPS Building Top Speech Bubble sizing update
+      upsBuildingBicWicBubbleEl.style.maxWidth = '390px';
+      upsBuildingBicWicBubbleEl.style.minWidth = '285px';
+
       // Create ULD Control Top Speech Bubble (UC)
       uldControlUcBubbleEl = document.createElement('div');
       uldControlUcBubbleEl.id = 'uld-control-uc-bubble';
       uldControlUcBubbleEl.className = 'speech-bubble';
       uldControlUcBubbleEl.style.display = 'none';
-      uldControlUcBubbleEl.style.maxWidth = '240px';
-      uldControlUcBubbleEl.style.minWidth = '155px';
+      uldControlUcBubbleEl.style.maxWidth = '280px';
+      uldControlUcBubbleEl.style.minWidth = '195px';
       uldControlUcBubbleEl.title = '點擊開啟「每日工作編排」修改 ULD Control (UC) 名單';
       uldControlUcBubbleEl.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -5526,6 +5566,29 @@
         }
       });
       labelsLayer.appendChild(uldControlUcBubbleEl);
+
+      // Create Serviceable Breakdown Bubble directly below the Top-Left Flight Information Card (放在左邊航班資訊欄下)
+      rightServiceableBubbleEl = document.createElement('div');
+      rightServiceableBubbleEl.id = 'right-serviceable-breakdown-bubble';
+      rightServiceableBubbleEl.className = 'speech-bubble right-serviceable-bubble';
+      rightServiceableBubbleEl.style.display = 'block';
+      rightServiceableBubbleEl.title = '點擊開啟「每日工作編排」修改 Serviceable Breakdown 數目字';
+      rightServiceableBubbleEl.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (typeof renderOperationPlanTable === 'function') renderOperationPlanTable();
+        const rm = document.getElementById('roster-modal');
+        if (rm) {
+          rm.classList.remove('hidden');
+          rm.classList.add('flex');
+        }
+      });
+      const leftSlotEl = document.getElementById('left-serviceable-bubble-slot');
+      if (leftSlotEl) {
+        leftSlotEl.innerHTML = '';
+        leftSlotEl.appendChild(rightServiceableBubbleEl);
+      } else {
+        labelsLayer.appendChild(rightServiceableBubbleEl);
+      }
     }
     createProjectedLabels();
     updateResponsiveHUDScale();
@@ -5725,27 +5788,110 @@
         }
       }
 
-      // 1D. Project Upper-Island Role Speech Bubbles:
-      //     (a) Hub BIC/WIC & New warehouse BIC/WIC above UPS Building
-      //     (b) UC above ULD Control
+      // Responsive Bubble Scale Multiplier so all bubbles & their internal contents scale up proportionally on larger screens
+      const isCompactScreen = w < 900;
+      const bubbleScale = isCompactScreen
+        ? Math.max(0.84, Math.min(1.02, w / 860))
+        : Math.max(1.06, Math.min(1.38, 0.92 + (w / 1920) * 0.28 + (h / 1080) * 0.12));
+
+      // 1C. Toggle Serviceable Breakdown Bubble visibility inside #left-serviceable-bubble-slot (放在左邊航班資訊欄下)
+      let rightBubbleObstacle = null;
+      if (rightServiceableBubbleEl) {
+        const shouldShow = state.showBubbles ? 'block' : 'none';
+        if (rightServiceableBubbleEl.style.display !== shouldShow) {
+          rightServiceableBubbleEl.style.display = shouldShow;
+          updateResponsiveHUDScale();
+        }
+      }
+
+      // 2. Arrange ALL Aircraft Loading Work Bubbles in a neat row/grid ABOVE the Dynamic Island (修改所有飛機上方的工作氣泡放在動態島上方排列)
+      const activeAircraftBubbles = [];
+      islandLoadingCrewMap.forEach((crewObj, islandId) => {
+        if (!crewObj.bubbleEl) return;
+        const islGroup = islandMeshesMap.get(islandId);
+        const islData = ISLANDS_DATA.find(i => i.id === islandId);
+        if (!islGroup || !islData || !state.showBubbles || !crewObj.group.visible) {
+          if (crewObj.bubbleEl.style.display !== 'none') crewObj.bubbleEl.style.display = 'none';
+          return;
+        }
+        if (crewObj.bubbleEl.style.display !== 'block') crewObj.bubbleEl.style.display = 'block';
+        crewObj.bubbleEl.classList.add('top-row-aircraft-bubble');
+        activeAircraftBubbles.push({ islandId, el: crewObj.bubbleEl, islData });
+      });
+
+      let topAircraftRowBottomY = 10;
+      if (activeAircraftBubbles.length > 0) {
+        activeAircraftBubbles.sort((a, b) => a.islandId.localeCompare(b.islandId));
+        const bandLeft = (w >= 640 && hudObstacle) ? (hudObstacle.right + 12) : 12;
+        const bandRight = w - 16;
+        const availBandW = Math.max(320, bandRight - bandLeft);
+        const startTopY = (uldObstacle && state.showOperationPlanBoard) ? (uldObstacle.bottom + 8) : 10;
+
+        // Measure natural widths and determine optimal uniform scale so all aircraft work bubbles fit cleanly above the Dynamic Island
+        const count = activeAircraftBubbles.length;
+        const maxCols = Math.max(1, Math.min(count, Math.floor(availBandW / 290) || 1));
+        const gapX = 12;
+        const gapY = 10;
+        const targetColW = (availBandW - gapX * (maxCols - 1)) / maxCols;
+        const sampleNatW = activeAircraftBubbles[0].el.offsetWidth || 300;
+        const fitScale = Math.min(bubbleScale, Math.max(0.82, targetColW / Math.max(250, sampleNatW)));
+
+        let curRow = 0;
+        let curCol = 0;
+        let rowMaxH = 0;
+        let curTopY = startTopY;
+
+        for (let idx = 0; idx < count; idx++) {
+          const item = activeAircraftBubbles[idx];
+          item.el.style.setProperty('--bubble-scale', fitScale.toFixed(3));
+          const natW = item.el.offsetWidth || 300;
+          const natH = item.el.offsetHeight || 135;
+          const sw = natW * fitScale;
+          const sh = natH * fitScale;
+
+          const itemsInThisRow = Math.min(maxCols, count - curRow * maxCols);
+          const totalRowW = itemsInThisRow * sw + (itemsInThisRow - 1) * gapX;
+          const rowStartLeft = bandLeft + Math.max(0, (availBandW - totalRowW) * 0.5);
+          const centerX = rowStartLeft + curCol * (sw + gapX) + sw * 0.5;
+
+          item.el.style.left = `${Math.round(centerX)}px`;
+          item.el.style.top = `${Math.round(curTopY)}px`;
+
+          rowMaxH = Math.max(rowMaxH, sh);
+          topAircraftRowBottomY = Math.max(topAircraftRowBottomY, curTopY + sh + 8);
+          window._topAircraftBubblesBottomY = topAircraftRowBottomY;
+
+          curCol++;
+          if (curCol >= maxCols) {
+            curCol = 0;
+            curRow++;
+            curTopY += rowMaxH + gapY;
+            rowMaxH = 0;
+          }
+        }
+      }
+
+      // 1D. Project Upper-Island Role Speech Bubbles (Hub BIC/WIC above UPS Building & UC above ULD Control) with enlarged scale
       if (upsGroup) {
         if (upsBuildingBicWicBubbleEl) {
           if (!state.showBubbles) {
             if (upsBuildingBicWicBubbleEl.style.display !== 'none') upsBuildingBicWicBubbleEl.style.display = 'none';
           } else {
-            _projVecA.set(-44.0, upsGroup.position.y + 15.8, -58.5).project(camera);
+            _projVecA.set(-44.0, upsGroup.position.y + 16.5, -58.5).project(camera);
             if (_projVecA.z > 1) {
               if (upsBuildingBicWicBubbleEl.style.display !== 'none') upsBuildingBicWicBubbleEl.style.display = 'none';
             } else {
               if (upsBuildingBicWicBubbleEl.style.display !== 'block') upsBuildingBicWicBubbleEl.style.display = 'block';
+              upsBuildingBicWicBubbleEl.style.setProperty('--bubble-scale', bubbleScale.toFixed(3));
               const bx = (_projVecA.x * 0.5 + 0.5) * w;
               const by = (-_projVecA.y * 0.5 + 0.5) * h;
-              const bubW = Math.max(215, upsBuildingBicWicBubbleEl.offsetWidth || 265);
-              const bubH = Math.max(66, upsBuildingBicWicBubbleEl.offsetHeight || 84);
+              const bubW = Math.max(270, upsBuildingBicWicBubbleEl.offsetWidth || 320) * bubbleScale;
+              const bubH = Math.max(85, upsBuildingBicWicBubbleEl.offsetHeight || 105) * bubbleScale;
+              const safeCy = Math.max(topAircraftRowBottomY + bubH * 0.5 + 4, by - bubH * 0.5);
               visibleItems.push({
                 el: upsBuildingBicWicBubbleEl,
                 cx: bx,
-                cy: by - bubH * 0.5,
+                cy: safeCy,
                 w: bubW,
                 h: bubH,
                 weight: 0.35,
@@ -5761,19 +5907,21 @@
           if (!state.showBubbles) {
             if (uldControlUcBubbleEl.style.display !== 'none') uldControlUcBubbleEl.style.display = 'none';
           } else {
-            _projVecA.set(64.5, upsGroup.position.y + 15.8, -64.5).project(camera);
+            _projVecA.set(52.0, upsGroup.position.y + 16.5, -64.5).project(camera);
             if (_projVecA.z > 1) {
               if (uldControlUcBubbleEl.style.display !== 'none') uldControlUcBubbleEl.style.display = 'none';
             } else {
               if (uldControlUcBubbleEl.style.display !== 'block') uldControlUcBubbleEl.style.display = 'block';
+              uldControlUcBubbleEl.style.setProperty('--bubble-scale', bubbleScale.toFixed(3));
               const bx = (_projVecA.x * 0.5 + 0.5) * w;
               const by = (-_projVecA.y * 0.5 + 0.5) * h;
-              const bubW = Math.max(155, uldControlUcBubbleEl.offsetWidth || 185);
-              const bubH = Math.max(52, uldControlUcBubbleEl.offsetHeight || 62);
+              const bubW = Math.max(200, uldControlUcBubbleEl.offsetWidth || 235) * bubbleScale;
+              const bubH = Math.max(68, uldControlUcBubbleEl.offsetHeight || 82) * bubbleScale;
+              const safeCy = Math.max(topAircraftRowBottomY + bubH * 0.5 + 4, by - bubH * 0.5);
               visibleItems.push({
                 el: uldControlUcBubbleEl,
                 cx: bx,
-                cy: by - bubH * 0.5,
+                cy: safeCy,
                 w: bubW,
                 h: bubH,
                 weight: 0.35,
@@ -5785,38 +5933,6 @@
           }
         }
       }
-
-      // 2. Project Aircraft Loading Crew Speech Bubbles (only during 裝機時間)
-      islandLoadingCrewMap.forEach((crewObj, islandId) => {
-        if (!crewObj.bubbleEl) return;
-        const islGroup = islandMeshesMap.get(islandId);
-        const islData = ISLANDS_DATA.find(i => i.id === islandId);
-        if (!islGroup || !islData || !state.showBubbles || !crewObj.group.visible) {
-          if (crewObj.bubbleEl.style.display !== 'none') crewObj.bubbleEl.style.display = 'none';
-          return;
-        }
-        _projVecA.set(islData.x, islGroup.position.y + 5.6, islData.z - 1.8).project(camera);
-        if (_projVecA.z > 1) {
-          if (crewObj.bubbleEl.style.display !== 'none') crewObj.bubbleEl.style.display = 'none';
-        } else {
-          if (crewObj.bubbleEl.style.display !== 'block') crewObj.bubbleEl.style.display = 'block';
-          const bx = (_projVecA.x * 0.5 + 0.5) * w;
-          const by = (-_projVecA.y * 0.5 + 0.5) * h;
-          const bubW = Math.max(210, (crewObj.bubbleEl.offsetWidth || 240));
-          const bubH = Math.max(88, (crewObj.bubbleEl.offsetHeight || 112));
-          // .speech-bubble uses transform: translate(-50%, -100%), so visual center cy is by - bubH * 0.5
-          visibleItems.push({
-            el: crewObj.bubbleEl,
-            cx: bx,
-            cy: by - bubH * 0.5,
-            w: bubW,
-            h: bubH,
-            weight: 0.5,
-            anchorBottom: true,
-            isSpeechBubble: true
-          });
-        }
-      });
 
       // 2C. Project Runway Landing (降落) & Takeoff (起飛) Aircraft Badges
       runwayChibiPlanes.forEach((rwObj) => {
@@ -5892,13 +6008,28 @@
           }
         }
 
+        // 2B) Avoid Right-Hand Serviceable Breakdown Bubble
+        if (rightBubbleObstacle && w >= 640) {
+          const ovRX = (item.cx + halfW > rightBubbleObstacle.left) && (item.cx - halfW < rightBubbleObstacle.right);
+          const ovRY = (item.cy - halfH < rightBubbleObstacle.bottom) && (item.cy + halfH > rightBubbleObstacle.top);
+          if (ovRX && ovRY) {
+            const pushLeftCx = rightBubbleObstacle.left - halfW - 4;
+            const pushDownCy = rightBubbleObstacle.bottom + halfH + 4;
+            if (item.cx - pushLeftCx < pushDownCy - item.cy) {
+              item.cx = pushLeftCx;
+            } else {
+              item.cy = pushDownCy;
+            }
+          }
+        }
+
         // 3) Clamp inside safe viewport bounds (dynamically respecting scaled bottom floating dock height)
-        const dockCardEl = document.getElementById('bottom-dock-card');
+        const dockCardEl = document.getElementById('bottom-dock-wrapper') || document.getElementById('bottom-dock-card');
         const dockRect = dockCardEl ? dockCardEl.getBoundingClientRect() : null;
         const dockBottomClearance = (dockRect && dockRect.height > 0) ? Math.max(74, h - dockRect.top + 8) : 74;
         const minCx = halfW + 8;
         const maxCx = Math.max(minCx, w - halfW - 8);
-        const minCy = halfH + 8;
+        const minCy = Math.max(halfH + 8, item.isUpperIslandBubble ? (topAircraftRowBottomY + halfH + 4) : (halfH + 8));
         const maxCy = Math.max(minCy, h - halfH - dockBottomClearance);
         item.cx = Math.max(minCx, Math.min(maxCx, item.cx));
         item.cy = Math.max(minCy, Math.min(maxCy, item.cy));
@@ -6201,16 +6332,17 @@
       if (!camera) return;
       const w = window.innerWidth || 1280;
       const h = window.innerHeight || 800;
-      // Place 3D Sun / Crescent Moon in the UPPER SKY area (上方顯示天氣動畫)
-      const targetPxX = Math.max(w - 68, w * 0.93);
-      const arcOffsetY = (1.0 - Math.sin(progress01 * Math.PI)) * 28;
-      const targetPxY = Math.max(54, Math.min(130, 62 + arcOffsetY));
+      // Place 3D Sun / Crescent Moon on the RIGHT PERIMETER beside the Dynamic Island (放在動態島周邊顯示，不遮蓋動態島與上方氣泡)
+      const targetPxX = Math.max(w - 62, w * 0.94);
+      const arcOffsetY = (1.0 - Math.sin(progress01 * Math.PI)) * 34;
+      const minTopClear = Math.max(155, (window._topAircraftBubblesBottomY || 145) + 36);
+      const targetPxY = Math.max(minTopClear, Math.min(h - 155, minTopClear + 22 + arcOffsetY));
 
       const ndcX = (targetPxX / w) * 2 - 1;
       const ndcY = -(targetPxY / h) * 2 + 1;
       _celRightNdcVec.set(ndcX, ndcY, 0.5).unproject(camera);
       _celRightDirVec.copy(_celRightNdcVec).sub(camera.position).normalize();
-      sunOrb.position.copy(camera.position).addScaledVector(_celRightDirVec, 145);
+      sunOrb.position.copy(camera.position).addScaledVector(_celRightDirVec, 148);
       sunOrb.lookAt(camera.position);
     }
 
@@ -6645,10 +6777,10 @@
 
       if (visibleCodes.length === 0) {
         strip.classList.add('hidden');
-        strip.classList.remove('flex');
+        strip.classList.remove('inline-flex');
       } else {
         strip.classList.remove('hidden');
-        strip.classList.add('flex');
+        strip.classList.add('inline-flex');
         visibleCodes.forEach(code => {
           const item = HKO_WARNINGS_CATALOG.find(w => w.code === code) || {
             code,
@@ -8660,34 +8792,110 @@
 
       if (upsBuildingBicWicBubbleEl) {
         upsBuildingBicWicBubbleEl.innerHTML = `
-          <div class="flex items-center justify-between border-b border-white/25 pb-1 mb-1 gap-2">
-            <span class="text-[10px] font-black text-amber-300">🏢 UPS 大樓 · 值班主管編排</span>
-            <span class="text-[9px] font-mono bg-amber-500/80 text-slate-950 font-black px-1.5 py-0.2 rounded">BIC / WIC</span>
+          <div class="flex items-center justify-between border-b border-white/25 pb-1.5 mb-2 gap-2">
+            <span class="text-[13px] font-black text-amber-300">🏢 UPS 大樓 · 值班主管編排</span>
+            <span class="text-[11.5px] font-mono bg-emerald-500 text-slate-950 font-black px-2 py-0.5 rounded" style="text-shadow:none;">BIC / WIC</span>
           </div>
-          <div class="grid grid-cols-2 gap-1 text-[9.5px] leading-snug">
-            <div class="bg-amber-500/25 px-1.5 py-0.5 rounded border border-amber-400/75"><span class="text-amber-300 font-black">Hub BIC</span> <span class="text-white font-bold">${escapeHtmlStr(hubBicNames)}</span></div>
-            <div class="bg-amber-500/25 px-1.5 py-0.5 rounded border border-amber-400/75"><span class="text-amber-300 font-black">Hub WIC</span> <span class="text-white font-bold">${escapeHtmlStr(hubWicNames)}</span></div>
-            <div class="bg-amber-500/25 px-1.5 py-0.5 rounded border border-amber-400/75"><span class="text-amber-300 font-black">New warehouse BIC</span> <span class="text-white font-bold">${escapeHtmlStr(newWhBicNames)}</span></div>
-            <div class="bg-amber-500/25 px-1.5 py-0.5 rounded border border-amber-400/75"><span class="text-amber-300 font-black">New warehouse WIC</span> <span class="text-white font-bold">${escapeHtmlStr(newWhWicNames)}</span></div>
+          <div class="grid grid-cols-2 gap-1.5 text-[12px] leading-snug">
+            <div class="bg-slate-900/95 text-white px-2.5 py-1 rounded-lg flex items-center justify-between gap-2 border border-emerald-400/70"><span class="font-mono font-bold text-amber-300">Hub BIC</span> <span class="px-1.5 py-0.5 rounded font-mono text-[11.5px] font-black bg-emerald-500 text-slate-950" style="text-shadow:none;">${escapeHtmlStr(hubBicNames)}</span></div>
+            <div class="bg-slate-900/95 text-white px-2.5 py-1 rounded-lg flex items-center justify-between gap-2 border border-emerald-400/70"><span class="font-mono font-bold text-amber-300">Hub WIC</span> <span class="px-1.5 py-0.5 rounded font-mono text-[11.5px] font-black bg-emerald-500 text-slate-950" style="text-shadow:none;">${escapeHtmlStr(hubWicNames)}</span></div>
+            <div class="bg-slate-900/95 text-white px-2.5 py-1 rounded-lg flex items-center justify-between gap-2 border border-emerald-400/70"><span class="font-mono font-bold text-amber-300">New WH BIC</span> <span class="px-1.5 py-0.5 rounded font-mono text-[11.5px] font-black bg-emerald-500 text-slate-950" style="text-shadow:none;">${escapeHtmlStr(newWhBicNames)}</span></div>
+            <div class="bg-slate-900/95 text-white px-2.5 py-1 rounded-lg flex items-center justify-between gap-2 border border-emerald-400/70"><span class="font-mono font-bold text-amber-300">New WH WIC</span> <span class="px-1.5 py-0.5 rounded font-mono text-[11.5px] font-black bg-emerald-500 text-slate-950" style="text-shadow:none;">${escapeHtmlStr(newWhWicNames)}</span></div>
           </div>
         `;
       }
 
       if (uldControlUcBubbleEl) {
         uldControlUcBubbleEl.innerHTML = `
-          <div class="flex items-center justify-between border-b border-white/25 pb-1 mb-1 gap-2">
-            <span class="text-[10px] font-black text-amber-300">📦 ULD Control · 貨櫃控制</span>
-            <span class="text-[9px] font-mono bg-amber-500/80 text-slate-950 font-black px-1.5 py-0.2 rounded">UC</span>
+          <div class="flex items-center justify-between border-b border-white/25 pb-1.5 mb-2 gap-2">
+            <span class="text-[13px] font-black text-amber-300">📦 ULD Control · 貨櫃控制</span>
+            <span class="text-[11.5px] font-mono bg-emerald-500 text-slate-950 font-black px-2 py-0.5 rounded" style="text-shadow:none;">UC</span>
           </div>
-          <div class="grid grid-cols-1 gap-1 text-[10px] leading-snug">
-            <div class="bg-amber-500/25 px-1.5 py-0.5 rounded border border-amber-400/75"><span class="text-amber-300 font-black">UC</span> <span class="text-white font-bold">${escapeHtmlStr(ucNames)}</span></div>
+          <div class="grid grid-cols-1 gap-1.5 text-[12.5px] leading-snug">
+            <div class="bg-slate-900/95 text-white px-2.5 py-1 rounded-lg flex items-center justify-between gap-2 border border-emerald-400/70"><span class="font-mono font-bold text-amber-300">UC</span> <span class="px-2 py-0.5 rounded font-mono text-[12px] font-black bg-emerald-500 text-slate-950" style="text-shadow:none;">${escapeHtmlStr(ucNames)}</span></div>
           </div>
         `;
       }
     }
 
+    function renderRightServiceableBreakdownBubble() {
+      if (!rightServiceableBubbleEl) return;
+      const ub = (operationPlan && operationPlan.uldBreakdown) ? operationPlan.uldBreakdown : DEFAULT_OPERATION_PLAN.uldBreakdown;
+      const getVal = (key, fallback = '0') => {
+        const raw = ub[key];
+        return (raw !== undefined && raw !== null && String(raw).trim() !== '') ? escapeHtmlStr(String(raw).trim()) : fallback;
+      };
+      // Solid background cells matching the Bottom Info Bar (#faf8f5 solid card + white solid metric pills + slate-900/amber-500 accents)
+      const makeUldCell = (label, val, valColorCls = 'text-slate-900') => `
+        <div class="bg-white px-2 py-1 rounded-xl flex items-center justify-between gap-1 border border-slate-200/90 shadow-sm">
+          <span class="font-mono font-bold text-slate-500 text-[11.5px] tracking-tight">${label}</span>
+          <span class="font-mono text-[13px] font-black ${valColorCls} leading-none">${val}</span>
+        </div>
+      `;
+
+      // Row 1: AAD / AAY / AAZ / AMP / ALP (1行)
+      const row1Html = [
+        makeUldCell('AAD', getVal('AAD', '65'), 'text-slate-900'),
+        makeUldCell('AAY', getVal('AAY', '39'), 'text-slate-900'),
+        makeUldCell('AAZ', getVal('AAZ', '2'), 'text-slate-900'),
+        makeUldCell('AMP', getVal('AMP', '90'), 'text-slate-900'),
+        makeUldCell('ALP', getVal('ALP', '20'), 'text-slate-900')
+      ].join('');
+
+      // Row 2: AMJ / AMD (1行)
+      const row2Html = [
+        makeUldCell('AMJ', getVal('AMJ', '77'), 'text-teal-700'),
+        makeUldCell('AMD', getVal('AMD', '37'), 'text-teal-700')
+      ].join('');
+
+      // Row 3: PAG / PMC / Lease (1行)
+      const row3Html = [
+        makeUldCell('PAG', getVal('PAG', '44'), 'text-sky-700'),
+        makeUldCell('PMC', getVal('PMC', '179'), 'text-sky-700'),
+        makeUldCell('Lease', getVal('Lease', '0'), 'text-sky-700')
+      ].join('');
+
+      // Row 4: Total (1行 — matches bottom dock's dark slate + amber-500 pill bar)
+      const totalVal = getVal('Total', '553');
+      const row4Html = `
+        <div class="bg-slate-900 px-3 py-1 rounded-full flex items-center justify-between gap-2 shadow-sm">
+          <span class="font-mono font-extrabold text-amber-300 text-[12px] tracking-wide">Total (Serviceable ULD 總數)</span>
+          <span class="px-2.5 py-0.5 rounded-full font-mono text-[13.5px] font-black bg-amber-500 text-slate-950 leading-none">${totalVal}</span>
+        </div>
+      `;
+
+      // Row 5: FCC Q6 / FCC 118, Net / Straps (1行)
+      const row5Html = [
+        makeUldCell('FCC Q6', getVal('FCC96', '12'), 'text-indigo-700'),
+        makeUldCell('FCC 118', getVal('FCC118', '23'), 'text-indigo-700'),
+        makeUldCell('Net', getVal('Net', '478'), 'text-slate-900'),
+        makeUldCell('Straps', getVal('Straps', '520'), 'text-slate-900')
+      ].join('');
+
+      rightServiceableBubbleEl.innerHTML = `
+        <div class="flex items-center justify-between border-b border-slate-200/90 pb-1.5 mb-2 gap-2">
+          <div class="flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+            <span class="text-[13px] font-black text-slate-900 tracking-tight">Serviceable Breakdown</span>
+          </div>
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 live-dot"></span>
+            <span>6:00am 實時統計</span>
+          </span>
+        </div>
+        <div class="flex flex-col gap-1.5">
+          <div class="grid grid-cols-5 gap-1">${row1Html}</div>
+          <div class="grid grid-cols-2 gap-1.5">${row2Html}</div>
+          <div class="grid grid-cols-3 gap-1.5">${row3Html}</div>
+          <div class="grid grid-cols-1">${row4Html}</div>
+          <div class="grid grid-cols-4 gap-1">${row5Html}</div>
+        </div>
+      `;
+    }
+
     function renderUPSGatewayUldBubble() {
       renderUpperIslandRoleBubbles();
+      renderRightServiceableBreakdownBubble();
       if (!upsGatewayUldBubbleEl) return;
       const ub = operationPlan.uldBreakdown || DEFAULT_OPERATION_PLAN.uldBreakdown;
       const flights = (operationPlan && Array.isArray(operationPlan.flights)) ? operationPlan.flights : DEFAULT_OPERATION_PLAN.flights;
@@ -9798,7 +10006,7 @@
 
       if (!crewObj.bubbleEl) {
         const bub = document.createElement('div');
-        bub.className = 'speech-bubble !max-w-[260px] !min-w-[205px] !bg-slate-900/18 !text-white !border !border-amber-400/75';
+        bub.className = 'speech-bubble top-row-aircraft-bubble !max-w-[355px] !min-w-[275px] !bg-slate-900/12 !text-white';
         bub.addEventListener('click', (e) => {
           e.stopPropagation();
           focusOnIsland(islandId);
@@ -9808,19 +10016,20 @@
       }
 
       const lhDisplayVal = lhNamesArr.length > 0 ? lhNamesArr.join(' / ') : (String(flt.lh || '').trim() || '-');
-      const lhChipHtml = `<div class="bg-amber-500/25 px-1.5 py-0.5 rounded border border-amber-400/75"><span class="text-amber-300 font-black">LH</span> <span class="text-white font-bold">${lhDisplayVal}</span></div>`;
+      const lhBadgeClass = (lhDisplayVal && lhDisplayVal !== '-') ? 'bg-emerald-500 text-slate-950' : 'bg-slate-700 text-amber-200';
+      const lhChipHtml = `<div class="bg-slate-900/95 text-white px-2.5 py-1 rounded-lg flex items-center justify-between gap-2 border border-emerald-400/70 shadow-sm"><span class="font-mono font-bold text-amber-300 text-[12px]">LH</span> <span class="px-1.5 py-0.5 rounded font-mono text-[11.5px] font-black ${lhBadgeClass}" style="text-shadow:none;">${escapeHtmlStr(lhDisplayVal)}</span></div>`;
       const deduplicatedSummaryChips = deduplicatedCoreList
-        .map(p => `<div class="bg-amber-500/25 px-1.5 py-0.5 rounded border border-amber-400/75"><span class="text-amber-300 font-black">${p.role}</span> <span class="text-white font-bold">${p.name}</span></div>`)
+        .map(p => `<div class="bg-slate-900/95 text-white px-2.5 py-1 rounded-lg flex items-center justify-between gap-2 border border-emerald-400/70 shadow-sm"><span class="font-mono font-bold text-amber-300 text-[12px]">${escapeHtmlStr(p.role)}</span> <span class="px-1.5 py-0.5 rounded font-mono text-[11.5px] font-black bg-emerald-500 text-slate-950" style="text-shadow:none;">${escapeHtmlStr(p.name)}</span></div>`)
         .concat([lhChipHtml])
         .join('');
 
       const unifiedFltLabel = formatUnified5XFlightTitle(flt.inFlt, flt.outFlt);
       crewObj.bubbleEl.innerHTML = `
-        <div class="flex items-center justify-between border-b border-white/25 pb-1 mb-1">
-          <span class="text-[10px] font-black text-amber-300">💬 裝機作業氣泡 · ${flt.parkingBay || ('停機位 ' + islandId)}</span>
-          <span class="text-[9.5px] font-mono bg-emerald-600/75 text-white px-1.5 py-0.2 rounded">${unifiedFltLabel}</span>
+        <div class="flex items-center justify-between border-b border-white/25 pb-1.5 mb-2 gap-2">
+          <span class="text-[13px] font-black text-amber-300">💬 裝機作業 · [${escapeHtmlStr(flt.parkingBay || ('停機位 ' + islandId))}]</span>
+          <span class="text-[11.5px] font-mono bg-emerald-500 text-slate-950 font-black px-2 py-0.5 rounded shadow-sm" style="text-shadow:none;">${escapeHtmlStr(unifiedFltLabel)}</span>
         </div>
-        <div class="grid grid-cols-2 gap-1 text-[9.5px] leading-snug">
+        <div class="grid grid-cols-2 gap-1.5 text-[12px] leading-snug">
           ${deduplicatedSummaryChips || '<div class="col-span-2 text-slate-100">裝機作業進行中</div>'}
         </div>
       `;
